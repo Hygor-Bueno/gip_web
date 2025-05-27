@@ -620,11 +620,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   }
   // FUNÇÕES PARA ATUALIZAR AS INFORMAÇÕES DA PÁGINA:
-  function reloadPagePercent(value: any, task: any) {
-    setTaskPercent(parseInt(value.percent));
-    if (getTask.length > 0) {
-      getTask[getTask.findIndex(item => item.id == task.task_id)].percent = parseInt(value.percent);
-      setGetTask([...getTask]);
+  function reloadPagePercent(value: any, taskLocal: any) {
+    if (task.id == taskLocal.task_id) {
+      setTaskPercent(parseInt(value.percent));
+      if (getTask.length > 0) {
+        getTask[getTask.findIndex(item => item.id == taskLocal.task_id)].percent = parseInt(value.percent);
+        setGetTask([...getTask]);
+      }
     }
   }
 
