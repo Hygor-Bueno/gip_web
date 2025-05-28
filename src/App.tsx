@@ -15,6 +15,7 @@ import 'animate.css/animate.min.css'; // Animações opcionais
 import { ConnectionProvider } from './Context/ConnContext';
 import Cfpp from './Modules/CFPP/Cfpp';
 import Gapp from './Modules/GAPP/Gapp';
+import Infraction from './Modules/GAPP/Infraction/Infraction';
 
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
           <Route path="/home/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
           <Route path="/home/CFPP" element={withPrivateProvider(<Cfpp />)} />
           <Route path="/home/GAPP" element={withPrivateProvider(<Gapp/>)} />
+          <Route path="/home/Infraction" element={withPrivateProvider(<Infraction />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>

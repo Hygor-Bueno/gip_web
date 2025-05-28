@@ -314,3 +314,87 @@ export function formatarMoedaPTBR(valor: string): string {
         maximumFractionDigits: 2,
     });
 }
+
+export function validateWithRegexAndFormat(
+  type:
+    | 'letters'
+    | 'numbers'
+    | 'email'
+    | 'empty'
+    | 'hasSpaces'
+    | 'allnumber'
+    | 'lettersWithSpaces'
+    | 'alphanumeric'
+    | 'alphanumericWithSpaces'
+    | 'phone'
+    | 'postalCode'
+    | 'cpf'
+    | 'cnpj'
+    | 'password'
+    | 'strongPassword'
+    | 'username'
+    | 'hexColor'
+    | 'ip'
+    | 'url'
+    | 'date'
+    | 'time',
+  value: string
+): { isValid: boolean; formatted?: string | null } {
+
+  // 1. Permitir vazio ou só espaços SEM erro
+  if (/^\s*$/.test(value)) {
+    return { isValid: true, formatted: '' };
+  }
+
+  const patterns = {
+    letters: /^[A-Za-z]+$/,
+    numbers: /^\d+$/,
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    empty: /^\s*$/,
+    hasSpaces: /\s/,
+    allnumber: /^\d+$/,
+    lettersWithSpaces: /^[A-Za-zÀ-ÿ\s]+$/,
+    alphanumeric: /^[A-Za-z0-9]+$/,
+    alphanumericWithSpaces: /^[A-Za-z0-9\s]+$/,
+    phone: /^[\d\s()+-]+$/,
+    postalCode: /^\d{5}-?\d{3}$/,
+    cpf: /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/,
+    cnpj: /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/,
+    password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+    strongPassword: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
+    username: /^[a-zA-Z0-9_]{3,16}$/,
+    hexColor: /^#(?:[0-9a-fA-F]{3}){1,2}$/,
+    ip: /^(?:\d{1,3}\.){3}\d{1,3}$/,
+    url: /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}(\/\S*)?$/i,
+    date: /^\d{2}\/\d{2}\/\d{4}$/,
+    time: /^([01]\d|2[0-3]):([0-5]\d)$/,
+  };
+
+  const formatters: Partial<Record<typeof type, (value: string) => string>> = {
+    cpf: (v) => v.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'),
+    cnpj: (v) => v.replace(/\D/g, '').replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5'),
+    postalCode: (v) => v.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'),
+    phone: (v) => {
+      const digits = v.replace(/\D/g, '');
+      if (digits.length === 11) {
+        return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+      } else if (digits.length === 10) {
+        return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+      }
+      return v;
+    },
+  };
+
+  const regex = patterns[type];
+  const isValid = regex?.test(value) || false;
+
+  if (!isValid) return { isValid: false };
+
+  const formatter = formatters[type];
+  const formatted = formatter ? formatter(value) : undefined;
+
+  return {
+    isValid,
+    formatted: formatted ?? null,
+  };
+}
