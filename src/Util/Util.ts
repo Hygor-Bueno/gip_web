@@ -317,66 +317,25 @@ export function formatarMoedaPTBR(valor: string): string {
     });
 }
 
-type AllowedTypes =
-  | 'numbers'
-  | 'hasSpaces'
-  | 'allnumber'
-  | 'lettersWithSpaces'
-  | 'alphanumeric'
-  | 'alphanumericWithSpaces'
-  | 'cpf'
-  | 'cnpj'
-  | 'date';
+type AllowedTypes ='numbers' | 'hasSpaces' | 'allnumber' | 'lettersWithSpaces' | 'alphanumeric' | 'alphanumericWithSpaces';
 
 export function validateWithRegexAndFormat(
   type: AllowedTypes,
   value: string
 ): { isValid: boolean; formatted?: string | null } {
-
-  if (/^\s*$/.test(value)) {
-    return { isValid: true, formatted: '' };
-  }
-
-  const patterns: Record<AllowedTypes, RegExp> = regexMenu();
-  const formatters: Partial<Record<AllowedTypes, (value: string) => string>> = formartterFunctionsMenu();
-  const regex = patterns[type];
-  const isValid = regex.test(value);
-  if (!isValid) return { isValid: false };
-  const formatter = formatters[type];
-  const formatted = formatter ? formatter(value) : null;
-  return {
-    isValid: true,
-    formatted,
-  };
+  const regex = regexMenu()[type];
+  const isEmpty = /^\s*$/.test(value);
+  const isValid = isEmpty || regex.test(value);
+  return { isValid, formatted: isEmpty ? '' : undefined,};
 }
 
-function regexMenu() {
-    return {
-        numbers: /^\d+$/,
-        hasSpaces: /\s/,
-        allnumber: /^\d+$/,
-        lettersWithSpaces: /^[A-Za-zÀ-ÿ\s]+$/,
-        alphanumeric: /^[A-Za-z0-9]+$/,
-        alphanumericWithSpaces: /^[A-Za-z0-9\s]+$/,
-        cpf: /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/,
-        cnpj: /^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/,
-        date: /^\d{2}\/\d{2}\/\d{4}$/,
+function regexMenu(): Record<AllowedTypes, RegExp> {
+  return {
+    numbers: /^\d+$/,
+    hasSpaces: /\s/,
+    allnumber: /^\d+$/,
+    lettersWithSpaces: /^[A-Za-zÀ-ÿ\s]+$/,
+    alphanumeric: /^[A-Za-z0-9]+$/,
+    alphanumericWithSpaces: /^[A-Za-z0-9\s]+$/,
   };
-};
-
-function formartterFunctionsMenu()  {
-   return {
-        cpf: (v:any) => {
-        const digits = v.replace(/\D/g, '');
-        return digits.length === 11
-            ? digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
-            : v;
-        },
-        cnpj: (v:any) => {
-        const digits = v.replace(/\D/g, '');
-        return digits.length === 14
-            ? digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
-            : v;
-        }
-   };
-};
+}
