@@ -46,7 +46,7 @@ function App() {
           <Route path="/home/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
           <Route path="/home/CFPP" element={withPrivateProvider(<Cfpp />)} />
           <Route path="/home/GAPP" element={withPrivateProvider(<Gapp/>)} />
-          <Route path="/home/Infraction" element={withPrivateProvider(<Infraction />)} />
+          <Route path="/home/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>
