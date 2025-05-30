@@ -1,13 +1,6 @@
 import React, { useMemo, useState } from "react";
 import GenericCardItem from "../../../../../Components/GenericCardItem";
-
-
-interface InfractionItem {
-    infraction: string;
-    points: number;
-    gravitity: string;
-    status_infractions: number;
-}
+import { InfractionItem } from "../../../Business/Interfaces/IFormGender";
 
 interface CardSearchProps {
     items: InfractionItem[];
@@ -91,7 +84,7 @@ const CardSearch: React.FC<CardSearchProps> = ({ items, loading, onEdit, onDelet
                             .slice()
                             .reverse()
                             .map((item: any, index: any) => (
-                                <GenericCardItem<InfractionItem>
+                                <GenericCardItem
                                     key={`card_${index}`}
                                     item={item}
                                     fields={restFields}

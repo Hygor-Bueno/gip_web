@@ -28,7 +28,7 @@ export interface IDataDB {
 
 
 export interface IFormData {
-  id?: string;
+  store_id?: string;
   cnpj: string;
   name: string;
   street: string;
@@ -39,6 +39,14 @@ export interface IFormData {
   zip_code: string;
   complement: string;
   status_store: number;
+}
+
+
+export interface InfractionItem {
+    infraction: string;
+    points: number;
+    gravitity: string;
+    status_infractions: number;
 }
 
 export interface IFormProps {
@@ -62,7 +70,7 @@ export interface IFormProps {
 
 export interface ICardInfoProps {
     setData?: any;
-    setHiddenForm?: any;
+    setHiddenForm?: React.Dispatch<React.SetStateAction<boolean>>;
     visibilityTrash?: any;
     dataStore?: any;
     dataStoreTrash?: any;

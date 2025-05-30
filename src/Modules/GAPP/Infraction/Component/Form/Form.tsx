@@ -1,7 +1,7 @@
 import React from 'react';
 import CustomForm from '../../../../../Components/CustomForm';
 import { handleNotification } from '../../../../../Util/Util';
-import { Connection } from '../../../../../Connection/Connection';
+import { useConnection } from '../../../../../Context/ConnContext';
 import { useMyContext } from '../../../../../Context/MainContext';
 import { fieldsetsFormsInfractions } from '../../mock/configuration';
 import useWindowSize from '../../hook/useWindowSize';
@@ -9,8 +9,8 @@ import useWindowSize from '../../hook/useWindowSize';
 const Form: React.FC<any> = ({data, handleFunction, resetDataStore, resetForm }) => {
   const defaultFunction = () => {};
   const {width} = useWindowSize();
+  const {fetchData} = useConnection();
   const { setLoading } = useMyContext();
-
   const [
     handleInfraction = defaultFunction,
     handleGravitity = defaultFunction,
@@ -18,32 +18,25 @@ const Form: React.FC<any> = ({data, handleFunction, resetDataStore, resetForm })
   ] = handleFunction || [];
 
   const isNewStore = !data?.infraction_id;
-    async function storeData(
-        obj: any,
-        method: 'post' | 'put',
-        conn: any = new Connection('18')
-    ) {
-        try {
-            setLoading(true);
-            const response = await conn[method](obj, 'GAPP/Infraction.php');
-            !response.error
-            ? handleNotification("Sucesso", response.message, "success")
-            : handleNotification("Erro", response.message, "danger");
-            return response.error;
-        } catch (error) {
-            handleNotification("Erro", `${error}`, "danger");
-        } finally {
-            setLoading(false);
-        }
+
+  async function InfractionData(obj: any, method: "POST" | "PUT" = "POST") {
+    try {
+        const response: any = await fetchData({method,params: obj,pathFile: "GAPP/Infraction.php",urlComplement: ""});
+        if(!response.error) throw new Error(obj);
+        return response.error;
+    } catch (error) {
+        console.log(error);
     }
+  }
 
   const editorSendData = async () => {
     try {
+      setLoading(true);
       let result;
       if(isNewStore) {
-        result = await storeData(formatStoreData(data), "post");
+        result = await InfractionData(formatStoreData(data), "POST");
       } else {
-        result = await storeData(formatStoreData(data), "put");
+        result = await InfractionData(formatStoreData(data), "PUT");
       }
       if(!result) {
         if(resetDataStore) resetDataStore();
@@ -51,10 +44,18 @@ const Form: React.FC<any> = ({data, handleFunction, resetDataStore, resetForm })
       }
     } catch (error) {
       handleNotification("Error", String(error).toLowerCase(), "danger");
+    } finally {
+      setLoading(false);
     }
   };
 
-  function formatStoreData (data: any) {
+  function formatStoreData (data: {
+    infraction: any,
+    points: any,
+    gravitity: any,
+    status_infraction: any,
+    infraction_id: any
+  }) {
     return {
       infraction: data?.infraction,
       points: data?.points,

@@ -1,15 +1,15 @@
 import React from 'react';
-import CustomForm from '../../../../Components/CustomForm';
+import CustomForm from '../../../../../Components/CustomForm';
 import { fieldsetsFormsBusiness } from '../../mock/configuration';
-import { consultingCEP, handleNotification } from '../../../../Util/Util';
-import { Connection } from '../../../../Connection/Connection';
-import { IFormData, IFormProps } from '../../Interfaces/IFormGender';
-import { useMyContext } from '../../../../Context/MainContext';
+import { consultingCEP, handleNotification } from '../../../../../Util/Util';
+import { Connection } from '../../../../../Connection/Connection';
+import { IFormProps } from '../../Interfaces/IFormGender';
+import { useMyContext } from '../../../../../Context/MainContext';
 
 
 const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, resetForm, setData }) => {
 
-  const defaultFunction = (value: string) => { };
+  const defaultFunction = (value: string) => {};
   const { setLoading } = useMyContext();
 
   const [
@@ -24,7 +24,7 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
     handleFieldComplement = defaultFunction
   ] = handleFunction || [];
 
-  const isNewStore = !data?.id;
+  const isNewStore = !data?.store_id;
 
   const filter = fieldsetsFormsBusiness(
     handleFildCNPJ,
@@ -41,16 +41,19 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
   );
 
 
-  function searchCEP() {
+  function searchCEP () {
     return consultingCEP(data?.zip_code, setData, setLoading)
   }
 
-  async function postStore(obj: any, conn: any = new Connection('18')) {
+  async function postStore(obj: any, conn:any = new Connection('18')) {
     try {
       setLoading(true);
-      const data = await conn.post(obj, 'GAPP/Store.php');
-      if (data.error) throw new Error(data.message);
-      return data.error;
+      const {success} = await conn.post(obj, 'GAPP/Store.php');
+      success ?
+        handleNotification("Sucesso", "Loja salva com sucesso!", "success") :
+        handleNotification("Erro", "Loja não foi salva!", "danger");
+
+      return success;
     } catch (error) {
       handleNotification("Erro", `${error}`, "danger");
     } finally {
@@ -58,12 +61,14 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
     }
   }
 
-  async function putStore(obj: any, conn: any = new Connection('18')) {
+  async function putStore(obj:any, conn: any = new Connection('18')) {
     try {
       setLoading(true);
-      const data = await conn.put(obj, 'GAPP/Store.php');
-      if (data.error) throw new Error(data.message);
-      return data.error;
+      const {success} = await conn.put(obj, 'GAPP/Store.php');
+      success ?
+        handleNotification("Sucesso", "Loja atualizada com sucesso!", "success") :
+        handleNotification("Erro", "Loja não foi atualizada!", "danger");
+      return success;
     } catch (error) {
       handleNotification("Erro", `${error}`, "danger");
     } finally {
@@ -71,7 +76,7 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
     }
   }
 
-  function formatStoreData(data: any) {
+  function formatStoreData (data: any) {
     return {
       cnpj: data?.cnpj.replace(/[^a-z0-9]/gi, ""),
       name: data?.name,
@@ -90,14 +95,14 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
   const editorSendData = async () => {
     try {
       let result;
-      if (isNewStore) {
+      if(isNewStore) {
         result = await postStore(formatStoreData(data));
       } else {
         result = await putStore(formatStoreData(data));
       }
-      if (result) {
-        if (resetDataStore) resetDataStore();
-        if (resetForm) resetForm();
+      if(result) {
+        if(resetDataStore) resetDataStore();
+        if(resetForm) resetForm();
       }
     } catch (error) {
       handleNotification("Error", String(error).toLowerCase(), "danger");
@@ -113,7 +118,7 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
           className='p-3'
           notButton={false}
           fieldsets={filter}
-        />
+          />
         <div className='row'>
           <div className="d-flex justify-content-center p-2">
             <button className={`btn btn-success w-100`} onClick={editorSendData}>

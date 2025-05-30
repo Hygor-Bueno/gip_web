@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import CardInfo from './Component/CardInfo/CardInfo';
 import Form from './Component/Form/Form';
-import NavBar from '../../Components/NavBar';
-import { listPath } from '../GTPP/mock/configurationfile';
+import NavBar from '../../../Components/NavBar';
+import { listPath } from '../../GTPP/mock/configurationfile';
 import useWindowSize from './hook/useWindowSize';
-import { Connection } from '../../Connection/Connection';
+import { Connection } from '../../../Connection/Connection';
 import { IFormData, IFormGender } from './Interfaces/IFormGender';
-import { useMyContext } from '../../Context/MainContext';
+import { useMyContext } from '../../../Context/MainContext';
 const Gapp: React.FC = () => {
     const [data, setData] = useState<IFormGender>({
         cnpj: "",
@@ -31,20 +31,20 @@ const Gapp: React.FC = () => {
     const { setLoading } = useMyContext();
 
     const connectionBusinessGeneric = async (
-        status: "0" | "1",
+        status: "0" | "1", 
         setData: (data: any) => void
-    ) => {
+      ) => {
         setLoading(true);
         const response = await new Connection("18");
         const data: any = await response.get(`&status_store=${status}`, 'GAPP/Store.php');
         setData(data.data);
         setLoading(false);
-    };
-
-    useEffect(() => {
+      };
+      
+      useEffect(() => {
         connectionBusinessGeneric("1", setDataStore);
         connectionBusinessGeneric("0", setDataStoreTrash);
-    }, []);
+      }, []);
 
     function resetStore() {
         setDataStore([]);

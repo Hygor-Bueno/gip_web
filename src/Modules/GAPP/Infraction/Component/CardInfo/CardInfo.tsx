@@ -1,17 +1,18 @@
 import React, { useRef, useState } from "react";
-import { Connection } from "../../../../../Connection/Connection";
 import ModalConfirm from "../../../../../Components/ModalConfirm";
 import { ICardInfoProps, IFormData } from "../../Interfaces/IFormGender";
 import "../style/style.css";
 import { handleNotification } from "../../../../../Util/Util";
 import { useMyContext } from "../../../../../Context/MainContext";
 import CardSearch from "../CardSearch/CardSearch";
+import { useConnection } from "../../../../../Context/ConnContext";
 
 const CardInfo: React.FC<ICardInfoProps> = ({ setData, setHiddenForm, visibilityTrash, dataStore, dataStoreTrash, resetDataStore}) =>
 {
   const [confirm, setConfirm] = useState(false);
   const currentItemRef = useRef<IFormData | null>(null);
   const { loading, setLoading } = useMyContext();
+  const { fetchData } = useConnection();
   const [confirmAction, setConfirmAction] = useState<"delete" | "recycle" | null>(null);
 
 
@@ -19,12 +20,10 @@ const CardInfo: React.FC<ICardInfoProps> = ({ setData, setHiddenForm, visibility
     try {
       setLoading(true);
       const payload = { ...item, status_infractions: status };
-      const connection = new Connection("15");
-      await connection.put(payload, "GAPP/Infraction.php");
+      await fetchData({method:'PUT', params: payload, pathFile:"GAPP/Infraction.php", urlComplement:""});
       await resetDataStore?.();
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
-      handleNotification("Erro", "Erro no Serviço! " + error, "danger");
     } finally {
       setLoading(false);
     }

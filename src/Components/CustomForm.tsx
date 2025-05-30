@@ -1,5 +1,5 @@
 import React from 'react';
-import '../Modules/GAPP/Component/style/style.css';
+
 
 type CaptureValueArray = Array<
   [

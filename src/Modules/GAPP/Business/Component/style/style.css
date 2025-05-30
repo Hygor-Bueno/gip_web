@@ -43,9 +43,9 @@ label, h1 {
     top: -20%;
 }
 
-.border_gray {
+/* .border_gray {
     border: 1px solid #e1e3e2;
-}
+} */
 
 
 .border_none {
@@ -71,14 +71,14 @@ label, h1 {
         max-height: 90vh;
         flex: auto;
     }
-    
+
 
     .cardTest {
         max-width: 31%;
         width: 100%;
         height: fit-content;
     }
-    
+
 }
 
 @media screen and (max-width: 1024px ){
@@ -138,6 +138,6 @@ label, h1 {
         width: 100%;
         height: fit-content;
     }
-    
-    
+
+
 }

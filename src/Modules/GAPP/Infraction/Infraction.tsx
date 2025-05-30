@@ -4,9 +4,10 @@ import Form from "./Component/Form/Form";
 import NavBar from "../../../Components/NavBar";
 import { listPath } from "../../GTPP/mock/configurationfile";
 import useWindowSize from "./hook/useWindowSize";
-import { Connection } from "../../../Connection/Connection";
 import { IFormData } from "./Interfaces/IFormGender";
 import { useMyContext } from "../../../Context/MainContext";
+import { useConnection } from "../../../Context/ConnContext";
+import { handleNotification } from "../../../Util/Util";
 
 const Infraction: React.FC = () => {
   const [data, setData] = useState<any>({
@@ -20,8 +21,8 @@ const Infraction: React.FC = () => {
   const [hiddenForm, setHiddeForm] = useState(false);
   const [visibilityTrash, setVisibilityTrash] = useState(true);
   const [visibilityList, setVisibilityList] = useState(false);
-
   const { isTablet, isMobile, isDesktop } = useWindowSize();
+  const { fetchData } = useConnection();
   const [dataStore, setDataStore] = useState<IFormData[]>([]);
   const [dataStoreTrash, setDataStoreTrash] = useState<IFormData[]>([]);
 
@@ -30,11 +31,10 @@ const Infraction: React.FC = () => {
   const connectionBusinessGeneric = async (status: "0" | "1",setData: (data: IFormData[]) => void) => {
     setLoading(true);
     try {
-      const response = new Connection("18");
-      const data: any = await response.get(`&status_infractions=${status}`,"GAPP/Infraction.php");
+      const data:any = await fetchData({ method:'GET', params: null, pathFile: "GAPP/Infraction.php", urlComplement:`&status_infractions=${status}`});
       setData(data.data || []);
     } catch (error) {
-      console.error("Erro ao buscar infrações:", error);
+       handleNotification("Erro", `${error}`, "danger");
     } finally {
       setLoading(false);
     }
@@ -69,8 +69,7 @@ const Infraction: React.FC = () => {
           (value: string) => setData((x: any) => ({ ...x, infraction: value })),
           (value: string) => setData((x: any) => ({ ...x, gravitity: value })),
           (value: string) => setData((x: any) => ({ ...x, points: value })),
-          (value: string) =>
-            setData((x: any) => ({ ...x, status_infractions: value })),
+          (value: string) => setData((x: any) => ({ ...x, status_infractions: value })),
         ]}
         resetDataStore={resetStore}
         resetForm={resetForm}

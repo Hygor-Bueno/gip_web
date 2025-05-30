@@ -1,4 +1,5 @@
 import React from "react";
+import { InfractionItem } from "../../Business/Interfaces/IFormGender";
 
 export interface IFormGender {
     cnpj: string;
@@ -72,7 +73,7 @@ export interface ICardInfoProps {
 }
 
 
-export interface GenericCardItemProps<T> {
+export interface GenericCardItemProps<T extends IFormData | InfractionItem> {
   item: T;
   fields: { label: string; key: keyof T }[];
   loading?: boolean;

@@ -14,8 +14,8 @@ import 'react-notifications-component/dist/theme.css'; // Tema básico
 import 'animate.css/animate.min.css'; // Animações opcionais
 import { ConnectionProvider } from './Context/ConnContext';
 import Cfpp from './Modules/CFPP/Cfpp';
-import Gapp from './Modules/GAPP/Gapp';
 import Infraction from './Modules/GAPP/Infraction/Infraction';
+import Gapp from './Modules/GAPP/Business/Gapp';
 
 
 function App() {

@@ -1,5 +1,6 @@
+import { IFormData, InfractionItem } from "../Modules/GAPP/Business/Interfaces/IFormGender";
 import { GenericCardItemProps } from "../Modules/GAPP/Infraction/Interfaces/IFormGender";
-const GenericCardItem = <T,>({
+const GenericCardItem = <T extends IFormData | InfractionItem>({
     item,
     fields,
     loading = false,
