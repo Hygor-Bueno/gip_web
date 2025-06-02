@@ -7,9 +7,9 @@
 .portrait {
   width: 300px;
   position: absolute;
-  top: 0%;
+  top: 2%;
+  right: 2%;
   z-index: 999;
-  left: 101%;
   height: 520px;
   overflow: auto;
 }

@@ -1,43 +1,51 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useMyContext } from './MainContext';
 import WebSocketCLPP from '../Services/Websocket';
-import { Connection } from '../Connection/Connection';
-import { iMessage, iSender, iUser, iWebSocketCLPP, iWebSocketContextType } from '../Interface/iGIPP';
+import { iSender, iUser, iWebSocketContextType } from '../Interface/iGIPP';
 import ContactList from '../Modules/CLPP/Class/ContactList';
-import User from '../Class/User';
+import { handleNotification } from '../Util/Util';
+import { useConnection } from './ConnContext';
+import Contact from '../Class/Contact';
 
 
 const WebSocketContext = createContext<iWebSocketContextType | undefined>(undefined);
 
 export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // const [monitorScroll, setMonitorScroll] = useState<boolean>(false);
-    const [msgLoad, setMsgLoad] = useState<boolean>(true);
-
+    //Variáveis do chat
     const [idReceived, setIdReceived] = React.useState<number>(0);
     const [pageLimit, setPageLimit] = useState<number>(1);
     const [page, setPage] = useState<number>(1);
     const previousScrollHeight = useRef<number>(0);
-
-    const [contactList, setContactList] = useState<iUser[]>([]);
-
     const messagesContainerRef = useRef<HTMLDivElement>(null);
+    const [listMessage, setListMessage] = useState<{ id: number, id_user: number, message: string, notification: number, type: number, date: string }[]>([]);
+    function closeChat() {
+        setIdReceived(0);
+        setPageLimit(1);
+        setPage(1);
+        setListMessage([]);
+        if (previousScrollHeight.current) previousScrollHeight.current = 0;
+    }
 
+    //Variáveis dos contatos
+    const [msgLoad, setMsgLoad] = useState<boolean>(true);
+    const [hasNewMessage, setHasNewMessage] = useState<boolean>(false);
+    const [contactList, setContactList] = useState<Contact[]>([]);
     const [sender, setSender] = useState<iSender>({ id: 0 });
-    // const changeScrollRef = useRef<() => void>(() => { });
-    const [listMessage, setListMessage] = useState<{ id: number, id_user: number, message: string, notification: number, type: number }[]>([]);
+    const [contNotify, setContNotify] = useState<number>(0);
 
     const { setLoading, userLog } = useMyContext();
-    const ws = useRef(new WebSocketCLPP(userLog.session, callbackOnMessage));
+    const { fetchData } = useConnection();
+    const ws = useRef(new WebSocketCLPP(localStorage.getItem("tokenGIPP"), callbackOnMessage));
 
     useEffect(() => {
         // Abre a coonexão com o websocket.
         (async () => {
             try {
-                if (userLog.session) {
+                if (localStorage.tokenGIPP && ws.current && !ws.current.isConnected) {
                     ws.current.connectWebSocket();
                 }
-            } catch (error) {
-                alert(error);
+            } catch (error: any) {
+                handleNotification("Erro no Ws Principal", error.message, "danger");
             }
         })();
         //Carrega a sua lista de contato.
@@ -49,8 +57,12 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             }
         }
         )();
+        return clearChatAll();
     }, [userLog]);
-
+    function clearChatAll() {
+        closeChat();
+        changeChat();
+    }
     // Garante a atualização do callback.
     useEffect(() => {
         ws.current.callbackOnMessage = callbackOnMessage;
@@ -66,9 +78,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                     setPageLimit(req.pages);
                     setListMessage(reloadList(req.data.reverse()));
                 }
-            } catch (error) {
-                console.error(error);
-                alert(error);
+            } catch (error: any) {
+                if (!error.message.includes("No data")) console.error(error);
             }
             setMsgLoad(false);
         };
@@ -76,20 +87,30 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         fetchMessages();
     }, [page, idReceived]);
 
-  
-    // Verifica quando o usuário rola até o topo
-    function handleScroll() {
+    function includesMessage(message: { id: number, id_user: number, message: string, notification: number, type: number, date: string }) {
+        listMessage.push(message);
+        setListMessage([...listMessage]);
         if (messagesContainerRef.current) {
             if (messagesContainerRef.current.scrollTop === 0 && page < pageLimit) {
                 previousScrollHeight.current = messagesContainerRef.current.scrollHeight;
-                setPage(page + 1);
             }
         }
+    }
+
+    // Verifica quando o usuário rola até o topo
+    function handleScroll() {
+        setTimeout(() => {
+            if (messagesContainerRef.current) {
+                if (messagesContainerRef.current.scrollTop === 0 && page < pageLimit) {
+                    previousScrollHeight.current = messagesContainerRef.current.scrollHeight;
+                    setPage(page + 1);
+                }
+            }
+        }, 250);
     };
 
     async function loadMessage(): Promise<{ error: boolean, message?: string, data?: any, pages: number }> {
-        const conn = new Connection('18');
-        const listMessage: { error: boolean, message?: string, data?: any, pages: number } = await conn.get(`&pages=${page}&id_user=${userLog.id}&id_send=${idReceived}`, 'CLPP/Message.php')
+        const listMessage: { error: boolean, message?: string, data?: any, pages: number } = await fetchData({ method: "GET", params: null, pathFile: "CLPP/Message.php", urlComplement: `&pages=${page}&id_user=${userLog.id}&id_send=${idReceived}` })
             || { error: true, message: 'fail', pages: 1 };
         return listMessage;
     }
@@ -107,32 +128,26 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     // Função para atualizar contato com base no evento
-    function updateContact(event: any, contact: iUser) {
-        if (contact.yourContact === 0) contact.yourContact = 1;
-        if (contact.notification === 0) {
-            const pattern = /^(.{0,25}).*/;
+    function updateContact(contact: Contact) {
+        if (contact.yourContact === 0 || contact.notification === undefined) contact.yourContact = 1;
+        if (contact.notification === 0 || contact.notification === undefined) {
             contact.notification = 1;
         }
         return contact;
     };
 
     async function callbackOnMessage(event: any) {
-        // Novos
-        // if (event.user == idReceived) {
-        //     console.log(event);
-        // }
-
-        //Antigos
         if (event.objectType === 'notification') {
-            if (event.user === idReceived) {
-                await viewedMessage(event);
+            if (event.notify && event.user == idReceived) {
+                listMessage.forEach((item, index) => {
+                    if (item.notification == 1) {
+                        listMessage[index].notification = 0;
+                    }
+                });
+                setListMessage([...listMessage]);
             }
         } else if (event.message && !event.error) {
             await receivedMessage(event);
-            // Se a janela de batepapo estiver aberta, ele informa que a msg já foi visualizada.
-            if (event.send_user === idReceived) {
-                ws.current.informPreview(idReceived.toString());
-            }
         }
     }
 
@@ -141,6 +156,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         newList[newList.findIndex((item: iUser) => item.id == id)].notification = 0;
         newList[newList.findIndex((item: iUser) => item.id == id)].yourContact = 1;
         setContactList([...newList]);
+        setContNotify(newList.filter(item => item.notification == 1).length);
     }
 
     async function buildContactList() {
@@ -149,63 +165,40 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const req: any = await contacts.loadListContacts();
             if (req.error) throw new Error(req.message);
             setContactList([...req.data]);
+            setContNotify(req.data.filter((item: any) => item.notification == 1).length);
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
     }
-
     async function receivedMessage(event: any) {
-        const { send_user, message, type } = event;
-
+        const { send_user } = event;
         if (parseInt(send_user) === idReceived) {
-            
             listMessage.push({
-                id: 999,
+                id: event.id,
                 "id_user": event.send_user,
                 "message": event.message,
                 "notification": 0,
-                "type": event.type
+                "type": event.type,
+                "date": event.date
             });
-            setListMessage([...listMessage])
-            // if (monitorScroll && changeScrollRef.current) changeScrollRef.current();
+            setListMessage([...listMessage]);
+            await ws.current.informPreview(send_user.toString())
         } else {
-            setContactList((prevContacts) =>
-                prevContacts.map((contact) =>
-                    contact.id === send_user ? updateContact(event, contact) : contact
-                )
+            setHasNewMessage(true);
+            const upContact = contactList.map((contact) =>
+                contact.id === send_user ? updateContact(contact) : contact
             );
+            setContactList(upContact);
+            setContNotify(upContact.filter((item: any) => item.notification == 1).length);
         }
     };
 
-    async function viewedMessage(event: any) {
-        // console.log(event)
-        // const { user } = event;
-        // setContactList((prevContacts) =>
-        //     prevContacts.map((contact) =>
-        //         contact.id === parseInt(user) ? { ...contact, pendingMessage: 0 } : contact
-        //     )
-        // );
-
-        // const connection = new Connection('7');
-        // await connection.put(
-        //     {
-        //         id_user: user,
-        //         id_sender: userLog.id,
-        //         UpdateNotification: 1,
-        //     },
-        //     'CLPP/Message.php'
-        // );
-
-        // setSender((prevSender) => ({ ...prevSender, pendingMessage: 0 }));
-    };
-
     return (
-        <WebSocketContext.Provider value={{ previousScrollHeight, messagesContainerRef, listMessage, pageLimit, msgLoad, contactList, sender, ws, idReceived, page, setPage, setIdReceived, setSender, setContactList, changeListContact, changeChat, handleScroll }}>
+        <WebSocketContext.Provider value={{ previousScrollHeight, messagesContainerRef, listMessage, pageLimit, msgLoad, contactList, sender, ws, idReceived, page, hasNewMessage, contNotify, setHasNewMessage, closeChat, includesMessage, setPage, setIdReceived, setSender, setContactList, changeListContact, changeChat, handleScroll }}>
             {children}
         </WebSocketContext.Provider>
     );
 };
-
 export const useWebSocket = () => {
     const context = useContext(WebSocketContext);
     if (!context) {

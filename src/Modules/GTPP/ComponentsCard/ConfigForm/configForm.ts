@@ -6,7 +6,7 @@ export const fieldsetsData = [
             mandatory: true,
             captureValue: {
                 type: 'text',
-                placeholder: 'Digite a taréfa',
+                placeholder: 'Digite a tarefa',
                 name: 'description',
                 className: 'form-control',
                 required: true,
@@ -53,7 +53,6 @@ export const fieldsetsData = [
                 className: 'form-control',
                 required: true,
                 id: 'date_initial',
-                onChange: (e: any) => console.log(e.target.value),
                 options: [
                   {value: '', label: 'selectione'},
                   {value: '1', label: 'Teste'},

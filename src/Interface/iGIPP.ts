@@ -1,20 +1,32 @@
 import { MutableRefObject, RefObject } from "react";
 import WebSocketCLPP from "../Services/Websocket";
+import Contact from "../Class/Contact";
 
 export interface iUser {
     id: number;
-    yourContact?: number;
-    notification?: number;
-    pendingMessage?: number;
     name?: string;
     company?: string;
-    shop?: number;
+    shop?: string;
     departament?: string;
     sub?: string;
     CSDS?: string;
     photo?: string;
-    administrator: number;
-    session: string;
+    administrator?: number;
+    session?: string;
+}
+
+export interface iContact {
+    id: number;
+    yourContact?: number;
+    notification?: number;
+    pendingMessage?: number;
+}
+export interface CustomNotification {
+    id: number;
+    task_id: number,
+    title: string;
+    message: string;
+    typeNotify: 'success' | 'danger' | 'info' | 'default' | 'warning';
 }
 
 export interface iSender {
@@ -36,23 +48,48 @@ export interface iWebSocketCLPP {
 }
 export interface iGtppWsContextType {
     task: any;
-    taskDetails:iTaskReq;
-    taskPercent:number;
-    messageNotification: Record<string, any>;
+    taskDetails: iTaskReq;
+    taskPercent: number;
     userTaskBind: any;
-    setTaskPercent:(value:number)=>void;
+    notifications: CustomNotification[];
+    states: iStates[];
+    onSounds: boolean;
+    getTask: any[];
+    openCardDefault: boolean;
+    updateItemTaskFile: (file: string, item_id: number) => Promise<void>;
+    updatedForQuestion: (item: { task_id: number; id: number; yes_no: number }) => void;
+    reloadPagePercent: (value: any, task: any) => void;
+    deleteItemTaskWS: (object: any) => void;
+    addUserTask: (value: any, num: number) => void;
+    getTaskInformations: () => void;
+    setOpenCardDefault: (value: boolean) => void;
+    loadTasks: (admin?: boolean) => void;
+    reqTasks: (admin?: boolean) => void;
+    setGetTask: (array: any[]) => void;
+    updateStates: (array: any[]) => void;
+    setOnSounds: (value: boolean) => void
+    setNotifications: (value: CustomNotification[]) => void;
+    setTaskPercent: (value: number) => void;
     setTask: (value: any) => void;
     setTaskDetails: (value: any) => void;
-    handleAddTask: (description: string, task_id: string) => void;
-    clearGtppWsContext:()=>void;
-    checkedItem:(id: number, checked: boolean, idTask: any, task: any)=>void;
-    checkTaskComShoDepSub:(task_id:number, company_id:number, shop_id:number, depart_id:number, taskLocal: any)=>void;
+    handleAddTask: (description: string, task_id: string, yes_no: number, file?: string) => void;
+    clearGtppWsContext: () => void;
+    checkedItem: (id: number, checked: boolean, idTask: any, task: any, yes_no: number) => void;
+    checkTaskComShoDepSub: (task_id: number, company_id: number, shop_id: number, depart_id: number, taskLocal: any) => void;
     changeDescription: (description: string, id: number, descLocal: string) => void;
     stopAndToBackTask: (taskId: number, resource: string | null, date: string | null, taskList: any) => void;
+<<<<<<< HEAD
     changeObservedForm: (taskId: number, subId: any, description: string, message?: any, isNote?: any) => void;
     inviteImagePushed: ( baseFileG4: string,  taskId: number, description: string) => void;
+=======
+    changeObservedForm: (taskId: number, subId: number, value: string, isObservetion: boolean) => void;
+>>>>>>> f54b8b7366ea6c5f17889934a8f647a5664c1f15
 }
-
+export interface iStates {
+    color: string,
+    description: string,
+    id: number
+};
 export interface iTaskReq {
     error?: boolean,
     data?: {
@@ -77,17 +114,31 @@ export interface iWebSocketContextType {
     sender: iSender;
     ws: MutableRefObject<WebSocketCLPP>;
     idReceived: number;
-    listMessage: { id: number, id_user: number, message: string, notification: number, type: number }[];
+    listMessage: { id: number, id_user: number, message: string, notification: number, type: number, date: string }[];
     page: number;
     pageLimit: number;
     msgLoad: boolean;
     previousScrollHeight: MutableRefObject<number>;
     messagesContainerRef: RefObject<HTMLDivElement>;
+    hasNewMessage: boolean;
+    contNotify: number;
+    setHasNewMessage: (value: boolean) => void;
+    closeChat: () => void;
+    includesMessage: (item: { id: number, id_user: number, message: string, notification: number, type: number, date:string }) => void;
     changeChat: () => void;
     handleScroll: () => void;
     setPage: (value: number) => void;
     setIdReceived: (value: number) => void;
     setSender: React.Dispatch<React.SetStateAction<iSender>>;
-    setContactList: (value: iUser[]) => void;
+    setContactList: (value: Contact[]) => void;
     changeListContact: (value: number) => void;
+}
+
+export interface ITask {
+    id: number;
+    description: string;
+    priority: number;
+    user_id: number;
+    initial_date: string;
+    final_date: string;
 }

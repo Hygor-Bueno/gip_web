@@ -35,7 +35,7 @@ export const generateAndDownloadCSV = (getTasks: any, configId: string, fileName
       const csvData = convertToCSV(jsonData);
       downloadCSV(csvData, fileName);
     } else {
-      console.log("Nenhum dado encontrado para criar o CSV.");
+      throw new Error("Nenhum dado encontrado para criar o CSV.");
     }
   } catch (error) {
     console.error("Erro ao gerar o CSV:", error);
@@ -147,7 +147,7 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
         </div>
       </div>
       <div className="text-center">
-        <button className="btn btn-success mt-3" onClick={generatePDF}>Gerar PDF</button>
+        <button title="gerar PDF" className="btn btn-success mt-3" onClick={generatePDF}>Gerar PDF</button>
       </div>
     </React.Fragment>
   );

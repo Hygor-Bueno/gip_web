@@ -1,34 +1,47 @@
 @import url('./Color.css');
+@import url('./Modules/GTPP/Root-font.css');
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-:root {
-  --vPrimaryColor: #bed989;
-  --vSecondaryColor: #5f7434;
-  --vThirdColor: #d66a2b;
-  --vTitleColor: #555;
-}
-
 h1,
 h2,
 h3,
+i,
 label,
 b,
-i,
 footer,
 legend {
   margin: 0px;
   padding: 0px;
   color: var(--vTitleColor) !important;
-  font-size: clamp(20px, calc(0.2rem + 0.5vw + 0.5vh), 26px) !important;
+  font-size: clamp(20px, calc(0.2rem + 0.5vw + 0.5vh), 26px);
+}
+
+@media screen and (max-width: 460px) {
+  input {
+    font-size: clamp(5px, 100%, 16px) !important; 
+  }
 }
 
 body {
   font-size: var(--font-size-body);
+  height: 100dvh;
 }
+
+body span {
+  font-size: var(--font-size-p);
+}
+
+label>div,
+nav span,
+button > i {
+  font-size: var(--font-size-button) !important;
+}
+
 
 p {
   font-size: var(--font-size-p);
@@ -71,7 +84,8 @@ button {
   font-size: var(--font-size-button);
 }
 
-input, textarea {
+input,
+textarea {
   font-size: var(--font-size-input);
 }
 
@@ -79,7 +93,8 @@ blockquote {
   font-size: var(--font-size-blockquote);
 }
 
-ul, ol {
+ul,
+ol {
   font-size: var(--font-size-list);
 }
 
@@ -87,21 +102,45 @@ footer {
   font-size: var(--font-size-footer);
 }
 
-header, nav {
+header,
+nav {
   font-size: var(--font-size-header);
 }
 
+button>label {
+  font-size: clamp(20px, calc(0.2rem + 0.5vw + 0.5vh), 24px) !important;
+}
+
+#root {
+  display: flex;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.App-header>div {
+  width: calc(100% - 78px);
+}
 
 .App {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   width: 100vw;
   background-color: #f1f2f6;
 }
 
 .App>header {
   background-color: var(--vPrimaryColor);
+}
+
+.App>header h1 {
+  white-space: nowrap;
+  /* Impede a quebra de linha */
+  overflow: hidden;
+  /* Esconde o texto que ultrapassa o espaço */
+  text-overflow: ellipsis;
+  /* Adiciona "..." ao final do texto */
 }
 
 .App>section {
@@ -168,6 +207,7 @@ header, nav {
   cursor: pointer;
 }
 
+
 /* Define a classe para a animação */
 .spinner-grow-img {
   display: inline-block;
@@ -176,6 +216,11 @@ header, nav {
   height: 100px;
   animation: spinner-grow 2s infinite ease-in-out;
   /* Animação aplicada */
+}
+
+.photoCircle {
+  width: clamp(50px, calc(0.8rem + 4vw + 4vh), 55px);
+  height: clamp(50px, calc(0.8rem + 4vw + 4vh), 55px);
 }
 
 /* Keyframes para a animação */

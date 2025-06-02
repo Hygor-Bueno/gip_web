@@ -1,4 +1,3 @@
-// Aside.tsx
 import React from 'react';
 import './Aside.css'; // Aqui você pode personalizar o estilo do seu Aside
 
@@ -10,7 +9,7 @@ const Aside = ({ title, content, funcAss }: { title: string, content: any, funcA
           <h3>{title}</h3>
         </div>
         <div>
-          <button className='btn btn-danger fa fa-x' onClick={funcAss}></button>
+          <button title="Botão aside" className='btn btn-danger fa fa-x' onClick={funcAss}></button>
         </div>
       </div>
       <div className="aside-content">

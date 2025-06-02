@@ -1,57 +1,29 @@
-import React from 'react';
-import CustomForm from './CustomForm';
-import { useMyContext } from '../Context/MainContext';
-import User from '../Class/User';
-import { Connection } from '../Connection/Connection';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import CustomForm from "./CustomForm";
+import { useMyContext } from "../Context/MainContext";
+import { useNavigate } from "react-router-dom";
+import { fieldsetsData } from "../Configs/LoginConfigs";
+import DefaultPassword from "./DefaultPassword";
+import { ReactNotifications } from "react-notifications-component";
+import { useConnection } from "../Context/ConnContext";
+import User from "../Class/User";
 
+export default function Login() {
+    const [defaultPassword, setDefaulPassword] = useState<boolean>(false);
+    const [user, setUser] = useState<{
+        login: string
+        password: string
+    }>({ login: "", password: "" });
 
-function Login() {
     const navigate = useNavigate();
-    const { setIsLogged, setLoading, setModal, setMessage,setTitleHead,setUserLog } = useMyContext();
+    const { setLoading, setTitleHead, configUserData } = useMyContext();
+    const { setIsLogged } = useConnection();
+    const { fetchData } = useConnection();
 
-    React.useEffect(()=>{
-        setTitleHead({title:'Gestão Integrada Peg Pese - GIPP',icon:''});
+    React.useEffect(() => {
+        setTitleHead({ title: "Gestão Integrada Peg Pese - GIPP", simpleTitle: "GIPP", icon: "" });
         setIsLogged(false);
-    },[]);
-    const fieldsetsData = [
-        {
-            attributes: { id: 'personal-info', className: 'row  col-8 my-2', },
-            item: {
-                label: 'Login',
-                mandatory: true,
-                captureValue: {
-                    type: 'text',
-                    placeholder: 'Usuário',
-                    name: 'login',
-                    className: 'form-control',
-                    required: true,
-                    id: 'loginUserInput'
-                },
-            },
-
-            legend: {
-                text: 'Bem vindo(a)!',
-                style: 'my-2 h5 d-flex aligm-items-center justify-content-center'
-            }
-        },
-
-        {
-            attributes: { id: 'contact-info', className: 'row col-8 my-2' },
-            item: {
-                label: 'Senha',
-                mandatory: true,
-                captureValue: {
-                    type: 'password',
-                    placeholder: '******',
-                    name: 'senha',
-                    className: 'form-control',
-                    required: true,
-                    id: 'passwordUserInput'
-                },
-            },
-        }
-    ];
+    }, []);
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -59,47 +31,54 @@ function Login() {
     };
 
     return (
-        <div className='d-flex flex-column align-items-center justify-content-center  h-100 w-100'>
+        <div className="d-flex flex-column align-items-center justify-content-center h-100 w-100">
+            <DefaultPassword user={user} open={defaultPassword} onClose={() => setDefaulPassword(false)} />
             <CustomForm
                 fieldsets={fieldsetsData}
                 onSubmit={handleSubmit}
                 method="post"
-                className='d-flex flex-column align-items-center justify-center col-8 col-sm-6 col-md-4 col-lg-2 rounded py-4'
-                id='loginCustomForm'
+                className="d-flex flex-column align-items-center justify-content-center col-8 col-sm-6 col-md-4 col-lg-3 col-xl-2 rounded p-2"
+                id="loginCustomForm"
             />
-            
+            <a href="http://gigpp.com.br:72/global.html">Versão antiga</a>
+            <ReactNotifications />
         </div>
     );
 
+    function openModalChangePassword(message: string) {
+        const passDefault = message.toLowerCase().includes("default password is not permited");
+        if (passDefault) {
+            setTimeout(() => {
+                setDefaulPassword(true);
+            }, 5000);
+        }
+    }
+    function configLocalStoranger(user: any) {
+        localStorage.setItem("tokenGIPP", user.session);
+        localStorage.setItem("codUserGIPP", user.id);
+    }
+    function buildUserLogin(): { login: string, password: string } {
+        return {
+            login: (document.getElementById("loginUserInput") as HTMLInputElement).value,
+            password: (document.getElementById("passwordUserInput") as HTMLInputElement).value
+        }
+    }
     async function login() {
         setLoading(true);
         try {
-            const user = {
-                login: (document.getElementById('loginUserInput') as HTMLInputElement).value,
-                password: (document.getElementById('passwordUserInput') as HTMLInputElement).value
-            };
-
-            const conn = new Connection('18', true);
-            let req: any = await conn.post({ user: user.login, password: user.password }, "CCPP/Login.php");
-
-            if (!req) throw new Error('No response from server');
+            const userLogin = buildUserLogin();
+            setUser(userLogin);
+            let req: any = await fetchData({ method: "POST", params: { user: userLogin.login, password: userLogin.password }, pathFile: "CCPP/Login.php", urlComplement: "&login=" });
+            if (!req) throw new Error("No response from server");
             if (req.error) throw new Error(req.message);
-
-            setUserLog(new User({
-                id:req.data.id,
-                session:req.data.session,
-                administrator:req.data.administrator
-            }));
-            localStorage.setItem("tokenGIPP",req.data.session);
-            
+            configLocalStoranger(req.data);
+            await configUserData({ id: req.data["id"], session: req.data["session"] });
             setIsLogged(true);
-            navigate('/home');
+            navigate("/GIPP");
         } catch (error: any) {
-            setModal(true);
-            setMessage({text:error.message,type:2});
+            openModalChangePassword(error.message);
         }
         setLoading(false);
     }
-}
 
-export default Login;
+}

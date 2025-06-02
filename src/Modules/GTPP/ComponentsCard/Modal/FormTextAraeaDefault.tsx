@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { FormTextAreaDefaultProps } from "./Types";
-import { httpPut } from "../../../../Util/Util";
 import { useWebSocket } from "../../Context/GtppWsContext";
 
 const FormTextAreaDefault: React.FC<FormTextAreaDefaultProps> = ({
@@ -16,11 +15,11 @@ const FormTextAreaDefault: React.FC<FormTextAreaDefaultProps> = ({
   details
 }) => {
   const [isOpenButton, setIsOpenButton] = useState<boolean>(false);
-  const [value, setValueChange] = useState<string>(details?.full_description);
+  const [valueChange, setValueChange] = useState<string>("");
   const {changeDescription} = useWebSocket();
 
   useEffect(() => {
-    setValueChange(details?.full_description);
+    setValueChange(details?.full_description || "");
   }, [details?.full_description]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -30,12 +29,12 @@ const FormTextAreaDefault: React.FC<FormTextAreaDefaultProps> = ({
   };
 
   return (
-    <div className="d-flex align-items-end gap-2 mt-2 flex-column position-relative">
+    <div className="d-flex align-items-end flex-column position-relative h-25">
       <textarea
-        style={{ resize: "none" }}
+        style={{ resize: "none",margin:"0px",padding:"0px" }}
         onChange={handleTextChange}
         disabled={disabledForm || !isOpenButton}
-        value={value}
+        value={valueChange}
         className={`${textAreaClasses}`}
         cols={cols}
         rows={rows}
@@ -43,16 +42,13 @@ const FormTextAreaDefault: React.FC<FormTextAreaDefaultProps> = ({
       />
       <button
         onClick={() => {
-          changeDescription(value, task.id, task.id);
+          changeDescription(valueChange, task.id, task.id);
           setIsOpenButton((prev) => !prev);
         }}
-        className={`${buttonClasses}  position-absolute`} 
-        style={{
-          top: "82px",
-        }}
+        className={`${buttonClasses} position-absolute`} 
         aria-label={isOpenButton ? buttonTextOpen : buttonTextClosed}
       >
-        <i className={`fa fa-${isOpenButton ? "unlock" : "lock" } text-${isOpenButton ? "success" : "danger"}`}></i>
+        <i className={`fa fa-pencil text-${isOpenButton ? "success" : "secundary"}`}></i>
       </button>
     </div>
   );

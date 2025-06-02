@@ -5,30 +5,12 @@ export class Connection{
     #err:boolean = false;
     #appId:string='';
     #login:string='';
-    #isInternalNetwork: boolean | null = null;
+    #defaultPass:string='';
 
-    constructor(appId:string,isLogin?:boolean){
+    constructor(appId:string,isLogin?:boolean,isDefaultPass?:boolean){
         this.#appId = appId;
         if(isLogin) this.#login = '&login=';
-        this.detectNetwork();
-    }
-
-    // Detecta a rede uma única vez e guarda o estado
-    async initialize() {
-        if (this.#isInternalNetwork === null) {
-            await this.detectNetwork();
-        }
-    }
-
-    // Detecta se estamos na rede interna ou externa
-    async detectNetwork() {
-        try {
-            const response = await fetch('http://192.168.0.99:71/GLOBAL/');
-            this.#isInternalNetwork = response.ok;
-        } catch (e) {
-            // Se a requisição falhar, assume que estamos na rede externa
-            this.#isInternalNetwork = false;
-        }
+        // if(isDefaultPass) this.#defaultPass = '\login=';
     }
 
     async get(params:string, pathFile:string, err?:boolean) {
@@ -100,8 +82,8 @@ export class Connection{
         if (err) this.#err = err;
     }
     async settingUrl(middlewer: string, params?: string) {
-        await this.initialize();
-        let server = this.#isInternalNetwork ? "http://192.168.0.99:71/GLOBAL" : "http://187.92.74.154:71/GLOBAL";
+        let server = "http://gigpp.com.br:72/GLOBAL"; //novo servidor
+        // let server = "http://10.10.10.99:71/GLOBAL";
         let token = localStorage.getItem("tokenGIPP");
         this.#URL = server + middlewer + token + (params ? params : "");
     }

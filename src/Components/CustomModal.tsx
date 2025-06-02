@@ -22,7 +22,7 @@ export function MessageModal(props: MessageModal) {
     return (
         <div className={`alert ${typeModal()} alert-dismissible fade show`} role="alert">
             {props.message}
-            <button onClick={() => props.onClose()} type="button" className="btn-close" data-dismiss="alert" aria-label="Close"></button>
+            <button title="Fechar" onClick={() => props.onClose()} type="button" className="btn-close" data-dismiss="alert" aria-label="Close"></button>
         </div>
     );
 

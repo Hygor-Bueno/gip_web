@@ -1,0 +1,143 @@
+.colorSystem {
+    background-color: var(--vPrimaryColor);
+}
+
+.colorSystem:hover {
+    background-color: #555555;
+    transition: all ease .9s;
+}
+
+.colorSystem:hover i {
+    color: var(--vPrimaryColor) !important;
+    transition: all ease .5s;
+}
+
+.colorSystemLightGray {
+    background-color: #e1e3e2;
+}
+
+.container {
+    max-width: 100vw;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.form-style-modal {
+    height: fit-content;
+}
+
+
+
+label, h1 {
+    font-size: inherit;
+}
+
+.title_business {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.button_filter {
+    width: 2.5%;
+    right: -16px;
+    top: -20%;
+}
+
+.border_gray {
+    border: 1px solid #e1e3e2;
+}
+
+
+.border_none {
+    border: none;
+}
+
+.background_whiteGray {
+    background-color: #f8f9fa;
+}
+
+.font_size {
+    font-size: 1.3rem;
+}
+
+@media screen and (min-width: 1025px ){
+    .text-card {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .heightlite_screen {
+        max-height: 75vh;
+        flex: auto;
+    }
+
+
+    .cardTest {
+        max-width: 31%;
+        width: 100%;
+        height: fit-content;
+    }
+
+}
+
+@media screen and (max-width: 1024px ){
+    .text-card {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .cardTest {
+        max-width: 92%;
+        width: 100%;
+        height: fit-content;
+    }
+
+    .heightlite_screen {
+        max-height: 90vh;
+    }
+}
+
+/* LAPTOP */
+@media screen and (max-width: 920px) {
+    .cardTest {
+        max-width: 95%;
+        width: 100%;
+        height: fit-content;
+    }
+
+    .button_filter {
+        width: 5.5%;
+    }
+
+    .heightlite_screen {
+        max-height: 94vh;
+    }
+}
+
+/* TABLET */
+@media screen and (max-width: 720px) {
+    .button_filter {
+        width: 10.5%;
+    }
+}
+
+/* MOBILE */
+@media screen and (max-width: 420px) {
+    .button_filter {
+        width: 10.5%;
+    }
+
+    .heightlite_screen {
+        max-height: 92vh;
+    }
+
+    .cardTest {
+        max-width: 255px;
+        width: 100%;
+        height: fit-content;
+    }
+
+
+}

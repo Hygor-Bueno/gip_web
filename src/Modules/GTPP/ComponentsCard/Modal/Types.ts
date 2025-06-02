@@ -38,7 +38,6 @@ export type TaskItem = {
   }
   
  export type SubTasksWithCheckboxProps = {
-    subTasks: any[];
     onTaskChange: (id: number, checked: boolean) => void;
     allData: any;
     message?: any;

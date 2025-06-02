@@ -18,7 +18,7 @@
 }
 
 #moduleCLPP>div {
-    height: 75vh;
+    height: 88dvh;
     width: 100%;
     max-width: 550px;
 }
@@ -80,37 +80,48 @@
 }
 
 /* Estilo complementar do chat */
-#divWindowsMessage {
+#divChatWindow {
     position: relative;
 }
 
-#divWindowsMessage>i {
+#divChatWindow>header>i {
     cursor: pointer;
 }
 
-#divWindowsMessage .notifyMessage{
+#divChatWindow .notifyMessage {
     font-size: clamp(2px, calc(0.15rem + 1vw + 1vh), 12px) !important;
 }
-#divWindowsMessage>div>.messageReceived>div {
+
+#divChatWindow>section>.messageReceived>div {
     background: #f1f0f0;
     word-wrap: break-word;
     max-width: 70%;
 }
 
-#divWindowsMessage>div>.messageSent>div {
+#divChatWindow>section>div>strong {
+    font-size: 14px;
+    color: #919295;
+}
+
+#divChatWindow>section>.messageSent>div {
     background: #3cb371;
     word-wrap: break-word;
     color: white;
     max-width: 70%;
 }
 
-#divWindowsMessage>div>div>div>a>img{
+#divChatWindow>section>div>div>a>img {
     width: 100%;
 }
-#divWindowsMessage>i {
+
+#divChatWindow>header>i {
     font-size: clamp(2px, calc(0.15rem + 1vw + 1vh), 10px) !important;
 }
 
-#divMessageFile > a > i{
+#divMessageFile>a>i {
     font-size: clamp(25px, calc(1.5rem + 3vw + 3vh), 75px) !important;
+}
+
+#controllerRegister button:hover {
+    box-shadow: 0px 0px 8px 1px #ffc107
 }

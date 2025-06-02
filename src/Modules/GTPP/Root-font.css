@@ -1,11 +1,11 @@
-::root {
+:root {
     /* Tamanhos de fonte escaláveis baseados no viewport para todos os tipos de texto */
         
     /* Corpo de texto padrão */
     --font-size-body: clamp(1rem, 2vw + 1rem, 1.125rem); /* 16px a 18px */
     
     /* Parágrafos */
-    --font-size-p: clamp(1rem, 1.5vw + 1rem, 1.125rem); /* 16px a 18px */
+    --font-size-p: clamp(0.5rem, 1.5vw + 1rem, 0.85rem); /* 16px a 18px */
 
     /* Parágrafos small*/
     --font-size-p-small: clamp(0.2rem, 1.5vw + 0.5rem, 0.5rem);
@@ -35,7 +35,7 @@
     --font-size-caption: clamp(0.75rem, 1vw + 0.5rem, 0.875rem); /* 12px a 14px */
     
     /* Texto em botões */
-    --font-size-button: clamp(0.875rem, 1vw + 0.5rem, 1rem); /* 14px a 16px */
+    --font-size-button: clamp(1rem, 1vw + 0.5rem, 1.15rem); /* 14px a 16px */
     
     /* Texto de entrada de formulário (ex: input, textarea) */
     --font-size-input: clamp(1rem, 1.5vw + 1rem, 1.125rem); /* 16px a 18px */

@@ -12,7 +12,7 @@ interface NotifyMessage {
 export default class WebSocketCLPP {
   isConnected: boolean = false;
   tokens: any;
-  sender: { id: string }= { id: '148' };
+  sender: { id: string } = { id: '148' };
   callbackOnMessage!: (notify: NotifyMessage) => Promise<void>;
 
   constructor(
@@ -20,17 +20,16 @@ export default class WebSocketCLPP {
     callbackOnMessage: (notify: NotifyMessage) => Promise<void>
   ) {
     this.tokens = tokens;
-    if(callbackOnMessage) this.callbackOnMessage = callbackOnMessage;
+    if (callbackOnMessage) this.callbackOnMessage = callbackOnMessage;
   }
 
   connectWebSocket(): void {
     try {
-      const localWs = new WebSocket('ws://192.168.0.99:9193');
+      const localWs = new WebSocket('ws://gigpp.com.br:9193');
       ws = localWs;
 
       localWs.onopen = () => {
         this.onOpen(localWs);
-        console.log('connected',localWs);
       };
 
       localWs.onerror = (ev: Event) => {
@@ -44,7 +43,7 @@ export default class WebSocketCLPP {
       localWs.onmessage = (ev: MessageEvent) => {
         this.onMessage(ev);
       };
-      
+
     } catch (error) {
       console.log(error);
     }

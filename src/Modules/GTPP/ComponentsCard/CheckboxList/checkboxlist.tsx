@@ -12,12 +12,12 @@ interface CheckboxProps {
 const Checkbox: React.FC<CheckboxProps> = ({ label, isChecked, onChange }) => {
   return (
     <div className="checkbox-item">
-      <label>
-        <input 
-          type="checkbox" 
-          className="form-check-control" 
-          checked={isChecked} 
-          onChange={onChange} 
+      <label style={{ fontSize: "small !important" }}>
+        <input
+          type="checkbox"
+          className="form-check-control"
+          checked={isChecked}
+          onChange={onChange}
         />
         {label}
       </label>
@@ -47,7 +47,7 @@ const CheckboxList: React.FC<CheckboxListProps> = ({ items, captureDep, getCheck
     const newCheckboxes = [...checkboxes];
     newCheckboxes[index].check = !newCheckboxes[index].check;
     setCheckboxes(newCheckboxes);
-    
+
   };
 
   const checkedCount = checkboxes.filter((item) => item.check).length;
@@ -57,18 +57,20 @@ const CheckboxList: React.FC<CheckboxListProps> = ({ items, captureDep, getCheck
       <div className="checkbox-counter">
         {checkedCount} checked
       </div>
-      {checkboxes.map((item, index) => (
-        <Checkbox
-          key={item.id}
-          label={item.description}
-          isChecked={item.check}
-          onChange={(e) => {
-            handleCheckboxChange(index);
-            captureDep(item);
-            getCheck(item);
-          }}
-        />
-      ))}
+      <div className="overflow-auto">
+        {checkboxes.map((item, index) => (
+          <Checkbox
+            key={item.id}
+            label={item.description}
+            isChecked={item.check}
+            onChange={(e) => {
+              handleCheckboxChange(index);
+              captureDep(item);
+              getCheck(item);
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 };

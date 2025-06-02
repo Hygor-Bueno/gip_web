@@ -1,57 +1,59 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import User from './Class/User';
 import Login from './Components/Login';
 import { MyProvider } from './Context/MainContext';
 import RenderPage from './Components/RenderPage';
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from './Components/Home';
 import PrivateRoute from './PrivateRoute';
 import Gtpp from './Modules/GTPP/Gtpp';
-import { WebSocketProvider } from './Context/WsContext';
-import Clpp from './Modules/CLPP/Clpp';
 import RenderedModules from './Components/RenderedModules';
-import { EppWsProvider } from './Modules/GTPP/Context/GtppWsContext';
-
+import { GtppWsProvider } from './Modules/GTPP/Context/GtppWsContext';
+import 'react-notifications-component/dist/theme.css'; // Tema básico
+import 'animate.css/animate.min.css'; // Animações opcionais
+import { ConnectionProvider } from './Context/ConnContext';
+import Cfpp from './Modules/CFPP/Cfpp';
+import Infraction from './Modules/GAPP/Infraction/Infraction';
+import Stores from './Modules/GAPP/Business/Stores';
+import Gapp from './Modules/GAPP/Gapp';
 function App() {
+  function withProvider(component: JSX.Element) {
+    return (
+      <MyProvider>
+        <RenderPage>{component}</RenderPage>
+      </MyProvider>
+    );
+  }
+
+  function withPrivateProvider(component: JSX.Element) {
+    return (
+      <MyProvider>
+        <PrivateRoute>
+          <RenderedModules>{component}</RenderedModules>
+        </PrivateRoute>
+      </MyProvider>
+    );
+  }
+
   return (
-    <HashRouter>
-      <Routes>
-
-        <Route path="/" element={
-          <MyProvider>
-            <RenderPage>
-              <Login />
-            </RenderPage>
-          </MyProvider>
-        } />
-
-        <Route path="/home" element={
-          <MyProvider>
-            <PrivateRoute>
-              <RenderedModules>
-                <Home />
-              </RenderedModules>
-            </PrivateRoute>
-          </MyProvider>
-        } />
-        <Route path="/home/GTPP" element={
-          <MyProvider>
-            <PrivateRoute>
-              <RenderedModules>
-                <EppWsProvider>
-                  <Gtpp />
-                </EppWsProvider>
-              </RenderedModules>
-            </PrivateRoute>
-          </MyProvider>
-        } />
-
-
-      </Routes>
-    </HashRouter>
+    <ConnectionProvider>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={withProvider(<Login />)} />
+          <Route path="/GIPP" element={withPrivateProvider(<Home />)} />
+          <Route path="/GIPP/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
+          <Route path="/GIPP/CFPP" element={withPrivateProvider(<Cfpp />)} />
+          <Route path="/GIPP/GAPP" element={withPrivateProvider(<Gapp />)} />
+          
+          <Route path="/GIPP/GAPP/Stores" element={withPrivateProvider(<Stores/>)} />
+          <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </HashRouter>
+    </ConnectionProvider>
   );
+
 }
 
 export default App;

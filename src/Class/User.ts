@@ -1,5 +1,5 @@
-import { Connection } from "../Connection/Connection";
 import { iUser } from "../Interface/iGIPP";
+import { fetchDataFull } from "../Util/Util";
 
 export default class User {
     #id: number;
@@ -8,27 +8,26 @@ export default class User {
     #pendingMessage?: number;
     #name?: string;
     #company?: string;
-    #administrator: number;
-    #session: string;
+    #administrator: number = 0;
+    #session: string = '';
     photo: string = '';
-    shop: number = 0;
+    shop: string = '';
     departament: string = '';
     sub: string = '';
     CSDS: string = '';
-    #connection: Connection = new Connection('18');
-
+    
     constructor(user: iUser) {
         this.#id = user.id;
-        user.id && this.loadInfo();
-        this.#administrator = user.administrator;
-        this.#session = user.session;
+        if (user.administrator) this.#administrator = user.administrator;
+        if (user.session) this.#session = user.session;
 
         // Optional properties
-        this.#yourContact = user.yourContact;
-        this.#notification = user.notification;
-        this.#pendingMessage = user.pendingMessage;
         this.#name = user.name;
         this.#company = user.company;
+        if(user.photo) this.photo = user.photo;
+        if(user.shop) this.shop = user.shop;
+        if(user.departament) this.departament = user.departament;
+        if(user.sub) this.sub = user.sub;
     }
 
     // Getter for id
@@ -56,17 +55,14 @@ export default class User {
     get pendingMessage(): number | undefined {
         return this.#pendingMessage;
     }
-    
+
     set pendingMessage(pendingMessage: number | undefined) {
         this.#pendingMessage = pendingMessage;
     }
-    
+
     get name(): string | undefined {
         return this.#name;
     }
-    // getName(): string | undefined {
-    //     return this.#name;
-    // }
 
     set name(name: string | undefined) {
         this.#name = name;
@@ -96,29 +92,28 @@ export default class User {
         this.#session = session;
     }
 
-    async loadInfo(): Promise<void> {
-        await this.loadPhotos();
+    async loadInfo(isPhoto?: boolean): Promise<void> {
+        isPhoto && await this.loadPhotos();
         await this.loadDetails();
     }
 
     async loadPhotos(): Promise<void> {
         try {
-            const userPhoto: any = await this.#connection.get(`&id=${this.id}`, 'CCPP/EmployeePhoto.php');
+            const userPhoto: any = await fetchDataFull({method:"GET",params:null,pathFile:"CCPP/EmployeePhoto.php",urlComplement:`&id=${this.#id}`});
             if (userPhoto.error && !userPhoto.message.includes('No data')) {
                 throw new Error(userPhoto.message);
             } else if (!userPhoto.message) {
                 this.photo = userPhoto.photo;
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 
     async loadDetails(): Promise<void> {
         try {
-            const details: any = await this.#connection.get(`&id=${this.id}`, 'CCPP/Employee.php');
+            const details: any = await fetchDataFull({method:"GET",params:null,pathFile:'CCPP/Employee.php',urlComplement:`&id=${this.#id}`});
             if (details.error && !details.message.includes('No data')) throw new Error(details.message);
-
             this.name = details.data[0]["name"];
             this.company = details.data[0]["company"];
             this.shop = details.data[0]["shop"];
@@ -127,9 +122,7 @@ export default class User {
             this.CSDS = details.data[0]["CSDS"];
             this.administrator = details.data[1]["administrator"];
         } catch (error) {
-            // alert(error);
-            console.log(error);
+            console.error(error);
         }
     }
-
 }

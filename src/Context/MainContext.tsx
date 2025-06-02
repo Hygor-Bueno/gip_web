@@ -6,19 +6,9 @@ import React, {
 } from "react";
 import StructureModal, { MessageModal } from "../Components/CustomModal";
 import User from "../Class/User";
-// import WebSocketGTPPClass from "../Modules/GTPP/hook/WebSocketHook";
+import { useConnection } from "./ConnContext";
 
 const logo = require("../Assets/Image/peg_pese_loading.png");
-
-interface webSocketGTPP {
-  disconnect: () => void;
-  getIsConnected: () => boolean;
-  send: () => void;
-  getResponseWebSocket: () => object | null;
-  getDataResponseWebSocket: () => object | null | any[];
-  getLastSentMessage: () => object | null;
-}
-
 
 // Definindo o tipo dos dados no contexto
 interface MyMainContext {
@@ -27,8 +17,6 @@ interface MyMainContext {
 
   modal: boolean;
   setModal: (step: boolean) => void;
-
-  // webSocketInstance: webSocketGTPP | any;
 
   newProgressBar: any;
   setNewProgressBar: any;
@@ -41,18 +29,20 @@ interface MyMainContext {
   setModalPage: (step: boolean) => void;
 
   setModalPageElement: (value: JSX.Element) => void;
-
-  isLogged: boolean;
-  setIsLogged: (step: boolean) => void;
-
-  titleHead: { title: string; icon?: string };
-  setTitleHead: (value: { title: string; icon?: string }) => void;
+  configUserData: (user: { id: number, session?: string; administrator?: number }) => void;
+  titleHead: { title: string; simpleTitle: string, icon?: string };
+  setTitleHead: (value: { title: string; simpleTitle: string; icon?: string }) => void;
 
   userLog: User;
   setUserLog: (value: User) => void;
-
-
+  token: any;
+  setToken: ({ }: any) => void;
+  loadDetailsToken: () => void;
   contactList: User[];
+  ctlSearchUser:boolean;
+  setCtlSearchUser:(value:boolean)=>void;
+  appIdSearchUser:number | null;
+  setAppIdSearchUser:(value:number | null)=>void;
 }
 
 interface Props {
@@ -64,53 +54,88 @@ export const MyContext = createContext<MyMainContext | undefined>(undefined);
 
 // Componente que fornece o contexto
 export function MyProvider({ children }: Props) {
+  const { fetchData } = useConnection();
   const [loading, setLoading] = useState<boolean>(false);
   const [modal, setModal] = useState<boolean>(false);
   const [modalPage, setModalPage] = useState<boolean>(false);
   const [newProgressBar, setNewProgressBar] = useState<number | string | null>(null);
-  // const [webSocketInstance, setWebSocketInstance] = useState<WebSocketGTPPClass | null>(null);
-  const [response, setResponse] = useState<object | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [token, setToken] = useState<any>({});
+  const [ctlSearchUser, setCtlSearchUser] = useState<boolean>(false);
+  const [appIdSearchUser, setAppIdSearchUser] = useState<number | null>(0);
+
 
   const [message, setMessage] = useState<{ text: string; type: 1 | 2 | 3 | 4 }>({
     text: "",
     type: 1,
   });
   const [modalPageElement, setModalPageElement] = useState<JSX.Element>(<div></div>);
-  const [isLogged, setIsLogged] = useState<boolean>(!false);
-  const [titleHead, setTitleHead] = useState<{ title: string; icon?: string }>({
+
+  const [titleHead, setTitleHead] = useState<{ title: string; simpleTitle: string; icon?: string }>({
     title: "Gestão Integrada Peg Pese - GIPP",
+    simpleTitle: "GIPP",
     icon: "",
   });
   const [userLog, setUserLog] = useState<User>(
-    new User({ id: 0, session: "", administrator: 0 })
+    new User({ id: parseInt(localStorage.getItem('codUserGIPP') || "0"), session: "", administrator: 0 })
   );
   const [contactList, setContactList] = useState<User[]>([]);
-  const [reset, setResetState] = useState<any>(1); 
+  const [reset, setResetState] = useState<any>(1);
+  const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) {
+      console.warn("Notificações não são suportadas neste navegador.");
+      return;
+    }
+    if (Notification.permission === "granted") {
+    } else if (Notification.permission !== "denied") {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        console.log("Som liberado após a autorização.");
+      }
+    }
+  };
 
   useEffect(() => {
-    if (userLog.id > 0 && isLogged) {
+    requestNotificationPermission();
+    configUserData({ id: parseInt(localStorage.getItem('codUserGIPP') || "0") });
+  }, []);
 
-      // let ws = new WebSocketGTPPClass();
-      // setWebSocketInstance(ws);
+  useEffect(() => {
+    (async () => {
+      await loadDetailsToken();
+    })();
+    // loadInitialDatas();
+  }, [userLog]);
 
-      // Atualiza o status da conexão
-      // const checkConnection = setInterval(() => {
-      //   if (ws.getIsConnected()) {
-      //     setIsConnected(true);
-      //     clearInterval(checkConnection);
-      //   }
-      // }, 100);
+  // async function loadInitialDatas() {
+  //   if (localStorage.tokenGIPP) {
+  //     const company = await fetchData({ method: "GET", params: null, pathFile: 'CCPP/Company.php' });
+  //     console.log(company);
+  //   }
+  // }
 
-      // return () => {
-      //   ws.disconnect();
-      // }
+  async function configUserData(user: { id: number, session?: string; administrator?: number }) {
+    if (user.id) {
+      const newUser = new User({
+        id: user.id,
+        session: user.session,
+        administrator: user.administrator ? user.administrator : 0
+      })
+      await newUser.loadInfo(true);
+      setUserLog(newUser);
     }
+  }
 
-  }, [userLog, isLogged]);
-
-
-
+  async function loadDetailsToken() {
+    if (userLog.id) {
+      try {
+        const token = await fetchData({ method: "GET", params: null, pathFile: 'CCPP/Token.php', urlComplement: `&application_id=18&user_id=${userLog.id}` });
+        if (token.error) throw new Error(token.message);
+        setToken(token.data[0]);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
   return (
     <MyContext.Provider
       value={{
@@ -119,8 +144,7 @@ export function MyProvider({ children }: Props) {
         modal,
         setModal,
         setMessage,
-        isLogged,
-        setIsLogged,
+
         titleHead,
         setTitleHead,
         userLog,
@@ -131,12 +155,17 @@ export function MyProvider({ children }: Props) {
 
         newProgressBar,
         setNewProgressBar,
-
-        // webSocketInstance,
-
+        configUserData,
         reset,
         setResetState,
+        token,
+        setToken,
+        loadDetailsToken,
 
+        ctlSearchUser, 
+        setCtlSearchUser,
+        appIdSearchUser, 
+        setAppIdSearchUser
       }}
     >
       {loading && (
@@ -156,6 +185,7 @@ export function MyProvider({ children }: Props) {
               setModal(false);
             }}
           />
+
         </StructureModal>
       )}
       {modalPage && (

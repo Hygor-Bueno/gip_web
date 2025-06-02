@@ -11,8 +11,8 @@
 }
 
 .bodyCard {
-    width: clamp(300px, 100%, calc(100% - 1250px)) !important;
-    height: clamp(400px, 100%, calc(100% - 1250px)) !important;
+    /* width: clamp(300px, 100%, calc(100% - 1250px)) !important;
+    height: clamp(400px, 100%, calc(100% - 1250px)) !important; */
 }
 
 .bodyCard button {
@@ -38,7 +38,8 @@
 
 .filter-modal {
     z-index: 1;
-    width: 150px;
+    max-width: 300px;
+    width: 50vw;
 }
 
 .z-index-modal {
