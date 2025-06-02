@@ -102,7 +102,7 @@ const Stores: React.FC = () => {
                     </div>
 
                     <div className="d-sm-flex py-2 w-100 overflow-auto">
-                        {(dataStore && dataStore.length > 0 && !openForm) && (
+                        {dataStore.length > 0 && (
                             <TableComponent
                                 maxSelection={1}
                                 list={convertForTable(dataStore, {
