@@ -74,7 +74,7 @@ export default function Login() {
             configLocalStoranger(req.data);
             await configUserData({ id: req.data["id"], session: req.data["session"] });
             setIsLogged(true);
-            navigate("/home");
+            navigate("/GIPP");
         } catch (error: any) {
             openModalChangePassword(error.message);
         }

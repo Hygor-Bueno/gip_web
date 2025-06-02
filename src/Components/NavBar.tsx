@@ -29,7 +29,7 @@ const NavBar: React.FC<NavBarProps> = (props: any) => {
                             props.list.map((item: any, index: any) => (
                                 <Nav.Link onClick={()=>{
                                     item.actionAdd && item.actionAdd();
-                                    }} key={index} as={Link} to={item.page || "/home"}>
+                                    }} key={index} as={Link} to={item.page || "/GIPP"}>
                                     <div className='d-flex align-items-center'>
                                         <div className={item.icon} ></div> <span className='mx-2'>{item.children || "Default Text"}</span>
                                     </div>

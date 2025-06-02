@@ -27,7 +27,7 @@ export default function Home(): JSX.Element {
     }, [userLog]);
 
     const listPath = [
-        { page: '/home', children: 'Home', icon: 'fa fa-home' },
+        { page: '/GIPP', children: 'Home', icon: 'fa fa-GIPP' },
         {
             page: '/', children: 'Sair', icon: 'fa fa-sign-out', actionAdd: () => {
                 localStorage.removeItem("tokenGIPP");
@@ -58,15 +58,15 @@ function RenderModule({ cod }: { cod: string }) {
         switch (cod) {
             case '3':
                 value.icon = iconGTPP;
-                value.path = '/home/GTPP';
+                value.path = '/GIPP/GTPP';
                 break;
             case '19':
                 value.icon = iconCFPP;
-                value.path = '/home/CFPP';
+                value.path = '/GIPP/CFPP';
                 break;
             case '15':
                 value.icon = iconGAPP;
-                value.path = '/home/GAPP';
+                value.path = '/GIPP/GAPP';
                 break;
             default:
                 break;

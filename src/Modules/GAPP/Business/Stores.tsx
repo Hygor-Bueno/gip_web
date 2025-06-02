@@ -7,7 +7,7 @@ import useWindowSize from './hook/useWindowSize';
 import { Connection } from '../../../Connection/Connection';
 import { IFormData, IFormGender } from './Interfaces/IFormGender';
 import { useMyContext } from '../../../Context/MainContext';
-const Gapp: React.FC = () => {
+const Stores: React.FC = () => {
     const [data, setData] = useState<IFormGender>({
         cnpj: "",
         name: "",
@@ -157,4 +157,4 @@ const Gapp: React.FC = () => {
         </React.Fragment>
     );
 };
-export default Gapp;
+export default Stores;

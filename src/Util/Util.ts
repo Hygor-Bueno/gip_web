@@ -197,7 +197,7 @@ function checkedExceptionError(message: string, exceptions?: string[]): boolean 
 }
 function settingUrl(middlewer: string, params?: string, port?: string) {
     let httpDefault = `gigpp.com.br:${port ? port : '72/GLOBAL'}`;
-    let httpTest = `192.168.0.99:${port ? port : '71/GLOBAL'}`;
+    let httpTest = `10.10.10.99:${port ? port : '71/GLOBAL'}`;
     let server = `http://${httpTest}`;
     return server + middlewer + (params ? params : "");
 }

@@ -84,7 +84,7 @@ const CardSearch: React.FC<CardSearchProps> = ({ items, loading, onEdit, onDelet
                             .slice()
                             .reverse()
                             .map((item: any, index: any) => (
-                                <GenericCardItem
+                                <GenericCardItem<InfractionItem>
                                     key={`card_${index}`}
                                     item={item}
                                     fields={restFields}

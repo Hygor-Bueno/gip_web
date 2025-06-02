@@ -15,7 +15,9 @@ import 'animate.css/animate.min.css'; // Animações opcionais
 import { ConnectionProvider } from './Context/ConnContext';
 import Cfpp from './Modules/CFPP/Cfpp';
 import Infraction from './Modules/GAPP/Infraction/Infraction';
-import Gapp from './Modules/GAPP/Business/Gapp';
+import Stores from './Modules/GAPP/Business/Stores';
+import Gapp from './Modules/GAPP/Gapp';
+
 
 
 function App() {
@@ -42,11 +44,13 @@ function App() {
       <HashRouter>
         <Routes>
           <Route path="/" element={withProvider(<Login />)} />
-          <Route path="/home" element={withPrivateProvider(<Home />)} />
-          <Route path="/home/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
-          <Route path="/home/CFPP" element={withPrivateProvider(<Cfpp />)} />
-          <Route path="/home/GAPP" element={withPrivateProvider(<Gapp/>)} />
-          <Route path="/home/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
+          <Route path="/GIPP" element={withPrivateProvider(<Home />)} />
+          <Route path="/GIPP/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
+          <Route path="/GIPP/CFPP" element={withPrivateProvider(<Cfpp />)} />
+          <Route path="/GIPP/GAPP" element={withPrivateProvider(<Gapp />)} />
+          
+          <Route path="/GIPP/GAPP/Stores" element={withPrivateProvider(<Stores/>)} />
+          <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>

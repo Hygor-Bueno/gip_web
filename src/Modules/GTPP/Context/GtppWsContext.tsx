@@ -47,7 +47,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     (async () => {
       setLoading(true);
       try {
-        const getNotify: any = await fetchData({ method: "GET", params: null, pathFile: '/GTPP/Notify.php', urlComplement: `&id_user=${userLog.id}`, exception: ["No data"] });
+        const getNotify: any = await fetchData({ method: "GET", params: null, pathFile: 'GTPP/Notify.php', urlComplement: `&id_user=${userLog.id}`, exception: ["No data"] });
         if (getNotify.error) throw new Error(getNotify.message);
         updateNotification(getNotify.data);
       } catch (error: any) {
