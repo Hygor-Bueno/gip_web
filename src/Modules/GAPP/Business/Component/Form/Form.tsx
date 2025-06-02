@@ -48,12 +48,9 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
   async function postStore(obj: any, conn: any = new Connection('18')) {
     try {
       setLoading(true);
-      const { success } = await conn.post(obj, 'GAPP/Store.php');
-      success ?
-        handleNotification("Sucesso", "Loja salva com sucesso!", "success") :
-        handleNotification("Erro", "Loja não foi salva!", "danger");
-
-      return success;
+      const data = await conn.post(obj, 'GAPP/Store.php');
+      if (data.error) throw new Error(data.message);
+      return !data.error;
     } catch (error) {
       handleNotification("Erro", `${error}`, "danger");
     } finally {
@@ -64,11 +61,9 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
   async function putStore(obj: any, conn: any = new Connection('18')) {
     try {
       setLoading(true);
-      const { success } = await conn.put(obj, 'GAPP/Store.php');
-      success ?
-        handleNotification("Sucesso", "Loja atualizada com sucesso!", "success") :
-        handleNotification("Erro", "Loja não foi atualizada!", "danger");
-      return success;
+      const data = await conn.put(obj, 'GAPP/Store.php');
+      if (data.error) throw new Error(data.message);
+      return !data.error;
     } catch (error) {
       handleNotification("Erro", `${error}`, "danger");
     } finally {
@@ -88,7 +83,7 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
       zip_code: data?.zip_code,
       complement: data?.complement,
       status_store: data?.status_store,
-      ...(isNewStore ? {} : { id: data.id }),
+      ...(isNewStore ? {} : { store_id: data.store_id }),
     };
   };
 
@@ -109,20 +104,17 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
     }
   };
   return (
-    <div className="d-flex h-25 row col-12">
       <CustomForm
-        classRender='w-100'
-        classButton='btn btn-success'
-        className='row col-12'
-        notButton={false}
+        classButton={`btn btn-success my-2 fa-sharp fa-solid ${isNewStore ? 'fa-paper-plane' : 'fa-arrows-rotate'} text-white`}
+        className='row'
+        notButton={true}
+        titleButton={""}
         fieldsets={filter}
+        onSubmit={async (event)=>{
+          event.preventDefault();
+          await editorSendData();
+        }}
       />
-      <div className='d-flex align-items-center'>
-        <button className={`btn btn-success`} onClick={editorSendData}>
-          <i className={`fa-sharp fa-solid ${isNewStore ? 'fa-paper-plane' : 'fa-arrows-rotate'} text-white`}></i>
-        </button>
-      </div>
-    </div>
   );
 };
 export default Form;

@@ -12,8 +12,7 @@ export const fieldsetsFormsBusiness = (
     searchCEP: any
 ) => [
         {
-            attributes: { className: 'col-3' },
-
+            attributes: { className: 'col-12 col-sm-6 col-md-4 col-xl-3' },
             item: {
                 label: 'Nome:',
                 mandatory: true,
@@ -30,8 +29,7 @@ export const fieldsetsFormsBusiness = (
             }
         },
         {
-            attributes: { className: 'col-3' },
-
+            attributes: { className: 'col-12 col-sm-6 col-md-4 col-xl-3' },
             item: {
                 label: 'CNPJ:',
                 mandatory: false,
@@ -50,8 +48,7 @@ export const fieldsetsFormsBusiness = (
         },
 
         {
-            attributes: { className: 'col-2' },
-
+            attributes: { className: 'col-12 col-sm-6 col-md-4 col-xl-3' },
             item: {
                 label: 'CEP:',
                 mandatory: true,
@@ -70,7 +67,7 @@ export const fieldsetsFormsBusiness = (
             }
         },
         {
-            attributes: { className: 'col-2' },
+            attributes: { className: 'col-12 col-sm-6 col-md-4 col-xl-3' },
 
             item: {
                 label: 'Rua:',
@@ -89,10 +86,9 @@ export const fieldsetsFormsBusiness = (
             }
         },
         {
-            attributes: { className: 'col-2' },
-
+            attributes: { className: 'col-6 col-sm-3 col-lg-2  col-xxl-' },
             item: {
-                label: 'Numero:',
+                label: 'Nº:',
                 mandatory: true,
                 captureValue: {
                     type: 'text',
@@ -108,8 +104,7 @@ export const fieldsetsFormsBusiness = (
             }
         },
         {
-            attributes: { className: 'col-2' },
-
+            attributes: { className: 'col-6 col-sm-3 col-md-5 col-lg-3 col-xl-2' },
             item: {
                 label: 'Cidade:',
                 mandatory: true,
@@ -127,8 +122,7 @@ export const fieldsetsFormsBusiness = (
             }
         },
         {
-            attributes: { className: 'col-1' },
-
+            attributes: { className: 'col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2' },
             item: {
                 label: 'Estado:',
                 mandatory: true,
@@ -157,8 +151,7 @@ export const fieldsetsFormsBusiness = (
             }
         },
         {
-            attributes: { className: 'col-2' },
-
+            attributes: { className: 'col-6 col-sm-6 col-md-4 col-xl-3 col-xxl-2' },
             item: {
                 label: 'Bairro:',
                 mandatory: false,
@@ -169,15 +162,14 @@ export const fieldsetsFormsBusiness = (
                     className: 'form-control',
                     value: data.district,
                     onChange: (e: React.ChangeEvent<HTMLInputElement>) => captureValueDistrict(e.target.value),
-                    required: true,
+                    required: false,
                     id: '',
                     disabled: false
                 }
             }
         },
         {
-            attributes: { className: 'col-1' },
-
+            attributes: { className: 'col-sm-6 col-md-4 col-lg-2 col-xl-3 col-xxl-2' },
             item: {
                 label: 'Complemento:',
                 mandatory: false,
