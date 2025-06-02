@@ -8,6 +8,7 @@ import { IFormData } from "./Interfaces/IFormGender";
 import { useMyContext } from "../../../Context/MainContext";
 import { useConnection } from "../../../Context/ConnContext";
 import { handleNotification } from "../../../Util/Util";
+import { listPathGAPP } from "../ConfigGapp";
 
 const Infraction: React.FC = () => {
   const [data, setData] = useState<any>({
@@ -128,9 +129,9 @@ const Infraction: React.FC = () => {
   return (
     <React.Fragment>
       {(isMobile || isTablet) && hiddenNav ? (
-        <NavBar list={listPath} />
+        <NavBar list={listPathGAPP} />
       ) : isDesktop ? (
-        <NavBar list={listPath} />
+        <NavBar list={listPathGAPP} />
       ) : null}
 
       <div className="container">

@@ -7,6 +7,7 @@ import useWindowSize from './hook/useWindowSize';
 import { Connection } from '../../../Connection/Connection';
 import { IFormData, IFormGender } from './Interfaces/IFormGender';
 import { useMyContext } from '../../../Context/MainContext';
+import { listPathGAPP } from '../ConfigGapp';
 const Stores: React.FC = () => {
     const [data, setData] = useState<IFormGender>({
         cnpj: "",
@@ -130,11 +131,9 @@ const Stores: React.FC = () => {
     return (
         <React.Fragment>
             {(isMobile || isTablet) && hiddenNav ? (
-                <NavBar list={listPath} />
+                <NavBar list={listPathGAPP} />
             ) : isDesktop ? (
-                <React.Fragment>
-                    <NavBar list={listPath} />
-                </React.Fragment>
+                <NavBar list={listPathGAPP} />
             ) : null}
             <div className='container'>
                 <div className='justify-content-between align-items-center px-2 position-relative'>

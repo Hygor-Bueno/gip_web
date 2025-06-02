@@ -17,9 +17,6 @@ import Cfpp from './Modules/CFPP/Cfpp';
 import Infraction from './Modules/GAPP/Infraction/Infraction';
 import Stores from './Modules/GAPP/Business/Stores';
 import Gapp from './Modules/GAPP/Gapp';
-
-
-
 function App() {
   function withProvider(component: JSX.Element) {
     return (

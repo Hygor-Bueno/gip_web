@@ -27,7 +27,7 @@ export default function Home(): JSX.Element {
     }, [userLog]);
 
     const listPath = [
-        { page: '/GIPP', children: 'Home', icon: 'fa fa-GIPP' },
+        { page: '/GIPP', children: 'Home', icon: 'fa fa-home' },
         {
             page: '/', children: 'Sair', icon: 'fa fa-sign-out', actionAdd: () => {
                 localStorage.removeItem("tokenGIPP");
