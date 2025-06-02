@@ -45,7 +45,6 @@ function App() {
           <Route path="/GIPP/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
           <Route path="/GIPP/CFPP" element={withPrivateProvider(<Cfpp />)} />
           <Route path="/GIPP/GAPP" element={withPrivateProvider(<Gapp />)} />
-          
           <Route path="/GIPP/GAPP/Stores" element={withPrivateProvider(<Stores/>)} />
           <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
           <Route path="*" element={<Navigate to="/" replace />} />

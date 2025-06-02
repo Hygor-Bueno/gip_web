@@ -73,7 +73,7 @@ export function captureTime(): string {
     const date = new Date();
 
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês é 0-based
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -83,7 +83,7 @@ export function captureTime(): string {
 export function getCurrentDate() {
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // +1 porque getMonth começa em 0
+    const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
@@ -151,9 +151,7 @@ export async function fetchNodeDataFull(req: iReqConn, headers?: Record<string, 
     try {
         const URL = `http://sgpp.pegpese.com:${req.port}${req.pathFile}${req.urlComplement ? req.urlComplement : ""}`;
         let objectReq: any = { method: req.method };
-        if (headers) {
-            objectReq.headers = headers;
-        }
+        if (headers) objectReq.headers = headers;
         if (req.params) objectReq.body = JSON.stringify(req.params);
         const response = await fetch(URL, objectReq);
         const body = await response.json();
