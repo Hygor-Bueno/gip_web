@@ -40,7 +40,6 @@ describe("GenericCardItem", () => {
         setup({onRecycle});
 
         const button = screen.getByLabelText("Reciclar");
-        
     });
 });
 
