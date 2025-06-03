@@ -20,7 +20,7 @@ const initialForms: IFormGender = {
     number: "",
     zip_code: "",
     complement: "",
-    status_store: 1,
+    status_store: 1
 };
 export default function Stores(): JSX.Element {
     const [data, setData] = useState<IFormGender>(initialForms);
@@ -65,17 +65,10 @@ export default function Stores(): JSX.Element {
         connectionBusinessGeneric("1");
     }
 
-    // function updateItem() {
-    //     let response: any = {};
-    //     Object.keys(e[0]).forEach((item) => {
-    //         response[item] = e[0][item].value;
-    //     });
-    //     setData(response);
-    // }
     return (
         <React.Fragment>
             {openMenu && <NavBar list={listPathGAPP} />}
-            <ControlItem isOpent={openModal} onClose={() => setOpenModal(false)} onDelete={() => console.log("ETA")} />
+            <ControlItem item={data} isOpent={openModal} onClean={() => setData(initialForms)} onClose={() => setOpenModal(false)} onReloadList={async ()=> await connectionBusinessGeneric(openTrash ? "0" : "1")}/>
             <div className="d-flex flex-column overflow-hidden w-100" style={{ height: 'calc(100vh - 50px)' }}>
                 <div className="p-2 d-flex flex-column h-100">
                     <div className='d-flex justify-content-end w-100 gap-2'>
@@ -140,20 +133,40 @@ export default function Stores(): JSX.Element {
 interface IPropsControlItem {
     isOpent: boolean;
     onClose: () => void;
-    onDelete: () => void;
+    onClean: () => void;
+    onReloadList:()=> Promise<void>;
+    item: IFormData;
 }
 function ControlItem(props: IPropsControlItem): JSX.Element {
+    const { setLoading } = useMyContext();
+    async function changeStatusStore() {
+        try {
+            setLoading(true);
+            const payload: IFormData = { ...props.item };
+            payload.status_store = payload.status_store == 1 ? 0 : 1;
+            const connection = new Connection("18");
+            const result: any = await connection.put(payload, "GAPP/Store.php");
+            if (result.error) throw new Error(result.message);
+            props.onClean();
+            props.onClose();
+            await props.onReloadList();
+        } catch (error: any) {
+            handleNotification("Erro", error.toString(), "danger");
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         props.isOpent ?
             <div className='d-flex align-items-center justify-content-center position-absolute bg-dark bg-opacity-25 top-0 start-0 w-100 h-100 z-3 overflow-hidden p-4'>
                 <div className='bg-white p-2 rounded mh-100 mw-100 overflow-auto'>
                     <div className='d-flex align-items-center gap-4'>
                         <h1>O que deseja fazer ?</h1>
-                        <button onClick={props.onClose} type='button' className='btn btn-danger fa-solid fa-xmark' title='Fechar Janela' />
+                        <button onClick={() => { props.onClose(); props.onClean() }} type='button' className='btn btn-danger fa-solid fa-xmark' title='Fechar Janela' />
                     </div>
                     <div className='d-flex alin-items-center justify-content-around w-100 mt-4'>
-                        <button onClick={props.onClose} type='button' className='btn btn-secondary' title='Alterar item'>Alterar</button>
-                        <button onClick={props.onDelete} type='button' className='btn btn-secondary' title='Inativar item'>Inativa</button>
+                        {props.item.status_store == 1 && <button onClick={props.onClose} type='button' className='btn btn-secondary' title='Alterar item'>Alterar</button>}
+                        <button onClick={async () => await changeStatusStore()} type='button' className='btn btn-secondary' title='Inativar item'>{props.item.status_store == 1 ? "Inativa" : "Ativar"}</button>
                     </div>
                 </div>
             </div>
