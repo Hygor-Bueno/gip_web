@@ -20,8 +20,8 @@ export const fetchCEPData = async (cep: string, loading: any) => {
         if (!response.ok) {
             const responseStatus = new Error(`CEP encontrado!`);
             handleNotification("Sucesso", responseStatus.message, "success");
-        } 
-        
+        }
+
         const data = await response.json();
         if (data.erro) {
             const responseStatus = new Error("CEP não encontrado.");
@@ -45,29 +45,44 @@ export const consultingCEP = async (cep: any, setData: any, loading: any) => {
         const data = await fetchCEPData(cep, loading);
 
         setData((prevData: any) => ({
-        ...prevData,
-        street: data.logradouro || '',
-        district: data.bairro || '',
-        city: data.localidade || '',
-        state: data.uf || '',
+            ...prevData,
+            street: data.logradouro || '',
+            district: data.bairro || '',
+            city: data.localidade || '',
+            state: data.uf || '',
         }));
     } catch (error: any) {
         console.error("Erro ao consultar o CEP:", error.message || error);
     }
 };
 
-export function convertTime(date: string) {
-    if (date && date != undefined) {
+export function convertTime(date: string, omitTime: boolean = false): string {
+    let response = "";
+    try {
+        if (!date) throw new Error("Invalid date");
+
         let formatTime: Intl.DateTimeFormatOptions = {
             dateStyle: "short",
-            timeStyle: "short",
             hourCycle: "h23"
         };
-        if (date.includes("T") && date.endsWith("Z")) formatTime.timeZone = 'UTC';
-        const localDate = new Date(`${date}`);
-        return new Intl.DateTimeFormat("pt-BR", formatTime).format(localDate);
+
+        if (!omitTime) {
+            formatTime.timeStyle = "short";
+        }
+
+        if (date.includes("T") && date.endsWith("Z")) {
+            formatTime.timeZone = 'UTC';
+        }
+
+        const localDate = new Date(date);
+        response = new Intl.DateTimeFormat("pt-BR", formatTime).format(localDate);
+    } catch (error) {
+        console.error("Erro ao formatar data:", error);
     }
+
+    return response;
 }
+
 
 export function captureTime(): string {
     const date = new Date();
@@ -316,25 +331,73 @@ export function formatarMoedaPTBR(valor: string): string {
     });
 }
 
-type AllowedTypes ='numbers' | 'hasSpaces' | 'allnumber' | 'lettersWithSpaces' | 'alphanumeric' | 'alphanumericWithSpaces';
+type AllowedTypes = 'numbers' | 'hasSpaces' | 'allnumber' | 'lettersWithSpaces' | 'alphanumeric' | 'alphanumericWithSpaces';
 
 export function validateWithRegexAndFormat(
-  type: AllowedTypes,
-  value: string
+    type: AllowedTypes,
+    value: string
 ): { isValid: boolean; formatted?: string | null } {
-  const regex = regexMenu()[type];
-  const isEmpty = /^\s*$/.test(value);
-  const isValid = isEmpty || regex.test(value);
-  return { isValid, formatted: isEmpty ? '' : undefined,};
+    const regex = regexMenu()[type];
+    const isEmpty = /^\s*$/.test(value);
+    const isValid = isEmpty || regex.test(value);
+    return { isValid, formatted: isEmpty ? '' : undefined, };
 }
 
 function regexMenu(): Record<AllowedTypes, RegExp> {
-  return {
-    numbers: /^\d+$/,
-    hasSpaces: /\s/,
-    allnumber: /^\d+$/,
-    lettersWithSpaces: /^[A-Za-zÀ-ÿ\s]+$/,
-    alphanumeric: /^[A-Za-z0-9]+$/,
-    alphanumericWithSpaces: /^[A-Za-z0-9\s]+$/,
-  };
+    return {
+        numbers: /^\d+$/,
+        hasSpaces: /\s/,
+        allnumber: /^\d+$/,
+        lettersWithSpaces: /^[A-Za-zÀ-ÿ\s]+$/,
+        alphanumeric: /^[A-Za-z0-9]+$/,
+        alphanumericWithSpaces: /^[A-Za-z0-9\s]+$/,
+    };
+}
+
+/**
+ * Formata um nome, deixando a primeira letra de cada palavra em maiúscula.
+ * Exemplo: "joão da silva" → "João Da Silva"
+ *
+ * @param text - Texto que representa o nome a ser formatado
+ * @returns Nome formatado com letras iniciais maiúsculas
+ */
+export function maskName(text: string): string {
+    // Converte todo o texto para minúsculo, depois aplica uma expressão regular
+    // que identifica a primeira letra de cada palavra e a converte para maiúscula.
+    const result = text.toLowerCase().replace(/(^\w{1})|(\s+\w{1})/g, letra => letra.toUpperCase());
+    return result;
+}
+
+/**
+ * Formata um valor numérico ou texto numérico no padrão monetário brasileiro (R$).
+ * Exemplo: "1234.5" → "R$ 1.234,50"
+ *
+ * @param value - Valor que será convertido para o formato monetário BRL
+ * @returns Valor formatado como moeda brasileira
+ */
+export function maskMoney(value: string | number): string {
+    // Converte para número e formata com a localidade 'pt-BR' e moeda 'BRL'
+    return parseFloat(value.toString()).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+/**
+ * Ordena um array de objetos JSON com base em uma chave específica.
+ * 
+ * @param list - Array de objetos JSON a ser ordenado.
+ * @param key - Chave usada para ordenar os objetos.
+ * @param ascending - Define se a ordenação será crescente (true) ou decrescente (false).
+ * @returns Novo array ordenado com base na chave especificada.
+ */
+export function sortListByKey<T>(
+    list: T[],
+    key: keyof T,
+    ascending: boolean = true
+): T[] {
+    return [...list].sort((a, b) => sortList(a,b,key,ascending));
+}
+
+function sortList<T>(a: T, b: T, key: keyof T,ascending: boolean):number {
+    const valueOne = String(a[key]).toLowerCase();
+    const valueTwo = String(b[key]).toLowerCase();
+    return (valueOne > valueTwo ? 1 : valueOne < valueTwo ? -1 : 0) * (ascending ? 1 : -1);
 }

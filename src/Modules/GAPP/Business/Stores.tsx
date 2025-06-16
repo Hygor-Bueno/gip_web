@@ -51,6 +51,7 @@ export default function Stores(): JSX.Element {
             setLoading(false);
         }
     };
+    
     useEffect(() => {
         setTitleHead({
             title: "Cadastrar Empresas - GAPP",
@@ -165,7 +166,7 @@ function ControlItem(props: IPropsControlItem): JSX.Element {
                         <button onClick={() => { props.onClose(); props.onClean() }} type='button' className='btn btn-danger fa-solid fa-xmark' title='Fechar Janela' />
                     </div>
                     <div className='d-flex alin-items-center justify-content-around w-100 mt-4'>
-                        {props.item.status_store == 1 && <button onClick={props.onClose} type='button' className='btn btn-secondary' title='Alterar item'>Alterar</button>}
+                        {props.item.status_store == 1 && <button onClick={props.onClose} type='button' className='btn btn-secondary' title='Alterar item'>Editar</button>}
                         <button onClick={async () => await changeStatusStore()} type='button' className='btn btn-secondary' title='Inativar item'>{props.item.status_store == 1 ? "Inativa" : "Ativar"}</button>
                     </div>
                 </div>
