@@ -5,19 +5,25 @@ import { useConnection } from "../../../Context/ConnContext";
 import CustomForm from "../../../Components/CustomForm";
 import { customTagsExpense, formExpense, minWidthsExpense } from "./Configuration/ConfigExpensesRegister";
 import { IExpensesItem } from "./Interfaces/InterfaceExpensesRegister";
+import { useMyContext } from "../../../Context/MainContext";
 
-
+interface IFormExpenses { date_start: string, date_end: string, license_plates: string, unit_id: string, exp_type_id_fk: string }
+const restartForm:IFormExpenses = { date_end: '', date_start: '', license_plates: '', unit_id: '', exp_type_id_fk: '' };
 export default function ExpensesRegister(): JSX.Element {
 
     const { fetchData } = useConnection();
+    const [page, setPage] = useState<number>(1);
+    const [urlComplement, setUrlComplement] = useState<string>('');
     const [data, setData] = useState<[]>([]);
+    const [formData, setFormData] = useState<IFormExpenses>(restartForm);
     const [units, setUnitis] = useState<{ label: string, value: string }[]>([{ label: '', value: '' }]);
     const [expensesType, setExpensesType] = useState<{ label: string, value: string }[]>([{ label: '', value: '' }]);
+    const { setLoading } = useMyContext();
+
     useEffect(() => {
         (
             async () => {
                 try {
-                    await loadExpenses();
                     await loadUnits();
                     await loadExpensesType();
                 } catch (error) {
@@ -27,10 +33,29 @@ export default function ExpensesRegister(): JSX.Element {
         )();
     }, []);
 
+    useEffect(() => {
+        (
+            async () => {
+                try {
+                    setLoading(true);
+                    await loadExpenses();
+                } catch (error) {
+                    console.error(error)
+                } finally {
+                    setLoading(false);
+                }
+            }
+        )();
+    }, [page, urlComplement]);
+
     async function loadExpenses() {
-        const req: any = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/FiltredExpenses.php", urlComplement: `&dashGAPP=1` });
-        if (req.error) throw new Error(req.message);
-        setData(req.data.map((item: IExpensesItem): IExpensesItem => maskExpenses(item)));
+        try {
+            const req: any = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/FiltredExpenses.php", urlComplement: `&dashGAPP=1&page_number=${page}${urlComplement ? urlComplement : ''}` });
+            if (req.error) throw new Error(req.message);
+            setData(req.data.map((item: IExpensesItem): IExpensesItem => maskExpenses(item)));
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     async function loadUnits() {
@@ -63,13 +88,44 @@ export default function ExpensesRegister(): JSX.Element {
         }
     }
 
+    function changePage(isSum: boolean) {
+        let newPage: number = page;
+        newPage = isSum ? newPage + 1 : newPage - 1;
+        if (newPage > 0) {
+            setPage(newPage);
+        }
+    }
+
+    async function handleSubmit() {
+        let result: string = '';
+        Object.keys(formData).forEach((item) => {
+            const key = item as keyof IFormExpenses;
+            if (formData[key]) result += `&${key}=${formData[key]}`;
+        });
+        setUrlComplement(result);
+    };
+
+    function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+        const { name, value } = event.target;
+        setFormData((prevParams: IFormExpenses) => ({
+            ...prevParams,
+            [name]: value,
+        }));
+    };
+    // <i class="fa-solid fa-magnifying-glass"></i> ||| <i class="fa-solid fa-eraser"></i>
+
     return (
-        <div className="d-flex flex-column align-items-center overflow-hidden text-white w-100" >
+        <div className="d-flex flex-column align-items-center justify-content-between overflow-hidden text-white w-100" >
             <div className="container">
-                <CustomForm notButton={false} className='row' fieldsets={formExpense(units,expensesType)} />
+                <CustomForm notButton={false} className='row' fieldsets={formExpense(units,formData, expensesType, handleChange)} />
+                <div className="d-flex gap-2">
+                    <button onClick={handleSubmit} className="btn btn-success fa-solid fa-magnifying-glass my-2" type="button" />
+                    <button onClick={()=>setFormData(restartForm)} className="btn btn-danger fa-solid fa-eraser my-2" type="button" />
+                </div>
             </div>
-            <div className="d-flex flex-column align-items-center w-100 overflow-auto p-2">
-                {data.length > 0 &&
+            <div className="d-flex flex-column align-items-center h-100 w-100 overflow-auto p-2">
+                {
+                    data.length > 0 &&
                     <TableComponent
                         list={convertForTable(data, {
                             customTags: customTagsExpense,
@@ -77,7 +133,13 @@ export default function ExpensesRegister(): JSX.Element {
                             minWidths: minWidthsExpense
                         })}
                         onConfirmList={(event: any) => console.log(event)}
-                    />}
+                    />
+                }
+            </div>
+            <div className="d-flex my-2 gap-4">
+                <button onClick={() => changePage(false)} type="button" className="btn btn-success fa-solid fa-chevron-left" />
+                <strong className="text-dark">{page.toString().padStart(2, '0')}</strong>
+                <button onClick={() => changePage(true)} type="button" className="btn btn-danger fa-solid fa-chevron-right" />
             </div>
         </div>
     );

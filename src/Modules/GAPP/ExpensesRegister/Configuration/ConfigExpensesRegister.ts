@@ -1,6 +1,8 @@
 export const formExpense = (
     unitList:{label:string,value:string}[],
-    expensesTypeList:{label:string,value:string}[]
+    values:{ date_start: string, date_end: string, license_plates: string, unit_id: string, exp_type_id_fk: string },
+    expensesTypeList:{label:string,value:string}[],
+        onAction: (element: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
 ) => [
     {
         attributes: { className: 'col-12 col-sm-4 col-md-3 col-xl-2' },
@@ -11,8 +13,8 @@ export const formExpense = (
                 placeholder: 'Digite a empresa..',
                 name: 'date_start',
                 className: 'form-control',
-                // value: data.name,
-                onChange: (e: React.ChangeEvent<HTMLInputElement>) => console.log(e.target),
+                value: values.date_start,
+                onChange: onAction,
             }
         }
     },
@@ -25,8 +27,8 @@ export const formExpense = (
                 placeholder: 'Digite a empresa..',
                 name: 'date_end',
                 className: 'form-control',
-                // value: data.name,
-                onChange: (e: React.ChangeEvent<HTMLInputElement>) => console.log(e.target),
+                value: values.date_end,
+                onChange: onAction,
             }
         }
     },
@@ -39,8 +41,8 @@ export const formExpense = (
                 placeholder: 'ABC1D23',
                 name: 'license_plates',
                 className: 'form-control',
-                // value: data.name,
-                onChange: (e: React.ChangeEvent<HTMLInputElement>) => console.log(e.target.name,e.target.value),
+                value: values.license_plates,
+                onChange: onAction,
             }
         }
     },
@@ -51,8 +53,10 @@ export const formExpense = (
             captureValue: {
                 type: 'select',
                 name: 'unit_id',
+                value: values.unit_id,
                 className: 'form-control',
-                options: unitList
+                options: unitList,
+                onChange: onAction,
             },
         },
     },
@@ -64,26 +68,14 @@ export const formExpense = (
                 type: 'select',
                 name: 'exp_type_id_fk',
                 className: 'form-control',
-                options: expensesTypeList
+                options: expensesTypeList,
+                value: values.exp_type_id_fk,
+                onChange: onAction,
             },
         },
     },
 ];
-/*
-    :expen_id,
-    :date_start,
-    :date_end,
-    :hour,
-    :description,
-    :discount,
-    :total_value,
-    :exp_type_id_fk,
-    :vehicle_id,
-    :license_plates,
-    :unit_name,
-    :status_expen,
-    :page_number
-*/
+
 export const customTagsExpense = {
     expen_id: "Cód",
     date: "data",

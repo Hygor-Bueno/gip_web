@@ -55,7 +55,7 @@ export default function Stores(): JSX.Element {
     useEffect(() => {
         setTitleHead({
             title: "Cadastrar Empresas - GAPP",
-            simpleTitle: "GAPP",
+            simpleTitle: "GAPP - Empresas",
             icon: "fa fa-shop",
         });
         connectionBusinessGeneric(openTrash ? "0" : "1");
