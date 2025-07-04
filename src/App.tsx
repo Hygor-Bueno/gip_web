@@ -17,6 +17,9 @@ import Cfpp from './Modules/CFPP/Cfpp';
 import Infraction from './Modules/GAPP/Infraction/Infraction';
 import Stores from './Modules/GAPP/Business/Stores';
 import Gapp from './Modules/GAPP/Gapp';
+import Epp from './Modules/EPP/Epp';
+import SalesPage from './Modules/EPP/Pages/SalesPage';
+
 function App() {
   function withProvider(component: JSX.Element) {
     return (
@@ -47,6 +50,8 @@ function App() {
           <Route path="/GIPP/GAPP" element={withPrivateProvider(<Gapp />)} />
           <Route path="/GIPP/GAPP/Stores" element={withPrivateProvider(<Stores/>)} />
           <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
+          <Route path="/GIPP/EPP" element={withPrivateProvider(<Epp />)} />
+          <Route path="/GIPP/EPP/sales" element={withPrivateProvider(<SalesPage />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>
