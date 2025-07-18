@@ -17,8 +17,9 @@ function ShopCard({ OrderId, setCaptureHtml }: Props) {
   const [filterMenu, setFilterMenu] = useState<string>('');
   const [filterNameMenu, setFilterNameMenu] = useState<string>('');
   
-  const produtosDoCarrinho = useShopCard( selectedProductIds, productQuantities, productPrices, allProd);
+  const produtosDoCarrinho = useShopCard(selectedProductIds, productQuantities, productPrices, allProd);
 
+  // ele armazena os numeros dos ids
   useEffect(() => {
     async function fetchData() {
       if (OrderId) {
@@ -29,7 +30,9 @@ function ShopCard({ OrderId, setCaptureHtml }: Props) {
         logSaleData.forEach((item) => {initialQuantities[item.eppIdProduct] = item.quantity;});
         setProductQuantities(initialQuantities);
       }
+    };
 
+    async function loadingListProd() {
       const priceMap: { [Key: number]: number } = {};
       const pricePromises = allProd.map(async (prod: any) => {
         const priceData = await fetchMenuProd(prod.id_product, 1);
@@ -38,30 +41,36 @@ function ShopCard({ OrderId, setCaptureHtml }: Props) {
         }
       });
       await Promise.all(pricePromises);
+      console.log(priceMap);
       setProductPrices(priceMap);
-    }
+    };
+    loadingListProd(); 
+    
     fetchData();
   }, [OrderId]);
 
   useEffect(() => {
-    const html = produtosDoCarrinho.map((prod) => {
-      return `
-        <div>
-          <div><strong>Código</strong>: ${prod.id}</div>
-          <strong>${prod.descricao}</strong><br/>
-          <strong>Subtotal:</strong>
-          <small>${prod.quantidade} x R$ ${prod.preco} = <strong>R$ ${prod.subtotal}</strong></small>
-        </div>
-        <hr/>
-      `;
-    }).join("");
-    setCaptureHtml(html);
+    setCaptureHtml(produtosDoCarrinho);
   }, [selectedProductIds, productQuantities, productPrices, allProd]);
 
   const handleOpenModal = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsModalOpen(true);
+
+    async function loadingListProd() {
+      const priceMap: { [Key: number]: number } = {};
+      const pricePromises = allProd.map(async (prod: any) => {
+        const priceData = await fetchMenuProd(prod.id_product, 1);
+        if (priceData && priceData.length > 0) {
+          priceMap[prod.id_product] = priceData[0].PRECO;
+        }
+      });
+      await Promise.all(pricePromises);
+      console.log(priceMap);
+      setProductPrices(priceMap);
+    };
+    loadingListProd(); 
   };
 
   const handleCloseModal = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -73,23 +82,22 @@ function ShopCard({ OrderId, setCaptureHtml }: Props) {
   const handleSave = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
   };
 
   const handleCheckboxChange = (id: number) => {
-    setSelectedProductIds((prevIds) =>
-      prevIds.includes(id)
-        ? prevIds.filter((itemId) => itemId !== id)
-        : [...prevIds, id]
-    );
+    setSelectedProductIds((prevIds) => prevIds.includes(id) ? prevIds.filter((itemId) => itemId !== id) : [...prevIds, id]);
   };
 
   const handleUnAndKg = (prodId:any) => (e:any) => {
-    setProductQuantities((prev) => ({
-      ...prev,
-      [prodId]: parseFloat(e.target.value) || 0,
-    }));
+    setProductQuantities((prev) => ({...prev,[prodId]: parseFloat(e.target.value) || 0}));
   };
+
+  const handleTrashFunction = (e:any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setProductQuantities({});
+    setSelectedProductIds([]);
+  }
 
   return (
     <React.Fragment>
@@ -142,7 +150,6 @@ function ShopCard({ OrderId, setCaptureHtml }: Props) {
                     </select>
                   </div>
                 </section>
-
                 <section className="d-flex gap-4 flex-grow-1 overflow-hidden px-3 pt-2">
                   <div
                     className="modal-body p-0"
@@ -198,7 +205,6 @@ function ShopCard({ OrderId, setCaptureHtml }: Props) {
                       <p className="p-2">Nenhum produto encontrado.</p>
                     )}
                   </div>
-
                   <div
                     style={{
                       flex: 1,
@@ -247,14 +253,10 @@ function ShopCard({ OrderId, setCaptureHtml }: Props) {
                     </div>
                   </div>
                 </section>
-
                 <div className="modal-footer">
-                  <button className="btn btn-secondary" onClick={handleCloseModal}>
-                    Fechar
-                  </button>
-                  <button className="btn btn-primary" onClick={handleSave}>
-                    Salvar
-                  </button>
+                  <button className="btn btn-secondary" onClick={handleCloseModal}>Sair</button>
+                  <button className="btn btn-danger" onClick={handleTrashFunction}>Apagar</button>
+                  <button className="btn btn-success" onClick={handleSave}>Salvar</button>
                 </div>
               </div>
             </div>

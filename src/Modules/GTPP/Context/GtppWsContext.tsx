@@ -22,7 +22,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [taskPercent, setTaskPercent] = useState<number>(0);
-  const [task, setTask] = useState<any>({});
+  const [task, setTask] = useState<any>({}); // achei
   const [taskDetails, setTaskDetails] = useState<iTaskReq>({});
   const [onSounds, setOnSounds] = useState<boolean>(false);
   const [openCardDefault, setOpenCardDefault] = useState<boolean>(false);
@@ -124,6 +124,20 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  // Criei uma função necessaria
+  const closeCardDefaultGlobally = (taskId?: number) => {
+    ws.current.informSending({
+      error: false,
+      user_id: userLog.id,
+      object: {
+        description: "O card padrão foi fechado por outro usuário.",
+        task_id: taskId,
+      },
+      task_id: taskId,
+      type: 7,
+    });
+  };
+
   function updateStates(newList: any[]) {
     localStorage.gtppStates = JSON.stringify(newList);
     setStates([...newList]);
@@ -179,7 +193,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   async function callbackOnMessage(event: any) {
-
     let response = JSON.parse(event.data);
 
     if (
@@ -187,20 +200,28 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       response.message.includes("This user has been connected to another place")
     ) {
       handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
-      // setTimeout(() => {
-      //   navigate("/");
-      //   localStorage.removeItem("tokenGIPP");
-      //   localStorage.removeItem("codUserGIPP");
-      // }, 5000);
+      return;
     }
-    // Verifica se essa notificação não é de sua autoria. E se ela não deu falha!
 
     if (!response.error && response.send_user_id != localStorage.codUserGIPP) {
-      updateNotification([response]); //2º a ser observado
+      updateNotification([response]);
+
       if (response.type == -1 || response.type == 2 || response.type == 6) {
         if (response.type == 6) {
+          if (task.id === response.task_id) {
+
+            console.log("[websocket response]", response);
+            console.log("[websocket task]", task);
+
+            const updatedTask = {
+              ...task,
+              state_id: response.object?.state_id,
+              percent: response.object?.percent,
+            };
+            setTask(updatedTask);
+          }
           await loadTasks();
-        } else if (response.object) {
+        }else if (response.object) {
           if (response.type == 2) {
             if (response.object.isItemUp) {
               itemUp(response.object);
@@ -211,15 +232,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
             }
           }
         }
-      } else
-        if (response.type == -3 || response.type == 5) {
-          //Se você estiver com os detalhes da tarefa aberta e for removido ele deverá ser fechado!
-          if (task.id == response.task_id && response.type == -3) {
-            setOpenCardDefault(false);
-          }
-
-          await loadTasks();
+      } else if (response.type == -3 || response.type == 5) {
+        if (task.id == response.task_id && response.type == -3) {
+          setOpenCardDefault(false);
         }
+        await loadTasks();
+      }
     }
 
     if (!response.error && response.type == 3) {
@@ -541,52 +559,77 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     const response = req.error ? {} : req.data instanceof Array ? req.data[0].id : req.data.id;
     return response;
   }
+
   function addDays(daysToAdd: number) {
     const date = new Date(); // Pega a data atual
     date.setDate(date.getDate() + daysToAdd); // Adiciona os dias
     return date.toISOString().split('T')[0]; // Retorna no formato "YYYY-MM-DD"
   }
+
+  // estou resolvendo os botões aqui!
   async function stopAndToBackTask(
-    taskId: number,
-    resource: string | null,
-    date: string | null,
-    taskList: any
-  ) {
+  taskId: number,
+  resource: string | null,
+  date: string | null,
+  taskList: any
+) {
     try {
       const taskState: any = await updateStateTask(taskId, resource, date);
-      if (!taskState || taskState.error) throw new Error(taskState.message || "Falha genérica")
+
+      if (!taskState || taskState.error) {
+        console.error("API Error - taskState:", taskState);
+        throw new Error(taskState?.message || "Falha genérica ao atualizar o estado da tarefa.");
+      }
+
+      if (task.id === taskId) {
+        setTask((prevTask: any) => {
+          const newState = {
+            ...prevTask,
+            state_id: taskState,
+            percent: task.percent || prevTask.percent,
+          }
+          return newState;
+        });
+      }
+
       if (taskList.state_id == 5) {
-        upTask(taskId, resource, date, taskList, `Tarefa que estava bloquado está de volta!`, 6, {
+        upTask(taskId, resource, date, taskList, `Tarefa que estava bloqueada está de volta!`, 6, {
           "description": "send",
           "task_id": taskId,
-          "state_id": taskState.id,
-          "percent": taskList.percent,
+          "state_id": taskState,
+          "percent": task.percent || taskList.percent,
           "new_final_date": addDays(parseInt(date || "0"))
         });
-      } else if (taskList.state_id == 4 || taskList.state_id == 6) {
+      }
+      else if (taskList.state_id == 4 || taskList.state_id == 6) {
         upTask(taskId, resource, date, taskList, taskList.state_id == 4 ? `send` : 'send', 6, {
           "description": "send",
           "task_id": taskId,
-          "state_id": taskState.id
+          "state_id": taskState
         });
-      } else if (taskList.state_id == 1 || taskList.state_id == 2) {
+      }
+      else if (taskList.state_id == 1 || taskList.state_id == 2) {
         upTask(taskId, resource, date, taskList, "A tarefa foi parada!", 6, {
           "description": "send",
           "task_id": taskId,
-          "state_id": taskState.id
+          "state_id": taskState
         });
-      } else if (taskList.state_id == 3) {
+      }
+      else if (taskList.state_id == 3) {
         upTask(taskId, resource, date, taskList, "A tarefa finalizada!", 6, {
           "description": "send",
           "task_id": taskId,
-          "state_id": taskState.id,
-          "percent": taskList.percent,
+          "state_id": taskState,
+          "percent": task.percent || taskList.percent,
         });
       }
-    } catch (error) {
-      console.error(error);
+      closeCardDefaultGlobally(taskId);
+    } catch (error: any) {
+      console.error(`[stopAndToBackTask] Caught error:`, error);
+      handleNotification("Atenção!", error.message, "danger");
     }
   }
+
   async function updatedForQuestion(item: { task_id: number; id: number; yes_no: number }) {
     try {
       setLoading(true);

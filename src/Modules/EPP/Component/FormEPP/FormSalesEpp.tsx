@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { handleNotification, removeStringSpecialChars } from '../../../../Util/Util';
-import { FormSalesEPPProps } from '../../Interfaces/InterfacesEPP';
-import { useConnection } from '../../../../Context/ConnContext';
+import { dataDetails, FormSalesEPPProps } from '../../Interfaces/InterfacesEPP';
 import ShopCard from '../ShopCard/ShopCard';
+import { useConnection } from '../../../../Context/ConnContext';
 
 const INITIAL_FORM_DATA = {
   idOrder: '', fone: '', email: '', signalValue: '', idMenu: '', pluMenu: '',
@@ -21,7 +21,7 @@ const FormSalesEPP: React.FC<FormSalesEPPProps> = ({ stores, dataClient }) => {
   const { fetchData } = useConnection();
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [valorPendente, setValorPendente] = useState(0);
-  const [captureHtml, setCaptureHtml] = useState<string>('');
+  const [captureHtml, setCaptureHtml] = useState<any>([]);
 
   useEffect(() => {
     if (!dataClient?.length) return;
@@ -65,42 +65,48 @@ const FormSalesEPP: React.FC<FormSalesEPPProps> = ({ stores, dataClient }) => {
       return;
     }
 
-    const { fone, email, signalValue, idMenu, pluMenu, typeRice, description,
-      delivered, dessert, store, nameClient, dateOrder, deliveryDate, deliveryHour,
-      deliveryStore, userId, total, obs } = formData;
+    const {
+      fone, email, signalValue, idMenu, pluMenu, typeRice, description,
+      delivered, dessert, store, nameClient, dateOrder, deliveryDate,
+      deliveryHour, deliveryStore, userId, total, obs
+    } = formData;
 
-      await fetchData({
-        method: "POST",
-        pathFile: "EPP_DSB/Order.php",
-        urlComplement: "",
-        params: {
-          id_order: null,
-          fone: fone,
-          email: email,
-          signal_value: signalValue,
-          id_menu: idMenu,
-          plu_menu: pluMenu,
-          type_rice: typeRice,
-          description: description,
-          delivered: delivered,
-          dessert: dessert,
-          store: store,
-          name_client: nameClient,
-          date_order: dateOrder,
-          delivery_date: deliveryDate,
-          delivery_hour: deliveryHour,
-          delivery_store: deliveryStore,
-          user_id: userId,
-          total: total,
-          observation: obs
-        },
-      });
+    const cleanCaptureHtml = captureHtml.replace(/<[^>]+>/g, '').trim();
+
+    await fetchData({
+      method: "POST",
+      pathFile: "EPP_DSB/Order.php",
+      urlComplement: "",
+      params: {
+        id_order: null,
+        fone: fone,
+        email: email,
+        signal_value: signalValue,
+        id_menu: idMenu,
+        plu_menu: pluMenu,
+        type_rice: typeRice,
+        description: cleanCaptureHtml,
+        delivered: delivered,
+        dessert: dessert,
+        store: store,
+        name_client: nameClient,
+        date_order: dateOrder,
+        delivery_date: deliveryDate,
+        delivery_hour: deliveryHour,
+        delivery_store: deliveryStore,
+        user_id: userId,
+        total: total,
+        observation: obs
+      },
+    });
   };
+
 
   const handleAction = (action: 'edit' | 'delete' | 'clear' | 'delivery' | 'print') => (e: React.FormEvent) => {
     e.preventDefault();
     if (action === 'clear') {
       setFormData(INITIAL_FORM_DATA);
+      setCaptureHtml([]);
       setValorPendente(0);
       handleNotification('Formulário limpo', '', 'success');
       return;
@@ -135,7 +141,6 @@ const FormSalesEPP: React.FC<FormSalesEPPProps> = ({ stores, dataClient }) => {
                 <label htmlFor="fone" className="form-label">Telefone</label>
                 <input id="fone" name="fone" type="tel" value={formData.fone} onChange={handleChange} className="form-control" />
               </div>
-
               <div className="col-md-4">
                 <label htmlFor="email" className="form-label">E-mail</label>
                 <input id="email" type="email" name="email" value={formData.email} onChange={handleChange} className="form-control" />
@@ -147,12 +152,7 @@ const FormSalesEPP: React.FC<FormSalesEPPProps> = ({ stores, dataClient }) => {
 
               <div className="col-md-3 d-flex flex-column align-items-center justify-content-center">
                 <label>Status</label>
-                <div
-                  className="fs-3"
-                  data-bs-toggle="tooltip"
-                  data-bs-placement="top"
-                  title="Status do pedido"
-                >
+                <div className="fs-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Status do pedido">
                   {STATUS_ICONS[0]}
                 </div>
               </div>
@@ -171,8 +171,16 @@ const FormSalesEPP: React.FC<FormSalesEPPProps> = ({ stores, dataClient }) => {
                   <ShopCard setCaptureHtml={setCaptureHtml} OrderId={formData.idOrder} />
                 </div>
                 <div className="form-control shadow-sm overflow-auto" style={{ minHeight: '50px', height: '160px' }}>
-                  <div dangerouslySetInnerHTML={{ __html: captureHtml }} />
-                </div>
+                <div>{captureHtml.map(({descricao, id, quantidade, subtotal, unidade}: dataDetails) => (
+                  <div>
+                    <strong>Codigo:</strong> {id}<br/>
+                    <strong>Descrição:</strong> {descricao}<br/>
+                    <strong>Quantidade:</strong> {quantidade} {unidade}<br/>
+                    <strong>Subtotal:</strong> {subtotal}<br/>
+                    <hr/>
+                  </div>
+                ))}</div>
+              </div>
               </div>
               <div className="col-12">
                 <label htmlFor="obs" className="form-label">Observações</label>

@@ -66,6 +66,14 @@ export interface dataAllProd {
     status_prod: string
 }
 
+export interface dataDetails {
+  descricao: string,
+  id: number,
+  quantidade: number,
+  unidade: string, 
+  subtotal: string,
+}
+
 export interface PayloadOrderPost {
   id_order: number,
   fone: number,
