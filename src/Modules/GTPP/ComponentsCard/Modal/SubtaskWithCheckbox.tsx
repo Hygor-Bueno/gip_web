@@ -20,7 +20,18 @@ interface iSubTask {
 }
 
 const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
-  const { checkedItem, changeObservedForm, task, taskDetails, setTaskDetails, reloadPagePercent, deleteItemTaskWS, updatedForQuestion, updateItemTaskFile } = useWebSocket();
+  const { 
+    checkedItem,
+    changeObservedForm,
+    task, 
+    taskDetails, 
+    setTaskDetails, 
+    reloadPagePercent, 
+    deleteItemTaskWS, 
+    updatedForQuestion, 
+    updateItemTaskFile 
+  } = useWebSocket();
+  
   const { setLoading } = useMyContext();
   const { fetchData } = useConnection();
   const [editTask, setEditTask] = useState<any>("");

@@ -7,6 +7,7 @@ import DefaultPassword from "./DefaultPassword";
 import { ReactNotifications } from "react-notifications-component";
 import { useConnection } from "../Context/ConnContext";
 import User from "../Class/User";
+import { loadLocalStorage } from "../Util/Util";
 
 export default function Login() {
     const [defaultPassword, setDefaulPassword] = useState<boolean>(false);
@@ -72,6 +73,7 @@ export default function Login() {
             if (!req) throw new Error("No response from server");
             if (req.error) throw new Error(req.message);
             configLocalStoranger(req.data);
+            loadLocalStorage(req.data);
             await configUserData({ id: req.data["id"], session: req.data["session"] });
             setIsLogged(true);
             navigate("/GIPP");

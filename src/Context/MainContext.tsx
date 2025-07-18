@@ -144,7 +144,6 @@ export function MyProvider({ children }: Props) {
         modal,
         setModal,
         setMessage,
-
         titleHead,
         setTitleHead,
         userLog,
@@ -152,7 +151,6 @@ export function MyProvider({ children }: Props) {
         contactList,
         setModalPage,
         setModalPageElement,
-
         newProgressBar,
         setNewProgressBar,
         configUserData,
@@ -161,13 +159,11 @@ export function MyProvider({ children }: Props) {
         token,
         setToken,
         loadDetailsToken,
-
         ctlSearchUser, 
         setCtlSearchUser,
         appIdSearchUser, 
         setAppIdSearchUser
-      }}
-    >
+      }}>
       {loading && (
         <StructureModal className="StructureModal ModalBgWhite">
           <div className="d-flex flex-column align-items-center">

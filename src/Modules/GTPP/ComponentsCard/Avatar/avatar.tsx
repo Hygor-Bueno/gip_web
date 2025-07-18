@@ -233,10 +233,12 @@ function ModalUser(props: any) {
                   <button title="Abrir detalhes do usuário" className="btn bg-danger text-white" onClick={() => props.setOpenDetailUser(false)}>X</button>
                 </div>
                 <div className="text-center">
-                  <Image
-                    className="rounded img-fluid img-thumbnail w-100"
-                    src={convertImage(props.list?.photo) || ImageUser}
-                  />
+                  <a href={props.list?.photo} target="_blank" rel="noopener noreferrer">
+                    <Image
+                      className="rounded img-fluid img-thumbnail w-100"
+                      src={convertImage(props.list?.photo) || ImageUser}
+                    />
+                  </a>
                 </div>
                 <p>
                   <strong>Nome:</strong> {props.list?.name}
