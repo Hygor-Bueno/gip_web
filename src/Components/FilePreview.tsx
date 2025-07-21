@@ -18,7 +18,7 @@ export default function FilePreview(props: FilePreviewProps) {
   const decodeAndFormatXML = (base64: string): string => {
     try {
       const decodedXML = atob(base64.split(',')[1] || ''); // Decodifica o conteúdo Base64
-      const parser = new DOMParser();
+      const parser = new DOMParser(); 
       const xmlDoc = parser.parseFromString(decodedXML, 'application/xml'); // Parseia como XML
 
       // Verifica erros de parsing
@@ -65,6 +65,78 @@ export default function FilePreview(props: FilePreviewProps) {
       .join('\n');
   };
 
+  const openImageInNewTab = () => {
+    const newWindow = window.open();
+    if(newWindow) {
+      newWindow.document.write(`
+        <html>
+          <head>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+            <title>GTPP - Visualizador da Imagem</title>
+            <style>
+              body { margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; padding: 20px; box-sizing: border-box; }
+              .container { text-align: center; background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 90%; width: auto; }
+              img { max-width: 100%; max-height: 70vh; display: block; margin: 0 auto 20px auto; border: 1px solid #ddd; border-radius: 4px;}
+              .form-group { margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; }
+              .form-control { width: 80%; max-width: 300px; margin-bottom: 10px; }
+              .btn-custom { width: 80%; max-width: 300px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="d-flex flex-column align-items-center">
+                <img id="imageViewer" src="${props.base64File}" alt="Imagem" />
+                <div class="form-group">
+                  <label for="fileNameInput" class="form-label">Nome do arquivo:</label>
+                  <input type="text" id="fileNameInput" class="form-control" value="imagem_download" />
+                </div>
+                <button id="downloadBtn" class="btn btn-primary btn-custom">Download Imagem</button>
+              </div>
+            </div>
+
+            <script>
+              document.addEventListener('DOMContentLoaded', () => {
+                const downloadBtn = document.getElementById('downloadBtn');
+                const fileNameInput = document.getElementById('fileNameInput');
+                const imageSrc = document.getElementById('imageViewer').src;
+
+                // Tenta extrair a extensão da string base64 ou usa .png como padrão
+                let fileExtension = '.png'; // Default
+                if (imageSrc.startsWith('data:image/')) {
+                    const mimeType = imageSrc.substring(5, imageSrc.indexOf(';'));
+                    if (mimeType.includes('/')) {
+                        fileExtension = '.' + mimeType.split('/')[1];
+                    }
+                }
+                
+                // Define um valor inicial para o input com base no timestamp
+                const defaultFileName = 'imagem_' + Date.now();
+                fileNameInput.value = defaultFileName;
+
+
+                downloadBtn.addEventListener('click', () => {
+                  const fileName = fileNameInput.value.trim();
+                  if (fileName) {
+                    const a = document.createElement('a');
+                    a.href = imageSrc;
+                    // Garante que o nome do arquivo tenha uma extensão
+                    a.download = fileName + (fileName.endsWith(fileExtension) ? '' : fileExtension);
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                  } else {
+                    alert('Por favor, digite um nome para o arquivo.');
+                  }
+                });
+              });
+            </script>
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+    }
+  }
   function renderPreview() {
     if (!fileType) {
       return <p>Tipo de arquivo desconhecido. Não é possível exibir uma pré-visualização.</p>;
@@ -72,7 +144,11 @@ export default function FilePreview(props: FilePreviewProps) {
 
     if (fileType.startsWith('image/')) {
       // Pré-visualização de imagens
-      return <img className="rounded w-100 h-100" src={props.base64File} alt="Imagem selecionada" style={{ width: '100%', maxWidth: '500px' }} />;
+      return (
+        <div onClick={openImageInNewTab} style={{ cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <img className="rounded w-100 h-100" src={props.base64File} alt="Imagem selecionada" style={{ width: '100%', maxWidth: '500px' }} />
+        </div>
+      );
     } else if (fileType === 'application/pdf') {
       // Pré-visualização de PDF
       return (

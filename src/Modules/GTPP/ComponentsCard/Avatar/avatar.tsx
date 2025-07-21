@@ -361,8 +361,6 @@ const Modal = (props: any) => {
     return <div>Error: {error}</div>;
   }
 
-  // console.log(photos);
-
   return (
     <div className="modal-list d-flex align-items-center gap-3">
       <div>
@@ -397,7 +395,6 @@ const AvatarGroup = (props: { users: any; dataTask: any }) => {
           </div>
         ) : (
           <React.Fragment>
-            {/* é aqui que renderiza a lista (RENDERLISTAVATAR) */}
             <Modal
               detailsmodaluser={setOpenDetailsUserModal}
               datatask={props?.dataTask}
