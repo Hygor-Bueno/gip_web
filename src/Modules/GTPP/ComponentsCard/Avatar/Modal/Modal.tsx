@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
-import ImageUser from "../../../../../Assets/Image/user.png";
+import { useEffect, useState } from "react";
 import { useMyContext } from "../../../../../Context/MainContext";
 import { Connection } from "../../../../../Connection/Connection";
 import ModalUser from "../ModalUser/ModalUser";
 import UserProfile from "../UserProfile/UserProfile";
-import '../AvatarGroup.css';
+import './Style.css';
 
 const Modal = (props: any) => {
   const [getInfoUser, setInfoUser] = useState();

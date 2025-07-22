@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Image from "../Image/Image";
 import ImageUser from "../../../../../Assets/Image/user.png";
 import { useWebSocket } from "../../../Context/GtppWsContext";
 import { useConnection } from "../../../../../Context/ConnContext";
 import { convertImage } from "../../../../../Util/Util";
-import '../AvatarGroup.css';
+import './Style.css';
 
-const ListUserTask = ({ item, taskid, loadUserTaskLis, dataPhotosUsers, userId, check = false }: any) => {
+const ListUserTask = ({ item, taskid, loadUserTaskLis, check = false }: any) => {
   const [isChecked, setIsChecked] = useState(item.check || false);
   const { addUserTask, getTaskInformations } = useWebSocket();
   const { fetchData } = useConnection();

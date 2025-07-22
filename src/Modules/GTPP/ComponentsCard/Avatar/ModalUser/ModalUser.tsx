@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Image from "../Image/Image";
 import ImageUser from "../../../../../Assets/Image/user.png";
 import { convertImage } from "../../../../../Util/Util";
 import LoadUserCheck from "../LoadUserCheck/LoadUserCheck";
-import '../AvatarGroup.css';
+import './Style.css';
 
 const ModalUser = (props: any) => {
   const [loadUserTask, setLoadUserTask] = useState(true);

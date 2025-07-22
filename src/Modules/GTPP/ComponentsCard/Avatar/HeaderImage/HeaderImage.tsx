@@ -1,4 +1,4 @@
-import '../AvatarGroup.css';
+import './Style.css';
 
 const HeaderImage = () => {
   return (

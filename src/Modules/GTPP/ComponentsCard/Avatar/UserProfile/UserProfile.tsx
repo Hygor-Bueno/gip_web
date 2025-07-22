@@ -1,8 +1,7 @@
-import React from "react";
 import ImageUser from "../../../../../Assets/Image/user.png";
 import { convertImage } from "../../../../../Util/Util";
 import Image from "../Image/Image";
-import '../AvatarGroup.css';
+import './Style.css';
 
 const UserProfile = ({ photos, detailsmodaluser, setOpenDetailUser, listuser }: any) => {
   return (

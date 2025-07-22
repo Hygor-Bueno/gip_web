@@ -4,15 +4,15 @@ import { useMyContext } from "../../../../../Context/MainContext";
 import { useConnection } from "../../../../../Context/ConnContext";
 import { Connection } from "../../../../../Connection/Connection";
 import ListUserTask from "../ListUserTask/ListUserTask";
-import '../AvatarGroup.css';
+import './Style.css';
 
 const LoadUserCheck = (props: any) => {
-  const [userTaskBind, setUserTaskBind] = useState([]);
+  const [ userTaskBind, setUserTaskBind ] = useState([]);
   const { loading, setLoading } = useMyContext();
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [page, setPage] = useState<number>(1);
-  const [limitPage, setLimitPage] = useState<number>(1);
-  const [list, setList] = useState([]);
+  const [ searchTerm, setSearchTerm ] = useState<string>("");
+  const [ page, setPage ] = useState<number>(1);
+  const [ limitPage, setLimitPage ] = useState<number>(1);
+  const [ list, setList ] = useState([]);
 
   const { fetchData } = useConnection();
 

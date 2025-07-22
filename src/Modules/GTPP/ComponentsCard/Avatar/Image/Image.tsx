@@ -1,5 +1,5 @@
 import React from "react";
-import '../AvatarGroup.css';
+import './Style.css';
 
 const Image = (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
   return <img {...props} />;

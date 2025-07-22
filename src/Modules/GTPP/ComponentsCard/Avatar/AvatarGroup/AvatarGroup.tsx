@@ -1,7 +1,7 @@
 import { useState } from "react";
 import HeaderImage from "../HeaderImage/HeaderImage";
 import Modal from "../Modal/Modal";
-import '../AvatarGroup.css';
+import './Style.css';
 
 const AvatarGroup = (props: { users: any; dataTask: any }) => {
   const [openDetailsUser, setOpenDetailsUserModal] = useState(true);
