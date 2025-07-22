@@ -6,80 +6,76 @@ import { IFormData, IFormGender } from './Interfaces/IFormGender';
 import { useMyContext } from '../../../Context/MainContext';
 import { listPathGAPP } from '../ConfigGapp';
 import TableComponent from '../../../Components/CustomTable';
-import { convertForTable } from '../../../Util/Util';
-const Stores: React.FC = () => {
-    const [data, setData] = useState<IFormGender>({
-        cnpj: "",
-        name: "",
-        street: "",
-        district: "",
-        city: "",
-        state: "",
-        number: "",
-        zip_code: "",
-        complement: "",
-        status_store: 1,
-    });
+import { convertForTable, handleNotification } from '../../../Util/Util';
+import { iPropsInputCheckButton } from '../../../Interface/iGTPP';
+import { InputCheckButton } from '../../../Components/CustomButton';
+
+const initialForms: IFormGender = {
+    cnpj: "",
+    name: "",
+    street: "",
+    district: "",
+    city: "",
+    state: "",
+    number: "",
+    zip_code: "",
+    complement: "",
+    status_store: 1
+};
+export default function Stores(): JSX.Element {
+    const [data, setData] = useState<IFormGender>(initialForms);
     const [dataStore, setDataStore] = useState<IFormData[]>([]);
     const [openMenu, setOpenMenu] = useState<any>(true);
     const [openForm, setOpenForm] = useState<any>(true);
+    const [openTrash, setOpenTrash] = useState<any>(false);
+    const [openModal, setOpenModal] = useState<any>(false);
     const { setLoading, setTitleHead } = useMyContext();
 
-    const connectionBusinessGeneric = async (
-        status: "0" | "1",
-        setData: (data: any) => void
-    ) => {
-        setLoading(true);
-        const response = await new Connection("18");
-        const data: any = await response.get(`&status_store=${status}`, 'GAPP/Store.php');
-        setDataStore(data.data);
-        setLoading(false);
+    const listButtonInputs: iPropsInputCheckButton[] = [
+        { inputId: `gapp_check_store_form`, nameButton: "Exibir/Ocultar Menu", onAction: async (event: boolean) => setOpenMenu(!event), labelIconConditional: ["fa-solid fa-eye", "fa-solid fa-eye-slash"] },
+        { inputId: `gapp_exp_ret_form`, nameButton: "Exibir/Ocultar formulário", onAction: (event) => setOpenForm(!event), labelIconConditional: ["fa-solid fa-chevron-down", "fa-solid fa-chevron-up"] },
+        { inputId: `gapp_check_store_table`, nameButton: "Itens excluídos", onAction: async (event: boolean) => setOpenTrash(event), labelIcon: "fa-solid fa-trash", highlight: true },
+    ];
+
+    async function connectionBusinessGeneric(status: "0" | "1") {
+        try {
+            setLoading(true);
+            const conn = new Connection("18");
+            const response: any = await conn.get(`&status_store=${status}`, 'GAPP/Store.php');
+            if (response.error) throw new Error(response.message);
+            setDataStore(response.data);
+        } catch (error: any) {
+            setDataStore([]);
+            handleNotification("Erro!", error.message, "danger");
+        } finally {
+            setLoading(false);
+        }
     };
-
-    useEffect(() => {
-        connectionBusinessGeneric("1", setDataStore);
-    }, []);
-
+    
     useEffect(() => {
         setTitleHead({
             title: "Cadastrar Empresas - GAPP",
-            simpleTitle: "GAPP",
+            simpleTitle: "GAPP - Empresas",
             icon: "fa fa-shop",
         });
-    }, []);
+        connectionBusinessGeneric(openTrash ? "0" : "1");
+    }, [openTrash]);
 
     function resetStore() {
         setDataStore([]);
-        connectionBusinessGeneric("1", setDataStore);
+        connectionBusinessGeneric("1");
     }
-    const resetForm = () => {
-        setData({
-            cnpj: "",
-            name: "",
-            street: "",
-            district: "",
-            city: "",
-            state: "",
-            number: "",
-            zip_code: "",
-            complement: "",
-            status_store: 1,
-        });
-    };
+
     return (
         <React.Fragment>
             {openMenu && <NavBar list={listPathGAPP} />}
-            <div className="d-flex flex-column overflow-hidden" style={{ height: 'calc(100vh - 50px)' }}>
+            <ControlItem item={data} isOpent={openModal} onClean={() => setData(initialForms)} onClose={() => setOpenModal(false)} onReloadList={async ()=> await connectionBusinessGeneric(openTrash ? "0" : "1")}/>
+            <div className="d-flex flex-column overflow-hidden w-100" style={{ height: 'calc(100vh - 50px)' }}>
                 <div className="p-2 d-flex flex-column h-100">
+                    <div className='d-flex justify-content-end w-100 gap-2'>
+                        {listButtonInputs.map((button, index) => <InputCheckButton key={`btn_header_table_gapp_${index}`} {...button} />)}
+                    </div>
                     <div className="container">
-                        <div className='d-flex justify-content-end w-100 gap-3'>
-                            <button title={openMenu ? "Ocultar menu" : "Exibir Menu"} onClick={() => setOpenMenu(!openMenu)} className={`btn p-0 d-block d-lg-none`} >
-                                <i className={`fa-solid fa-eye${openMenu ? "-slash" : ''}`}></i>
-                            </button>
-                            <button title={openForm ? "Ocultar menu" : "Exibir Menu"} onClick={() => setOpenForm(!openForm)} className={`btn p-0 d-block d-lg-none`} >
-                                <i className={`fa-solid fa-caret${openForm ? "-down" : '-up'}`}></i>
-                            </button>
-                        </div>
                         {openForm &&
                             <Form
                                 handleFunction={[
@@ -95,13 +91,12 @@ const Stores: React.FC = () => {
                                     (value: number) => setData((x) => ({ ...x, store_visible: value })),
                                 ]}
                                 resetDataStore={resetStore}
-                                resetForm={resetForm}
+                                resetForm={() => setData(initialForms)}
                                 data={data}
                                 setData={setData}
                             />}
                     </div>
-
-                    <div className="d-sm-flex py-2 w-100 overflow-auto">
+                    <div className="d-sm-flex flex-column py-2 w-100 overflow-auto">
                         {dataStore.length > 0 && (
                             <TableComponent
                                 maxSelection={1}
@@ -120,6 +115,7 @@ const Stores: React.FC = () => {
                                     },
                                 })}
                                 onConfirmList={(e) => {
+                                    setOpenModal(true);
                                     let response: any = {};
                                     Object.keys(e[0]).forEach((item) => {
                                         response[item] = e[0][item].value;
@@ -134,4 +130,48 @@ const Stores: React.FC = () => {
         </React.Fragment>
     );
 };
-export default Stores;
+
+interface IPropsControlItem {
+    isOpent: boolean;
+    onClose: () => void;
+    onClean: () => void;
+    onReloadList:()=> Promise<void>;
+    item: IFormData;
+}
+function ControlItem(props: IPropsControlItem): JSX.Element {
+    const { setLoading } = useMyContext();
+    async function changeStatusStore() {
+        try {
+            setLoading(true);
+            const payload: IFormData = { ...props.item };
+            payload.status_store = payload.status_store == 1 ? 0 : 1;
+            const connection = new Connection("18");
+            const result: any = await connection.put(payload, "GAPP/Store.php");
+            if (result.error) throw new Error(result.message);
+            props.onClean();
+            props.onClose();
+            await props.onReloadList();
+        } catch (error: any) {
+            handleNotification("Erro", error.toString(), "danger");
+        } finally {
+            setLoading(false);
+        }
+    };
+    return (
+        props.isOpent ?
+            <div className='d-flex align-items-center justify-content-center position-absolute bg-dark bg-opacity-25 top-0 start-0 w-100 h-100 z-3 overflow-hidden p-4'>
+                <div className='bg-white p-2 rounded mh-100 mw-100 overflow-auto'>
+                    <div className='d-flex align-items-center gap-4'>
+                        <h1>O que deseja fazer ?</h1>
+                        <button onClick={() => { props.onClose(); props.onClean() }} type='button' className='btn btn-danger fa-solid fa-xmark' title='Fechar Janela' />
+                    </div>
+                    <div className='d-flex alin-items-center justify-content-around w-100 mt-4'>
+                        {props.item.status_store == 1 && <button onClick={props.onClose} type='button' className='btn btn-secondary' title='Alterar item'>Editar</button>}
+                        <button onClick={async () => await changeStatusStore()} type='button' className='btn btn-secondary' title='Inativar item'>{props.item.status_store == 1 ? "Inativa" : "Ativar"}</button>
+                    </div>
+                </div>
+            </div>
+            :
+            <React.Fragment />
+    )
+}

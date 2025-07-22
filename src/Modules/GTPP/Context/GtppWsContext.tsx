@@ -194,13 +194,17 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   async function callbackOnMessage(event: any) {
     let response = JSON.parse(event.data);
-
+    // console.log(event.data,localStorage.getItem("tokenGIPP"));
     if (
       response.error &&
       response.message.includes("This user has been connected to another place")
     ) {
-      handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
-      return;
+      // handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
+      // setTimeout(() => {
+      //   navigate("/");
+      //   localStorage.removeItem("tokenGIPP");
+      //   localStorage.removeItem("codUserGIPP");
+      // }, 5000);
     }
 
     if (!response.error && response.send_user_id != localStorage.codUserGIPP) {
@@ -395,7 +399,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         type: 2,
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -485,7 +489,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         type: 3,
       });
     } catch (error) {
-      console.log("erro ao fazer o PUT em Task.php");
+      console.error("erro ao fazer o PUT em Task.php");
     } finally {
       setLoading(false);
     }
