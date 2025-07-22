@@ -233,10 +233,12 @@ function ModalUser(props: any) {
                   <button title="Abrir detalhes do usuário" className="btn bg-danger text-white" onClick={() => props.setOpenDetailUser(false)}>X</button>
                 </div>
                 <div className="text-center">
-                  <Image
-                    className="rounded img-fluid img-thumbnail w-100"
-                    src={convertImage(props.list?.photo) || ImageUser}
-                  />
+                  <a href={props.list?.photo} target="_blank" rel="noopener noreferrer">
+                    <Image
+                      className="rounded img-fluid img-thumbnail w-100"
+                      src={convertImage(props.list?.photo) || ImageUser}
+                    />
+                  </a>
                 </div>
                 <p>
                   <strong>Nome:</strong> {props.list?.name}
@@ -359,8 +361,6 @@ const Modal = (props: any) => {
     return <div>Error: {error}</div>;
   }
 
-  // console.log(photos);
-
   return (
     <div className="modal-list d-flex align-items-center gap-3">
       <div>
@@ -395,7 +395,6 @@ const AvatarGroup = (props: { users: any; dataTask: any }) => {
           </div>
         ) : (
           <React.Fragment>
-            {/* é aqui que renderiza a lista (RENDERLISTAVATAR) */}
             <Modal
               detailsmodaluser={setOpenDetailsUserModal}
               datatask={props?.dataTask}

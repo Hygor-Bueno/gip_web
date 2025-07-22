@@ -1,6 +1,7 @@
 import { Store } from "react-notifications-component";
 import { iReqConn } from "../Interface/iConnection"
 import Translator from "./Translate";
+import { dataAllProd } from "../Modules/EPP/Interfaces/InterfacesEPP";
 
 export const convertdate = (date: string): string | null => {
     if (!date) return null;
@@ -12,6 +13,8 @@ export const convertdate = (date: string): string | null => {
 
     return parsedDate.toLocaleDateString('pt-BR');
 };
+
+export const getProductKey = (item: dataAllProd) => `${item.id_category}-${item.description}`;
 
 export const fetchCEPData = async (cep: string, loading: any) => {
     try {
@@ -73,7 +76,7 @@ export function captureTime(): string {
     const date = new Date();
 
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês é 0-based
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -83,7 +86,7 @@ export function captureTime(): string {
 export function getCurrentDate() {
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // +1 porque getMonth começa em 0
+    const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
@@ -151,9 +154,7 @@ export async function fetchNodeDataFull(req: iReqConn, headers?: Record<string, 
     try {
         const URL = `http://sgpp.pegpese.com:${req.port}${req.pathFile}${req.urlComplement ? req.urlComplement : ""}`;
         let objectReq: any = { method: req.method };
-        if (headers) {
-            objectReq.headers = headers;
-        }
+        if (headers) objectReq.headers = headers;
         if (req.params) objectReq.body = JSON.stringify(req.params);
         const response = await fetch(URL, objectReq);
         const body = await response.json();
@@ -225,13 +226,14 @@ export function maskUserSeach(
 }
 
 // Função genérica para converter um array de objetos em uma estrutura de tabela
-export function convertForTable<T extends Record<string, any>>(
+/*export function convertForTable<T extends Record<string, any>>(
     array: T[], // Array de objetos genéricos
     options?: {
         isImageKeys?: string[]; // Chaves que devem ser tratadas como imagens
         ocultColumns?: string[]; // Chaves que devem ser ocultadas
         minWidths?: Record<string, string>; // Larguras mínimas personalizadas para colunas
         customTags?: Record<string, string>; // Mapeamento de chaves para tags personalizadas
+        customValue?: Record<string, (value: any, row?: T) => string>;
     }
 ): TableItem[] {
     return array.map((item) => {
@@ -240,20 +242,21 @@ export function convertForTable<T extends Record<string, any>>(
         // Itera sobre as chaves do objeto
         for (const key in item) {
             if (Object.prototype.hasOwnProperty.call(item, key)) {
-                const value = item[key]?.toString() || ""; // Converte o valor para string
-                const isImage = options?.isImageKeys?.includes(key); // Verifica se é uma imagem
-                const ocultColumn = options?.ocultColumns?.includes(key); // Verifica se a coluna deve ser oculta
-                const minWidth = options?.minWidths?.[key] || '150px'; // Largura mínima personalizada
-                const tag = options?.customTags?.[key] || key; // Usa a tag personalizada ou a chave como fallback
+                const rawValue = item[key];
+                const formatter = options?.customValue?.[key];
+                const formattedValue = formatter ? formatter(rawValue, item) : rawValue?.toString() || "";
+                const isImage = options?.isImageKeys?.includes(key);
+                const ocultColumn = options?.ocultColumns?.includes(key);
+                const minWidth = options?.minWidths?.[key] || "150px";
+                const tag = options?.customTags?.[key] || key;
 
-                // Cria a coluna dinamicamente usando maskUserSeach
-                tableItem[key] = maskUserSeach(value, tag, isImage, ocultColumn, minWidth);
+                tableItem[key] = maskUserSeach(formattedValue, tag, isImage, ocultColumn, minWidth);
             }
         }
 
         return tableItem;
     });
-}
+}*/
 
 /**
  * Essa função recebe um objeto e converte ele para uma string no seguinte formato "@key=value ".
@@ -275,6 +278,25 @@ export function objectForString(
         }
     });
     return result.join(separator);
+}
+
+export async function loadLocalStorage(user: any) {
+    try {
+        const response = await fetchDataFull({
+            method: 'GET',
+            params: null,
+            pathFile: "CCPP/Employee.php",
+            urlComplement: `&id=${user.id}&all_data`,
+        });
+
+        if (response.error) throw new Error(response.message);
+
+        localStorage.setItem("num_store", response.data[0]?.number_shop ?? "");
+        localStorage.setItem("store", response.data[0]?.shop ?? "");
+
+    } catch (e: any) {
+        console.error(e.toString());
+    }
 }
 
 export function getFormattedDate(daysToSubtract?: number): string {
@@ -317,7 +339,59 @@ export function formatarMoedaPTBR(valor: string): string {
     });
 }
 
+// Função genérica para converter um array de objetos em uma estrutura de tabela
+export function convertForTable<T extends Record<string, any>>(
+    array: T[], // Array de objetos genéricos
+    options?: {
+        isImageKeys?: string[]; // Chaves que devem ser tratadas como imagens
+        ocultColumns?: string[]; // Chaves que devem ser ocultadas
+        minWidths?: Record<string, string>; // Larguras mínimas personalizadas para colunas
+        customTags?: Record<string, string>; // Mapeamento de chaves para tags personalizadas
+    }
+): TableItem[] {
+    return array.map((item) => {
+        const tableItem: TableItem = {};
+
+        // Itera sobre as chaves do objeto
+        for (const key in item) {
+            if (Object.prototype.hasOwnProperty.call(item, key)) {
+                const value = item[key]?.toString() || ""; // Converte o valor para string
+                const isImage = options?.isImageKeys?.includes(key); // Verifica se é uma imagem
+                const ocultColumn = options?.ocultColumns?.includes(key); // Verifica se a coluna deve ser oculta
+                const minWidth = options?.minWidths?.[key] || '150px'; // Largura mínima personalizada
+                const tag = options?.customTags?.[key] || key; // Usa a tag personalizada ou a chave como fallback
+
+                // Cria a coluna dinamicamente usando maskUserSeach
+                tableItem[key] = maskUserSeach(value, tag, isImage, ocultColumn, minWidth);
+            }
+        }
+
+        return tableItem;
+    });
+}
+
 type AllowedTypes ='numbers' | 'hasSpaces' | 'allnumber' | 'lettersWithSpaces' | 'alphanumeric' | 'alphanumericWithSpaces';
+
+export function formatDate(value: string): string {
+  const [year, month, day] = value.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+export function maskMoney(value: any) {
+    return parseFloat(value).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' })
+}
+
+export function maskPhone(value: string): string {
+  return value?.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+}
+
+export function removeSpecialCharsAndNumbers(text: string): string {
+  return text.replace(/[^a-zA-Z\s]/g, ""); // Mantém apenas letras e espaços
+}
+
+export function removeStringSpecialChars(text: string): string {
+    return text.replace(/\D/g, '');
+}
 
 export function validateWithRegexAndFormat(
   type: AllowedTypes,

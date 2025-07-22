@@ -39,7 +39,12 @@ function AttachmentFile(props:
 
   const closeModal = () => {
     setIsModalOpen(false);
-    props.onClose?.(props.fullFiles ? base64File : base64File.replace(/^data:image\/\w+;base64,/, ""));
+    // props.onClose?.(props.fullFiles ? base64File : base64File.replace(/^data:image\/\w+;base64,/, ""));
+    let cleanedFile = base64File;
+    if(!props.fullFiles) {
+      cleanedFile = base64File.split(',')[1] || '';
+    }
+    props.onClose?.(cleanedFile);
   };
   return (
     <div title="Anexar arquivo." onClick={() => setIsModalOpen(true)}>
@@ -70,7 +75,7 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
     <div className="modal-overlay" onClick={closeModal}>
       <div style={{ maxWidth: "75%", maxHeight: "90%" }} className="d-flex flex-column align-items-center bg-white p-4 rounded" onClick={(e) => e.stopPropagation()}>
         <div className='d-flex align-items-center justify-content-between w-100'>
-          <span className='h5'>Anexo:  </span>
+          <span className='h5'>Anexo: </span>
           {base64File && <button title="Remover anexo." style={{ minWidth: "25%" }} onClick={async () => {
             if (props.updateAttachmentFile) {
               await props.updateAttachmentFile('', item_id);

@@ -67,7 +67,7 @@ export interface iGtppWsContextType {
     reqTasks: (admin?: boolean) => void;
     setGetTask: (array: any[]) => void;
     updateStates: (array: any[]) => void;
-    setOnSounds: (value: boolean) => void
+    setOnSounds: (value: boolean) => void;
     setNotifications: (value: CustomNotification[]) => void;
     setTaskPercent: (value: number) => void;
     setTask: (value: any) => void;
