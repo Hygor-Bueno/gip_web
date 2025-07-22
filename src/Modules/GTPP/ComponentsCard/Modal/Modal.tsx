@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./style.css";
-import AvatarGroup from "../Avatar/avatar";
+import AvatarGroup from "../Avatar/AvatarGroup/AvatarGroup";
 import { TaskItem } from "./Types";
 import HeaderModal from "./Header";
 import ProgressBar from "./Progressbar";

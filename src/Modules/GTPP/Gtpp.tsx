@@ -94,6 +94,10 @@ export default function Gtpp(): JSX.Element {
                 ) : null}
               </div>
             </div>
+            <div className="">
+                {/* AQUI VAMOS BUSCAR OS USUÁRIOS - user */}
+                
+            </div>
             <div className="d-flex flex-row w-50 justify-content-end gap-2">
               <button title={openMenu ? "Ocultar menu" : "Exibir Menu"} onClick={() => setOpenMenu(!openMenu)} className={`btn p-0 d-block d-md-none`} >
                 <i className={`fa-solid fa-eye${openMenu ? "-slash" : ''}`}></i>
