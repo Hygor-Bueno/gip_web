@@ -109,7 +109,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
     const connection = new Connection("18");
     const value: { task_id: number, id: number, next_or_previous: "next" | "previous" } = { task_id: task.id, id: item.id, next_or_previous: item.next_or_previous };
     const req = await connection.put(value, 'GTPP/TaskItem.php');
-    console.log(req);
   }
 
   return (

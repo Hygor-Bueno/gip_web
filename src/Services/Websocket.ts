@@ -45,7 +45,7 @@ export default class WebSocketCLPP {
       };
 
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 
@@ -59,7 +59,7 @@ export default class WebSocketCLPP {
   }
 
   onError(ev: Event): void {
-    console.log(ev);
+    console.error(ev);
   }
 
   onClose(): void {
