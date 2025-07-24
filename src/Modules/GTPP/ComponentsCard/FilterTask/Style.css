@@ -1,0 +1,63 @@
+/* trello-drawer.css ou adicione ao seu arquivo CSS global */
+
+/* Overlay */
+.trello-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparente */
+  z-index: 1040; /* Um pouco abaixo do drawer */
+}
+
+/* Drawer Principal */
+.trello-drawer {
+  position: fixed;
+  top: 0;
+  right: 0; /* Começa do lado direito */
+  width: 0; /* Escondido por padrão */
+  height: 100%;
+  background-color: white; /* Cor de fundo */
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  transition: width 0.3s ease-in-out; /* Animação suave */
+  z-index: 1050; /* Acima do overlay */
+  overflow-x: hidden; /* Garante que o conteúdo não vaze */
+  display: flex; /* Para layout de cabeçalho, corpo e rodapé */
+  flex-direction: column; /* Organiza os itens verticalmente */
+}
+
+/* Quando o drawer está aberto */
+.trello-drawer.open {
+  width: 400px; /* Largura do drawer quando aberto. Ajuste conforme necessário. */
+  /* Para telas menores, você pode querer 100% da largura */
+  /* @media (max-width: 768px) {
+    width: 100%;
+  } */
+}
+
+/* Conteúdo do Drawer */
+.trello-drawer-header {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6; /* Borda Bootstrap */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trello-drawer-title {
+  margin-bottom: 0;
+}
+
+.trello-drawer-body {
+  padding: 1rem;
+  flex-grow: 1; /* Faz o corpo ocupar o espaço restante */
+  overflow-y: auto; /* Permite scroll se o conteúdo for grande */
+}
+
+.trello-drawer-footer {
+  padding: 1rem;
+  border-top: 1px solid #dee2e6; /* Borda Bootstrap */
+  display: flex;
+  justify-content: flex-end;
+}

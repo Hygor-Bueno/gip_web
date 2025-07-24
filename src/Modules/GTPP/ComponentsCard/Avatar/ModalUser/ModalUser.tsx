@@ -39,12 +39,12 @@ const ModalUser = (props: any) => {
           </div>
           <LoadUserCheck dataPhotosUsers={props.dataPhotosUsers} list={props} />
         </>
-      )}
-      <div className="d-flex justify-content-end">
-        {loadUserTask && (
-          <i className="btn fa fa-pencil text-white" onClick={() => setLoadUserTask(false)}></i>
-        )}
-      </div>
+      )}  
+    {loadUserTask && (
+        <div className="d-flex justify-content-end">
+            <i className="btn fa fa-pencil text-white" onClick={() => setLoadUserTask(false)}></i>
+        </div>
+    )}
     </div>
   );
 };

@@ -108,13 +108,21 @@ export function getCurrentDate() {
 
 
 
-export function convertImage(src: any) {
+// export function convertImage(src: any) {
+//     if (src != null) {
+//         var image = new Image();
+//         image.src = "data:image/jpeg;base64, " + src;
+//         return image.src;
+//     } else {
+//         return null;
+//     }
+// }
+
+export function convertImage(src: any): string {
     if (src != null) {
-        var image = new Image();
-        image.src = "data:image/jpeg;base64, " + src;
-        return image.src;
+        return "data:image/jpeg;base64, " + src;
     } else {
-        return null;
+        return '/path/to/default-user-icon.png';
     }
 }
 

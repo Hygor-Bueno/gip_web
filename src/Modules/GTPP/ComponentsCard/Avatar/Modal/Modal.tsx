@@ -56,6 +56,8 @@ const Modal = (props: any) => {
     <div className="modal-list d-flex align-items-center gap-3">
       <div>
         <ModalUser
+          isSearchUser={true}
+          allTaskUser={props.allTaskUser}
           dataPhotosUsers={photos}
           data={props}
           list={getInfoUser}
