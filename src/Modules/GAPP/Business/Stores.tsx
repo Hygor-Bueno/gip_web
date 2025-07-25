@@ -5,7 +5,7 @@ import { Connection } from '../../../Connection/Connection';
 import { IFormData, IFormGender } from './Interfaces/IFormGender';
 import { useMyContext } from '../../../Context/MainContext';
 import { listPathGAPP } from '../ConfigGapp';
-import TableComponent from '../../../Components/CustomTable';
+import CustomTable from '../../../Components/CustomTable';
 import { convertForTable, handleNotification } from '../../../Util/Util';
 import { iPropsInputCheckButton } from '../../../Interface/iGTPP';
 import { InputCheckButton } from '../../../Components/CustomButton';
@@ -98,7 +98,7 @@ export default function Stores(): JSX.Element {
                     </div>
                     <div className="d-sm-flex flex-column py-2 w-100 overflow-auto">
                         {dataStore.length > 0 && (
-                            <TableComponent
+                            <CustomTable
                                 maxSelection={1}
                                 list={convertForTable(dataStore, {
                                     ocultColumns: ["store_id", "status_store"],

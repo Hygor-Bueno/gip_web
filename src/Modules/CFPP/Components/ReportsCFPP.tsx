@@ -3,7 +3,7 @@ import { useMyContext } from '../../../Context/MainContext';
 import { useCfppContext } from '../Context/CfppContex';
 import { convertForTable, fetchNodeDataFull, handleNotification } from '../../../Util/Util';
 import CustomForm from '../../../Components/CustomForm';
-import TableComponent from '../../../Components/CustomTable';
+import CustomTable from '../../../Components/CustomTable';
 import { TUrl } from './TypesReportsCFPP';
 import { formReports } from './ConfigsReportsCFPP';
 
@@ -75,7 +75,7 @@ export default function ReportsCFPP(): JSX.Element {
                 <div className="w-100 overflow-auto">
                     {
                         list.length > 0 &&
-                        <TableComponent
+                        <CustomTable
                             maxSelection={1}
                             list={convertForTable(list, { ocultColumns: ['totalPages'] })}
                             onConfirmList={(items: any) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import TableComponent from "../../../Components/CustomTable";
+import CustomTable from "../../../Components/CustomTable";
 import { convertForTable, convertTime, maskMoney, sortListByKey } from "../../../Util/Util";
 import { useConnection } from "../../../Context/ConnContext";
 import CustomForm from "../../../Components/CustomForm";
@@ -135,7 +135,7 @@ export default function ExpensesRegister(): JSX.Element {
             <div className="d-flex flex-column align-items-center h-100 w-100 overflow-auto p-2">
                 {
                     data.length > 0 &&
-                    <TableComponent
+                    <CustomTable
                         maxSelection={1}
                         list={convertForTable(data, {
                             customTags: customTagsExpense,

@@ -3,7 +3,7 @@ import { useMyContext } from '../../../Context/MainContext';
 import { convertForTable, convertTime, fetchNodeDataFull, getCurrentDate, handleNotification } from '../../../Util/Util';
 import RegisterValidator from '../Class/RegisterValidator';
 import SearchUserCFPP from './SearchUserCFPP';
-import TableComponent from '../../../Components/CustomTable';
+import CustomTable from '../../../Components/CustomTable';
 import ListRegister from './ListRegister';
 import DetailsTimeRecords from './DetailsTimesRecords';
 import { useCfppContext } from '../Context/CfppContex';
@@ -201,7 +201,7 @@ export default function TimeRecords() {
             <div className='w-100 overflow-auto'>
                 {
                     timeRecords.length > 0 &&
-                    <TableComponent
+                    <CustomTable
                         maxSelection={1}
                         list={convertForTable(timeRecords, { ocultColumns: ['totalPages'] })}
                         onConfirmList={(item) => { setOnDetailsTimesRecords(item[0]['Jornada']['value']); }}

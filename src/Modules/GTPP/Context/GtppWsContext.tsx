@@ -98,9 +98,11 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   async function reqTasks(admin?: boolean) {
+    setLoading(true);
     const getTask: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", urlComplement: `${admin ? '&administrator=1' : ''}` });
     if (getTask.error) throw new Error(getTask.message);
     setGetTask(getTask.data);
+    setLoading(false);
   }
 
   async function getStateformations() {
