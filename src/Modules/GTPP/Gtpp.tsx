@@ -262,34 +262,53 @@ function FilterPage() {
     }));
   }
 
-  return (
-    <div style={{ zIndex: "2" }} className="d-flex justify-content-end bg-dark bg-opacity-50 position-absolute top-0 start-0 w-100 h-100">
-      <div className="bg-white w-50" >
-        <div className="d-flex justify-content-end w-100">
-          <button onClick={async () => document.getElementById('check_filter')?.click()} type="button" className="btn btn-danger">X</button>
-        </div>
-        <FiltersSearchUser onAction={(e: string) => {
-          setParams(e);
-          setPage(1);
-        }} callBack={true} />
-        <div className="d-flex p-2 h-75 w-100">
-          {list.length > 0 &&
-            <div className="flex-grow-1 overflow-auto">
-              <CustomTable
-                list={list}
-                onConfirmList={closeCustomTable}
-              />
-            </div>
-          }
-        </div>
-        <footer className="d-flex align-items-center justify-content-around py-2">
-          <button onClick={() => navPage(false)} className="btn btn-light fa-solid fa-backward" type="button"></button>
-          {`( ${page.toString().padStart(2, '0')} / ${limitPage.toString().padStart(2, '0')} )`}
-          <button onClick={() => navPage(true)} className="btn btn-light fa-solid fa-forward" type="button"></button>
-        </footer>
+return (
+  <div style={{ zIndex: "2" }} className="d-flex justify-content-end bg-dark bg-opacity-50 position-absolute top-0 start-0 w-100 h-100">
+    <div className="bg-white col-12 col-sm-8 col-md-6 col-lg-5 d-flex flex-column h-100">
+      
+      {/* Cabeçalho - botão fechar */}
+      <div className="d-flex justify-content-end p-2">
+        <button
+          onClick={async () => document.getElementById('check_filter')?.click()}
+          type="button"
+          className="btn btn-danger"
+        >
+          X
+        </button>
       </div>
+
+      {/* Filtro (altura fixa ou automática) */}
+      <div className="px-2">
+        <FiltersSearchUser
+          onAction={(e: string) => {
+            setParams(e);
+            setPage(1);
+          }}
+          callBack={true}
+        />
+      </div>
+
+      {/* Área que deve ocupar a altura restante */}
+      <div className="d-flex flex-column flex-grow-1 p-2 overflow-auto">
+        {list.length > 0 && (
+          <CustomTable
+            list={list}
+            onConfirmList={closeCustomTable}
+          />
+        )}
+      </div>
+
+      {/* Rodapé */}
+      <footer className="d-flex align-items-center justify-content-around py-2">
+        <button onClick={() => navPage(false)} className="btn btn-light fa-solid fa-backward" type="button"></button>
+        {`( ${page.toString().padStart(2, '0')} / ${limitPage.toString().padStart(2, '0')} )`}
+        <button onClick={() => navPage(true)} className="btn btn-light fa-solid fa-forward" type="button"></button>
+      </footer>
+
     </div>
-  );
+  </div>
+);
+
   function closeCustomTable(colabs: any) {
     setGetTask(filterTasks(getTask, { ...parseQueryStringToJson(params), colabs: colabs.map((colab: any) => colab.employee_id.value) }));
     document.getElementById('check_filter')?.click();
