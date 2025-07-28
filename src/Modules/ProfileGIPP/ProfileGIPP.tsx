@@ -19,8 +19,6 @@ const ProfileGIPP = () => {
     }
   ];
 
-  console.log(userLog);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
