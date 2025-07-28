@@ -293,6 +293,41 @@ button>label {
   border: 1px solid #000;
 }
 
+.image-profile {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #bed989;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  background-color: #fff;
+}
+
+.image-profile:hover {
+  transform: scale(1.05);
+}
+
+.image-profile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-background-peg-pese {
+  background-image: url("http://192.168.0.99:71/GLOBAL/View/CLPP/static/media/bg_interlagos.b58bb3c23877f2ddf775.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  width: 100%;
+  height: 300px;
+}
+
+
 /* Keyframes para a animação */
 @keyframes spinner-grow {
   0% {

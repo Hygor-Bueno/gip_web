@@ -31,7 +31,6 @@ export default function Gtpp(): JSX.Element {
     { inputId: `gttp_exp_ret`, nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"] }
   ];
 
-  // Modified by Hygor
   const { 
     clearGtppWsContext, 
     setOnSounds, 
@@ -65,10 +64,7 @@ export default function Gtpp(): JSX.Element {
   };
 
   return (
-    <div
-      id="moduleGTPP"
-      className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0"
-    >
+    <div id="moduleGTPP" className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0">
       {openMenu && <NavBar list={listPath} />}
       <div className="h-100 d-flex overflow-hidden px-3 flex-grow-1">
         <div className="flex-grow-1 d-flex flex-column justify-content-between align-items-start h-100 overflow-hidden">
@@ -78,7 +74,7 @@ export default function Gtpp(): JSX.Element {
             </div>
             <div className="d-flex flex-row mt-2 gap-2">
               {listButtonInputs.map((button, index) => <InputCheckButton key={`btn_header_gtpp_${index}`} {...button} />)}
-                <FilterTask getIdUser={setfilterTask} />
+              <FilterTask getIdUser={setfilterTask} />
             </div>
           </div>
           <div className="d-flex w-100 align-items-center justify-content-between my-2 py-2">
@@ -132,21 +128,18 @@ export default function Gtpp(): JSX.Element {
             style={{ overflowX: "auto", height: "70%" }}
           >
             {states?.map((cardTaskStateValue: any, idxValueState: any) => {
-              const filteredTasks = getTask.filter((task: any) => {
+              const filteredTasks = getTask.filter((task: {state_id: number, user_id: number, colabs: []}) => {
                 const matchesState = task.state_id === cardTaskStateValue.id;
                 if (!filterTask) return matchesState;
-                const matchesEmployee = task?.colabs?.some((colab: any) => colab?.user_id == Number(filterTask));
-                return matchesState && matchesEmployee;
+                const matchesEmployeeColbs = Number(task?.user_id) === Number(filterTask) || task?.colabs.some((x: {user_id: number}) => Number(x.user_id) === Number(filterTask));
+                return matchesState && matchesEmployeeColbs;
               });
               
-              const isFirstColumnTaskState = idxValueState === 0
+              const isFirstColumnTaskState = idxValueState === 0;
 
               return (
                 cardTaskStateValue.active && (
-                  <div
-                    key={idxValueState}
-                    className="column-task-container p-2 align-items-start flex-shrink-0"
-                  >
+                  <div key={idxValueState} className="column-task-container p-2 align-items-start flex-shrink-0">
                     <ColumnTaskState
                       title={cardTaskStateValue.description}
                       bg_color={cardTaskStateValue.color}
@@ -173,10 +166,7 @@ export default function Gtpp(): JSX.Element {
                           <div className="card w-75 position relative">
                             <div className="d-flex justify-content-end align-items-center">
                               <div className="">
-                                <button
-                                  className="btn fa fa-close m-4"
-                                  onClick={() => setModalPage(false)}
-                                ></button>
+                                <button className="btn fa fa-close m-4" onClick={() => setModalPage(false)}></button>
                               </div>
                             </div>
                             <div className="overflow-auto h-75">

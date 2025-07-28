@@ -10,7 +10,10 @@ const FilterTask = (props: any) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [limitPage, setLimitPage] = useState<number>(1);
-  const [list, setList] = useState<any>([]); 
+  const [list, setList] = useState<[]>([]);
+  const [shop, setShop] = useState<[]>([]);
+  const [department, setDepartment] = useState<[]>([]);
+  const [subDepartment, setSubDepartment] = useState<[]>([]);
   const { setLoading } = useMyContext();
 
   const { fetchData } = useConnection();
@@ -22,6 +25,9 @@ const FilterTask = (props: any) => {
   useEffect(() => {
     if (isOpen) {
       (async () => await recoverList())();
+      (async () => await functionShop())();
+      (async () => await functionDepartment())();
+      (async () => await functionSubDepartment())();
     }
   }, [page, searchTerm, isOpen]);
 
@@ -44,6 +50,60 @@ const FilterTask = (props: any) => {
     }
   }
 
+  async function functionShop() {
+    try {
+      setLoading(true);
+      const req: any = await fetchData({
+        method: "GET",
+        params: null,
+        pathFile: "CCPP/Shop.php",
+        urlComplement: ``,
+      });
+      if (req.error) throw new Error(req.message);
+      setShop(req.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function functionDepartment() {
+    try {
+      setLoading(true);
+      const req: any = await fetchData({
+        method: "GET",
+        params: null,
+        pathFile: "CCPP/Department.php",
+        urlComplement: ``,
+      });
+      if (req.error) throw new Error(req.message);
+      setDepartment(req.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function functionSubDepartment() {
+    try {
+      setLoading(true);
+      const req: any = await fetchData({
+        method: "GET",
+        params: null,
+        pathFile: "CCPP/SubDepartment.php",
+        urlComplement: ``,
+      });
+      if (req.error) throw new Error(req.message);
+      setSubDepartment(req.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -58,9 +118,7 @@ const FilterTask = (props: any) => {
   return (
     <div>
       <button className={`btn fa fa-user border-light ${isOpen ? "bg-success text-white active" : "bg-light text-dark"}`} onClick={toggleDrawer}></button>
-      {isOpen && (
-        <div className="trello-drawer-overlay" onClick={toggleDrawer}></div>
-      )}
+      {isOpen && (<div className="trello-drawer-overlay" onClick={toggleDrawer}></div>)}
       <div className={`trello-drawer ${isOpen ? "open" : ""}`}>
         <div className="trello-drawer-header">
           <h5 className="trello-drawer-title">Filtrar por:</h5>
@@ -79,17 +137,39 @@ const FilterTask = (props: any) => {
             <div className="d-flex">
               <select className="form-select mt-2" >
                 <option hidden value="">Loja</option>
+                {shop?.map((item: {number: number, id: number, description: string}) => (
+                  <option value={item.number} key={`teste_${item.id}`}>
+                    {item.description}
+                  </option>
+                ))}
               </select>
               <select className="form-select mt-2" >
                 <option hidden value="">Departamento</option>
+                {department?.map((item: {number: number, id: number, description: string}) => (
+                  <option value={item.number} key={`teste_${item.id}`}>
+                    {item.description}
+                  </option>
+                ))}
               </select>
               <select className="form-select mt-2" >
                 <option hidden value="">Subdepartamento</option>
+                {subDepartment?.map((item: {number: number, id: number, description: string}) => (
+                  <option value={item.number} key={`teste_${item.id}`}>
+                    {item.description}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
           <div className="mt-2 overflow-auto trello-drawer-modal">
-            {list.map((item: any, index: any) => {
+            {list.map((item: {
+              employee_id: number,
+              departament_name: string,
+              sub_dep_name: string,
+              employee_name: string,
+              employee_photo: string, 
+              name: string
+            }) => {
               return (
                 <div key={item.employee_id} className="p-2 mt-2 border-dark rounded d-flex justify-content-between align-items-center" onClick={() => props?.getIdUser(item.employee_id)}>
                   <div>
@@ -107,7 +187,9 @@ const FilterTask = (props: any) => {
           </div>
         </div>
         <div className="trello-drawer-footer d-flex justify-content-between">
-          <button className="btn btn-primary" onClick={() => props?.getIdUser('')}>Limpar</button>
+          <button className="btn btn-primary" onClick={() => {
+            props?.getIdUser('');
+          }}>Limpar</button>
           <div className="d-flex justify-content-between align-items-center gap-2">
             <button disabled={page <= 1 ? true : false} className="btn btn-danger" onClick={() => setPage(prev => (prev > 1 ? prev - 1 : 1))}>{"<"}</button>
             <strong>{String(page).padStart(2, "0")} / {String(limitPage).padStart(2, "0")}</strong>
