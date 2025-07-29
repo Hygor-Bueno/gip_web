@@ -38,17 +38,15 @@ const ProfileGIPP = () => {
   async function putEmployee(base64Image: string) {
     try {
       setLoading(true);
-
       const req = await fetchData({
         method: "PUT",
         params: {
-          id: 214,
+          id: userLog.id,
           photo: base64Image.replace("data:image/png;base64,", "")
         },
         pathFile: "CCPP/EmployeePhoto.php",
         urlComplement: "",
       });
-
       if (req.error) throw new Error(req.message);
       console.log("Imagem enviada com sucesso:", req.data);
     } catch (error) {
