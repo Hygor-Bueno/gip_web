@@ -137,6 +137,7 @@ export default function FilePreview(props: FilePreviewProps) {
       newWindow.document.close();
     }
   }
+
   function renderPreview() {
     if (!fileType) {
       return <p>Tipo de arquivo desconhecido. Não é possível exibir uma pré-visualização.</p>;
@@ -152,11 +153,21 @@ export default function FilePreview(props: FilePreviewProps) {
     } else if (fileType === 'application/pdf') {
       // Pré-visualização de PDF
       return (
-        <iframe
-          src={props.base64File}
-          title="Pré-visualização de PDF"
-          style={{ width: '100%', height: '60vh', border: 'none' }}
-        ></iframe>
+          <a
+            href={props.base64File}
+            target="_blank"
+            rel="noopener noreferrer"
+            className=""
+          >
+            <div style={{ textAlign: 'center' }}>
+              Abrir em nova aba
+              <iframe
+                src={props.base64File}
+                title="Pré-visualização de PDF"
+                style={{ width: '100%', height: '60vh', border: 'none' }}
+              />
+            </div>
+          </a>
       );
     } else if (fileType === 'text/xml' || fileType === 'text/csv') {
       // Pré-visualização de XML ou CSV

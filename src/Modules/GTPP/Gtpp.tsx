@@ -13,12 +13,15 @@ import NotificationBell from "../../Components/NotificationBell";
 import { iPropsInputCheckButton } from "../../Interface/iGTPP";
 import CardUser from "../CLPP/Components/CardUser";
 import { InputCheckButton } from "../../Components/CustomButton";
+import { FilterTask } from "./ComponentsCard/FilterTask";
 
 export default function Gtpp(): JSX.Element {
-  const { setTitleHead, setModalPage, setModalPageElement, userLog, setLoading } = useMyContext();
+  const { setTitleHead, setModalPage, setModalPageElement, userLog } = useMyContext();
   const [openFilter, setOpenFilter] = useState<any>(false);
   const [openMenu, setOpenMenu] = useState<any>(true);
   const [isHeader, setIsHeader] = useState<boolean>(false);
+  const [filterTask, setfilterTask] = useState<any>('');
+
   const listButtonInputs: iPropsInputCheckButton[] = [
     {
       inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: async (event: boolean) => {
@@ -28,8 +31,20 @@ export default function Gtpp(): JSX.Element {
     { inputId: `gttp_exp_ret`, nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"] }
   ];
 
-  // Modified by Hygor
-  const { setTask, setTaskPercent, clearGtppWsContext, setOnSounds, updateStates, setOpenCardDefault, loadTasks, reqTasks, setNotifications, notifications, openCardDefault, taskDetails, states, onSounds, task, getTask } = useWebSocket();
+  const { 
+    clearGtppWsContext, 
+    setOnSounds, 
+    updateStates, 
+    setOpenCardDefault, 
+    loadTasks, 
+    reqTasks,
+    openCardDefault, 
+    taskDetails, 
+    states, 
+    onSounds, 
+    task, 
+    getTask 
+  } = useWebSocket();
   useEffect(() => {
     setTitleHead({
       title: "Gerenciador de Tarefas Peg Pese - GTPP",
@@ -49,10 +64,7 @@ export default function Gtpp(): JSX.Element {
   };
 
   return (
-    <div
-      id="moduleGTPP"
-      className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0"
-    >
+    <div id="moduleGTPP" className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0">
       {openMenu && <NavBar list={listPath} />}
       <div className="h-100 d-flex overflow-hidden px-3 flex-grow-1">
         <div className="flex-grow-1 d-flex flex-column justify-content-between align-items-start h-100 overflow-hidden">
@@ -62,6 +74,7 @@ export default function Gtpp(): JSX.Element {
             </div>
             <div className="d-flex flex-row mt-2 gap-2">
               {listButtonInputs.map((button, index) => <InputCheckButton key={`btn_header_gtpp_${index}`} {...button} />)}
+              <FilterTask getIdUser={setfilterTask} />
             </div>
           </div>
           <div className="d-flex w-100 align-items-center justify-content-between my-2 py-2">
@@ -94,10 +107,6 @@ export default function Gtpp(): JSX.Element {
                 ) : null}
               </div>
             </div>
-            <div className="">
-                {/* AQUI VAMOS BUSCAR OS USUÁRIOS - user */}
-                
-            </div>
             <div className="d-flex flex-row w-50 justify-content-end gap-2">
               <button title={openMenu ? "Ocultar menu" : "Exibir Menu"} onClick={() => setOpenMenu(!openMenu)} className={`btn p-0 d-block d-md-none`} >
                 <i className={`fa-solid fa-eye${openMenu ? "-slash" : ''}`}></i>
@@ -105,16 +114,13 @@ export default function Gtpp(): JSX.Element {
               <button
                 className="btn p-0 mx-2 cursor-pointer"
                 title={`${onSounds ? "Com audio" : "Sem audio"}`}
-                onClick={() => {
-                  setOnSounds(!onSounds);
-                }}
-              >
+                onClick={() => { setOnSounds(!onSounds);}}>
                 <i className={`fa-solid fa-volume-${onSounds ? "high" : "xmark"}`}></i>
               </button>
               <button title="Exibir notificações" className="btn p-0">
                 <NotificationBell />
               </button>
-            </div>
+            </div>  
           </div>
           <Col
             xs={12}
@@ -122,15 +128,17 @@ export default function Gtpp(): JSX.Element {
             style={{ overflowX: "auto", height: "70%" }}
           >
             {states?.map((cardTaskStateValue: any, idxValueState: any) => {
-              const filteredTasks = getTask.filter((task: any) => task.state_id === cardTaskStateValue.id);
+              const filteredTasks = getTask.filter((task: {state_id: number, user_id: number, colabs: []}) => {
+                const matchesState = task.state_id === cardTaskStateValue.id;
+                if (!filterTask) return matchesState;
+                const matchesEmployeeColbs = Number(task?.user_id) === Number(filterTask) || task?.colabs.some((x: {user_id: number}) => Number(x.user_id) === Number(filterTask));
+                return matchesState && matchesEmployeeColbs;
+              });
+              
               const isFirstColumnTaskState = idxValueState === 0;
-
               return (
                 cardTaskStateValue.active && (
-                  <div
-                    key={idxValueState}
-                    className="column-task-container p-2 align-items-start flex-shrink-0"
-                  >
+                  <div key={idxValueState} className="column-task-container p-2 align-items-start flex-shrink-0">
                     <ColumnTaskState
                       title={cardTaskStateValue.description}
                       bg_color={cardTaskStateValue.color}
@@ -157,10 +165,7 @@ export default function Gtpp(): JSX.Element {
                           <div className="card w-75 position relative">
                             <div className="d-flex justify-content-end align-items-center">
                               <div className="">
-                                <button
-                                  className="btn fa fa-close m-4"
-                                  onClick={() => setModalPage(false)}
-                                ></button>
+                                <button className="btn fa fa-close m-4" onClick={() => setModalPage(false)}></button>
                               </div>
                             </div>
                             <div className="overflow-auto h-75">

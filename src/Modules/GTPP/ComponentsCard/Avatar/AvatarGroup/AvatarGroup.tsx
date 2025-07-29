@@ -3,7 +3,7 @@ import HeaderImage from "../HeaderImage/HeaderImage";
 import Modal from "../Modal/Modal";
 import './Style.css';
 
-const AvatarGroup = (props: { users: any; dataTask: any }) => {
+const AvatarGroup = (props: { users: any; dataTask: any, allTaskUser?: any }) => {
   const [openDetailsUser, setOpenDetailsUserModal] = useState(true);
 
   return (
@@ -14,6 +14,7 @@ const AvatarGroup = (props: { users: any; dataTask: any }) => {
         </div>
       ) : (
         <Modal
+          allTaskUser={props.allTaskUser}
           detailsmodaluser={setOpenDetailsUserModal}
           datatask={props?.dataTask}
           user={props?.users}
