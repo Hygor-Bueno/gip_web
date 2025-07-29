@@ -6,7 +6,7 @@ import autoTable from 'jspdf-autotable'; // Importe o autoTable diretamente
 
 const defaultImage = require('../Assets/Image/groupCLPP.png');
 
-interface TableComponentProps {
+interface CustomTableProps {
   list: tItemTable[];
   onConfirmList: (selected: tItemTable[]) => void;
   selectedItems?: tItemTable[];
@@ -16,7 +16,7 @@ interface TableComponentProps {
   hiddenButton?: boolean;
 }
 
-export default function TableComponent(props: TableComponentProps) {
+export default function CustomTable(props: CustomTableProps) {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: string } | null>(null);
   const [filters, setFilters] = useState<{ [key: string]: string }>({});
   const [activeFilter, setActiveFilter] = useState<string | null>(null);

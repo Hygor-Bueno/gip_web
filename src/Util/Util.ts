@@ -58,7 +58,6 @@ export const consultingCEP = async (cep: any, setData: any, loading: any) => {
         console.error("Erro ao consultar o CEP:", error.message || error);
     }
 };
-
 export function convertTime(date: string, omitTime: boolean = false): string {
     let response = "";
     try {
@@ -85,6 +84,30 @@ export function convertTime(date: string, omitTime: boolean = false): string {
 
     return response;
 }
+export function convertDate(date: string, omitTime: boolean = false): string {
+    let response = "";
+    try {
+        if (!date) throw new Error("Invalid date");
+
+        let formatTime: Intl.DateTimeFormatOptions = {
+            dateStyle: "short",
+            hourCycle: "h23",
+            timeZone: "UTC" // <- Isso força UTC
+        };
+
+        if (!omitTime) {
+            formatTime.timeStyle = "short";
+        }
+
+        const localDate = new Date(date);
+        response = new Intl.DateTimeFormat("pt-BR", formatTime).format(localDate);
+    } catch (error) {
+        console.error("Erro ao formatar data:", error);
+    }
+
+    return response;
+}
+
 
 
 export function captureTime(): string {

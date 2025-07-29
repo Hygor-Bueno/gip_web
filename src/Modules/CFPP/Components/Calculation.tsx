@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { convertForTable, fetchNodeDataFull, handleNotification } from "../../../Util/Util";
-import TableComponent from "../../../Components/CustomTable";
+import CustomTable from "../../../Components/CustomTable";
 import DetailsTimeRecords from "./DetailsTimesRecords";
 import { useCfppContext } from "../Context/CfppContex";
 
@@ -90,7 +90,7 @@ export default function Calculation() {
                         <div className="d-flex flex-column bg-white p-2 rounded col-10 h-75">
                             <h1>Deseja encerrar as marcações selecionadas? </h1>
                             <div className="flex-grow-1 overflow-auto">
-                                <TableComponent
+                                <CustomTable
                                     hiddenButton={true}
                                     list={
                                         convertForTable(
@@ -124,7 +124,7 @@ export default function Calculation() {
                 <h1>Página para calcular a Hora!</h1>
                 <div className="my-4 h-75">
                     {payments.length > 0 &&
-                        <TableComponent
+                        <CustomTable
                             list={convertForTable(payments, {
                                 customTags
                             })}

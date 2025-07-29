@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { convertForTable, fetchNodeDataFull, objectForString } from '../../../Util/Util';
 import CustomForm from '../../../Components/CustomForm';
-import TableComponent from '../../../Components/CustomTable';
+import CustomTable from '../../../Components/CustomTable';
 import { formSearchUserCFPP } from './Configs';
 
 interface SearchUserCFPPProps {
@@ -156,7 +156,7 @@ export default function SearchUserCFPP({ tokenCFPP, onCallBack }: SearchUserCFPP
             </div>
             <div className='overflow-auto flex-grow-1'>
                 {employees.length > 0 &&
-                    <TableComponent
+                    <CustomTable
                         maxSelection={1}
                         list={convertForTable(employees, {
                             ocultColumns: ["EmployeeAdmiss", "EmployeeDemiss", "TotalPages", "CurrentPage","CompanyCNPJ"],
