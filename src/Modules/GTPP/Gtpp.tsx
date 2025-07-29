@@ -136,7 +136,6 @@ export default function Gtpp(): JSX.Element {
               });
               
               const isFirstColumnTaskState = idxValueState === 0;
-
               return (
                 cardTaskStateValue.active && (
                   <div key={idxValueState} className="column-task-container p-2 align-items-start flex-shrink-0">

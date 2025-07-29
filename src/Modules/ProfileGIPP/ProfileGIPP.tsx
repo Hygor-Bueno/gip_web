@@ -56,10 +56,10 @@ const ProfileGIPP = () => {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <>
+    <React.Fragment>
       <NavBar list={listPath} />
       <main className="w-100 min-vh-100 bg-light">
         <header className="bg-primary position-relative">
@@ -72,14 +72,12 @@ const ProfileGIPP = () => {
               accept="image/*"
               ref={fileInputRef}
               onChange={handleFileChange}
-              style={{ display: 'none' }}
-            />
+              style={{ display: 'none' }} />
           </div>
         </header>
-
         <section className="container py-5">
           <div className="card shadow-sm p-4 bg-white">
-            <h3 className="mb-4 text-primary">Informações do Perfil</h3>
+            <h3 className="mb-4 text-dark">Informações do Perfil</h3>
             <ul className="list-unstyled fs-5">
               <li><strong>Nome:</strong> {userLog.name}</li>
               <li><strong>Companhia:</strong> {userLog.company}</li>
@@ -90,7 +88,7 @@ const ProfileGIPP = () => {
           </div>
         </section>
       </main>
-    </>
+    </React.Fragment>
   );
 };
 
