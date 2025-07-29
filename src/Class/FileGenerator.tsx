@@ -1,7 +1,5 @@
 import React, { useRef } from 'react';
 
-
-
 interface PDFGeneratorProps {
   data: Task[];
 }
@@ -97,11 +95,37 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
 
     const printDocument = printWindow.document;
 
+    // Acessa o elemento table-responsive dentro do contentRef
+    const tableResponsiveDiv = contentRef.current?.querySelector('.table-responsive') as HTMLElement | null;
+
+    let originalMaxHeight = '';
+    let originalOverflowY = '';
+
+    // Salva os estilos originais e remove o overflow
+    if (tableResponsiveDiv) {
+      originalMaxHeight = tableResponsiveDiv.style.maxHeight;
+      originalOverflowY = tableResponsiveDiv.style.overflowY;
+      tableResponsiveDiv.style.maxHeight = 'none';
+      tableResponsiveDiv.style.overflowY = 'visible';
+    }
+
+    // Captura o HTML depois de remover o overflow
+    const contentHtml = contentRef.current?.outerHTML || '';
+
+    // Restaura os estilos originais
+    if (tableResponsiveDiv) {
+      tableResponsiveDiv.style.maxHeight = originalMaxHeight;
+      tableResponsiveDiv.style.overflowY = originalOverflowY;
+    }
+
     printDocument.write(`
       <html>
         <head>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <meta charset="UTF-8">
+          <title>GTPP - PDF das tarefas</title>
           <style>
             body { font-family: Arial, sans-serif; }
             table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
@@ -110,7 +134,7 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
           </style>
         </head>
         <body>
-          ${contentRef.current?.outerHTML || ''}
+          ${contentHtml}
         </body>
       </html>
     `);
@@ -131,7 +155,10 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {data.filter(item => item.state_id).map((item, index) => (
+              {data.filter(item => item.state_id).map((item, index) => {
+
+                console.log(item);
+                return (
                 <tr key={index}>
                   {attributes.map((attr, i) => {
                     const value = item[attr.key];
@@ -143,7 +170,8 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
                     );
                   })}
                 </tr>
-              ))}
+              )
+              })}
             </tbody>
           </table>
         </div>
