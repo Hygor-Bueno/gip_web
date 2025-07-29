@@ -76,7 +76,7 @@ export default function FilePreview(props: FilePreviewProps) {
             <title>GTPP - Visualizador da Imagem</title>
             <style>
               body { margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; padding: 20px; box-sizing: border-box; }
-              .container { text-align: center; background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 90%; width: auto; }
+              .container { text-align: center; background-color: #151111; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 90%; width: auto; }
               img { max-width: 100%; max-height: 70vh; display: block; margin: 0 auto 20px auto; border: 1px solid #ddd; border-radius: 4px;}
               .form-group { margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; }
               .form-control { width: 80%; max-width: 300px; margin-bottom: 10px; }
@@ -84,7 +84,7 @@ export default function FilePreview(props: FilePreviewProps) {
             </style>
           </head>
           <body>
-            <div class="container">
+            <div class="container bg-light">
               <div class="d-flex flex-column align-items-center">
                 <img id="imageViewer" src="${props.base64File}" alt="Imagem" />
                 <div class="form-group">

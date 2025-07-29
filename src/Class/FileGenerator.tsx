@@ -156,8 +156,6 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
             </thead>
             <tbody>
               {data.filter(item => item.state_id).map((item, index) => {
-
-                console.log(item);
                 return (
                 <tr key={index}>
                   {attributes.map((attr, i) => {
