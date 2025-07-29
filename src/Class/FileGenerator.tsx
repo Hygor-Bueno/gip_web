@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-//@ts-ignore
-import html2pdf from 'html2pdf.js';
+
+
 
 interface PDFGeneratorProps {
   data: Task[];
@@ -27,7 +27,7 @@ export const generateAndDownloadCSV = (getTasks: any, configId: string, fileName
 
   try {
     if (tasks.length > 0) {
-      const jsonData = tasks.map((item: any) => ({
+      const jsonData = tasks.map((item:any) => ({
         "Tarefas": item.description,
         "Estado das Tarefas": item.state_description,
         "Prioridade das Tarefas": item.priority === 0 ? 'baixa' : item.priority === 1 ? 'média' : item.priority === 2 ? 'alta' : 'N/A',
@@ -92,24 +92,35 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
   };
 
   const generatePDF = () => {
-    if (!contentRef.current) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
 
-    const element = contentRef.current;
+    const printDocument = printWindow.document;
 
-    const options = {
-      margin:       0.5,
-      filename:     'relatorio_tarefas.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(options).from(element).save();
+    printDocument.write(`
+      <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; }
+            table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          ${contentRef.current?.outerHTML || ''}
+        </body>
+      </html>
+    `);
+    printWindow.print();
+    printDocument.close();
   };
 
   return (
     <React.Fragment>
-      <div ref={contentRef} className="container" style={{ padding: '20px', background: 'white' }}>
+      <div ref={contentRef} className="container">
         <div className="table-responsive" style={{ maxHeight: '400px', overflowY: 'auto' }}>
           <table className="table table-striped table-bordered">
             <thead>
@@ -124,9 +135,11 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
                 <tr key={index}>
                   {attributes.map((attr, i) => {
                     const value = item[attr.key];
-                    const displayValue = attr.transform ? attr.transform(value) : String(value ?? 'N/A');
+                    const displayValue = attr.transform ? attr.transform(value) : String(value);
                     return (
-                      <td key={i}>{displayValue}</td>
+                      <td key={i}>
+                        {displayValue}
+                      </td>
                     );
                   })}
                 </tr>
@@ -136,9 +149,9 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
         </div>
       </div>
       <div className="text-center">
-        <button title="gerar PDF" className="btn btn-success mt-3" onClick={generatePDF}>
-          Gerar PDF
-        </button>
+        <button title="gerar PDF" className="btn btn-success mt-3" onClick={generatePDF}>Gerar PDF</button>
+
+
       </div>
     </React.Fragment>
   );
