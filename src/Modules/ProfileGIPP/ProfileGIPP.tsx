@@ -10,7 +10,7 @@ const ProfileGIPP = () => {
 
   const listPath = [
     { page: '/GIPP', children: 'Home', icon: 'fa fa-home' },
-    { page: '/GIPP/configuration/profile', children: 'Profile', icon: 'fa fa-user' },
+    { page: '/GIPP/configuration/profile', children: 'Perfil', icon: 'fa fa-user' },
     {
       page: '/', children: 'Sair', icon: 'fa fa-sign-out', actionAdd: () => {
         localStorage.removeItem("tokenGIPP");
