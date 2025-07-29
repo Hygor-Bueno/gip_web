@@ -13,7 +13,7 @@ export default function FilePreview(props: FilePreviewProps) {
   };
 
   // Recupera o tipo do arquivo
-  const fileType = getFileTypeFromBase64(props.base64File);
+  const fileType: any = getFileTypeFromBase64(props.base64File);
 
   const decodeAndFormatXML = (base64: string): string => {
     try {
@@ -41,7 +41,7 @@ export default function FilePreview(props: FilePreviewProps) {
 
   // Função para formatar XML
   const formatXML = (xml: string): string => {
-    const PADDING = '  '; // Espaço para indentação
+    const PADDING = '  '; // Espaço para indentação
     const reg = /(>)(<)(\/*)/g; // RegEx para quebrar linhas entre tags
     let formatted = xml.replace(reg, '$1\n$2');
     let pad = 0;
@@ -88,7 +88,7 @@ export default function FilePreview(props: FilePreviewProps) {
               <div class="d-flex flex-column align-items-center">
                 <img id="imageViewer" src="${props.base64File}" alt="Imagem" />
                 <div class="form-group">
-                  <label for="fileNameInput" class="form-label">Nome do arquivo:</label>
+                  <label htmlFor="fileNameInput" class="form-label">Nome do arquivo:</label>
                   <input type="text" id="fileNameInput" class="form-control" value="imagem_download" />
                 </div>
                 <button id="downloadBtn" class="btn btn-primary btn-custom">Download Imagem</button>
@@ -138,58 +138,120 @@ export default function FilePreview(props: FilePreviewProps) {
     }
   }
 
+  function base64ToBlob(base64: string, contentType: string): Blob {
+    const byteCharacters = atob(base64.split(',')[1]);
+    const byteArrays = [];
+
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteArrays.push(byteCharacters.charCodeAt(i));
+    }
+
+    return new Blob([new Uint8Array(byteArrays)], { type: contentType });
+  }
+
+  // A Blob URL é criada uma vez no render, o que é eficiente
+  const blob = fileType ? base64ToBlob(props.base64File, fileType) : null;
+  const blobUrl = blob ? URL.createObjectURL(blob) : null;
+
+
   function renderPreview() {
     if (!fileType) {
       return <p>Tipo de arquivo desconhecido. Não é possível exibir uma pré-visualização.</p>;
     }
 
+    // Imagens
     if (fileType.startsWith('image/')) {
-      // Pré-visualização de imagens
       return (
         <div onClick={openImageInNewTab} style={{ cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <img className="rounded w-100 h-100" src={props.base64File} alt="Imagem selecionada" style={{ width: '100%', maxWidth: '500px' }} />
-        </div>
-      );
-    } else if (fileType === 'application/pdf') {
-      // Pré-visualização de PDF
-      return (
-          <a
-            href={props.base64File}
-            target="_blank"
-            rel="noopener noreferrer"
-            className=""
-          >
-            <div style={{ textAlign: 'center' }}>
-              Abrir em nova aba
-              <iframe
-                src={props.base64File}
-                title="Pré-visualização de PDF"
-                style={{ width: '100%', height: '60vh', border: 'none' }}
-              />
-            </div>
-          </a>
-      );
-    } else if (fileType === 'text/xml' || fileType === 'text/csv') {
-      // Pré-visualização de XML ou CSV
-      return (
-        <textarea
-          className='border rounded'
-          readOnly
-          value={decodeAndFormatXML(props.base64File)} // Decodifica e formata o conteúdo Base64
-          style={{  resize: "none" ,width: '60vw', height: '60vh', whiteSpace: 'pre', fontFamily: 'monospace' }}
-        />
-      );
-    } else {
-      // Pré-visualização padrão para outros tipos de arquivos
-      return (
-        <div style={{ padding: '20px', border: '1px solid #ccc', textAlign: 'center' }}>
-          <p>Pré-visualização não disponível para este tipo de arquivo.</p>
-          <a href={props.base64File} download="file" className="btn btn-primary">
-            Baixar Arquivo
-          </a>
+          <img className="rounded w-100 h-100" src={props.base64File} alt="Imagem" style={{ width: '100%', maxWidth: '500px' }} />
         </div>
       );
     }
+
+    // PDF com blob URL
+    if (fileType === 'application/pdf' && blobUrl) {
+      return (
+        <div style={{ textAlign: 'center' }}>
+          <iframe
+            src={blobUrl}
+            title="Pré-visualização de PDF"
+            style={{ 
+              width: '100%', 
+              height: '60vh', 
+              border: 'none' 
+            }} />
+          <br />
+        </div>
+      );
+    }
+
+    // XML ou CSV
+    if (fileType === 'text/xml' || fileType === 'text/csv') {
+      return (
+        <textarea
+          className="border rounded"
+          readOnly
+          value={decodeAndFormatXML(props.base64File)}
+          style={{ resize: "none", 
+            width: '60vw', 
+            height: '60vh', 
+            whiteSpace: 'pre', 
+            fontFamily: 'monospace' 
+          }}
+        />
+      );
+    }
+
+    // === Adicionei o tratamento específico para DOCX aqui ===
+    if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        const suggestedFileName = `documento_${Date.now()}.docx`; // Nome sugerido
+        return (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+                <p>Pré-visualização não disponível para arquivos DOCX.</p>
+                {blobUrl && (
+                    <a href={blobUrl} download={suggestedFileName} className="btn btn-primary">
+                        Baixar Documento Word
+                    </a>
+                )}
+                {!blobUrl && <p>Carregando...</p>}
+            </div>
+        );
+    }
+
+    // Word ou Excel (outros formatos ou genérico)
+    const wordExcelTypes = [
+      'application/msword', // .doc
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/vnd.ms-excel', // .xls
+    ];
+
+    if (wordExcelTypes.includes(fileType)) {
+      const suggestedFileName = `${fileType.includes('word') ? 'documento' : 'planilha'}_${Date.now()}.${fileType.includes('word') ? 'doc' : 'xlsx'}`;
+      return (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <p>Pré-visualização não disponível para este tipo de arquivo do Office.</p>
+          {blobUrl && (
+              <a href={blobUrl} download={suggestedFileName} className="btn btn-success">
+                Baixar {fileType.includes('word') ? 'Word (antigo)' : 'Excel'}
+              </a>
+          )}
+          {!blobUrl && <p>Carregando...</p>}
+        </div>
+      );
+    }
+
+    // Outros tipos não suportados
+    return (
+      <div style={{ padding: '20px', border: '1px solid #ccc', textAlign: 'center' }}>
+        <p>Pré-visualização não disponível para este tipo de arquivo.</p>
+        {blobUrl && (
+            <a href={blobUrl} download="arquivo_desconhecido" className="btn btn-primary">
+              Baixar Arquivo
+            </a>
+        )}
+        {!blobUrl && <p>Carregando...</p>}
+      </div>
+    );
   }
 
   return <div>{renderPreview()}</div>;
