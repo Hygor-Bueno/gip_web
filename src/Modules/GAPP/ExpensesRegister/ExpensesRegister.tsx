@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CustomTable from "../../../Components/CustomTable";
-import { convertForTable, convertTime, maskMoney, sortListByKey } from "../../../Util/Util";
+import { convertDate, convertForTable, maskMoney, sortListByKey } from "../../../Util/Util";
 import { useConnection } from "../../../Context/ConnContext";
 import CustomForm from "../../../Components/CustomForm";
 import { customTagsExpense, formExpense, minWidthsExpense } from "./Configuration/ConfigExpensesRegister";
@@ -75,7 +75,7 @@ export default function ExpensesRegister(): JSX.Element {
     function maskExpenses(item: IExpensesItem): IExpensesItem {
         return {
             expen_id: item.expen_id,
-            date: convertTime(item.date, true),
+            date: convertDate(item.date, true),
             hour: item.hour,
             description: item.description,
             discount: maskMoney(item.discount),

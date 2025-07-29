@@ -13,13 +13,10 @@ import NotificationBell from "../../Components/NotificationBell";
 import { iPropsInputCheckButton } from "../../Interface/iGTPP";
 import CardUser from "../CLPP/Components/CardUser";
 import { InputCheckButton } from "../../Components/CustomButton";
-import SearchUser from "../../Components/SearchUser";
-import CustomForm from "../../Components/CustomForm";
-import { fieldsetsCSDS } from "../../Components/CSDSConfig";
 import { tItemTable } from "../../types/types";
 import CustomTable from "../../Components/CustomTable";
 import { useConnection } from "../../Context/ConnContext";
-import { convertForTable, maskUserSeach } from "../../Util/Util";
+import { maskUserSeach } from "../../Util/Util";
 import FiltersSearchUser from "../../Components/FiltersSearchUser";
 
 export default function Gtpp(): JSX.Element {
