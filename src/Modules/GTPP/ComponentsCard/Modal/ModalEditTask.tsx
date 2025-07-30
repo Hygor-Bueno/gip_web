@@ -40,7 +40,7 @@ export default function ModalEditTask(props: any) {
           </div>
           <div className="d-flex align-items-center">
             <input
-              checked={isQuest}
+              checked={!isQuest}
               onChange={
                 async (event: any) => {
                   await updatedForQuestion({ id: editTask.id, task_id: editTask.task_id, yes_no: event.target.checked ? -1 : 0 });

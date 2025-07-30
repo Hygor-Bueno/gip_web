@@ -90,13 +90,6 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
             <label style={{ minHeight: "60px", height: "4vw", minWidth: "60px", width: "4vw" }} className='d-flex justify-content-center align-items-center btn btn-outline-primary text-primary fa fa-paperclip' >
               <input
                 type="file"
-                accept={
-                  props.fullFiles 
-                    ?  `text/xml, image/png, image/jpeg, image/gif, video/mp4, application/pdf, 
-                       application/vnd.openxmlformats-officedocument.wordprocessingml.document, 
-                       application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, 
-                       application/vnd.openxmlformats-officedocument.presentationml.presentation`
-                    : "image/*"}
                 onChange={handleFileChange}
                 style={{ display: 'none' }}
               />
