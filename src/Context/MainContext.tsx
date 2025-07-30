@@ -103,15 +103,7 @@ export function MyProvider({ children }: Props) {
     (async () => {
       await loadDetailsToken();
     })();
-    // loadInitialDatas();
   }, [userLog]);
-
-  // async function loadInitialDatas() {
-  //   if (localStorage.tokenGIPP) {
-  //     const company = await fetchData({ method: "GET", params: null, pathFile: 'CCPP/Company.php' });
-  //     console.log(company);
-  //   }
-  // }
 
   async function configUserData(user: { id: number, session?: string; administrator?: number }) {
     if (user.id) {

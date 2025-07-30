@@ -4,11 +4,9 @@ import { useMyContext } from '../../Context/MainContext';
 import { useConnection } from '../../Context/ConnContext';
 
 const ProfileGIPP = () => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const { setLoading, userLog } = useMyContext();
   const { fetchData } = useConnection();
-  const [photo, setPhoto] = useState<string>('');
-  // const [photoExt, setPhotoExt] = useState<string>('png'); // padrão
 
   const listPath = [
     { page: '/GIPP', children: 'Home', icon: 'fa fa-home' },
@@ -21,38 +19,30 @@ const ProfileGIPP = () => {
     }
   ];
 
-  const getMimeTypeFromExtension = (filename?: string): string => {
-    if (!filename) return 'image/png'; // fallback padrão
-    const ext = filename.split('.').pop()?.toLowerCase();
-    return ext === 'png' ? 'image/png'
-      : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
-      : ext === 'gif' ? 'image/gif'
-      : ext === 'bmp' ? 'image/bmp'
-      : ext === 'webp' ? 'image/webp'
-      : 'application/octet-stream';
+function getMimeTypeFromExtension(filename?: string): string {
+  const mimeTypes: { [key: string]: string } = {
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    gif: 'image/gif',
+    bmp: 'image/bmp',
+    webp: 'image/webp',
   };
+
+  const ext = filename?.split('.').pop()?.toLowerCase();
+  return mimeTypes[ext ?? ''] ?? 'image/png';
+}
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const fileName = file.name;
-      // const extension = fileName.split('.').pop()?.toLowerCase() || 'png';
-      const mimeType = getMimeTypeFromExtension(fileName);
-
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64Data = (reader.result as string).split(',')[1];
-        const fullBase64 = `data:${mimeType};base64,${base64Data}`;
-        setPhoto(fullBase64);
-        // setPhotoExt(extension);
         putEmployee(base64Data);
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
   };
 
   async function putEmployee(base64Image: string) {
@@ -68,7 +58,7 @@ const ProfileGIPP = () => {
         urlComplement: "",
       });
       if (req.error) throw new Error(req.message);
-      console.log("Imagem enviada com sucesso:", req.data);
+      userLog.photo = base64Image;
     } catch (error) {
       console.error("Erro ao enviar imagem:", error);
     } finally {
@@ -77,7 +67,6 @@ const ProfileGIPP = () => {
   };
 
   const getPhotoSrc = (): string => {
-    if (photo) return photo;
     const mimeType = getMimeTypeFromExtension(userLog.photo);
     return `data:${mimeType};base64,${userLog.photo}`;
   };
@@ -88,17 +77,17 @@ const ProfileGIPP = () => {
       <main className="w-100 min-vh-100 bg-light">
         <header className="bg-primary position-relative">
           <div className="image-background-peg-pese d-flex justify-content-center align-items-center py-5">
-            <div className="image-profile" onClick={handleImageClick}>
+            <label htmlFor="inputChangePhoto" className="image-profile" >
               <img
                 src={getPhotoSrc()}
                 className="img-fluid rounded-circle"
                 alt="Foto do usuário"
               />
-            </div>
+            </label>
             <input
+              id="inputChangePhoto"
               type="file"
               accept="image/*"
-              ref={fileInputRef}
               onChange={handleFileChange}
               style={{ display: 'none' }}
             />
