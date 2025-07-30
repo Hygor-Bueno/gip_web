@@ -98,11 +98,16 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   async function reqTasks(admin?: boolean) {
-    setLoading(true);
-    const getTask: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", urlComplement: `${admin ? '&administrator=1' : ''}` });
-    if (getTask.error) throw new Error(getTask.message);
-    setGetTask(getTask.data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const getTask: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", urlComplement: `${admin ? '&administrator=1' : ''}` });
+      if (getTask.error) throw new Error(getTask.message);
+      setGetTask(getTask.data);
+    } catch(e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function getStateformations() {
@@ -289,7 +294,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       notifications.push(...notify.list);
       setNotifications([...notifications]);
       setNotifications((prevNotifications) => [...prevNotifications, ...notify.list]);
-
       handleNotification(notify.list[0]["title"], notify.list[0]["message"], notify.list[0]["typeNotify"]);
     } catch (error) {
       console.error(error);

@@ -16,7 +16,7 @@
     "@types/react-bootstrap": "^0.32.37",
     "@types/react-dom": "^18.3.0",
     "animate.css": "^4.1.1",
-    "bootstrap": "^5.3.3",
+    "bootstrap": "^5.3.7",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "react": "^18.3.1",

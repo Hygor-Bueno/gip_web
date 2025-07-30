@@ -63,7 +63,6 @@ export function MyProvider({ children }: Props) {
   const [ctlSearchUser, setCtlSearchUser] = useState<boolean>(false);
   const [appIdSearchUser, setAppIdSearchUser] = useState<number | null>(0);
 
-
   const [message, setMessage] = useState<{ text: string; type: 1 | 2 | 3 | 4 }>({
     text: "",
     type: 1,
