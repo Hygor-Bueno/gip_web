@@ -71,6 +71,32 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
     }
   };
 
+  
+    useEffect(() => {
+    function handlePaste(event: ClipboardEvent) {
+      const items = event.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.type.indexOf("image") === 0) {
+          const file = item.getAsFile();
+          if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setBase64File(reader.result?.toString() || '');
+            };
+            reader.readAsDataURL(file);
+          }
+        }
+      }
+    }
+
+    window.addEventListener("paste", handlePaste as EventListener);
+    return () => {
+      window.removeEventListener("paste", handlePaste as EventListener);
+    };
+  }, [setBase64File])
+
   return (
     <div className="modal-overlay" onClick={closeModal}>
       <div style={{ maxWidth: "75%", maxHeight: "90%" }} className="d-flex flex-column align-items-center bg-white p-4 rounded" onClick={(e) => e.stopPropagation()}>
@@ -87,13 +113,16 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
           {base64File ?
             <FilePreview base64File={base64File}/>
             :
-            <label style={{ minHeight: "60px", height: "4vw", minWidth: "60px", width: "4vw" }} className='d-flex justify-content-center align-items-center btn btn-outline-primary text-primary fa fa-paperclip' >
-              <input
-                type="file"
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-              />
-            </label>
+            <>
+              <label style={{ minHeight: "60px", height: "4vw", minWidth: "60px", width: "4vw" }} className='d-flex justify-content-center align-items-center btn btn-outline-primary text-primary fa fa-paperclip' >
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+              <label className='text-danger text-bold' style={{fontSize: '0.950rem', width: '15rem', textAlign: 'center', marginTop: '1rem'}}>Pode usar CTRL+C e V para colar a imagem ou anexar ela clicando no botão</label>
+            </>
           }
         </div>
 

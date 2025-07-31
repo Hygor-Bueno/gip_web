@@ -162,7 +162,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setLoading(true);
       const getTaskItem: any = 
-      await fetchData({method: "GET", params: null, pathFile: "GTPP/Task.php", exception: ["no data"], urlComplement: ""})
+      await fetchData({method: "GET", params: null, pathFile: "GTPP/Task.php", exception: ["no data"], urlComplement: `&id=${task.id}`})
       if (getTaskItem.error) throw new Error(getTaskItem.message);
       setTaskDetails(getTaskItem);
     } catch (error) {
