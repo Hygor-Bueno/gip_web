@@ -24,7 +24,7 @@ const Infraction: React.FC = () => {
   const { fetchData } = useConnection();
   const [dataStore, setDataStore] = useState<IFormData[]>([]);
   const [dataStoreTrash, setDataStoreTrash] = useState<IFormData[]>([]);
-  const { setLoading } = useMyContext();
+  const { /*setLoading*/ } = useMyContext();
 
   useEffect(() => {
     const loadActiveData = async () => {
@@ -34,7 +34,7 @@ const Infraction: React.FC = () => {
   }, []);
 
   const fetchInfractionData = async (status: "1" | "0") => {
-    setLoading(true);
+    /*/*setLoading (true);*/
     try {
       const response: any = await fetchData({
         method: "GET",
@@ -50,7 +50,7 @@ const Infraction: React.FC = () => {
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      /*/*setLoading* false);*/
     }
   };
 

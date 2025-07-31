@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { formChangePassword } from "../Configs/DefaultPassword";
 import CustomForm from "./CustomForm";
-import { useMyContext } from "../Context/MainContext";
 import { handleNotification } from "../Util/Util";
 import { useConnection } from "../Context/ConnContext";
-import { Connection } from "../Connection/Connection";
 
 export default function DefaultPassword(props: {
     open: boolean,
@@ -16,12 +14,10 @@ export default function DefaultPassword(props: {
 }): JSX.Element {
     const [password, setPassword] = useState<string>("");
     const [confirm, setConfirm] = useState<string>("");
-
-    const { setLoading } = useMyContext();
     const { fetchData } = useConnection();
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             event.preventDefault();
             
             const req: any = await fetchData({method:"PUT",params:{ user: props.user.login, password: props.user.password, new_password: password, confirm_password: confirm },pathFile:"CCPP/Login.php",urlComplement:"&login="});
@@ -31,7 +27,7 @@ export default function DefaultPassword(props: {
         } catch (error: any) {
             console.error(error.message);
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     };
     return props.open ? (

@@ -32,7 +32,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
     updateItemTaskFile 
   } = useWebSocket();
   
-  const { setLoading } = useMyContext();
+  const { /*setLoading*/ } = useMyContext();
   const { fetchData } = useConnection();
   const [editTask, setEditTask] = useState<any>("");
   const [isObservation, setIsObservation] = useState<boolean>(false);
@@ -166,7 +166,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
                 }} />
                 <ButtonIcon title="Observação" color="danger" icon="trash" description="" onClick={async () => {
                   try {
-                    setLoading(true);
+                    /*setLoading(true);*/
                     if (task.id && task.task_id) {
                       const result = await deleteTaskItem({ id: task.id, task_id: task.task_id });
                       if (result.error) throw new Error(result.message);
@@ -182,7 +182,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
                   } catch (error: any) {
                     console.error(error.message);
                   } finally {
-                    setLoading(false);
+                    /*setLoading(false);*/
                   }
                 }} />
                 <AnexoImage item_id={task.id || 0} file={task.file || 0} updateAttachmentFile={updateItemTaskFile} />

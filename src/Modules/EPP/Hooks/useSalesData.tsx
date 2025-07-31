@@ -5,7 +5,7 @@ import { dataAllProd, dataOrder, dataOrderFormatted, dataShop } from '../Interfa
 import { formatDate, maskMoney, maskPhone, removeSpecialCharsAndNumbers } from '../../../Util/Util';
 
 export function useSalesData() {
-  const { setLoading } = useMyContext();
+  const { /*setLoading*/ } = useMyContext();
   const { fetchData } = useConnection();
 
   const [dataOrderTable, setDataOrderTable] = useState<dataOrder[]>([]);
@@ -51,7 +51,7 @@ export function useSalesData() {
   }, [tableData]);
 
   const fetchOrderData = async () => {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const response = await fetchData({
         method: 'GET',
@@ -66,12 +66,12 @@ export function useSalesData() {
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 
   const fetchLogSalePost = async (params: any) => {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const response = await fetchData({
         method: 'POST',
@@ -86,12 +86,12 @@ export function useSalesData() {
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
   const fetchShopData = async () => {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const response = await fetchData({
         method: 'GET',
@@ -103,12 +103,12 @@ export function useSalesData() {
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 
   const fetchMenuProd = async (prodId: string, shopId:number): Promise<any[]> => {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const response = await fetchData ({
         method: 'GET',
@@ -121,12 +121,12 @@ export function useSalesData() {
       console.error('Erro ao buscar Log de Venda:', error);
       return [];
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 
   const fetchLogSale = async (orderId: number): Promise<any[]> => {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const response = await fetchData({
         method: 'GET',
@@ -140,12 +140,12 @@ export function useSalesData() {
       console.error('Erro ao buscar Log de Venda:', error);
       return [];
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 
   const fetchOrder = async (orderId: number): Promise<any[]> => {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const response = await fetchData({
         method: 'GET',
@@ -159,12 +159,12 @@ export function useSalesData() {
       console.error('Erro ao buscar Log de Venda:', error);
       return [];
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 
   const fetchAllMenuProd = async () => {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const response = await fetchData({
         method: 'GET',
@@ -178,12 +178,12 @@ export function useSalesData() {
       console.error('Erro ao buscar Log de Venda:', error);
       return [];
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
   const fetchMenuProdCategory = async () => {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const response = await fetchData({
         method: 'GET',
@@ -197,7 +197,7 @@ export function useSalesData() {
       console.error('Erro ao buscar Log de Venda:', error);
       return [];
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 

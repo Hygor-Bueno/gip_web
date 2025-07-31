@@ -19,7 +19,7 @@ export default function TimeRecords() {
     const [onDetailsTimesRecords, setOnDetailsTimesRecords] = useState<string>('');
     const { tokenCFPP, loadTokenCFPP } = useCfppContext();
     const [employee, setEmployee] = useState<{ EmployeeID: string, EmployeeName: string, CostCenterDescription: string, BranchName: string, BranchCode: string }>({ EmployeeID: '', EmployeeName: '', CostCenterDescription: '', BranchName: '', BranchCode: '' });
-    const { setLoading } = useMyContext();
+    const { /*setLoading*/ } = useMyContext();
     const list: { classItem: string, textLabel: string, textValue: string, disabled: boolean, typeInput: string, onAction?: (value: any) => void, max?: string }[] = [
         { classItem: 'col-2 d-flex flex-column justify-content-end', textLabel: 'Matrícula', textValue: employee.EmployeeID, disabled: true, typeInput: 'text' },
         { classItem: 'col-3 d-flex flex-column justify-content-end', textLabel: 'Nome', textValue: employee.EmployeeName, disabled: true, typeInput: 'text' },
@@ -128,7 +128,7 @@ export default function TimeRecords() {
 
     async function register() {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             let list: {
                 id_record_type_fk: string;
                 times: string;
@@ -148,7 +148,7 @@ export default function TimeRecords() {
         } catch (error:any) {
             handleNotification('Falha!',error.message.toString(),'danger');
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     }
 

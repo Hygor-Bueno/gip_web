@@ -11,7 +11,7 @@ export default function SearchUser(props: { onClose?: (value: any) => void, sele
     const [limitPage, setLimitPage] = useState<number>(1);
     const [params, setParams] = useState<string>('');
     const [list, setList] = useState<tItemTable[]>([]);
-    const { setLoading, ctlSearchUser, setCtlSearchUser, appIdSearchUser } = useMyContext();
+    const { ctlSearchUser, setCtlSearchUser, appIdSearchUser } = useMyContext();
 
     const { fetchData } = useConnection();
 
@@ -24,7 +24,7 @@ export default function SearchUser(props: { onClose?: (value: any) => void, sele
 
     async function recoverList(value?: string) {
         try {
-            setLoading(true);
+            /*setLoading(false)*/
             let newUrlComplement = `&pPage=${page}`
             if (value) {
                 newUrlComplement += value;
@@ -39,7 +39,7 @@ export default function SearchUser(props: { onClose?: (value: any) => void, sele
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false)
+            /*setLoading(false)*/
         }
     }
     function convertForTable(array: any[]): tItemTable[] {

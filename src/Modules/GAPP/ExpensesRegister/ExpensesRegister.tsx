@@ -19,20 +19,20 @@ export default function ExpensesRegister(): JSX.Element {
     const [formData, setFormData] = useState<IFormExpenses>(restartForm);
     const [units, setUnitis] = useState<{ label: string, value: string }[]>([{ label: '', value: '' }]);
     const [expensesType, setExpensesType] = useState<{ label: string, value: string }[]>([{ label: '', value: '' }]);
-    const { setLoading } = useMyContext();
+    const { /*setLoading*/ } = useMyContext();
 
     useEffect(() => {
         (
             async () => {
                 try {
-                    setLoading(true);
+                    /*setLoading(true);*/
                     await loadUnits();
                     await loadExpensesType();
                     handleUrl();
                 } catch (error) {
                     console.error(error)
                 } finally {
-                    setLoading(false);
+                    /*setLoading(false);*/
                 }
             }
         )();
@@ -42,12 +42,12 @@ export default function ExpensesRegister(): JSX.Element {
         (
             async () => {
                 try {
-                    setLoading(true);
+                    /*setLoading(true);*/
                     await loadExpenses();
                 } catch (error: any) {
                     console.error(error)
                 } finally {
-                    setLoading(false);
+                    /*setLoading(false);*/
                 }
             }
         )();

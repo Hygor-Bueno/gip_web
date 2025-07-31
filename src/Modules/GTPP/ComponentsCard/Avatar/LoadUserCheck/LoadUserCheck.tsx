@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ImageUser from "../../../../../Assets/Image/user.png";
-import { useMyContext } from "../../../../../Context/MainContext";
 import { useConnection } from "../../../../../Context/ConnContext";
 import { Connection } from "../../../../../Connection/Connection";
 import ListUserTask from "../ListUserTask/ListUserTask";
@@ -8,7 +7,7 @@ import './Style.css';
 
 const LoadUserCheck = (props: any) => {
   const [ userTaskBind, setUserTaskBind ] = useState([]);
-  const { loading, setLoading } = useMyContext();
+  // const { loading, /*setLoading*/ } = useMyContext();
   const [ searchTerm, setSearchTerm ] = useState<string>("");
   const [ page, setPage ] = useState<number>(1);
   const [ limitPage, setLimitPage ] = useState<number>(1);
@@ -22,7 +21,7 @@ const LoadUserCheck = (props: any) => {
 
   async function recoverList() {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const req: any = await fetchData({
         method: "GET",
         params: null,
@@ -35,13 +34,13 @@ const LoadUserCheck = (props: any) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
   async function loadUserTaskLis() {
     const connection = new Connection("18");
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const userList: any = [];
       const res: any = await connection.get(`&task_id=${props.list.data.datatask.id}&list_user=1`, "GTPP/Task_User.php");
@@ -50,7 +49,7 @@ const LoadUserCheck = (props: any) => {
     } catch (err) {
       console.log(err);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 

@@ -17,7 +17,7 @@ export default function Login() {
     }>({ login: "", password: "" });
 
     const navigate = useNavigate();
-    const { setLoading, setTitleHead, configUserData } = useMyContext();
+    const { setTitleHead, configUserData } = useMyContext();
     const { setIsLogged } = useConnection();
     const { fetchData } = useConnection();
 
@@ -65,7 +65,7 @@ export default function Login() {
         }
     }
     async function login() {
-        setLoading(true);
+        /*setLoading(true);*/
         try {
             const userLogin = buildUserLogin();
             setUser(userLogin);
@@ -80,7 +80,7 @@ export default function Login() {
         } catch (error: any) {
             openModalChangePassword(error.message);
         }
-        setLoading(false);
+        /*setLoading(false);*/
     }
 
 }

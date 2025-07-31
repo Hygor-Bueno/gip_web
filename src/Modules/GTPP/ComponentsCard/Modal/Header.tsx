@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Connection } from "../../../../Connection/Connection";
 import { useWebSocket } from "../../Context/GtppWsContext";
 import { InputCheckButton } from "../../../../Components/CustomButton";
 import CardUser from "../../../CLPP/Components/CardUser";
@@ -31,7 +30,7 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
   const [userTask, setUserTask] = useState<User>();
   const titleTaskInput = useRef<HTMLInputElement>(null);
   const { getTask, task, loadTasks } = useWebSocket();
-  const { setLoading } = useMyContext();
+  const { /*setLoading*/ } = useMyContext();
   const { fetchData } = useConnection();
 
   React.useEffect(() => {
@@ -80,14 +79,14 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
 
   async function loadNameUserTask() {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const user = new User({ id: task.user_id });
       await user.loadInfo(true);
       setUserTask(user);
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 

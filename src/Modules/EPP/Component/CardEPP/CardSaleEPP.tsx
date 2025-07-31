@@ -15,7 +15,7 @@ const CardSaleEPP: React.FC<CardSaleEPPProps> = (props) => {
   const [products, setProducts] = useState<dataAllProd[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [confirmedItems, setConfirmedItems] = useState<Record<string, { product: dataAllProd; quantity: number; subtotal: number }>>({});
-  const [loading, setLoading] = useState(false);
+  const [loading, /*setLoading*/] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { fetchMenuProd, fetchAllMenuProd, fetchMenuProdCategory, fetchLogSale } = useSalesData();
@@ -49,7 +49,7 @@ const CardSaleEPP: React.FC<CardSaleEPPProps> = (props) => {
 
   const loadProducts = useCallback(async () => {
     if (products.length > 0) return;
-    setLoading(true);
+    /*setLoading(true);*/
     setError(null);
     try {
       await fetchMenuProd("", 1);
@@ -61,7 +61,7 @@ const CardSaleEPP: React.FC<CardSaleEPPProps> = (props) => {
       setError("Erro ao carregar produtos.");
       console.error(err);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }, [products.length, fetchMenuProd, fetchAllMenuProd, fetchMenuProdCategory]);
 

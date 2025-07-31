@@ -9,7 +9,7 @@ const iconCFPP = require("../Assets/Image/CFPP_icon.png");
 const iconGAPP = require("../Assets/Image/GAPP_icon.jpg");
 
 export default function Home(): JSX.Element {
-    const { setTitleHead, setLoading, userLog } = useMyContext();
+    const { setTitleHead, userLog } = useMyContext();
     const { fetchData } = useConnection();
     const [accessList, setAccessList] = useState<any>([]);
 

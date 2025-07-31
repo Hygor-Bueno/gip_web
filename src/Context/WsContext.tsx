@@ -33,7 +33,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const [sender, setSender] = useState<iSender>({ id: 0 });
     const [contNotify, setContNotify] = useState<number>(0);
 
-    const { setLoading, userLog } = useMyContext();
+    const { userLog } = useMyContext();
     const { fetchData } = useConnection();
     const ws = useRef(new WebSocketCLPP(localStorage.getItem("tokenGIPP"), callbackOnMessage));
 
@@ -51,9 +51,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         //Carrega a sua lista de contato.
         (async () => {
             if (userLog.id > 0) {
-                setLoading(true);
+                /*setLoading(true);*/
                 await buildContactList();
-                setLoading(false);
+                /*setLoading(false);*/
             }
         }
         )();

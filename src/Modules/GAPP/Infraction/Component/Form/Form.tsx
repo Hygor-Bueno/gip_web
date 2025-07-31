@@ -10,7 +10,7 @@ const Form: React.FC<any> = ({data, handleFunction, resetDataStore, resetForm })
   const defaultFunction = () => {};
   const {width} = useWindowSize();
   const {fetchData} = useConnection();
-  const { setLoading } = useMyContext();
+  const { /*setLoading*/ } = useMyContext();
   const [
     handleInfraction = defaultFunction,
     handleGravitity = defaultFunction,
@@ -31,7 +31,7 @@ const Form: React.FC<any> = ({data, handleFunction, resetDataStore, resetForm })
 
   const editorSendData = async () => {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       let result;
       if(isNewStore) {
         result = await InfractionData(formatStoreData(data), "POST");
@@ -45,7 +45,7 @@ const Form: React.FC<any> = ({data, handleFunction, resetDataStore, resetForm })
     } catch (error) {
       handleNotification("Error", String(error).toLowerCase(), "danger");
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 

@@ -29,7 +29,7 @@ export default function Stores(): JSX.Element {
     const [openForm, setOpenForm] = useState<any>(true);
     const [openTrash, setOpenTrash] = useState<any>(false);
     const [openModal, setOpenModal] = useState<any>(false);
-    const { setLoading, setTitleHead } = useMyContext();
+    const { setTitleHead } = useMyContext();
 
     const listButtonInputs: iPropsInputCheckButton[] = [
         { inputId: `gapp_check_store_form`, nameButton: "Exibir/Ocultar Menu", onAction: async (event: boolean) => setOpenMenu(!event), labelIconConditional: ["fa-solid fa-eye", "fa-solid fa-eye-slash"] },
@@ -39,7 +39,6 @@ export default function Stores(): JSX.Element {
 
     async function connectionBusinessGeneric(status: "0" | "1") {
         try {
-            setLoading(true);
             const conn = new Connection("18");
             const response: any = await conn.get(`&status_store=${status}`, 'GAPP/Store.php');
             if (response.error) throw new Error(response.message);
@@ -48,7 +47,6 @@ export default function Stores(): JSX.Element {
             setDataStore([]);
             handleNotification("Erro!", error.message, "danger");
         } finally {
-            setLoading(false);
         }
     };
     
@@ -139,10 +137,10 @@ interface IPropsControlItem {
     item: IFormData;
 }
 function ControlItem(props: IPropsControlItem): JSX.Element {
-    const { setLoading } = useMyContext();
+    const { /*setLoading*/ } = useMyContext();
     async function changeStatusStore() {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             const payload: IFormData = { ...props.item };
             payload.status_store = payload.status_store == 1 ? 0 : 1;
             const connection = new Connection("18");
@@ -154,7 +152,7 @@ function ControlItem(props: IPropsControlItem): JSX.Element {
         } catch (error: any) {
             handleNotification("Erro", error.toString(), "danger");
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     };
     return (

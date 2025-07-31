@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { fieldsetsCSDS } from "./CSDSConfig"
 import CustomForm from "./CustomForm"
 import { useConnection } from "../Context/ConnContext";
-import { useMyContext } from "../Context/MainContext";
 
 export default function FiltersSearchUser(props: { onAction: (value: string) => void,callBack?:boolean }) {
     const [company, setCompany] = useState<any[]>([]);
@@ -12,7 +11,6 @@ export default function FiltersSearchUser(props: { onAction: (value: string) => 
     const [employeeName, setEmployeeName] = useState<string>('');
     const [selecteds, setSelecteds] = useState<{ pCompanyId?: number; pShopId?: number; pDepartmentId?: number; pSubDepartmentId?: number }>({});
     const { fetchData } = useConnection();
-    const { setLoading } = useMyContext();
 
     useEffect(() => {
         loadCompany();
@@ -34,18 +32,18 @@ export default function FiltersSearchUser(props: { onAction: (value: string) => 
 
     async function loadCompany() {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             const req: any = await fetchData({ method: "GET", params: null, pathFile: "CCPP/Company.php" });
             if (req.data) setCompany(req.data);
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     }
     async function loadStore(idCompany: number) {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             clearLists();
             changeSelecteds(idCompany, "pCompanyId");
             const req: any = await fetchData({ method: "GET", params: null, pathFile: "CCPP/Shop.php", urlComplement: `&company_id=${idCompany}` });
@@ -54,12 +52,12 @@ export default function FiltersSearchUser(props: { onAction: (value: string) => 
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     }
     async function loadDepartament(idStore: number) {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             setDepartament([]);
             setSubdepartament([]);
             changeSelecteds(idStore, "pShopId");
@@ -71,7 +69,7 @@ export default function FiltersSearchUser(props: { onAction: (value: string) => 
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     }
     function changeSelecteds(value: number, key: "pCompanyId" | "pShopId" | "pDepartmentId" | "pSubDepartmentId") {
@@ -82,7 +80,7 @@ export default function FiltersSearchUser(props: { onAction: (value: string) => 
     }
     async function loadSubdepartament(idDepartament: number) {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             setSubdepartament([]);
             changeSelecteds(idDepartament, "pDepartmentId");
             if (idDepartament) {
@@ -93,7 +91,7 @@ export default function FiltersSearchUser(props: { onAction: (value: string) => 
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     }
     function clearForm() {

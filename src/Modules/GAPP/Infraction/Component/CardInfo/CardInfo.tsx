@@ -3,7 +3,6 @@ import ModalConfirm from "../../../../../Components/ModalConfirm";
 import { ICardInfoProps, IFormData } from "../../Interfaces/IFormGender";
 import "../style/style.css";
 import { handleNotification } from "../../../../../Util/Util";
-import { useMyContext } from "../../../../../Context/MainContext";
 import CardSearch from "../CardSearch/CardSearch";
 import { useConnection } from "../../../../../Context/ConnContext";
 
@@ -11,14 +10,13 @@ const CardInfo: React.FC<ICardInfoProps> = ({ setData, setHiddenForm, visibility
 {
   const [confirm, setConfirm] = useState(false);
   const currentItemRef = useRef<IFormData | null>(null);
-  const { loading, setLoading } = useMyContext();
   const { fetchData } = useConnection();
   const [confirmAction, setConfirmAction] = useState<"delete" | "recycle" | null>(null);
 
 
   const handleUpdateStoreStatus = async (item: IFormData, status: number) => {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const payload = { ...item, status_infractions: status };
       await fetchData({
         method: "PUT",
@@ -30,7 +28,7 @@ const CardInfo: React.FC<ICardInfoProps> = ({ setData, setHiddenForm, visibility
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 
@@ -83,7 +81,7 @@ const CardInfo: React.FC<ICardInfoProps> = ({ setData, setHiddenForm, visibility
             {itemsToDisplay?.length > 0 ? (
               <CardSearch
                 items={itemsToDisplay}
-                loading={loading}
+                loading={true} // ARRUMAR LOADING
                 onRecycle={handleRecycle}
                 onDelete={handleDelete}
                 onEdit={handleEdit} />

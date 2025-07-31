@@ -38,7 +38,7 @@ export const fetchCEPData = async (cep: string, loading: any) => {
     }
 };
 
-export const consultingCEP = async (cep: any, setData: any, loading: any) => {
+export const consultingCEP = async (cep: any, setData: any, loading?: any) => {
     if (cep.length !== 8) {
         console.warn("CEP inválido. Deve conter 8 dígitos.");
         return;

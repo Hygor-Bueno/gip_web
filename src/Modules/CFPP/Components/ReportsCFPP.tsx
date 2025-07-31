@@ -13,12 +13,12 @@ export default function ReportsCFPP(): JSX.Element {
     const [pageLimit, setPageLimit] = useState<number>(0);
     const [list, setList] = useState<any[]>([]);
     const [urlParam, setUrlParam] = useState<TUrl>(formInitial);
-    const { setLoading } = useMyContext();
+    const { /*setLoading*/ } = useMyContext();
     const { tokenCFPP, loadTokenCFPP, branch, costCenter } = useCfppContext();
     useEffect(() => {
         (async () => {
             try {
-                setLoading(true);
+                /*setLoading(true);*/
                 if (tokenCFPP) {
                     const reqStatus: { error: boolean; message?: string; data?: any[] } = await fetchNodeDataFull({
                         method: 'GET',
@@ -35,7 +35,7 @@ export default function ReportsCFPP(): JSX.Element {
                     await loadTokenCFPP();
                 }
             } finally {
-                setLoading(false);
+                /*setLoading(false);*/
             }
         })();
     }, [tokenCFPP]);
@@ -43,7 +43,7 @@ export default function ReportsCFPP(): JSX.Element {
     useEffect(() => {
         (async () => {
             try {
-                setLoading(true);
+                /*setLoading(true);*/
                 await reloadList();
             } catch (error: any) {
                 if (error.message.includes('Invalid or expired token')) {
@@ -51,7 +51,7 @@ export default function ReportsCFPP(): JSX.Element {
                     await loadTokenCFPP();
                 }
             } finally {
-                setLoading(false);
+                /*setLoading(false);*/
             }
         })();
     }, [tokenCFPP, urlParam['pageNumber']]);
@@ -114,14 +114,14 @@ export default function ReportsCFPP(): JSX.Element {
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             event.preventDefault();
             await reloadList();
             handleNotification("Sucesso!", "Dados encontrados com sucesso", "success");
         } catch (error: any) {
             console.error(error.message);
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     };
 

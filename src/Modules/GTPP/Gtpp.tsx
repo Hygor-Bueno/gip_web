@@ -20,7 +20,7 @@ import { maskUserSeach } from "../../Util/Util";
 import FiltersSearchUser from "../../Components/FiltersSearchUser";
 
 export default function Gtpp(): JSX.Element {
-  const { setTitleHead, setModalPage, setModalPageElement, userLog, setLoading } = useMyContext();
+  const { setTitleHead, setModalPage, setModalPageElement, userLog, /*setLoading*/ } = useMyContext();
   const [openFilter, setOpenFilter] = useState<any>(false);
   const [openFilterGolbal, setOpenFilterGolbal] = useState<any>(false);
   const [openMenu, setOpenMenu] = useState<any>(true);
@@ -216,7 +216,7 @@ function FilterPage() {
   const [limitPage, setLimitPage] = useState<number>(1);
   const [params, setParams] = useState<string>('');
   const [list, setList] = useState<tItemTable[]>([]);
-  const { setLoading, appIdSearchUser } = useMyContext();
+  const { appIdSearchUser } = useMyContext();
 
   const { fetchData } = useConnection();
   const { getTask, setGetTask, reqTasks } = useWebSocket();
@@ -231,7 +231,7 @@ function FilterPage() {
 
   async function recoverList(value?: string) {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       let newUrlComplement = `&pPage=${page}`
       if (value) {
         newUrlComplement += value;
@@ -246,7 +246,7 @@ function FilterPage() {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false)
+      /*setLoading(false)*/
     }
   }
   function maskFilter(array: any[]): tItemTable[] {

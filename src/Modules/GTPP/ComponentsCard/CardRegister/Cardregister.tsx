@@ -28,7 +28,7 @@ const Cardregister: React.FC<Cardregister> = (props) => {
   const [departament, setDepartament] = useState<any[]>([]);
 
   const { fetchData } = useConnection();
-  const { setLoading } = useMyContext();
+  const { /*setLoading*/ } = useMyContext();
 
   const formDataRef = useRef({
     description: "",
@@ -67,19 +67,19 @@ const Cardregister: React.FC<Cardregister> = (props) => {
 
   async function loadCompany() {
     try {
-      setLoading(true);
+      /*/*setLoading(true);*/
       const req: any = await fetchData({ method: "GET", params: null, pathFile: "CCPP/Company.php" });
       if (req.data) setCompany(req.data);
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*/*setLoading*false);*/
     }
   }
 
   async function loadStore(idCompany: number) {
     try {
-      setLoading(true);
+      /*/*setLoading(true);*/
       clearLists();
       const req: any = await fetchData({ method: "GET", params: null, pathFile: "CCPP/Shop.php", urlComplement: `&company_id=${idCompany}` });
       if (req.error) throw new Error(req.message);
@@ -87,7 +87,7 @@ const Cardregister: React.FC<Cardregister> = (props) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*/*setLoading*false);*/
     }
   }
 
@@ -98,7 +98,7 @@ const Cardregister: React.FC<Cardregister> = (props) => {
 
   async function loadDepartament(idStore: number) {
     try {
-      setLoading(true);
+      /*/*setLoading(true);*/
       setDepartament([]);
       if (idStore) {
         const req: any = await fetchData({ method: "GET", params: null, pathFile: "CCPP/Department.php", urlComplement: `&shop_id=${idStore}` });
@@ -108,7 +108,7 @@ const Cardregister: React.FC<Cardregister> = (props) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*/*setLoading*false);*/
     }
   }
   

@@ -8,12 +8,12 @@ import StructureModal, { MessageModal } from "../Components/CustomModal";
 import User from "../Class/User";
 import { useConnection } from "./ConnContext";
 
-const logo = require("../Assets/Image/peg_pese_loading.png");
+// const logo = require("../Assets/Image/peg_pese_loading.png");
 
 // Definindo o tipo dos dados no contexto
 interface MyMainContext {
-  loading: boolean;
-  setLoading: (step: boolean) => void;
+  // loading: boolean;
+  // /*setLoading*/: (step: boolean) => void;
 
   modal: boolean;
   setModal: (step: boolean) => void;
@@ -55,7 +55,7 @@ export const MyContext = createContext<MyMainContext | undefined>(undefined);
 // Componente que fornece o contexto
 export function MyProvider({ children }: Props) {
   const { fetchData } = useConnection();
-  const [loading, setLoading] = useState<boolean>(false);
+  // const [loading, /*setLoading*/] = useState<boolean>(false);
   const [modal, setModal] = useState<boolean>(false);
   const [modalPage, setModalPage] = useState<boolean>(false);
   const [newProgressBar, setNewProgressBar] = useState<number | string | null>(null);
@@ -130,8 +130,8 @@ export function MyProvider({ children }: Props) {
   return (
     <MyContext.Provider
       value={{
-        loading,
-        setLoading,
+        // loading,
+        // /*setLoading*/,
         modal,
         setModal,
         setMessage,
@@ -155,13 +155,13 @@ export function MyProvider({ children }: Props) {
         appIdSearchUser, 
         setAppIdSearchUser
       }}>
-      {loading && (
+      {/* {loading && (
         <StructureModal className="StructureModal ModalBgWhite">
           <div className="d-flex flex-column align-items-center">
             <img className="spinner-grow-img" src={logo} alt="Logo Peg Pese" />
           </div>
         </StructureModal>
-      )}
+      )} */}
 
       {modal && (
         <StructureModal className="StructureModal ModalBgBlack">

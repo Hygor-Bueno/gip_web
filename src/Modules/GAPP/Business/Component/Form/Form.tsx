@@ -10,7 +10,7 @@ import { useMyContext } from '../../../../../Context/MainContext';
 const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, resetForm, setData }) => {
 
   const defaultFunction = (value: string) => { };
-  const { setLoading } = useMyContext();
+  const { /*setLoading*/ } = useMyContext();
 
   const [
     handleFildCNPJ = defaultFunction,
@@ -42,32 +42,32 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
 
 
   function searchCEP() {
-    return consultingCEP(data?.zip_code, setData, setLoading)
+    return consultingCEP(data?.zip_code, setData)
   }
 
   async function postStore(obj: any, conn: any = new Connection('18')) {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const data = await conn.post(obj, 'GAPP/Store.php');
       if (data.error) throw new Error(data.message);
       return !data.error;
     } catch (error) {
       handleNotification("Erro", `${error}`, "danger");
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
   async function putStore(obj: any, conn: any = new Connection('18')) {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const data = await conn.put(obj, 'GAPP/Store.php');
       if (data.error) throw new Error(data.message);
       return !data.error;
     } catch (error) {
       handleNotification("Erro", `${error}`, "danger");
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 

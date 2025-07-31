@@ -9,7 +9,7 @@ export default function DetailsTimeRecords(props: { onClose: () => void; journey
     const [record, setRecord] = useState<any>({});
     const [alterHour, setAlterHour] = useState<any>('');
     const [alterDate, setAlterDate] = useState<any>('');
-    const { setLoading } = useMyContext();
+    const { /*setLoading*/ } = useMyContext();
 
     useEffect(() => {
         (async () => {
@@ -26,7 +26,7 @@ export default function DetailsTimeRecords(props: { onClose: () => void; journey
 
     async function loadTimeRecords() {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             if (localStorage.tokenGIPP) {
                 const reqTimeRecords: { error: boolean; message?: string; data?: any[] } = await fetchNodeDataFull({
                     method: 'GET',
@@ -44,13 +44,13 @@ export default function DetailsTimeRecords(props: { onClose: () => void; journey
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     }
     
     async function timeRecordsChange(id_time_records: number) {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             if (localStorage.tokenGIPP) {
                 const reqTimeRecords: { error: boolean; message?: string; data?: any[] } = await fetchNodeDataFull({
                     method: 'PUT',
@@ -64,13 +64,13 @@ export default function DetailsTimeRecords(props: { onClose: () => void; journey
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     }
 
     async function cancelTimeRecords() {
         try {
-            setLoading(true);
+            /*setLoading(true);*/
             if (localStorage.tokenGIPP) {
                 const reqTimeRecords: { error: boolean; message?: string; data?: any[] } = await fetchNodeDataFull({
                     method: 'PUT',
@@ -84,7 +84,7 @@ export default function DetailsTimeRecords(props: { onClose: () => void; journey
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
+            /*setLoading(false);*/
         }
     }
 

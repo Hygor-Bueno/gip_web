@@ -34,7 +34,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // GET
   const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
-  const { setLoading } = useMyContext();
+  // const { /*setLoading*/ } = useMyContext();
   const { fetchData } = useConnection();
 
   const ws = useRef(new GtppWebSocket());
@@ -45,7 +45,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     ws.current.connect();
 
     (async () => {
-      setLoading(true);
+      /*setLoading(true);*/
       try {
         const getNotify: any = await fetchData({ method: "GET", params: null, pathFile: 'GTPP/Notify.php', urlComplement: `&id_user=${userLog.id}`, exception: ["No data"] });
         if (getNotify.error) throw new Error(getNotify.message);
@@ -53,7 +53,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (error: any) {
         console.error(error.message);
       } finally {
-        setLoading(false);
+        /*setLoading(false);*/
       }
     })();
 
@@ -99,19 +99,19 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   async function reqTasks(admin?: boolean) {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const getTask: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", urlComplement: `${admin ? '&administrator=1' : ''}` });
       if (getTask.error) throw new Error(getTask.message);
       setGetTask(getTask.data);
     } catch(e) {
       console.log(e);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
   async function getStateformations() {
-    setLoading(true);
+    /*setLoading(true);*/
     let listState: iStates[] = [{ id: 0, description: '', color: '' }];
     try {
       if (localStorage.gtppStates) {
@@ -127,7 +127,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Erro ao obter as informações da tarefa:", error);
     } finally {
       updateStates(listState);
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
@@ -160,7 +160,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
   async function getTaskInformations(): Promise<void> {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const connection = new Connection("18", true);
       const getTaskItem: any = await connection.get(`&id=${task.id}`, "GTPP/Task.php");
       if (getTaskItem.error) throw new Error(getTaskItem.message);
@@ -168,7 +168,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("Erro ao obter as informações da tarefa:", error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
@@ -281,7 +281,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   async function updateNotification(item: any[]) {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       if (onSounds) {
         const audio = new Audio(soundFile);
         audio.play().catch((error) => {
@@ -298,7 +298,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
@@ -317,7 +317,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     yes_no?: number
   ) {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
 
       const item = yes_no ? { id: parseInt(id.toString()), task_id: idTask.toString(), yes_no: parseInt(yes_no.toString()) } : { check: checked, id: id, task_id: idTask }
 
@@ -338,7 +338,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
@@ -379,7 +379,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     depart_id: number,
     taskLocal: any
   ) {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const connection = new Connection("18");
       await connection.post(
@@ -407,7 +407,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
@@ -417,7 +417,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     yes_no: number,
     file?: string
   ) {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const response: any = await fetchData({
         method: "POST", params: {
@@ -466,7 +466,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       console.error("Error adding task:" + error.message);
 
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 
@@ -476,7 +476,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     id: number,
     descLocal: string
   ) {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const connection = new Connection("18");
       await connection.put(
@@ -497,7 +497,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("erro ao fazer o PUT em Task.php");
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
   async function updateItemTaskFile(file: string, item_id?: number) {
@@ -523,7 +523,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     value: string,
     isObservation: boolean,
   ) {
-    setLoading(true);
+    /*setLoading(true);*/
     try {
       const item: any = {
         id: subId,
@@ -547,25 +547,25 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("Ocorreu um erro ao salvar a tarefa. Tente novamente."); // Notificação amigável ao usuário
     } finally {
-      setLoading(false); // Finaliza o carregamento
+      /*setLoading(false);*/ // Finaliza o carregamento
     }
   }
 
   async function upTask(taskId: number, resource: string | null, date: string | null, taskList: any, message: string, type: number, object?: {}) {
-    setLoading(true);
+    /*setLoading(true);*/
     ws.current.informSending(
       classToJSON(
         new InformSending(false, userLog.id, taskId, type, object || { description: message, task_id: taskId, reason: resource, days: date, taskState: taskList.state_id })
       )
     );
     await loadTasks();
-    setLoading(false);
+    /*setLoading(false);*/
   }
 
   async function updateStateTask(taskId: number, resource: string | null, date: string | null) {
-    setLoading(true);
+    /*setLoading(true);*/
     const req: any = await fetchData({ method: "PUT", params: { task_id: taskId, reason: resource, days: parseInt(date ? date : "0") }, pathFile: "GTPP/TaskState.php" }) || { error: false };
-    setLoading(false);
+    /*setLoading(false);*/
     const response = req.error ? {} : req.data instanceof Array ? req.data[0].id : req.data.id;
     return response;
   }
@@ -642,7 +642,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   async function updatedForQuestion(item: { task_id: number; id: number; yes_no: number }) {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const req: any = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" });
       if (req.error) throw new Error(req.message);
       const newItem = taskDetails.data?.task_item.filter((element) => element.id == item.id);
@@ -660,7 +660,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 

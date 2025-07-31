@@ -10,11 +10,11 @@ const Modal = (props: any) => {
   const [openDetailUser, setOpenDetailUser] = useState();
   const [photos, setPhotos] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const { setLoading } = useMyContext();
+  const { /*setLoading*/ } = useMyContext();
 
   useEffect(() => {
     const loadPhotos = async () => {
-      setLoading(true);
+      /*setLoading(true);*/
       try {
         const conn = new Connection("18");
         const userList: any = [];
@@ -43,7 +43,7 @@ const Modal = (props: any) => {
       } catch (err: any) {
         setError(err.message);
       } finally {
-        setLoading(false);
+        /*setLoading(false);*/
       }
     };
 

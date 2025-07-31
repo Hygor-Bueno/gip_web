@@ -5,7 +5,7 @@ import { useConnection } from '../../Context/ConnContext';
 
 const ProfileGIPP = () => {
 
-  const { setLoading, userLog } = useMyContext();
+  const { userLog } = useMyContext();
   const { fetchData } = useConnection();
 
   const listPath = [
@@ -47,7 +47,7 @@ const ProfileGIPP = () => {
 
   async function putEmployee(base64Image: string) {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const req = await fetchData({
         method: "PUT",
         params: {
@@ -62,7 +62,7 @@ const ProfileGIPP = () => {
     } catch (error) {
       console.error("Erro ao enviar imagem:", error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   };
 

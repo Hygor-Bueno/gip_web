@@ -14,7 +14,7 @@ const FilterTask = (props: any) => {
   const [shop, setShop] = useState<[]>([]);
   const [department, setDepartment] = useState<[]>([]);
   const [subDepartment, setSubDepartment] = useState<[]>([]);
-  const { setLoading } = useMyContext();
+  const { /*setLoading*/ } = useMyContext();
 
   const { fetchData } = useConnection();
 
@@ -33,7 +33,7 @@ const FilterTask = (props: any) => {
 
   async function recoverList() {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const req: any = await fetchData({
         method: "GET",
         params: null,
@@ -46,13 +46,13 @@ const FilterTask = (props: any) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
   async function functionShop() {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const req: any = await fetchData({
         method: "GET",
         params: null,
@@ -64,13 +64,13 @@ const FilterTask = (props: any) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
   async function functionDepartment() {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const req: any = await fetchData({
         method: "GET",
         params: null,
@@ -82,13 +82,13 @@ const FilterTask = (props: any) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
   async function functionSubDepartment() {
     try {
-      setLoading(true);
+      /*setLoading(true);*/
       const req: any = await fetchData({
         method: "GET",
         params: null,
@@ -100,7 +100,7 @@ const FilterTask = (props: any) => {
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      /*setLoading(false);*/
     }
   }
 
