@@ -54,7 +54,7 @@ const ProfileGIPP = () => {
           id: userLog.id,
           photo: base64Image,
         },
-        pathFile: "CCPP/EmployeePhoto2.php",
+        pathFile: "CCPP/EmployeePhoto.php",
         urlComplement: "",
       });
       if (req.error) throw new Error(req.message);

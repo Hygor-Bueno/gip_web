@@ -25,6 +25,7 @@ export default function Contacts(props: {
                     return valueB - valueA;
                 })
         );
+        setContacts(props.contactList);
     }, [props.contactList, searchName]);
 
     return (
