@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Connection } from '../Connection/Connection';
 import FilePreview from './FilePreview';
+import { useConnection } from '../Context/ConnContext';
 
 function AttachmentFile(props:
   | { item_id: number; file: number; onClose?: (file: string) => void; reset?: boolean, updateAttachmentFile?: (file: string, item_id: number) => Promise<void>, fullFiles?: boolean,base64?:string } // item_id é obrigatório, onClose opcional
@@ -8,6 +8,8 @@ function AttachmentFile(props:
 ) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [base64File, setBase64File] = useState<string>('');
+  const { fetchData } = useConnection();
+
   const { reset } = props;
   useEffect(() => {
     if (reset) {
@@ -19,10 +21,8 @@ function AttachmentFile(props:
     (async () => {
       try {
         if (props.file) {
-          const connection = new Connection("18");
-          const req: any = await connection.get(`&id=${props.item_id}`, "GTPP/TaskItem.php");
+          const req: any = await fetchData({method: "GET", params: null, pathFile: 'GTPP/TaskItem.php', urlComplement: `&id=${props.item_id}`, exception: ["no data"]})
           if (req.error) throw new Error(req.message);
-  
           setBase64File(req.data[0]);
         }
       } catch (error: any) {

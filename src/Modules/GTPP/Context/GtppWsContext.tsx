@@ -117,8 +117,8 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       if (localStorage.gtppStates) {
         listState = JSON.parse(localStorage.gtppStates);
       } else {
-        const connection = new Connection("18", true);
-        const getStatusTask: { error: boolean, message?: string, data?: [{ id: number, description: string, color: string }] } = await connection.get("", "GTPP/TaskState.php") || { error: false };
+        const getStatusTask: { error: boolean, message?: string, data?: [{ id: number, description: string, color: string }] } = 
+        await fetchData({method: "GET", pathFile: "GTPP/TaskState.php", params: null, exception: ["no data"], urlComplement: ""});
         if (getStatusTask.error) throw new Error(getStatusTask.message || 'Error generic');
         const list = createStorageState(getStatusTask.data || [{ id: 0, description: '', color: '' }]);
         listState = list;
@@ -161,8 +161,8 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   async function getTaskInformations(): Promise<void> {
     try {
       setLoading(true);
-      const connection = new Connection("18", true);
-      const getTaskItem: any = await connection.get(`&id=${task.id}`, "GTPP/Task.php");
+      const getTaskItem: any = 
+      await fetchData({method: "GET", params: null, pathFile: "GTPP/Task.php", exception: ["no data"], urlComplement: ""})
       if (getTaskItem.error) throw new Error(getTaskItem.message);
       setTaskDetails(getTaskItem);
     } catch (error) {
@@ -381,16 +381,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   ) {
     setLoading(true);
     try {
-      const connection = new Connection("18");
-      await connection.post(
-        {
-          task_id: task_id,
-          company_id: company_id,
-          shop_id: shop_id,
-          depart_id: depart_id,
-        },
-        "GTPP/TaskComShoDepSub.php"
-      );
+      await fetchData({method: "POST", urlComplement: "", pathFile: "GTPP/TaskComShoDepSub.php", exception: ["no data"], params: {
+        task_id: task_id,
+        company_id: company_id,
+        shop_id: shop_id,
+        depart_id: depart_id,
+      }});
+
       ws.current.informSending({
         error: false,
         user_id: userLog.id,
@@ -478,11 +475,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   ) {
     setLoading(true);
     try {
-      const connection = new Connection("18");
-      await connection.put(
-        { id: id, full_description: description },
-        "GTPP/Task.php"
-      );
+      await fetchData({method: "PUT", pathFile: "GTPP/Task.php", exception: ["no data"], params: { id: id, full_description: description }});
       ws.current.informSending({
         error: false,
         user_id: userLog.id,
@@ -503,12 +496,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   async function updateItemTaskFile(file: string, item_id?: number) {
     try {
       if (item_id) {
-        const connection = new Connection("18");
-        const req: any = await connection.put({
+        const req: any = await fetchData({method: "PUT", pathFile: "GTPP/TaskItem.php", urlComplement: "", exception: ["no data"], params: {
           "task_id": task.id,
           "id": item_id,
           "file": file
-        }, 'GTPP/TaskItem.php');
+        }});
+
         if (req.error) throw new Error();
       }
     } catch (error: any) {

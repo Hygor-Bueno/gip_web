@@ -5,12 +5,14 @@ import { consultingCEP, handleNotification } from '../../../../../Util/Util';
 import { Connection } from '../../../../../Connection/Connection';
 import { IFormProps } from '../../Interfaces/IFormGender';
 import { useMyContext } from '../../../../../Context/MainContext';
+import { useConnection } from '../../../../../Context/ConnContext';
 
 
 const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, resetForm, setData }) => {
 
   const defaultFunction = (value: string) => { };
   const { setLoading } = useMyContext();
+  const { fetchData } = useConnection();
 
   const [
     handleFildCNPJ = defaultFunction,
@@ -45,10 +47,10 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
     return consultingCEP(data?.zip_code, setData, setLoading)
   }
 
-  async function postStore(obj: any, conn: any = new Connection('18')) {
+  async function postStore(obj: any) {
     try {
       setLoading(true);
-      const data = await conn.post(obj, 'GAPP/Store.php');
+      const data = await fetchData({method: "POST", pathFile: "GAPP/Store.php", params: obj, urlComplement: '', exception: ["no data"]});
       if (data.error) throw new Error(data.message);
       return !data.error;
     } catch (error) {
@@ -58,10 +60,10 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
     }
   }
 
-  async function putStore(obj: any, conn: any = new Connection('18')) {
+  async function putStore(obj: any) {
     try {
       setLoading(true);
-      const data = await conn.put(obj, 'GAPP/Store.php');
+      const data = await fetchData({method: "PUT", pathFile: "GAPP/Store.php", params: obj, urlComplement: '', exception: ["no data"]});
       if (data.error) throw new Error(data.message);
       return !data.error;
     } catch (error) {

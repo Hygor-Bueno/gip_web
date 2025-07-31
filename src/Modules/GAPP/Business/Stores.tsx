@@ -9,6 +9,7 @@ import CustomTable from '../../../Components/CustomTable';
 import { convertForTable, handleNotification } from '../../../Util/Util';
 import { iPropsInputCheckButton } from '../../../Interface/iGTPP';
 import { InputCheckButton } from '../../../Components/CustomButton';
+import { useConnection } from '../../../Context/ConnContext';
 
 const initialForms: IFormGender = {
     cnpj: "",
@@ -30,6 +31,7 @@ export default function Stores(): JSX.Element {
     const [openTrash, setOpenTrash] = useState<any>(false);
     const [openModal, setOpenModal] = useState<any>(false);
     const { setLoading, setTitleHead } = useMyContext();
+    const { fetchData } = useConnection();
 
     const listButtonInputs: iPropsInputCheckButton[] = [
         { inputId: `gapp_check_store_form`, nameButton: "Exibir/Ocultar Menu", onAction: async (event: boolean) => setOpenMenu(!event), labelIconConditional: ["fa-solid fa-eye", "fa-solid fa-eye-slash"] },
@@ -40,8 +42,7 @@ export default function Stores(): JSX.Element {
     async function connectionBusinessGeneric(status: "0" | "1") {
         try {
             setLoading(true);
-            const conn = new Connection("18");
-            const response: any = await conn.get(`&status_store=${status}`, 'GAPP/Store.php');
+            const response: any = await fetchData({method:"GET", params: null, pathFile: "GAPP/Store.php", urlComplement: `&status_store=${status}`, exception: ["no data"]});
             if (response.error) throw new Error(response.message);
             setDataStore(response.data);
         } catch (error: any) {
@@ -140,13 +141,14 @@ interface IPropsControlItem {
 }
 function ControlItem(props: IPropsControlItem): JSX.Element {
     const { setLoading } = useMyContext();
+    const { fetchData } = useConnection();
+
     async function changeStatusStore() {
         try {
             setLoading(true);
             const payload: IFormData = { ...props.item };
             payload.status_store = payload.status_store == 1 ? 0 : 1;
-            const connection = new Connection("18");
-            const result: any = await connection.put(payload, "GAPP/Store.php");
+            const result: any = await fetchData({method:"PUT", params: payload, pathFile: "GAPP/Store.php", urlComplement: '', exception: ["no data"]});
             if (result.error) throw new Error(result.message);
             props.onClean();
             props.onClose();

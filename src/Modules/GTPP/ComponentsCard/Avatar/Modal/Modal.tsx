@@ -4,6 +4,7 @@ import { Connection } from "../../../../../Connection/Connection";
 import ModalUser from "../ModalUser/ModalUser";
 import UserProfile from "../UserProfile/UserProfile";
 import './Style.css';
+import { useConnection } from "../../../../../Context/ConnContext";
 
 const Modal = (props: any) => {
   const [getInfoUser, setInfoUser] = useState();
@@ -12,17 +13,19 @@ const Modal = (props: any) => {
   const [error, setError] = useState<string | null>(null);
   const { setLoading } = useMyContext();
 
+  const { fetchData } = useConnection();
+
   useEffect(() => {
     const loadPhotos = async () => {
       setLoading(true);
       try {
-        const conn = new Connection("18");
         const userList: any = [];
 
         if (Array.isArray(props.user)) {
           for (let user of props.user) {
-            const responsePhotos: any = await conn.get(`&id=${user.user_id}`, "CCPP/EmployeePhoto.php");
-            const responseDetails: any = await conn.get(`&id=${user.user_id}`, "CCPP/Employee.php");
+            const responsePhotos: any = await fetchData({method: "GET", pathFile: "CCPP/EmployeePhoto.php", params: null, urlComplement: `&id=${user.user_id}`, exception: ["no data"]});
+            const responseDetails: any = await fetchData({method: "GET", pathFile: 'CCPP/Employee.php', params: null, urlComplement: `&id=${user.user_id}`, exception: ["no data"]});
+
             if (!responsePhotos?.error && !responseDetails?.error) {
               const details = responseDetails.data[0];
               userList.push({
