@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { CustomNotification, iGtppWsContextType, iStates, iTaskReq } from "../../../Interface/iGIPP";
 import GtppWebSocket from "./GtppWebSocket";
-import { Connection } from "../../../Connection/Connection";
 import { useMyContext } from "../../../Context/MainContext";
 import InformSending from "../Class/InformSending";
 import { classToJSON, handleNotification } from "../../../Util/Util";
@@ -29,8 +28,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const [getTask, setGetTask] = useState<any[]>([]);
   const [states, setStates] = useState<iStates[]>([{ color: '', description: '', id: 0 }]);
-
-  const navigate = useNavigate();
 
   // GET
   const [userTaskBind, setUserTaskBind] = useState<any[]>([]);

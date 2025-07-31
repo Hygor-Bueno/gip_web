@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { SelectFieldDefault } from "../../../../Components/CustomForm";
 import CheckboxList from "../CheckboxList/checkboxlist";
-import { Connection } from "../../../../Connection/Connection";
 import { useWebSocket } from "../../Context/GtppWsContext";
 import { useConnection } from "../../../../Context/ConnContext";
 

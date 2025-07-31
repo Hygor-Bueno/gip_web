@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Form from './Component/Form/Form';
 import NavBar from '../../../Components/NavBar';
-import { Connection } from '../../../Connection/Connection';
 import { IFormData, IFormGender } from './Interfaces/IFormGender';
 import { useMyContext } from '../../../Context/MainContext';
 import { listPathGAPP } from '../ConfigGapp';

@@ -1,6 +1,3 @@
-import React, { useState } from 'react';
-import { Modal, Button } from 'react-bootstrap';
-
 export default function ConfirmModal({  title, message, onConfirm, onClose }: {   title: string, message: string, onConfirm: () => void, onClose: () => void }) : JSX.Element {
     return (
         <div
