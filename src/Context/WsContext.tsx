@@ -164,7 +164,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             let contacts = new ContactList();
             const req: any = await contacts.loadListContacts();
             if (req.error) throw new Error(req.message);
-            console.log(req)
             setContactList([...req.data]);
             setContNotify(req.data.filter((item: any) => item.notification == 1).length);
         } catch (error) {
