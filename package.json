@@ -26,6 +26,7 @@
     "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1",
     "recharts": "^2.15.3",
+    "storybook": "^9.1.0",
     "sweetalert2": "^11.15.9",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
@@ -34,12 +35,16 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
-      "react-app/jest"
+      "react-app/jest",
+      "plugin:storybook/recommended",
+      "plugin:storybook/recommended"
     ]
   },
   "browserslist": {
@@ -55,6 +60,18 @@
     ]
   },
   "devDependencies": {
-    "@types/bootstrap": "^5.2.10"
+    "@storybook/addon-essentials": "^7.6.10",
+    "@storybook/addon-interactions": "^7.6.10",
+    "@storybook/addon-links": "^7.6.10",
+    "@storybook/addon-onboarding": "^1.0.11",
+    "@storybook/blocks": "^7.6.10",
+    "@storybook/preset-create-react-app": "^7.6.10",
+    "@storybook/react": "^7.6.10",
+    "@storybook/react-webpack5": "^7.6.10",
+    "@storybook/test": "^7.6.10",
+    "@types/bootstrap": "^5.2.10",
+    "eslint-plugin-storybook": "^9.1.0",
+    "prop-types": "^15.8.1",
+    "webpack": "^5.101.0"
   }
 }
