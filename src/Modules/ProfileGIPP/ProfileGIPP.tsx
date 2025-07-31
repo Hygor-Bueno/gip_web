@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { ChangeEvent, useRef, useState } from 'react';
 import NavBar from '../../Components/NavBar';
 import { useMyContext } from '../../Context/MainContext';
 import { useConnection } from '../../Context/ConnContext';
@@ -19,19 +19,19 @@ const ProfileGIPP = () => {
     }
   ];
 
-function getMimeTypeFromExtension(filename?: string): string {
-  const mimeTypes: { [key: string]: string } = {
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    gif: 'image/gif',
-    bmp: 'image/bmp',
-    webp: 'image/webp',
-  };
+  function getMimeTypeFromExtension(filename?: string): string {
+    const mimeTypes: { [key: string]: string } = {
+      png: 'image/png',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      gif: 'image/gif',
+      bmp: 'image/bmp',
+      webp: 'image/webp',
+    };
 
-  const ext = filename?.split('.').pop()?.toLowerCase();
-  return mimeTypes[ext ?? ''] ?? 'image/png';
-}
+    const ext = filename?.split('.').pop()?.toLowerCase();
+    return mimeTypes[ext ?? ''] ?? 'image/png';
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

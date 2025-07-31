@@ -25,6 +25,7 @@ export default function Contacts(props: {
                     return valueB - valueA;
                 })
         );
+        setContacts(props.contactList);
     }, [props.contactList, searchName]);
 
     return (
@@ -41,7 +42,7 @@ export default function Contacts(props: {
                 <div className="d-flex justify-content-between my-2">
                     <div className="d-flex align-items-center gap-2 w-75">
                         <label htmlFor="nameUserCLPP" className="fa-solid fa-magnifying-glass"></label>
-                        
+
                         <input
                             type="text"
                             id="nameUserCLPP"
