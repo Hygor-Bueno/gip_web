@@ -39,7 +39,7 @@ export default function Calculation() {
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/TR/payment`,
-                    port: "5000",
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                 }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
                 if ('message' in reqPayment && reqPayment.error) throw new Error(reqPayment.message);
                 if (reqPayment.data) setPayments(reqPayment.data);
@@ -62,7 +62,7 @@ export default function Calculation() {
                 method: 'POST',
                 params: params,
                 pathFile: '/api/GIPP/POST/payments',
-                port: "5000",
+                port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
             }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
             if (data.error) throw new Error(data.message);
             setJourneyCode([]);

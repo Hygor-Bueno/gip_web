@@ -32,7 +32,7 @@ export default function DetailsTimeRecords(props: { onClose: () => void; journey
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/TR/timeRecords`,
-                    port: "5000",
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                     urlComplement: `?codWorkSchedule=${props.journeyCode}`
                 }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${sessionStorage.tokenCFPP}` });
                 if ('message' in reqTimeRecords && reqTimeRecords.error) throw new Error(reqTimeRecords.message);
@@ -56,7 +56,7 @@ export default function DetailsTimeRecords(props: { onClose: () => void; journey
                     method: 'PUT',
                     params: { times: `${alterDate} ${alterHour}`, id_time_records },
                     pathFile: `/api/GIPP/PUT/TR/timeRecords`,
-                    port: "5000",
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                 }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${sessionStorage.tokenCFPP}` });
                 if ('message' in reqTimeRecords && reqTimeRecords.error) throw new Error(reqTimeRecords.message);
                 await loadTimeRecords();
@@ -76,7 +76,7 @@ export default function DetailsTimeRecords(props: { onClose: () => void; journey
                     method: 'PUT',
                     params: { cod_work_schedule: props.journeyCode },
                     pathFile: `/api/GIPP/PUT/TR/timeRecords`,
-                    port: "5000"
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY
                 }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${sessionStorage.tokenCFPP}` });
                 if ('message' in reqTimeRecords && reqTimeRecords.error) throw new Error(reqTimeRecords.message);
                 props.onClose();

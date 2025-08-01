@@ -1,7 +1,8 @@
-import React, { ChangeEvent, useRef, useState } from 'react';
+import React, { ChangeEvent } from 'react';
 import NavBar from '../../Components/NavBar';
 import { useMyContext } from '../../Context/MainContext';
 import { useConnection } from '../../Context/ConnContext';
+import { IMAGE_WEBP_QUALITY } from '../../Util/Util';
 
 const ProfileGIPP = () => {
 
@@ -19,27 +20,29 @@ const ProfileGIPP = () => {
     }
   ];
 
-  function getMimeTypeFromExtension(filename?: string): string {
-    const mimeTypes: { [key: string]: string } = {
-      png: 'image/png',
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      gif: 'image/gif',
-      bmp: 'image/bmp',
-      webp: 'image/webp',
-    };
-
-    const ext = filename?.split('.').pop()?.toLowerCase();
-    return mimeTypes[ext ?? ''] ?? 'image/png';
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Data = (reader.result as string).split(',')[1];
-        putEmployee(base64Data);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0);
+          let webpData = canvas.toDataURL('image/webp', IMAGE_WEBP_QUALITY); // qualidade ajustável
+
+          if (!webpData.startsWith("data:image/webp")) {
+            console.warn("Conversão para WebP falhou. Usando formato original.");
+            webpData = event.target?.result?.toString() || '';
+          }
+
+          const base64Data = webpData.split(',')[1];
+          putEmployee(base64Data);
+        };
+        img.src = event.target?.result?.toString() || '';
       };
       reader.readAsDataURL(file);
     }
@@ -67,8 +70,7 @@ const ProfileGIPP = () => {
   };
 
   const getPhotoSrc = (): string => {
-    const mimeType = getMimeTypeFromExtension(userLog.photo);
-    return `data:${mimeType};base64,${userLog.photo}`;
+    return `data:image/webp;base64,${userLog.photo}`;
   };
 
   return (
@@ -106,6 +108,12 @@ const ProfileGIPP = () => {
           </div>
         </section>
       </main>
+
+      <style>{`
+        .image-background-peg-pese {
+          background-image: url("${process.env.REACT_APP_API_GIPP_BASE_URL}:${process.env.REACT_APP_API_GIPP_PORT_SERVER_INTRA}/View/CLPP/static/media/bg_interlagos.b58bb3c23877f2ddf775.jpg");
+        }
+      `}</style>
     </React.Fragment>
   );
 };

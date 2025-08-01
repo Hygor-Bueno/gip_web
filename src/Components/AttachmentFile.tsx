@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import FilePreview from './FilePreview';
 import { useConnection } from '../Context/ConnContext';
+import { IMAGE_WEBP_QUALITY } from '../Util/Util';
 
 function AttachmentFile(props:
   | { item_id: number; file: number; onClose?: (file: string) => void; reset?: boolean, updateAttachmentFile?: (file: string, item_id: number) => Promise<void>, fullFiles?: boolean,base64?:string } // item_id é obrigatório, onClose opcional
@@ -39,7 +40,6 @@ function AttachmentFile(props:
 
   const closeModal = () => {
     setIsModalOpen(false);
-    // props.onClose?.(props.fullFiles ? base64File : base64File.replace(/^data:image\/\w+;base64,/, ""));
     let cleanedFile = base64File;
     if(!props.fullFiles) {
       cleanedFile = base64File.split(',')[1] || '';
@@ -60,30 +60,55 @@ function AttachmentFile(props:
 function AttachmentPreview(props: { closeModal: () => void; item_id: number, base64File: string, setBase64File: (value: string) => void, updateAttachmentFile?: (file: string, item_id: number) => Promise<void>, fullFiles?: boolean }) {
   const { base64File, setBase64File, closeModal, item_id } = props;
 
-  function handleFileChange(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setBase64File(reader.result?.toString() || '');
-      };
-      reader.readAsDataURL(file);
+    function handleFileChange(event: any) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx?.drawImage(img, 0, 0);
+            const webpData = canvas.toDataURL("image/webp", IMAGE_WEBP_QUALITY); // qualidade ajustável
+            setBase64File(webpData);
+          };
+          img.src = e.target?.result?.toString() || '';
+        };
+        reader.readAsDataURL(file);
+      }
     }
-  };
+
 
   
     useEffect(() => {
     function handlePaste(event: ClipboardEvent) {
       const items = event.clipboardData?.items;
       if (!items) return;
-
       for (const item of items) {
         if (item.type.indexOf("image") === 0) {
           const file = item.getAsFile();
           if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-              setBase64File(reader.result?.toString() || '');
+            reader.onload = (e) => {
+              const img = new Image();
+              img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx?.drawImage(img, 0, 0);
+                let webpData = canvas.toDataURL("image/webp", IMAGE_WEBP_QUALITY);
+                if (!webpData.startsWith("data:image/webp")) {
+                  console.log("Conversão para WebP falhou, usando PNG como fallback.");
+                  webpData = canvas.toDataURL("image/png");
+                }
+
+                setBase64File(webpData);
+              };
+              img.src = e.target?.result?.toString() || '';
             };
             reader.readAsDataURL(file);
           }

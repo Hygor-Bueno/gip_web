@@ -24,7 +24,7 @@ export default function ReportsCFPP(): JSX.Element {
                         method: 'GET',
                         params: null,
                         pathFile: `/api/GIPP/GET/CFS/status`,
-                        port: "5000",
+                        port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                     }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
                     if ('message' in reqStatus && reqStatus.error) throw new Error(reqStatus.message);
                     if (reqStatus.data) setStatus(reqStatus.data.map(item => { return { label: item.name, value: item.id_status } }));
@@ -142,7 +142,7 @@ export default function ReportsCFPP(): JSX.Element {
                 method: 'GET',
                 params: null,
                 pathFile: `/api/GIPP/GET/TR/trfs`,
-                port: "5000",
+                port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                 urlComplement: buildUrl(urlParam)
             }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
             if ('message' in reqStatus && reqStatus.error) throw new Error(reqStatus.message);

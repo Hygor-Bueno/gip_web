@@ -1,11 +1,14 @@
-import React from 'react';
-import { handleNotification } from '../Util/Util';
+import React, { useEffect, useState } from 'react';
+import { handleNotification, IMAGE_WEBP_QUALITY } from '../Util/Util';
 
 interface FilePreviewProps {
   base64File: string; // Base64 completo, incluindo o prefixo
 }
 
 export default function FilePreview(props: FilePreviewProps) {
+
+  const [processedBase64, setProcessedBase64] = useState<string>(props.base64File);
+
   // Função para extrair o tipo MIME do Base64
   const getFileTypeFromBase64 = (base64: string): string | null => {
     const match = base64.match(/^data:(.*?);base64,/);
@@ -13,7 +16,52 @@ export default function FilePreview(props: FilePreviewProps) {
   };
 
   // Recupera o tipo do arquivo
-  const fileType: any = getFileTypeFromBase64(props.base64File);
+  const fileType: any = getFileTypeFromBase64(processedBase64);
+
+
+  const convertToWebP = (base64: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = base64;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject("Erro ao obter contexto do canvas");
+
+        ctx.drawImage(img, 0, 0);
+        try {
+          const webpDataUrl = canvas.toDataURL("image/webp", IMAGE_WEBP_QUALITY); // qualidade alta
+          resolve(webpDataUrl);
+        } catch (error) {
+          reject("Erro ao converter para WebP: " + error);
+        }
+      };
+      img.onerror = () => reject("Erro ao carregar imagem");
+    });
+  };
+
+
+  useEffect(() => {
+    const shouldConvertToWebP =
+      getFileTypeFromBase64(processedBase64)?.startsWith("image/") &&
+      getFileTypeFromBase64(processedBase64) !== "image/webp";
+
+    if (shouldConvertToWebP) {
+      convertToWebP(processedBase64)
+        .then((converted) => setProcessedBase64(converted))
+        .catch((err) =>
+          handleNotification("Erro", "Falha ao converter imagem para WebP: " + err, "danger")
+        );
+    } else {
+      setProcessedBase64(processedBase64); // Usa como está
+    }
+  }, [processedBase64]);
+
+
+  
 
   const decodeAndFormatXML = (base64: string): string => {
     try {
@@ -86,7 +134,7 @@ export default function FilePreview(props: FilePreviewProps) {
           <body>
             <div class="container bg-light">
               <div class="d-flex flex-column align-items-center">
-                <img id="imageViewer" src="${props.base64File}" alt="Imagem" />
+                <img id="imageViewer" src="${processedBase64}" alt="Imagem" />
                 <div class="form-group">
                   <label htmlFor="fileNameInput" class="form-label">Nome do arquivo:</label>
                   <input type="text" id="fileNameInput" class="form-control" value="imagem_download" />
@@ -150,7 +198,7 @@ export default function FilePreview(props: FilePreviewProps) {
   }
 
   // A Blob URL é criada uma vez no render, o que é eficiente
-  const blob = fileType ? base64ToBlob(props.base64File, fileType) : null;
+  const blob = fileType ? base64ToBlob(processedBase64, fileType) : null;
   const blobUrl = blob ? URL.createObjectURL(blob) : null;
 
 
@@ -163,7 +211,7 @@ export default function FilePreview(props: FilePreviewProps) {
     if (fileType.startsWith('image/')) {
       return (
         <div onClick={openImageInNewTab} style={{ cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <img className="rounded w-100 h-100" src={props.base64File} alt="Imagem" style={{ width: '100%', maxWidth: '500px' }} />
+          <img className="rounded w-100 h-100" src={processedBase64} alt="Imagem" style={{ width: '100%', maxWidth: '500px' }} />
         </div>
       );
     }
@@ -191,7 +239,7 @@ export default function FilePreview(props: FilePreviewProps) {
         <textarea
           className="border rounded"
           readOnly
-          value={decodeAndFormatXML(props.base64File)}
+          value={decodeAndFormatXML(processedBase64)}
           style={{ resize: "none", 
             width: '60vw', 
             height: '60vh', 

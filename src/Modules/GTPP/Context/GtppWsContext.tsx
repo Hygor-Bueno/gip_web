@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { CustomNotification, iGtppWsContextType, iStates, iTaskReq } from "../../../Interface/iGIPP";
 import GtppWebSocket from "./GtppWebSocket";
-import { Connection } from "../../../Connection/Connection";
 import { useMyContext } from "../../../Context/MainContext";
 import InformSending from "../Class/InformSending";
 import { classToJSON, handleNotification } from "../../../Util/Util";
