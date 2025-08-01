@@ -55,8 +55,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 await buildContactList();
                 setLoading(false);
             }
-        }
-        )();
+        })();
         return clearChatAll();
     }, [userLog]);
     function clearChatAll() {
