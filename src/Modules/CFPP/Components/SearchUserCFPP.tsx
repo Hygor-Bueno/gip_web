@@ -41,7 +41,7 @@ export default function SearchUserCFPP({ tokenCFPP, onCallBack }: SearchUserCFPP
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/Employees/employees?page=${page}${params ? '&' + params : ''}`,
-                    port: "5000",
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                 }, { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tokenCFPP}` });
                 if ('message' in reqEmployee && reqEmployee.error) throw new Error(reqEmployee.message);
                 reqEmployee.data && setEmployees(reqEmployee.data);
@@ -58,7 +58,7 @@ export default function SearchUserCFPP({ tokenCFPP, onCallBack }: SearchUserCFPP
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/TR/recordType`,
-                    port: "5000",
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                 }, { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tokenCFPP}` });
                 if ('message' in reqRecordType && reqRecordType.error) throw new Error(reqRecordType.message);
                 
@@ -76,7 +76,7 @@ export default function SearchUserCFPP({ tokenCFPP, onCallBack }: SearchUserCFPP
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/BCC/branch`,
-                    port: "5000",
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                 }, { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tokenCFPP}` });
                 if ('message' in reqBranch && reqBranch.error) throw new Error(reqBranch.message);
                 reqBranch.data &&
@@ -97,7 +97,7 @@ export default function SearchUserCFPP({ tokenCFPP, onCallBack }: SearchUserCFPP
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/BCC/costCenter`,
-                    port: "5000",
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                 }, { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tokenCFPP}` });
                 if ('message' in reqCostCenter && reqCostCenter.error) throw new Error(reqCostCenter.message);
                 reqCostCenter.data

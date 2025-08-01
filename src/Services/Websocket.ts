@@ -25,7 +25,7 @@ export default class WebSocketCLPP {
 
   connectWebSocket(): void {
     try {
-      const localWs = new WebSocket('ws://gigpp.com.br:9193');
+      const localWs = new WebSocket(`${process.env.REACT_APP_API_GIPP_BASE_WS}:${process.env.REACT_APP_API_GIPP_PORT_SOCKET_DEFAULT}`);
       ws = localWs;
 
       localWs.onopen = () => {

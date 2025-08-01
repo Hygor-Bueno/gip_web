@@ -42,7 +42,7 @@ export default function TimeRecords() {
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/TR/recordType`,
-                    port: "5000",
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                 }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
                 if ('message' in reqRecordType && reqRecordType.error) throw new Error(reqRecordType.message);
                 reqRecordType.data && setRecordType(reqRecordType.data);
@@ -63,7 +63,7 @@ export default function TimeRecords() {
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/TR/timeRecords`,
-                    port: "5000",
+                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
                 }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
                 if ('message' in reqTimeRecords && reqTimeRecords.error) throw new Error(reqTimeRecords.message);
                 reqTimeRecords.data && setTimeRecords(reqTimeRecords.data);
@@ -86,7 +86,7 @@ export default function TimeRecords() {
                 method: 'POST',
                 params: params,
                 pathFile: '/api/GIPP/POST/TR',
-                port: "5000",
+                port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
             }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
             if (data.error) throw new Error(data.message);
         } catch (error) {

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useMyContext } from "../../../../../Context/MainContext";
-import { Connection } from "../../../../../Connection/Connection";
 import ModalUser from "../ModalUser/ModalUser";
 import UserProfile from "../UserProfile/UserProfile";
 import './Style.css';

@@ -1,7 +1,11 @@
+
 import { Store } from "react-notifications-component";
 import { iReqConn } from "../Interface/iConnection"
 import Translator from "./Translate";
 import { dataAllProd } from "../Modules/EPP/Interfaces/InterfacesEPP";
+
+export const IMAGE_WEBP_QUALITY = 0.4; // controla a qualidade das imagens com extensões webp.
+const baseURLSgpp = process.env.REACT_APP_API_SGPP_BASE_URL;
 
 export const convertdate = (date: string): string | null => {
     if (!date) return null;
@@ -24,7 +28,6 @@ export const fetchCEPData = async (cep: string, loading: any) => {
             const responseStatus = new Error(`CEP encontrado!`);
             handleNotification("Sucesso", responseStatus.message, "success");
         }
-
         const data = await response.json();
         if (data.erro) {
             const responseStatus = new Error("CEP não encontrado.");
@@ -43,7 +46,6 @@ export const consultingCEP = async (cep: any, setData: any, loading: any) => {
         console.warn("CEP inválido. Deve conter 8 dígitos.");
         return;
     }
-
     try {
         const data = await fetchCEPData(cep, loading);
 
@@ -198,7 +200,7 @@ export function isTokenExpired(expirationDate: string): boolean {
 export async function fetchNodeDataFull(req: iReqConn, headers?: Record<string, string>) {
     let result: { error: boolean, message?: string, data?: any } = { error: true, message: "Generic Error!" };
     try {
-        const URL = `http://sgpp.pegpese.com:${req.port}${req.pathFile}${req.urlComplement ? req.urlComplement : ""}`;
+        const URL = `${baseURLSgpp}:${req.port}${req.pathFile}${req.urlComplement ? req.urlComplement : ""}`;
         let objectReq: any = { method: req.method };
         if (headers) objectReq.headers = headers;
         if (req.params) objectReq.body = JSON.stringify(req.params);
@@ -243,8 +245,10 @@ function checkedExceptionError(message: string, exceptions?: string[]): boolean 
     return result;
 }
 function settingUrl(middlewer: string, params?: string, port?: string) {
-    let httpDefault = `gigpp.com.br:${port ? port : '72/GLOBAL'}`;
-    let server = `http://${httpDefault}`;
+    const portGipp = process.env.REACT_APP_API_GIPP_PORT_SERVER_DEFAULT;
+    const baseURLGipp = process.env.REACT_APP_API_GIPP_BASE_URL;
+    const httpDefault = `${baseURLGipp}:${port || portGipp}`;
+    const server = `${httpDefault}`;
     return server + middlewer + (params ? params : "");
 }
 
