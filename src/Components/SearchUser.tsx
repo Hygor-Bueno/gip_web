@@ -17,9 +17,9 @@ export default function SearchUser(props: { onClose?: (value: any) => void, sele
 
     useEffect(() => {
         (async () => {
-            await recoverList(params);
+            ctlSearchUser && await recoverList(params);
         })();
-    }, [page, params, appIdSearchUser]);
+    }, [page, params, appIdSearchUser,ctlSearchUser]);
 
 
     async function recoverList(value?: string) {
