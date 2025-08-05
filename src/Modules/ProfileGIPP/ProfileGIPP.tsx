@@ -44,8 +44,6 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
     /** @constant {number} CROP_SIZE - Tamanho (largura e altura) do quadrado de recorte. */
     const CROP_SIZE = Math.min(700, CANVAS_WIDTH * 0.8);
 
-    // Utilizar o useWindowSize para medir quando será mobile e quando será dasktop
-
     // --- REFERÊNCIAS DOM ---
     /**
      * @type {React.RefObject<HTMLCanvasElement>} canvasRef - Ref para o elemento HTML `<canvas>`.
@@ -74,6 +72,8 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
      */
     const [dragStart, setDragStart] = useState({ x: 0, y: 0, initialOffsetX: 0, initialOffsetY: 0 });
 
+    const [scale, setScale] = useState(1);
+
     /**
      * @function drawCanvas
      * @param {{x: number, y: number}} currentOffset - O deslocamento atual da imagem no canvas.
@@ -86,7 +86,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
      * 3. Calcula a posição do quadrado de recorte no centro do canvas.
      * 4. Desenha uma borda tracejada vermelha para indicar a área de recorte.
      */
-    const drawCanvas = (currentOffset: { x: number; y: number }) => {
+    const drawCanvas = (currentOffset: { x: number; y: number }, currentScale: number) => {
         const canvas = canvasRef.current;
         if (!canvas || !imageRef.current) return;
 
@@ -94,9 +94,14 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
         if (!ctx) return;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const scaledWidth = imageRef.current.width * currentScale;
+        const scaledHeight = imageRef.current.height * currentScale;
+
         // AQUI É ONDE A MÁGICA ACONTECE!
         // `drawImage` é uma função do contexto 2D do canvas que desenha uma imagem.
-        ctx.drawImage(imageRef.current, currentOffset.x, currentOffset.y);
+        // ctx.drawImage(imageRef.current, currentOffset.x, currentOffset.y);
+        ctx.drawImage(imageRef.current, currentOffset.x, currentOffset.y, scaledWidth, scaledHeight);
 
         const cropX = (canvas.width - CROP_SIZE) / 2;
         const cropY = (canvas.height - CROP_SIZE) / 2;
@@ -119,23 +124,30 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
     useEffect(() => {
         const img = new Image(); // Cria um novo objeto Image
         img.src = imageSrc;      // Define a fonte da imagem
-        img.onload = () => {     // Executa quando a imagem termina de carregar
-            imageRef.current = img; // Armazena a imagem na ref
+        img.onload = () => {
+            imageRef.current = img;
             const canvas = canvasRef.current;
             if (!canvas) return;
 
-            // Calcula o offset inicial para centralizar a imagem no canvas
-            // const initialOffset = {
-            //     x: (canvas.width - img.width) / 2,
-            //     y: (canvas.height - img.height) / 2,
-            // };
+            // 1. Calcule o fator de escala inicial para cobrir o CROP_SIZE
+            const scaleX = CROP_SIZE / img.width;
+            const scaleY = CROP_SIZE / img.height;
+            const initialScale = Math.max(scaleX, scaleY); // Usa o maior fator para cobrir a área de recorte
+
+            // 2. Calcule o offset inicial com base na nova escala
+            const scaledWidth = img.width * initialScale;
+            const scaledHeight = img.height * initialScale;
+            
+            // Centraliza a imagem escalada dentro da área de recorte
             const initialOffset = {
-                x: (CANVAS_WIDTH - img.width) / 2,
-                y: (CANVAS_HEIGHT - img.height) / 2,
+                x: (CANVAS_WIDTH - scaledWidth) / 2,
+                y: (CANVAS_HEIGHT - scaledHeight) / 2,
             };
 
-            setImageOffset(initialOffset); // Atualiza o estado do offset
-            drawCanvas(initialOffset);     // Desenha a imagem com o offset inicial
+            // 3. Atualize os estados
+            setScale(initialScale);
+            setImageOffset(initialOffset);
+            drawCanvas(initialOffset, initialScale);
         };
     }, [imageSrc]); // Dependência: só roda de novo se imageSrc mudar
 
@@ -147,10 +159,20 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
      * Isso garante que a imagem se mova suavemente enquanto o usuário arrasta.
      */
     useEffect(() => {
-        if (imageRef.current) {
-            drawCanvas(imageOffset);
-        }
-    }, [imageOffset]); // Dependência: roda toda vez que imageOffset muda
+      if (imageRef.current) {
+          // Chame com o scale atual
+          drawCanvas(imageOffset, scale);
+      }
+    }, [imageOffset, scale]); // Dependência: roda toda vez que imageOffset muda
+
+
+    const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      const zoomFactor = 0.1;
+      const newScale = e.deltaY < 0 ? scale + zoomFactor : scale - zoomFactor;
+      const newScaleCapped = Math.max(0.1, Math.min(newScale, 5));
+      setScale(newScaleCapped);
+    }
 
     /**
      * @function handleMouseDown
@@ -221,8 +243,14 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
 
         newOffsetX = Math.min(newOffsetX, cropX);
         newOffsetY = Math.min(newOffsetY, cropY);
-        newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - imageRef.current.width);
-        newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - imageRef.current.height);
+        // newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - imageRef.current.width);
+        // newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - imageRef.current.height);
+
+        const scaleWidth = imageRef.current.width * scale;
+        const scaleHeight = imageRef.current.height * scale;
+
+        newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - scaleWidth);
+        newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - scaleHeight);
 
         setImageOffset({ x: newOffsetX, y: newOffsetY });
     };
@@ -257,8 +285,14 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
         // sempre contenha parte da imagem.
         newOffsetX = Math.min(newOffsetX, cropX); // Não permite mover a imagem muito para a direita
         newOffsetY = Math.min(newOffsetY, cropY); // Não permite mover a imagem muito para baixo
-        newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - imageRef.current.width); // Não permite mover a imagem muito para a esquerda
-        newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - imageRef.current.height); // Não permite mover a imagem muito para cima
+        // newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - imageRef.current.width); // Não permite mover a imagem muito para a esquerda
+        // newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - imageRef.current.height); // Não permite mover a imagem muito para cima
+
+        const scaledWidth = imageRef.current.width * scale;
+        const scaledHeight = imageRef.current.height * scale;
+
+        newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - scaledWidth);
+        newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - scaledHeight);
 
         setImageOffset({ x: newOffsetX, y: newOffsetY }); // Atualiza a posição da imagem
     };
@@ -282,34 +316,79 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
      * 3. Converte o conteúdo do novo canvas para uma string Base64 no formato WebP.
      * 4. Chama a função `onCrop` passada via props com a imagem recortada.
      */
+    // const handleCrop = () => {
+    //     if (!imageRef.current) return;
+
+    //     const resultCanvas = document.createElement('canvas'); // Cria um canvas temporário
+    //     resultCanvas.width = CROP_SIZE;
+    //     resultCanvas.height = CROP_SIZE;
+    //     const resultCtx = resultCanvas.getContext('2d');
+    //     if (!resultCtx) return;
+
+    //     // Calcula a posição da área de recorte no canvas principal
+    //     const cropXOnCanvas = (CANVAS_WIDTH - CROP_SIZE) / 2;
+    //     const cropYOnCanvas = (CANVAS_HEIGHT - CROP_SIZE) / 2;
+
+        
+    //     // Calcula a fonte (source) da imagem a ser copiada para o canvas de resultado
+    //     const sourceX = (cropXOnCanvas - imageOffset.x) / scale;
+    //     const sourceY = (cropYOnCanvas - imageOffset.y) / scale;
+
+    //     // novos
+    //     const sourceWidth = CROP_SIZE / scale;
+    //     const sourceHeight = CROP_SIZE / scale;
+
+    //     // Desenha a porção da imagem recortada no novo canvas
+    //     // resultCtx.drawImage(
+    //     //     imageRef.current,
+    //     //     sourceX, sourceY, // Posição de início da cópia na imagem original
+    //     //     CROP_SIZE, CROP_SIZE, // Largura e altura da porção a ser copiada
+    //     //     0, 0, // Posição de início do desenho no canvas de resultado
+    //     //     CROP_SIZE, CROP_SIZE // Largura e altura para desenhar no canvas de resultado
+    //     // );
+
+    //     resultCtx.drawImage(
+    //       imageRef.current,
+    //       sourceX, sourceY, // Posição de início da cópia na imagem original (dividida pelo scale)
+    //       sourceWidth, sourceHeight, // Largura e altura da porção a ser copiada
+    //       0, 0,
+    //       CROP_SIZE, CROP_SIZE
+    //     );
+
+    //     // Converte o canvas de resultado para Base64 (WebP com qualidade definida)
+    //     const webpData = resultCanvas.toDataURL('image/webp', IMAGE_WEBP_QUALITY);
+    //     onCrop(webpData); // Chama o callback com a imagem recortada
+    // };
+
     const handleCrop = () => {
         if (!imageRef.current) return;
 
-        const resultCanvas = document.createElement('canvas'); // Cria um canvas temporário
+        const resultCanvas = document.createElement('canvas');
         resultCanvas.width = CROP_SIZE;
         resultCanvas.height = CROP_SIZE;
         const resultCtx = resultCanvas.getContext('2d');
         if (!resultCtx) return;
 
-        // Calcula a posição da área de recorte no canvas principal
+        // A lógica para o cropXOnCanvas e cropYOnCanvas continua a mesma
         const cropXOnCanvas = (CANVAS_WIDTH - CROP_SIZE) / 2;
         const cropYOnCanvas = (CANVAS_HEIGHT - CROP_SIZE) / 2;
-        // Calcula a fonte (source) da imagem a ser copiada para o canvas de resultado
-        const sourceX = cropXOnCanvas - imageOffset.x;
-        const sourceY = cropYOnCanvas - imageOffset.y;
+        
+        // As coordenadas da fonte e o tamanho agora precisam levar em conta o scale
+        const sourceX = (cropXOnCanvas - imageOffset.x) / scale;
+        const sourceY = (cropYOnCanvas - imageOffset.y) / scale;
+        const sourceWidth = CROP_SIZE / scale;
+        const sourceHeight = CROP_SIZE / scale;
 
-        // Desenha a porção da imagem recortada no novo canvas
         resultCtx.drawImage(
             imageRef.current,
-            sourceX, sourceY, // Posição de início da cópia na imagem original
-            CROP_SIZE, CROP_SIZE, // Largura e altura da porção a ser copiada
-            0, 0, // Posição de início do desenho no canvas de resultado
-            CROP_SIZE, CROP_SIZE // Largura e altura para desenhar no canvas de resultado
+            sourceX, sourceY, // Posição de início da cópia na imagem original (dividida pelo scale)
+            sourceWidth, sourceHeight, // Largura e altura da porção a ser copiada
+            0, 0,
+            CROP_SIZE, CROP_SIZE
         );
 
-        // Converte o canvas de resultado para Base64 (WebP com qualidade definida)
         const webpData = resultCanvas.toDataURL('image/webp', IMAGE_WEBP_QUALITY);
-        onCrop(webpData); // Chama o callback com a imagem recortada
+        onCrop(webpData);
     };
 
     return (
@@ -329,6 +408,8 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
                     onTouchCancel={handleTouchCancel}
+
+                    onWheel={handleWheel}
 
                     className="rounded cursor-move"
                 />
