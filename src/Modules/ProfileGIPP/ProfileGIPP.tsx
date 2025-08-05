@@ -293,7 +293,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
             const newScale = initialScale * zoomFactor;
 
             // Limita o zoom para evitar que a imagem desapareça ou fique gigante demais
-            const newScaleCapped = Math.max(1, Math.min(newScale, 5));
+            const newScaleCapped = Math.max(0.1, Math.min(newScale, 5));
             setScale(newScaleCapped);
         } 
         // Lógica para o arrasto (pan)
