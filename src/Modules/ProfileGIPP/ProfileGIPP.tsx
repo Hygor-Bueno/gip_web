@@ -74,6 +74,9 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
 
     const [scale, setScale] = useState(1);
 
+    const [pinchStartDistance, setPitchStartDistance] = useState<number | null> (null);
+    const [initialScale, setInitialScale] = useState(1);
+
     /**
      * @function drawCanvas
      * @param {{x: number, y: number}} currentOffset - O deslocamento atual da imagem no canvas.
@@ -215,44 +218,111 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
     };
 
 
+    // const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    //   e.preventDefault();
+    //   setIsDragging(true);
+    //   const coords = getEventCoords(e);
+    //   setDragStart({
+    //     x: coords.x,
+    //     y: coords.y,
+    //     initialOffsetX: imageOffset.x,
+    //     initialOffsetY: imageOffset.y
+    //   });
+    // }
+
     const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-      e.preventDefault();
-      setIsDragging(true);
-      const coords = getEventCoords(e);
-      setDragStart({
-        x: coords.x,
-        y: coords.y,
-        initialOffsetX: imageOffset.x,
-        initialOffsetY: imageOffset.y
-      });
-    }
+    e.preventDefault();
+
+    // Se houver dois dedos, inicie o zoom por pinça
+        if (e.touches.length === 2) {
+            setIsDragging(false); // Desativa o arrasto para não entrar em conflito com o zoom
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            setPitchStartDistance(distance);
+            setInitialScale(scale); // Guarda a escala atual
+        } 
+        // Se houver apenas um dedo, inicie o arrasto
+        else if (e.touches.length === 1) {
+            setIsDragging(true);
+            const touch = e.touches[0];
+            const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+            setDragStart({
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top,
+                initialOffsetX: imageOffset.x,
+                initialOffsetY: imageOffset.y,
+            });
+        }
+    };
+
+    // const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    //     e.preventDefault();
+    //     if (!isDragging || !imageRef.current) return;
+    //     const coords = getEventCoords(e);
+    //     const dx = coords.x - dragStart.x;
+    //     const dy = coords.y - dragStart.y;
+
+    //     let newOffsetX = dragStart.initialOffsetX + dx;
+    //     let newOffsetY = dragStart.initialOffsetY + dy;
+
+    //     // lógica de limitação de movimento aqui
+    //     const cropX = (CANVAS_WIDTH - CROP_SIZE) / 2;
+    //     const cropY = (CANVAS_HEIGHT - CROP_SIZE) / 2;
+    //     const scaleWidth = imageRef.current.width * scale;
+    //     const scaleHeight = imageRef.current.height * scale;
+        
+    //     newOffsetX = Math.min(newOffsetX, cropX);
+    //     newOffsetY = Math.min(newOffsetY, cropY);
+    //     newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - scaleWidth);
+    //     newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - scaleHeight);
+
+    //     setImageOffset({ x: newOffsetX, y: newOffsetY });
+    // };
 
     const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-        if (!isDragging || !imageRef.current) return;
         e.preventDefault();
-        const coords = getEventCoords(e);
-        const dx = coords.x - dragStart.x;
-        const dy = coords.y - dragStart.y;
 
-        let newOffsetX = dragStart.initialOffsetX + dx;
-        let newOffsetY = dragStart.initialOffsetY + dy;
+        // Lógica para o zoom (pinça)
+        if (e.touches.length === 2 && pinchStartDistance !== null) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const newDistance = Math.sqrt(dx * dx + dy * dy);
 
-        // lógica de limitação de movimento aqui
-        const cropX = (CANVAS_WIDTH - CROP_SIZE) / 2;
-        const cropY = (CANVAS_HEIGHT - CROP_SIZE) / 2;
+            const zoomFactor = newDistance / pinchStartDistance;
+            const newScale = initialScale * zoomFactor;
 
-        newOffsetX = Math.min(newOffsetX, cropX);
-        newOffsetY = Math.min(newOffsetY, cropY);
-        // newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - imageRef.current.width);
-        // newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - imageRef.current.height);
+            // Limita o zoom para evitar que a imagem desapareça ou fique gigante demais
+            const newScaleCapped = Math.max(1, Math.min(newScale, 5));
+            setScale(newScaleCapped);
+        } 
+        // Lógica para o arrasto (pan)
+        else if (isDragging && e.touches.length === 1) {
+            const touch = e.touches[0];
+            const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+            const dx = (touch.clientX - rect.left) - dragStart.x;
+            const dy = (touch.clientY - rect.top) - dragStart.y;
 
-        const scaleWidth = imageRef.current.width * scale;
-        const scaleHeight = imageRef.current.height * scale;
+            let newOffsetX = dragStart.initialOffsetX + dx;
+            let newOffsetY = dragStart.initialOffsetY + dy;
 
-        newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - scaleWidth);
-        newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - scaleHeight);
+            //@ts-ignore
+            const scaledWidth = imageRef.current.width * scale;
 
-        setImageOffset({ x: newOffsetX, y: newOffsetY });
+            //@ts-ignore
+            const scaledHeight = imageRef.current.height * scale;
+
+            const cropX = (CANVAS_WIDTH - CROP_SIZE) / 2;
+            const cropY = (CANVAS_HEIGHT - CROP_SIZE) / 2;
+
+            newOffsetX = Math.min(newOffsetX, cropX);
+            newOffsetY = Math.min(newOffsetY, cropY);
+            newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - scaledWidth);
+            newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - scaledHeight);
+            
+
+            setImageOffset({ x: newOffsetX, y: newOffsetY });
+        }
     };
 
     const handleTouchEnd = () => setIsDragging(false);
