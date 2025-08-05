@@ -4,6 +4,7 @@ import { useMyContext } from "../../Context/MainContext";
 import { useConnection } from "../../Context/ConnContext";
 import { IMAGE_WEBP_QUALITY } from "../../Util/Util";
 import { InputCheckButton } from "../../Components/CustomButton";
+import useWindowSize from "../GAPP/Business/hook/useWindowSize";
 
 // --- COMPONENTE DE RECORTE DE IMAGEM (INTEGRADO) ---
 interface ImageCropperProps {
@@ -33,12 +34,17 @@ interface ImageCropperProps {
  */
 const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel }) => {
     // --- CONSTANTES DE DIMENSÃO ---
+
+    const {isMobile} = useWindowSize();
+
     /** @constant {number} CANVAS_WIDTH - Largura fixa do canvas onde a imagem será desenhada. */
-    const CANVAS_WIDTH = 500;
+    const CANVAS_WIDTH = Math.min(isMobile ? 300 : 500, window.innerWidth * 0.8);
     /** @constant {number} CANVAS_HEIGHT - Altura fixa do canvas onde a imagem será desenhada. */
-    const CANVAS_HEIGHT = 400;
+    const CANVAS_HEIGHT = CANVAS_WIDTH * 1;
     /** @constant {number} CROP_SIZE - Tamanho (largura e altura) do quadrado de recorte. */
-    const CROP_SIZE = 300;
+    const CROP_SIZE = Math.min(700, CANVAS_WIDTH * 0.8);
+
+    // Utilizar o useWindowSize para medir quando será mobile e quando será dasktop
 
     // --- REFERÊNCIAS DOM ---
     /**
@@ -119,10 +125,15 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
             if (!canvas) return;
 
             // Calcula o offset inicial para centralizar a imagem no canvas
+            // const initialOffset = {
+            //     x: (canvas.width - img.width) / 2,
+            //     y: (canvas.height - img.height) / 2,
+            // };
             const initialOffset = {
-                x: (canvas.width - img.width) / 2,
-                y: (canvas.height - img.height) / 2,
+                x: (CANVAS_WIDTH - img.width) / 2,
+                y: (CANVAS_HEIGHT - img.height) / 2,
             };
+
             setImageOffset(initialOffset); // Atualiza o estado do offset
             drawCanvas(initialOffset);     // Desenha a imagem com o offset inicial
         };
@@ -159,6 +170,67 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
             initialOffsetY: imageOffset.y, // Posição inicial Y da imagem
         });
     };
+
+    // ##### START MOBILE ###### 
+
+    // Funções auxiliares para obter a posição do evento
+    const getEventCoords = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+      // Se for um evento de toque, pegue o primeiro toque da lista
+      if ('touches' in e) {
+        const touch = e.touches[0];
+        const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+        return {
+          x: touch.clientX - rect.left,
+          y: touch.clientY - rect.top,
+        };
+      }
+
+      // Se for um evento de mouse, use offsetX e offsetY
+      return {
+        x: e.nativeEvent.offsetX,
+        y: e.nativeEvent.offsetY,
+      };
+    };
+
+
+    const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      setIsDragging(true);
+      const coords = getEventCoords(e);
+      setDragStart({
+        x: coords.x,
+        y: coords.y,
+        initialOffsetX: imageOffset.x,
+        initialOffsetY: imageOffset.y
+      });
+    }
+
+    const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        if (!isDragging || !imageRef.current) return;
+        e.preventDefault();
+        const coords = getEventCoords(e);
+        const dx = coords.x - dragStart.x;
+        const dy = coords.y - dragStart.y;
+
+        let newOffsetX = dragStart.initialOffsetX + dx;
+        let newOffsetY = dragStart.initialOffsetY + dy;
+
+        // lógica de limitação de movimento aqui
+        const cropX = (CANVAS_WIDTH - CROP_SIZE) / 2;
+        const cropY = (CANVAS_HEIGHT - CROP_SIZE) / 2;
+
+        newOffsetX = Math.min(newOffsetX, cropX);
+        newOffsetY = Math.min(newOffsetY, cropY);
+        newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - imageRef.current.width);
+        newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - imageRef.current.height);
+
+        setImageOffset({ x: newOffsetX, y: newOffsetY });
+    };
+
+    const handleTouchEnd = () => setIsDragging(false);
+    const handleTouchCancel = () => setIsDragging(false);
+
+    // ##### END MOBILE ###### 
 
     /**
      * @function handleMouseMove
@@ -241,7 +313,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
     };
 
     return (
-        <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 text-center">
+        <div className="bg-white rounded shadow-xl p-4 sm:p-6 text-center">
             <h3 className="text-xl font-bold mb-4">Posicione sua Foto</h3>
             <div className="border-2 border-dashed border-gray-300 rounded-lg inline-block">
                 <canvas
@@ -252,15 +324,21 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseUp} // Importante para parar o arrasto se o mouse sair do canvas
-                    className="rounded-md cursor-move"
+                    
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchCancel={handleTouchCancel}
+
+                    className="rounded cursor-move"
                 />
             </div>
-            <div className="mt-6 flex justify-center gap-4">
+            <div className="mt-6 d-flex justify-content-center gap-4">
                 <button onClick={onCancel} className="btn btn-danger px-6 py-2 rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 font-semibold">
-                    Cancelar
+                    <i className="fa fa-x text-white"></i> Cancelar
                 </button>
-                <button onClick={handleCrop} className="btn btn-primary px-6 py-2 rounded-md text-white hover:opacity-90 font-semibold inline-flex items-center">
-                    Recortar e Salvar
+                <button onClick={handleCrop} className="btn button-photo btn-primary px-6 py-2 rounded-md text-white hover:opacity-90 font-semibold inline-flex items-center">
+                    <i className="text-white fa fa-save"></i> Salvar
                 </button>
             </div>
         </div>
@@ -398,6 +476,10 @@ const ProfileGIPP = () => {
         .btn-close-menu { top: 1rem; right: 1rem; }
         .image-background-peg-pese {
           background-image: url("${process.env.REACT_APP_API_GIPP_BASE_URL}:${process.env.REACT_APP_API_GIPP_PORT_SERVER_INTRA}/View/CLPP/static/media/bg_interlagos.b58bb3c23877f2ddf775.jpg");
+        }
+
+        button-photo {
+          font-size: 25px;
         }
         
         /* --- ESTILOS PARA O MODAL DE RECORTE --- */
