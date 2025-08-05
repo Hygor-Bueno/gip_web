@@ -1,51 +1,317 @@
-import React, { ChangeEvent } from 'react';
-import NavBar from '../../Components/NavBar';
-import { useMyContext } from '../../Context/MainContext';
-import { useConnection } from '../../Context/ConnContext';
-import { IMAGE_WEBP_QUALITY } from '../../Util/Util';
+import React, { ChangeEvent, useState, useRef, useEffect } from "react";
+import NavBar from "../../Components/NavBar";
+import { useMyContext } from "../../Context/MainContext";
+import { useConnection } from "../../Context/ConnContext";
+import { IMAGE_WEBP_QUALITY } from "../../Util/Util";
+import { InputCheckButton } from "../../Components/CustomButton";
 
+// --- COMPONENTE DE RECORTE DE IMAGEM (INTEGRADO) ---
+interface ImageCropperProps {
+  imageSrc: string;
+  onCrop: (croppedImage: string) => void;
+  onCancel: () => void;
+}
+
+/**
+ * @interface ImageCropperProps
+ * @property {string} imageSrc - A URL da imagem que será exibida para recorte (geralmente um Base64).
+ * @property {(croppedImage: string) => void} onCrop - Função de callback que é chamada quando a imagem é recortada.
+ * Recebe a imagem recortada como uma string Base64.
+ * @property {() => void} onCancel - Função de callback chamada quando o usuário cancela o recorte.
+ */
+
+/**
+ * @param {ImageCropperProps} props
+ * @returns {React.FC<ImageCropperProps>} Um componente React para recorte de imagens.
+ *
+ * @description
+ * O componente `ImageCropper` oferece uma interface interativa para que os usuários possam
+ * selecionar uma porção de uma imagem. Ele utiliza um `<canvas>` HTML para desenhar e
+ * manipular a imagem, permitindo arrastar e visualizar a área de recorte.
+ *
+ * Ele é "integrado" porque foi pensado para ser usado dentro de outro componente, como um modal.
+ */
+const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel }) => {
+    // --- CONSTANTES DE DIMENSÃO ---
+    /** @constant {number} CANVAS_WIDTH - Largura fixa do canvas onde a imagem será desenhada. */
+    const CANVAS_WIDTH = 500;
+    /** @constant {number} CANVAS_HEIGHT - Altura fixa do canvas onde a imagem será desenhada. */
+    const CANVAS_HEIGHT = 400;
+    /** @constant {number} CROP_SIZE - Tamanho (largura e altura) do quadrado de recorte. */
+    const CROP_SIZE = 300;
+
+    // --- REFERÊNCIAS DOM ---
+    /**
+     * @type {React.RefObject<HTMLCanvasElement>} canvasRef - Ref para o elemento HTML `<canvas>`.
+     * Usamos `useRef` para acessar diretamente o elemento DOM do canvas.
+     */
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    /**
+     * @type {React.MutableRefObject<HTMLImageElement | null>} imageRef - Ref para a imagem sendo carregada no canvas.
+     * Guarda a instância do objeto `Image` para que possamos desenhá-la no canvas.
+     */
+    const imageRef = useRef<HTMLImageElement | null>(null);
+
+    // --- ESTADOS DO COMPONENTE ---
+    /**
+     * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} isDragging - Estado que indica se o usuário está arrastando a imagem.
+     */
+    const [isDragging, setIsDragging] = useState(false);
+    /**
+     * @type {[{x: number, y: number}, React.Dispatch<React.SetStateAction<{x: number, y: number}>>]} imageOffset - Posição X e Y da imagem dentro do canvas.
+     * É por meio desse estado que a imagem se move.
+     */
+    const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 });
+    /**
+     * @type {[{x: number, y: number, initialOffsetX: number, initialOffsetY: number}, React.Dispatch<React.SetStateAction<{x: number, y: number, initialOffsetX: number, initialOffsetY: number}>>]} dragStart - Guarda a posição inicial do mouse e do offset da imagem quando o arrasto começa.
+     * Essencial para calcular o quanto a imagem deve se mover.
+     */
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0, initialOffsetX: 0, initialOffsetY: 0 });
+
+    /**
+     * @function drawCanvas
+     * @param {{x: number, y: number}} currentOffset - O deslocamento atual da imagem no canvas.
+     * @returns {void}
+     * @description
+     * Esta função é responsável por desenhar a imagem e a área de recorte no canvas.
+     * É aqui que a mágica acontece!
+     * 1. Limpa o canvas.
+     * 2. Desenha a imagem na posição `currentOffset.x` e `currentOffset.y`.
+     * 3. Calcula a posição do quadrado de recorte no centro do canvas.
+     * 4. Desenha uma borda tracejada vermelha para indicar a área de recorte.
+     */
+    const drawCanvas = (currentOffset: { x: number; y: number }) => {
+        const canvas = canvasRef.current;
+        if (!canvas || !imageRef.current) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // AQUI É ONDE A MÁGICA ACONTECE!
+        // `drawImage` é uma função do contexto 2D do canvas que desenha uma imagem.
+        ctx.drawImage(imageRef.current, currentOffset.x, currentOffset.y);
+
+        const cropX = (canvas.width - CROP_SIZE) / 2;
+        const cropY = (canvas.height - CROP_SIZE) / 2;
+
+        // Estilos para a área de recorte
+        ctx.strokeStyle = 'red'; // Cor da borda
+        ctx.lineWidth = 2;       // Espessura da borda
+        ctx.setLineDash([5, 5]); // Define um padrão de linha tracejada (5px de linha, 5px de espaço)
+        ctx.strokeRect(cropX, cropY, CROP_SIZE, CROP_SIZE); // Desenha o retângulo de recorte
+    };
+
+    /**
+     * @hook useEffect
+     * @description
+     * Este `useEffect` é executado apenas uma vez quando o componente é montado
+     * ou quando `imageSrc` muda. Ele carrega a imagem, define o `imageRef` e
+     * calcula a posição inicial da imagem para centralizá-la no canvas.
+     * Depois de carregar, ele chama `drawCanvas` para renderizar a imagem.
+     */
+    useEffect(() => {
+        const img = new Image(); // Cria um novo objeto Image
+        img.src = imageSrc;      // Define a fonte da imagem
+        img.onload = () => {     // Executa quando a imagem termina de carregar
+            imageRef.current = img; // Armazena a imagem na ref
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
+            // Calcula o offset inicial para centralizar a imagem no canvas
+            const initialOffset = {
+                x: (canvas.width - img.width) / 2,
+                y: (canvas.height - img.height) / 2,
+            };
+            setImageOffset(initialOffset); // Atualiza o estado do offset
+            drawCanvas(initialOffset);     // Desenha a imagem com o offset inicial
+        };
+    }, [imageSrc]); // Dependência: só roda de novo se imageSrc mudar
+
+    /**
+     * @hook useEffect
+     * @description
+     * Este `useEffect` é executado toda vez que `imageOffset` muda.
+     * Ele redesenha a imagem no canvas com a nova posição.
+     * Isso garante que a imagem se mova suavemente enquanto o usuário arrasta.
+     */
+    useEffect(() => {
+        if (imageRef.current) {
+            drawCanvas(imageOffset);
+        }
+    }, [imageOffset]); // Dependência: roda toda vez que imageOffset muda
+
+    /**
+     * @function handleMouseDown
+     * @param {React.MouseEvent<HTMLCanvasElement>} e - Evento de clique do mouse.
+     * @returns {void}
+     * @description
+     * Chamado quando o botão do mouse é pressionado sobre o canvas.
+     * Inicia o processo de arrasto, definindo `isDragging` para `true` e
+     * registrando as posições iniciais do mouse e da imagem.
+     */
+    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        setIsDragging(true);
+        setDragStart({
+            x: e.nativeEvent.offsetX, // Posição X do mouse relativa ao elemento
+            y: e.nativeEvent.offsetY, // Posição Y do mouse relativa ao elemento
+            initialOffsetX: imageOffset.x, // Posição inicial X da imagem
+            initialOffsetY: imageOffset.y, // Posição inicial Y da imagem
+        });
+    };
+
+    /**
+     * @function handleMouseMove
+     * @param {React.MouseEvent<HTMLCanvasElement>} e - Evento de movimento do mouse.
+     * @returns {void}
+     * @description
+     * Chamado quando o mouse é movido sobre o canvas ENQUANTO o botão está pressionado.
+     * Calcula o deslocamento da imagem com base no movimento do mouse e atualiza `imageOffset`.
+     * Assegura que a imagem não saia da área de recorte, limitando seus movimentos.
+     */
+    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!isDragging || !imageRef.current) return; // Só move se estiver arrastando e a imagem existir
+
+        const dx = e.nativeEvent.offsetX - dragStart.x; // Variação em X
+        const dy = e.nativeEvent.offsetY - dragStart.y; // Variação em Y
+
+        let newOffsetX = dragStart.initialOffsetX + dx;
+        let newOffsetY = dragStart.initialOffsetY + dy;
+
+        const cropX = (CANVAS_WIDTH - CROP_SIZE) / 2;
+        const cropY = (CANVAS_HEIGHT - CROP_SIZE) / 2;
+
+        // Limita o movimento da imagem para que a área de recorte
+        // sempre contenha parte da imagem.
+        newOffsetX = Math.min(newOffsetX, cropX); // Não permite mover a imagem muito para a direita
+        newOffsetY = Math.min(newOffsetY, cropY); // Não permite mover a imagem muito para baixo
+        newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - imageRef.current.width); // Não permite mover a imagem muito para a esquerda
+        newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - imageRef.current.height); // Não permite mover a imagem muito para cima
+
+        setImageOffset({ x: newOffsetX, y: newOffsetY }); // Atualiza a posição da imagem
+    };
+
+    /**
+     * @function handleMouseUp
+     * @returns {void}
+     * @description
+     * Chamado quando o botão do mouse é liberado.
+     * Finaliza o processo de arrasto, definindo `isDragging` para `false`.
+     */
+    const handleMouseUp = () => setIsDragging(false);
+
+    /**
+     * @function handleCrop
+     * @returns {void}
+     * @description
+     * Chamado quando o botão "Recortar e Salvar" é clicado.
+     * 1. Cria um novo canvas temporário do tamanho exato da área de recorte.
+     * 2. Desenha APENAS a porção da imagem que está dentro da área de recorte nesse novo canvas.
+     * 3. Converte o conteúdo do novo canvas para uma string Base64 no formato WebP.
+     * 4. Chama a função `onCrop` passada via props com a imagem recortada.
+     */
+    const handleCrop = () => {
+        if (!imageRef.current) return;
+
+        const resultCanvas = document.createElement('canvas'); // Cria um canvas temporário
+        resultCanvas.width = CROP_SIZE;
+        resultCanvas.height = CROP_SIZE;
+        const resultCtx = resultCanvas.getContext('2d');
+        if (!resultCtx) return;
+
+        // Calcula a posição da área de recorte no canvas principal
+        const cropXOnCanvas = (CANVAS_WIDTH - CROP_SIZE) / 2;
+        const cropYOnCanvas = (CANVAS_HEIGHT - CROP_SIZE) / 2;
+        // Calcula a fonte (source) da imagem a ser copiada para o canvas de resultado
+        const sourceX = cropXOnCanvas - imageOffset.x;
+        const sourceY = cropYOnCanvas - imageOffset.y;
+
+        // Desenha a porção da imagem recortada no novo canvas
+        resultCtx.drawImage(
+            imageRef.current,
+            sourceX, sourceY, // Posição de início da cópia na imagem original
+            CROP_SIZE, CROP_SIZE, // Largura e altura da porção a ser copiada
+            0, 0, // Posição de início do desenho no canvas de resultado
+            CROP_SIZE, CROP_SIZE // Largura e altura para desenhar no canvas de resultado
+        );
+
+        // Converte o canvas de resultado para Base64 (WebP com qualidade definida)
+        const webpData = resultCanvas.toDataURL('image/webp', IMAGE_WEBP_QUALITY);
+        onCrop(webpData); // Chama o callback com a imagem recortada
+    };
+
+    return (
+        <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 text-center">
+            <h3 className="text-xl font-bold mb-4">Posicione sua Foto</h3>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg inline-block">
+                <canvas
+                    ref={canvasRef}
+                    width={CANVAS_WIDTH}
+                    height={CANVAS_HEIGHT}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp} // Importante para parar o arrasto se o mouse sair do canvas
+                    className="rounded-md cursor-move"
+                />
+            </div>
+            <div className="mt-6 flex justify-center gap-4">
+                <button onClick={onCancel} className="btn btn-danger px-6 py-2 rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 font-semibold">
+                    Cancelar
+                </button>
+                <button onClick={handleCrop} className="btn btn-primary px-6 py-2 rounded-md text-white hover:opacity-90 font-semibold inline-flex items-center">
+                    Recortar e Salvar
+                </button>
+            </div>
+        </div>
+    );
+};
+
+
+// --- SEU COMPONENTE PRINCIPAL (PROFILEGIPP) ---
 const ProfileGIPP = () => {
-
   const { setLoading, userLog } = useMyContext();
   const { fetchData } = useConnection();
 
+  const [openNavMenu, setOpenNavMenu] = useState<boolean>(true);
+  const [cropperModal, setCropperModal] = useState<{ isOpen: boolean; src: string | null }>({ isOpen: false, src: null });
+
   const listPath = [
-    { page: '/GIPP', children: 'Home', icon: 'fa fa-home' },
-    { page: '/GIPP/configuration/profile', children: 'Perfil', icon: 'fa fa-user' },
+    { page: "/GIPP", children: "Home", icon: "fa fa-home" },
+    { page: "/GIPP/configuration/profile", children: "Perfil", icon: "fa fa-user" },
     {
-      page: '/', children: 'Sair', icon: 'fa fa-sign-out', actionAdd: () => {
+      page: "/",
+      children: "Sair",
+      icon: "fa fa-sign-out",
+      actionAdd: () => {
         localStorage.removeItem("tokenGIPP");
         localStorage.removeItem("codUserGIPP");
-      }
-    }
+      },
+    },
   ];
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0);
-          let webpData = canvas.toDataURL('image/webp', IMAGE_WEBP_QUALITY); // qualidade ajustável
+    if (!file) return;
 
-          if (!webpData.startsWith("data:image/webp")) {
-            console.warn("Conversão para WebP falhou. Usando formato original.");
-            webpData = event.target?.result?.toString() || '';
-          }
-
-          const base64Data = webpData.split(',')[1];
-          putEmployee(base64Data);
-        };
-        img.src = event.target?.result?.toString() || '';
-      };
-      reader.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result?.toString();
+      if (result) {
+        setCropperModal({ isOpen: true, src: result });
+      }
+    };
+    reader.readAsDataURL(file);
+    // Limpa o valor para permitir a seleção do mesmo arquivo novamente
+    e.target.value = "";
+  };
+  
+  const handleCroppedImage = (croppedImageBase64: string) => {
+    if (croppedImageBase64) {
+      const base64Data = croppedImageBase64.split(',')[1];
+      putEmployee(base64Data);
     }
+    setCropperModal({ isOpen: false, src: null }); // Fecha o modal
   };
 
   async function putEmployee(base64Image: string) {
@@ -53,10 +319,7 @@ const ProfileGIPP = () => {
       setLoading(true);
       const req = await fetchData({
         method: "PUT",
-        params: {
-          id: userLog.id,
-          photo: base64Image,
-        },
+        params: { id: userLog.id, photo: base64Image },
         pathFile: "CCPP/EmployeePhoto.php",
         urlComplement: "",
       });
@@ -67,7 +330,7 @@ const ProfileGIPP = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const getPhotoSrc = (): string => {
     return `data:image/webp;base64,${userLog.photo}`;
@@ -75,11 +338,19 @@ const ProfileGIPP = () => {
 
   return (
     <React.Fragment>
-      <NavBar list={listPath} />
+      {openNavMenu && <NavBar list={listPath} />}
       <main className="w-100 min-vh-100 bg-light">
         <header className="bg-primary position-relative">
           <div className="image-background-peg-pese d-flex justify-content-center align-items-center py-5">
-            <label htmlFor="inputChangePhoto" className="image-profile" >
+            <div className="position-absolute btn-close-menu d-sm-none">
+              <InputCheckButton
+                inputId={`gapp_exp_ret_form`}
+                nameButton={"Exibir/Ocultar formulário"}
+                onAction={(event: any) => setOpenNavMenu(!event)}
+                labelIconConditional={["fa-solid fa-eye", "fa-solid fa-eye-slash"]}
+              />
+            </div>
+            <label htmlFor="inputChangePhoto" className="image-profile" style={{ cursor: 'pointer' }}>
               <img
                 src={getPhotoSrc()}
                 className="img-fluid rounded-circle"
@@ -91,14 +362,14 @@ const ProfileGIPP = () => {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             />
           </div>
         </header>
-        <section className="container py-5">
+        <section className="container py-5 overflow-auto h-50">
           <div className="card shadow-sm p-4 bg-white">
             <h3 className="mb-4 text-dark">Informações do Perfil</h3>
-            <ul className="list-unstyled fs-5">
+            <ul className="list-unstyled fs-5 profileGipp">
               <li><strong>Nome:</strong> {userLog.name}</li>
               <li><strong>Companhia:</strong> {userLog.company}</li>
               <li><strong>Loja:</strong> {userLog.shop}</li>
@@ -109,9 +380,42 @@ const ProfileGIPP = () => {
         </section>
       </main>
 
+      {/* --- MODAL DE RECORTE --- */}
+      {cropperModal.isOpen && cropperModal.src && (
+        <div className="cropper-modal-overlay">
+          <div className="cropper-modal-content">
+            <ImageCropper
+              imageSrc={cropperModal.src}
+              onCrop={handleCroppedImage}
+              onCancel={() => setCropperModal({ isOpen: false, src: null })}
+            />
+          </div>
+        </div>
+      )}
+
       <style>{`
+        .profileGipp > li { font-size: 1rem; }
+        .btn-close-menu { top: 1rem; right: 1rem; }
         .image-background-peg-pese {
           background-image: url("${process.env.REACT_APP_API_GIPP_BASE_URL}:${process.env.REACT_APP_API_GIPP_PORT_SERVER_INTRA}/View/CLPP/static/media/bg_interlagos.b58bb3c23877f2ddf775.jpg");
+        }
+        
+        /* --- ESTILOS PARA O MODAL DE RECORTE --- */
+        .cropper-modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.75);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+        .cropper-modal-content {
+          max-width: 95vw;
+          max-height: 95vh;
         }
       `}</style>
     </React.Fragment>
