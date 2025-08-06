@@ -54,7 +54,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
      * @type {React.MutableRefObject<HTMLImageElement | null>} imageRef - Ref para a imagem sendo carregada no canvas.
      * Guarda a instância do objeto `Image` para que possamos desenhá-la no canvas.
      */
-    const imageRef = useRef<HTMLImageElement | null>(null);
+    const imageRef = useRef<HTMLImageElement | any>(null);
 
     // --- ESTADOS DO COMPONENTE ---
     /**
@@ -288,10 +288,8 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
             const dx = e.touches[0].clientX - e.touches[1].clientX;
             const dy = e.touches[0].clientY - e.touches[1].clientY;
             const newDistance = Math.sqrt(dx * dx + dy * dy);
-
             const zoomFactor = newDistance / pinchStartDistance;
             const newScale = initialScale * zoomFactor;
-
             // Limita o zoom para evitar que a imagem desapareça ou fique gigante demais
             const newScaleCapped = Math.max(0.1, Math.min(newScale, 5));
             setScale(newScaleCapped);
@@ -300,27 +298,18 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
         else if (isDragging && e.touches.length === 1) {
             const touch = e.touches[0];
             const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+            const scaledWidth = imageRef.current.width * scale;
+            const scaledHeight = imageRef.current.height * scale;
             const dx = (touch.clientX - rect.left) - dragStart.x;
             const dy = (touch.clientY - rect.top) - dragStart.y;
-
+            const cropX = (CANVAS_WIDTH - CROP_SIZE) / 2;
+            const cropY = (CANVAS_HEIGHT - CROP_SIZE) / 2;            
             let newOffsetX = dragStart.initialOffsetX + dx;
             let newOffsetY = dragStart.initialOffsetY + dy;
-
-            //@ts-ignore
-            const scaledWidth = imageRef.current.width * scale;
-
-            //@ts-ignore
-            const scaledHeight = imageRef.current.height * scale;
-
-            const cropX = (CANVAS_WIDTH - CROP_SIZE) / 2;
-            const cropY = (CANVAS_HEIGHT - CROP_SIZE) / 2;
-
             newOffsetX = Math.min(newOffsetX, cropX);
             newOffsetY = Math.min(newOffsetY, cropY);
             newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - scaledWidth);
             newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - scaledHeight);
-            
-
             setImageOffset({ x: newOffsetX, y: newOffsetY });
         }
     };
@@ -344,23 +333,15 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
 
         const dx = e.nativeEvent.offsetX - dragStart.x; // Variação em X
         const dy = e.nativeEvent.offsetY - dragStart.y; // Variação em Y
-
-        let newOffsetX = dragStart.initialOffsetX + dx;
-        let newOffsetY = dragStart.initialOffsetY + dy;
-
-        const cropX = (CANVAS_WIDTH - CROP_SIZE) / 2;
-        const cropY = (CANVAS_HEIGHT - CROP_SIZE) / 2;
-
-        // Limita o movimento da imagem para que a área de recorte
-        // sempre contenha parte da imagem.
-        newOffsetX = Math.min(newOffsetX, cropX); // Não permite mover a imagem muito para a direita
-        newOffsetY = Math.min(newOffsetY, cropY); // Não permite mover a imagem muito para baixo
-        // newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - imageRef.current.width); // Não permite mover a imagem muito para a esquerda
-        // newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - imageRef.current.height); // Não permite mover a imagem muito para cima
-
         const scaledWidth = imageRef.current.width * scale;
         const scaledHeight = imageRef.current.height * scale;
-
+        const cropX = (CANVAS_WIDTH - CROP_SIZE) / 2;
+        const cropY = (CANVAS_HEIGHT - CROP_SIZE) / 2;
+        let newOffsetX = dragStart.initialOffsetX + dx;
+        let newOffsetY = dragStart.initialOffsetY + dy;
+        
+        newOffsetX = Math.min(newOffsetX, cropX); // Não permite mover a imagem muito para a direita
+        newOffsetY = Math.min(newOffsetY, cropY); // Não permite mover a imagem muito para baixo
         newOffsetX = Math.max(newOffsetX, cropX + CROP_SIZE - scaledWidth);
         newOffsetY = Math.max(newOffsetY, cropY + CROP_SIZE - scaledHeight);
 
@@ -386,50 +367,6 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
      * 3. Converte o conteúdo do novo canvas para uma string Base64 no formato WebP.
      * 4. Chama a função `onCrop` passada via props com a imagem recortada.
      */
-    // const handleCrop = () => {
-    //     if (!imageRef.current) return;
-
-    //     const resultCanvas = document.createElement('canvas'); // Cria um canvas temporário
-    //     resultCanvas.width = CROP_SIZE;
-    //     resultCanvas.height = CROP_SIZE;
-    //     const resultCtx = resultCanvas.getContext('2d');
-    //     if (!resultCtx) return;
-
-    //     // Calcula a posição da área de recorte no canvas principal
-    //     const cropXOnCanvas = (CANVAS_WIDTH - CROP_SIZE) / 2;
-    //     const cropYOnCanvas = (CANVAS_HEIGHT - CROP_SIZE) / 2;
-
-        
-    //     // Calcula a fonte (source) da imagem a ser copiada para o canvas de resultado
-    //     const sourceX = (cropXOnCanvas - imageOffset.x) / scale;
-    //     const sourceY = (cropYOnCanvas - imageOffset.y) / scale;
-
-    //     // novos
-    //     const sourceWidth = CROP_SIZE / scale;
-    //     const sourceHeight = CROP_SIZE / scale;
-
-    //     // Desenha a porção da imagem recortada no novo canvas
-    //     // resultCtx.drawImage(
-    //     //     imageRef.current,
-    //     //     sourceX, sourceY, // Posição de início da cópia na imagem original
-    //     //     CROP_SIZE, CROP_SIZE, // Largura e altura da porção a ser copiada
-    //     //     0, 0, // Posição de início do desenho no canvas de resultado
-    //     //     CROP_SIZE, CROP_SIZE // Largura e altura para desenhar no canvas de resultado
-    //     // );
-
-    //     resultCtx.drawImage(
-    //       imageRef.current,
-    //       sourceX, sourceY, // Posição de início da cópia na imagem original (dividida pelo scale)
-    //       sourceWidth, sourceHeight, // Largura e altura da porção a ser copiada
-    //       0, 0,
-    //       CROP_SIZE, CROP_SIZE
-    //     );
-
-    //     // Converte o canvas de resultado para Base64 (WebP com qualidade definida)
-    //     const webpData = resultCanvas.toDataURL('image/webp', IMAGE_WEBP_QUALITY);
-    //     onCrop(webpData); // Chama o callback com a imagem recortada
-    // };
-
     const handleCrop = () => {
         if (!imageRef.current) return;
 
@@ -472,7 +409,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({ imageSrc, onCrop, onCancel 
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
-                    onMouseLeave={handleMouseUp} // Importante para parar o arrasto se o mouse sair do canvas
+                    onMouseLeave={handleMouseUp}  
                     
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
