@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { styleStringFunction } from '../stylecss/style';
 
 // Define as interfaces para as props e os tipos de dados
 interface PDFGeneratorProps {
@@ -171,24 +172,31 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
         tableResponsiveDiv.style.maxHeight = originalMaxHeight;
         tableResponsiveDiv.style.overflowY = originalOverflowY;
       }
-
+      
       // Escreve o HTML na nova janela de impressão
       printDocument.write(`
-        <html>
-          <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta charset="UTF-8">
-            <title>GTPP - PDF das tarefas</title>
-            <style>
-              body { font-family: Arial, sans-serif; }
-              table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-              th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-              th { background-color: #f2f2f2; }
-            </style>
-          </head>
-          <body>
-            ${contentHtml}
-          </body>
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>GTPP - Relatório de Tarefas</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+          <style>${styleStringFunction()}</style>
+        </head>
+        <body>
+          <div class="report-container">
+            <header class="report-header">
+              <h1>Relatório de Tarefas</h1>
+              <p>Documento gerado pelo sistema GTPP</p>
+            </header>
+            <main class="table-content">
+              ${contentHtml}
+            </main>
+          </div>
+        </body>
         </html>
       `);
       printDocument.close(); // Fecha o documento após escrever o conteúdo
@@ -252,6 +260,7 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
           )}
         </button>
       </div>
+      
     </React.Fragment>
   );
 };
