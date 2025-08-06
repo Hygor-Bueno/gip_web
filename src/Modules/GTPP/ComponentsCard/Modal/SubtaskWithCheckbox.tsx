@@ -4,7 +4,6 @@ import { SubTasksWithCheckboxProps } from "./Types";
 import { useWebSocket } from "../../Context/GtppWsContext";
 import ButtonIcon from "../Button/ButtonIcon/btnicon";
 import AnexoImage from "../../../../Components/AttachmentFile";
-import ConfirmModal from "../../../../Components/CustomConfirm";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import ModalEditTask from "./ModalEditTask";
