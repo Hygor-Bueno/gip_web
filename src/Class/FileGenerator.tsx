@@ -73,7 +73,7 @@ const downloadCSV = (csv: string, filename: string) => {
 
 export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState<any>(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const headers = ['Tarefas', 'Estado das Tarefas', 'Prioridade', 'Data Inicial', 'Data Final', 'Percentual'];
   const attributes: Attribute[] = [
@@ -196,10 +196,10 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
         </html>
       `);
 
-      printWindow.print();
       printDocument.close();
+      printWindow.print();
       setIsLoading(false); // Desativa o loading após a impressão
-    }, 5000); // Pequeno atraso para o estado ser atualizado
+    }, 1000); // Pequeno atraso para o estado ser atualizado
   };
 
   return (
@@ -235,7 +235,21 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
         </div>
       </div>
       <div className="text-center">
-        <button title="gerar PDF" className="btn btn-success mt-3" onClick={generatePDF}>Gerar PDF</button>
+        <button 
+          title="gerar PDF" 
+          className="btn btn-success mt-3" 
+          onClick={generatePDF}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span className="ms-2">Gerando PDF...</span>
+            </>
+          ) : (
+            "Gerar PDF"
+          )}
+        </button>
       </div>
     </React.Fragment>
   );
