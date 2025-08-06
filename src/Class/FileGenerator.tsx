@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface PDFGeneratorProps {
   data: Task[];
@@ -73,6 +73,7 @@ const downloadCSV = (csv: string, filename: string) => {
 
 export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState<any>(false);
 
   const headers = ['Tarefas', 'Estado das Tarefas', 'Prioridade', 'Data Inicial', 'Data Final', 'Percentual'];
   const attributes: Attribute[] = [
@@ -89,57 +90,116 @@ export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
     return priorityMap[priority] || 'Não especificado';
   };
 
+  // const generatePDF = () => {
+  //   const printWindow = window.open('', '_blank');
+  //   if (!printWindow) return;
+
+  //   const printDocument = printWindow.document;
+
+  //   // Acessa o elemento table-responsive dentro do contentRef
+  //   const tableResponsiveDiv = contentRef.current?.querySelector('.table-responsive') as HTMLElement | null;
+
+  //   let originalMaxHeight = '';
+  //   let originalOverflowY = '';
+
+  //   // Salva os estilos originais e remove o overflow
+  //   if (tableResponsiveDiv) {
+  //     originalMaxHeight = tableResponsiveDiv.style.maxHeight;
+  //     originalOverflowY = tableResponsiveDiv.style.overflowY;
+  //     tableResponsiveDiv.style.maxHeight = 'none';
+  //     tableResponsiveDiv.style.overflowY = 'visible';
+  //   }
+
+  //   // Captura o HTML depois de remover o overflow
+  //   const contentHtml = contentRef.current?.outerHTML || '';
+
+  //   // Restaura os estilos originais
+  //   if (tableResponsiveDiv) {
+  //     tableResponsiveDiv.style.maxHeight = originalMaxHeight;
+  //     tableResponsiveDiv.style.overflowY = originalOverflowY;
+  //   }
+
+  //   printDocument.write(`
+  //     <html>
+  //       <head>
+  //         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  //         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+  //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  //         <meta charset="UTF-8">
+  //         <title>GTPP - PDF das tarefas</title>
+  //         <style>
+  //           body { font-family: Arial, sans-serif; }
+  //           table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  //           th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+  //           th { background-color: #f2f2f2; }
+  //         </style>
+  //       </head>
+  //       <body>
+  //         ${contentHtml}
+  //       </body>
+  //     </html>
+  //   `);
+  //   printWindow.print();
+  //   printDocument.close();
+  // };
+
   const generatePDF = () => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+    setIsLoading(true); // Ativa o loading
+    
+    // Usamos um setTimeout para garantir que o estado de loading seja exibido
+    // antes do navegador iniciar a impressão, que é uma operação síncrona.
+    setTimeout(() => {
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        setIsLoading(false); // Desativa o loading em caso de falha
+        return;
+      }
 
-    const printDocument = printWindow.document;
+      const printDocument = printWindow.document;
+      const tableResponsiveDiv = contentRef.current?.querySelector('.table-responsive') as HTMLElement | null;
 
-    // Acessa o elemento table-responsive dentro do contentRef
-    const tableResponsiveDiv = contentRef.current?.querySelector('.table-responsive') as HTMLElement | null;
+      let originalMaxHeight = '';
+      let originalOverflowY = '';
 
-    let originalMaxHeight = '';
-    let originalOverflowY = '';
+      if (tableResponsiveDiv) {
+        originalMaxHeight = tableResponsiveDiv.style.maxHeight;
+        originalOverflowY = tableResponsiveDiv.style.overflowY;
+        tableResponsiveDiv.style.maxHeight = 'none';
+        tableResponsiveDiv.style.overflowY = 'visible';
+      }
 
-    // Salva os estilos originais e remove o overflow
-    if (tableResponsiveDiv) {
-      originalMaxHeight = tableResponsiveDiv.style.maxHeight;
-      originalOverflowY = tableResponsiveDiv.style.overflowY;
-      tableResponsiveDiv.style.maxHeight = 'none';
-      tableResponsiveDiv.style.overflowY = 'visible';
-    }
+      const contentHtml = contentRef.current?.outerHTML || '';
 
-    // Captura o HTML depois de remover o overflow
-    const contentHtml = contentRef.current?.outerHTML || '';
+      if (tableResponsiveDiv) {
+        tableResponsiveDiv.style.maxHeight = originalMaxHeight;
+        tableResponsiveDiv.style.overflowY = originalOverflowY;
+      }
 
-    // Restaura os estilos originais
-    if (tableResponsiveDiv) {
-      tableResponsiveDiv.style.maxHeight = originalMaxHeight;
-      tableResponsiveDiv.style.overflowY = originalOverflowY;
-    }
+      printDocument.write(`
+        <html>
+          <head>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta charset="UTF-8">
+            <title>GTPP - PDF das tarefas</title>
+            <style>
+              body { font-family: Arial, sans-serif; }
+              table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+              th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+              th { background-color: #f2f2f2; }
+            </style>
+          </head>
+          <body>
+            ${contentHtml}
+          </body>
+        </html>
+      `);
 
-    printDocument.write(`
-      <html>
-        <head>
-          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
-          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta charset="UTF-8">
-          <title>GTPP - PDF das tarefas</title>
-          <style>
-            body { font-family: Arial, sans-serif; }
-            table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-            th { background-color: #f2f2f2; }
-          </style>
-        </head>
-        <body>
-          ${contentHtml}
-        </body>
-      </html>
-    `);
-    printWindow.print();
-    printDocument.close();
+      printWindow.print();
+      printDocument.close();
+      setIsLoading(false); // Desativa o loading após a impressão
+    }, 5000); // Pequeno atraso para o estado ser atualizado
   };
 
   return (
