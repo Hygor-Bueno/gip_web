@@ -219,12 +219,12 @@ function FilterPage() {
   const { setLoading, appIdSearchUser } = useMyContext();
 
   const { fetchData } = useConnection();
-  const { getTask, setGetTask, reqTasks } = useWebSocket();
+  const { getTask, setGetTask, reqTasks, isAdm } = useWebSocket();
 
   useEffect(() => {
     (async () => {
       await recoverList(params);
-      await reqTasks();
+      await reqTasks(isAdm);
     })();
   }, [page, params, appIdSearchUser]);
 
