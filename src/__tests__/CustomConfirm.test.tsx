@@ -77,7 +77,6 @@ test('Os botões devem chamar as funções onConfirm e onClose corretamente', as
     expect(handleClose).toHaveBeenCalledTimes(2);
 });
 
-
 test('A mensagem deve estar dentro do corpo do modal', () => {
     const messageText = "Esta é a mensagem de confirmação.";
     render(
@@ -93,7 +92,6 @@ test('A mensagem deve estar dentro do corpo do modal', () => {
     expect(screen.getByText(messageText)).toBeInTheDocument();
 });
 
-
 test('Os botões de ação e o de fechar devem ter atributos de acessibilidade', () => {
     render(
         <ConfirmModal
@@ -104,22 +102,16 @@ test('Os botões de ação e o de fechar devem ter atributos de acessibilidade',
         />
     );
 
-    // 1. Verifica se o botão "Confirmar" tem o atributo title correto
     const confirmButton = screen.getByRole('button', { name: /confirmar/i });
     expect(confirmButton).toHaveAttribute('title', 'Confirmar ação');
 
-    // 2. Verifica se o botão "Cancelar" tem o atributo title correto
     const cancelButton = screen.getByRole('button', { name: /cancelar/i });
     expect(cancelButton).toHaveAttribute('title', 'Cancelar ação.');
 
-    // 3. Verifica se o botão de fechar (x) tem o atributo aria-label correto
     const closeButton = screen.getByRole('button', { name: /close/i });
     expect(closeButton).toHaveAttribute('aria-label', 'Close');
 });
 
-// Esse teste vai criar um arquivo no diretório "__snapshots__"
-// na primeira vez que você o rodar. Na próxima vez, ele apenas
-// fará a comparação.
 test('O modal deve corresponder ao snapshot visual', () => {
     const { asFragment } = render(
         <ConfirmModal
@@ -129,9 +121,6 @@ test('O modal deve corresponder ao snapshot visual', () => {
             onClose={jest.fn()}
         />
     );
-
-    // asFragment() retorna a estrutura do DOM do componente
-    // e o toMatchSnapshot() faz a comparação.
 
     /*
         Dica: Se você fizer uma mudança intencional no componente e o snapshot falhar, basta rodar o comando npm test -- -u ou yarn test -u para atualizar o snapshot.

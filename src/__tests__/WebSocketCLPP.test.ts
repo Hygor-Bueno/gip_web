@@ -37,6 +37,8 @@ describe('WebSocketCLPP', () => {
     // Verifica se os dados de autenticação enviados são os mesmos fornecidos.
     expect(authData.auth).toEqual(tokens);
 
+    expect(authData).toMatchSnapshot();
+
     // Verifica se a flag de conexão do cliente foi atualizada.
     expect(client.isConnected).toBe(true);
   });

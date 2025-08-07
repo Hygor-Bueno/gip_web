@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`O button deve corresponder ao snapshot visual 1`] = `
+<DocumentFragment>
+  <button
+    class="btn btn-success"
+    title="Botão customizado"
+  >
+    Clique aqui!
+  </button>
+</DocumentFragment>
+`;
+
+exports[`O input checkbox deve corresponder ao snapshot visual 1`] = `
+<DocumentFragment>
+  <button
+    class="btn btn-light p-0"
+    title="Botão"
+    type="button"
+  >
+    <input
+      class="cursor-pointer"
+      hidden=""
+      id="checkbox-error"
+      type="checkbox"
+    />
+    <label
+      class="cursor-pointer  text-dark  p-2"
+      for="checkbox-error"
+    >
+      Erro
+    </label>
+  </button>
+</DocumentFragment>
+`;

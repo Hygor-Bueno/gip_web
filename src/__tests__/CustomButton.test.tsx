@@ -7,6 +7,17 @@ test('renderiza o botão e verifica se o botão tem um texto', () => {
     expect(screen.getByText('Clique aqui!')).toBeInTheDocument();
 });
 
+test('O button deve corresponder ao snapshot visual', () => {
+    const {asFragment} = render(
+        <CustomButton
+            children="Clique aqui!"
+            onClick={jest.fn()}
+            customStyle="btn btn-success"
+        />
+    )
+    expect(asFragment()).toMatchSnapshot();
+})
+
 test('Chama a função ao clicar no botão', async () => {
     const mockclick = jest.fn();
     render(<CustomButton onClick={mockclick} children="Clique aqui!" />);
@@ -198,7 +209,8 @@ test('aplica cor do texto definida por labelColor', () => {
 
 test('não quebra se onAction lançar erro', async () => {
   const user = userEvent.setup();
-  const mockAction = jest.fn().mockRejectedValue(new Error('Falha'));
+  const mockError = new Error('Falha simulada');
+  const mockAction = jest.fn().mockRejectedValue(mockError);
 
   render(
     <InputCheckButton
@@ -214,3 +226,15 @@ test('não quebra se onAction lançar erro', async () => {
 
   expect(mockAction).toHaveBeenCalled();
 });
+
+test('O input checkbox deve corresponder ao snapshot visual', () => {
+    const {asFragment} = render(
+        <InputCheckButton
+            inputId="checkbox-error"
+            labelText="Erro"
+            onAction={jest.fn()}
+            nameButton="Botão"
+        />
+    );
+    expect(asFragment()).toMatchSnapshot();
+})
