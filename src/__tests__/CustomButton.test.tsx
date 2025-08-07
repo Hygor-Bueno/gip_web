@@ -208,6 +208,7 @@ test('aplica cor do texto definida por labelColor', () => {
 });
 
 test('não quebra se onAction lançar erro', async () => {
+  const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
   const user = userEvent.setup();
   const mockError = new Error('Falha simulada');
   const mockAction = jest.fn().mockRejectedValue(mockError);
@@ -222,9 +223,18 @@ test('não quebra se onAction lançar erro', async () => {
   );
 
   const label = screen.getByText('Erro');
+  const checkbox = screen.getByLabelText('Erro');
+
+  expect(checkbox).not.toBeChecked();
   await user.click(label);
 
-  expect(mockAction).toHaveBeenCalled();
+  expect(mockAction).toHaveBeenCalledTimes(1);
+
+  expect(mockConsoleError).toHaveBeenCalledWith(mockError);
+
+  expect(checkbox).not.toBeChecked();
+  
+  mockConsoleError.mockRestore();
 });
 
 test('O input checkbox deve corresponder ao snapshot visual', () => {

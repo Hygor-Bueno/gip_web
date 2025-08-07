@@ -13,7 +13,6 @@ test('Rederiza o componente confirm modal para saber se ele existe!', () => {
     );
 });
 
-
 test('Rederiza o componente e verifica se ele tem algum titulo', () => {
     render(
         <ConfirmModal 
@@ -128,7 +127,6 @@ test('O modal deve corresponder ao snapshot visual', () => {
     expect(asFragment()).toMatchSnapshot();
 });
 
-
 test('O modal deve renderizar títulos e mensagens dinâmicas', () => {
     const customTitle = "Alerta de Segurança";
     const customMessage = "Por favor, confirme sua identidade para continuar.";
@@ -148,5 +146,3 @@ test('O modal deve renderizar títulos e mensagens dinâmicas', () => {
     // Verifica se a nova mensagem está presente
     expect(screen.getByText('Por favor, confirme sua identidade para continuar.')).toBeInTheDocument();
 });
-
-
