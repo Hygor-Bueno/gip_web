@@ -54,6 +54,7 @@ export interface iGtppWsContextType {
     notifications: CustomNotification[];
     states: iStates[];
     onSounds: boolean;
+    isAdm: any;
     getTask: any[];
     openCardDefault: boolean;
     updateItemTaskFile: (file: string, item_id: number) => Promise<void>;

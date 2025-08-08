@@ -28,6 +28,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const [getTask, setGetTask] = useState<any[]>([]);
   const [states, setStates] = useState<iStates[]>([{ color: '', description: '', id: 0 }]);
+  const [isAdm, setIsAdm] = useState<any>(false);
 
   const navigate = useNavigate();
 
@@ -90,6 +91,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   async function loadTasks(admin?: boolean) {
     try {
+      setIsAdm(admin);
       await reqTasks(admin);
     } catch (error) {
       console.error("Erro ao obter as informações da tarefa:", error);
@@ -98,6 +100,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   async function reqTasks(admin?: boolean) {
     try {
+      setIsAdm(admin);
       setLoading(true);
       const getTask: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", urlComplement: `${admin ? '&administrator=1' : ''}` });
       if (getTask.error) throw new Error(getTask.message);
@@ -734,6 +737,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         states,
         onSounds,
         getTask,
+        isAdm,
         openCardDefault,
         updateItemTaskFile,
         updatedForQuestion,
