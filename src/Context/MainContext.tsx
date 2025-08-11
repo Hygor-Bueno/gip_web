@@ -38,7 +38,6 @@ interface MyMainContext {
   token: any;
   setToken: ({ }: any) => void;
   loadDetailsToken: () => void;
-  contactList: User[];
   ctlSearchUser:boolean;
   setCtlSearchUser:(value:boolean)=>void;
   appIdSearchUser:number | null;
@@ -77,7 +76,7 @@ export function MyProvider({ children }: Props) {
   const [userLog, setUserLog] = useState<User>(
     new User({ id: parseInt(localStorage.getItem('codUserGIPP') || "0"), session: "", administrator: 0 })
   );
-  const [contactList, setContactList] = useState<User[]>([]);
+
   const [reset, setResetState] = useState<any>(1);
   const requestNotificationPermission = async () => {
     if (!("Notification" in window)) {
@@ -139,7 +138,6 @@ export function MyProvider({ children }: Props) {
         setTitleHead,
         userLog,
         setUserLog,
-        contactList,
         setModalPage,
         setModalPageElement,
         newProgressBar,

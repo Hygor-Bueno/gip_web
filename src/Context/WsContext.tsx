@@ -160,6 +160,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     async function buildContactList() {
         try {
+
             let contacts = new ContactList();
             const req: any = await contacts.loadListContacts();
             if (req.error) throw new Error(req.message);
@@ -171,7 +172,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
     async function receivedMessage(event: any) {
         const { send_user } = event;
-        if (parseInt(send_user) === idReceived) {
+        if (parseInt(send_user) == idReceived) {
             listMessage.push({
                 id: event.id,
                 "id_user": event.send_user,
@@ -185,7 +186,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         } else {
             setHasNewMessage(true);
             const upContact = contactList.map((contact) =>
-                contact.id === send_user ? updateContact(contact) : contact
+                contact.id == send_user ? updateContact(contact) : contact
             );
             setContactList(upContact);
             setContNotify(upContact.filter((item: any) => item.notification == 1).length);

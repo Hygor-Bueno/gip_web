@@ -1,5 +1,4 @@
 import User from "../../../Class/User";
-import { Connection } from "../../../Connection/Connection";
 import { fetchDataFull } from "../../../Util/Util";
 
 export default class ContactList {
