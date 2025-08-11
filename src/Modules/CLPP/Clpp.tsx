@@ -32,9 +32,9 @@ export default function Clpp(): JSX.Element {
     useEffect(() => {
         if (hasNewMessage) {
             // Reproduzir o áudio
-            audio.play().catch((error) => {
-                console.error('Erro ao reproduzir o som:', error);
-            });;
+            // audio.play().catch((error) => {
+            //     console.error('Erro ao reproduzir o som:', error);
+            // });;
 
             setBlink(true);
             const timer = setInterval(() => {

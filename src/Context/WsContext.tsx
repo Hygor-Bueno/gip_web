@@ -138,6 +138,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     async function callbackOnMessage(event: any) {
         if (event.objectType === 'notification') {
             if (event.notify && event.user == idReceived) {
+                console.log(event);
                 listMessage.forEach((item, index) => {
                     if (item.notification == 1) {
                         listMessage[index].notification = 0;
