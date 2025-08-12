@@ -72,8 +72,7 @@ export default function Clpp(): JSX.Element {
                                 <ChatWindow idReceived={idReceived} onClose={() => {
                                     setChat(false);
                                     closeChat();
-                                }
-                                } />
+                                }} />
                                 :
                                 <Contacts setIsConverse={() => setIsConverse(!isConverse)} isConverse={isConverse} contactList={contactList} openMessage={openMessage} />
                         }
@@ -99,7 +98,7 @@ export default function Clpp(): JSX.Element {
 
     async function openMessage(user: User) {
         await ws.current.informPreview(user.id.toString());
-        changeListContact(user.id);
+        changeListContact(user);
         setChat(true);
         setIdReceived(user.id);
     }

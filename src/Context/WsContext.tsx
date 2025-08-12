@@ -6,6 +6,7 @@ import ContactList from '../Modules/CLPP/Class/ContactList';
 import { handleNotification } from '../Util/Util';
 import { useConnection } from './ConnContext';
 import Contact from '../Class/Contact';
+import User from '../Class/User';
 
 
 const WebSocketContext = createContext<iWebSocketContextType | undefined>(undefined);
@@ -58,6 +59,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         })();
         return clearChatAll();
     }, [userLog]);
+
     function clearChatAll() {
         closeChat();
         changeChat();
@@ -65,7 +67,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     // Garante a atualização do callback.
     useEffect(() => {
         ws.current.callbackOnMessage = callbackOnMessage;
-    }, [idReceived, listMessage]);
+    }, [idReceived, listMessage, contactList]);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -128,10 +130,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     // Função para atualizar contato com base no evento
     function updateContact(contact: Contact) {
-        if (contact.yourContact === 0 || contact.notification === undefined) contact.yourContact = 1;
-        if (contact.notification === 0 || contact.notification === undefined) {
-            contact.notification = 1;
-        }
+        if (contact.yourContact == 0 || contact.notification == undefined) contact.yourContact = 1;
+        if (contact.notification == 0 || contact.notification == undefined) contact.notification = 1;
         return contact;
     };
 
@@ -150,10 +150,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
     }
 
-    function changeListContact(id: number) {
+    function changeListContact(user: User) {
         let newList = contactList;
-        newList[newList.findIndex((item: iUser) => item.id == id)].notification = 0;
-        newList[newList.findIndex((item: iUser) => item.id == id)].yourContact = 1;
+        const myContact: boolean = newList.findIndex((item: iUser) => item.id == user.id) === -1 ? false : true;
+        if (!myContact) newList.push(user);
+
+
+        newList[newList.findIndex((item: iUser) => item.id == user.id)].notification = 0;
+        newList[newList.findIndex((item: iUser) => item.id == user.id)].yourContact = 1;
+
         setContactList([...newList]);
         setContNotify(newList.filter(item => item.notification == 1).length);
     }
@@ -188,6 +193,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const upContact = contactList.map((contact) =>
                 contact.id == send_user ? updateContact(contact) : contact
             );
+            console.log(upContact);
             setContactList(upContact);
             setContNotify(upContact.filter((item: any) => item.notification == 1).length);
         }
