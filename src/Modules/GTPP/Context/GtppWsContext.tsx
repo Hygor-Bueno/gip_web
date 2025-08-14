@@ -1,21 +1,7 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  useReducer, // Adicionado
-} from "react";
-import { useNavigate } from "react-router-dom";
-
+import React, {createContext,useContext,useEffect,useRef,useState} from "react";
 import { useMyContext } from "../../../Context/MainContext";
 import { useConnection } from "../../../Context/ConnContext";
-
 import GtppWebSocket from "./GtppWebSocket";
-import InformSending from "../Class/InformSending";
-import NotificationGTPP from "../Class/NotificationGTPP";
-
-import { classToJSON, handleNotification } from "../../../Util/Util";
 import {
   CustomNotification,
   iGtppWsContextType,
@@ -29,6 +15,7 @@ import { CallbackOnMessage, CloseCardDefaultGlobally, DeleteItemTaskWS, InfSenCh
 import { AddUserTask, ChangeDescription, ChangeObservedForm, CheckedItem, CheckTaskComShoDepSub, HandleAddTask, StopAndToBackTask, UpdatedForQuestion, UpdateItemTaskFile, UpdateStateTask, VerifyChangeState } from "./Util/taskActions";
 import { GetDescription, ItemUp, ReloadPageAddItem, ReloadPageChangeQuestion, ReloadPageDeleteItem, ReloadPageItem, ReloadPagePercent, ReloadPageUpNoteItem, UpdateNotification } from "./Util/loadingUI";
 import { AddDays, ClearGtppWsContext, CreateStorageState, RequestNotificationPermission, UpdateStates } from "./Util/util";
+import { handleNotification } from "../../../Util/Util";
 
 const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 
@@ -48,9 +35,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   ]);
   const [isAdm, setIsAdm] = useState<any>(false);
   const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
-
-  const navigate = useNavigate();
-
   const { setLoading } = useMyContext();
   const { fetchData } = useConnection();
   const { userLog } = useMyContext();
