@@ -1,13 +1,12 @@
 import { classToJSON } from "../../../../Util/Util";
 import InformSending from "../../Class/InformSending";
+import User from "../../../../Class/User";
+import { Dispatch } from "react";
 
-export async function CallbackOnMessage(event: any, updateNotification: any, task: any, setTask: any, loadTasks: any, itemUp: any, reloadPageDeleteItem: any, reloadPageItem: any, setOpenCardDefault: any, getDescription: any ) {
+export async function CallbackOnMessage(event: any, updateNotification: Dispatch<[any]>, task: {id: number }, setTask: Dispatch<object>, loadTasks: () => Promise<void>, itemUp: Dispatch<object>, reloadPageDeleteItem: Dispatch<object>, reloadPageItem: Dispatch<object>, setOpenCardDefault: Dispatch<boolean>, getDescription: Dispatch<object> ) {
     let response = JSON.parse(event.data);
     // console.log(event.data,localStorage.getItem("tokenGIPP"));
-    if (
-      response.error &&
-      response.message.includes("This user has been connected to another place")
-    ) {
+    if (response.error && response.message.includes("This user has been connected to another place")) {
       // handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
       // setTimeout(() => {
       //   navigate("/");
@@ -59,8 +58,8 @@ export async function CallbackOnMessage(event: any, updateNotification: any, tas
     }
   }
 
-export function DeleteItemTaskWS(object: any, ws: any, userLog: any, task: any) {
-    ws.current.informSending({
+export function DeleteItemTaskWS(object: unknown, ws: any, userLog: User, task: {id: number}) {
+   return ws.current.informSending({
       user_id: userLog.id,
       object,
       task_id: task.id,
@@ -68,20 +67,17 @@ export function DeleteItemTaskWS(object: any, ws: any, userLog: any, task: any) 
     });
   }
 
-export const CloseCardDefaultGlobally = (taskId?: number, ws?: any, userLog?: any) => {
+export const CloseCardDefaultGlobally = (taskId?: number, ws?: any, userLog?: User) => {
    return ws.current.informSending({
       error: false,
-      user_id: userLog.id,
-      object: {
-        description: "O card padrão foi fechado por outro usuário.",
-        task_id: taskId,
-      },
+      user_id: userLog?.id,
+      object: { description: "O card padrão foi fechado por outro usuário.", task_id: taskId },
       task_id: taskId,
       type: 7,
     });
   };
 
-export function InfSenStates(taskLocal: any, result: any, task: any, setTask: any, ws: any, userLog: any) {
+export function InfSenStates(taskLocal: {task_id: number}, result: {percent: number, state_id: number}, task: any, setTask: any, ws: any, userLog: User) {
     task.state_id = result.state_id;
     setTask({ ...task });
     return ws.current.informSending(
@@ -97,40 +93,15 @@ export function InfSenStates(taskLocal: any, result: any, task: any, setTask: an
     );
   }
 
-export function InfSenCheckItem(taskLocal: any, result: any, ws: any, userLog: any) {
-    return ws.current.informSending(
-      classToJSON(
-        new InformSending(false, userLog.id, taskLocal.task_id, 2, {
-          description: taskLocal.check
-            ? "Um item foi marcado"
-            : "Um item foi desmarcado",
-          percent: result.percent,
-          itemUp: taskLocal,
-          isItemUp: true,
-        })
-      )
-    );
-  }
+export function InfSenCheckItem(taskLocal: any, result: { percent: number }, ws: any, userLog: User) {
+  return ws.current.informSending(classToJSON(new InformSending(false, userLog.id, taskLocal.task_id, 2, { description: taskLocal.check ? "Um item foi marcado" : "Um item foi desmarcado", percent: result.percent, itemUp: taskLocal, isItemUp: true })));
+}
 
-export async function UpTask( taskId: number, resource: string | null, date: string | null, taskList: any, message: string, type: number, object?: {}, setLoading?: any, ws?: any, userLog?: any, loadTasks?: any) {
+export async function UpTask( taskId: number, resource: string | null, date: string | null, taskList: {state_id: number}, message: string, type: number, object?: {}, setLoading?: any, ws?: any, userLog?: User, loadTasks?: any) {
   try {
     setLoading(true);
     return ws.current.informSending(
-      classToJSON(
-        new InformSending(
-          false,
-          userLog.id,
-          taskId,
-          type,
-          object || {
-            description: message,
-            task_id: taskId,
-            reason: resource,
-            days: date,
-            taskState: taskList.state_id,
-          }
-        )
-      )
+      classToJSON(new InformSending(false,Number(userLog?.id),taskId,type,object || { description: message, task_id: taskId, reason: resource, days: date, taskState: taskList.state_id}))
     );
   } catch {
   } finally {

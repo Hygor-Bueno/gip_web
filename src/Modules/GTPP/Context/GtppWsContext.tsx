@@ -1,27 +1,10 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, {createContext,useContext,useEffect,useRef,useState} from "react";
 import { useNavigate } from "react-router-dom";
-
 import { useMyContext } from "../../../Context/MainContext";
 import { useConnection } from "../../../Context/ConnContext";
-
 import GtppWebSocket from "./GtppWebSocket";
-import InformSending from "../Class/InformSending";
-import NotificationGTPP from "../Class/NotificationGTPP";
-
-import { classToJSON, handleNotification } from "../../../Util/Util";
-import {
-  CustomNotification,
-  iGtppWsContextType,
-  iStates,
-  iTaskReq,
-} from "../../../Interface/iGIPP";
-
+import { handleNotification } from "../../../Util/Util";
+import { CustomNotification, iGtppWsContextType, iStates, iTaskReq } from "../../../Interface/iGIPP";
 import soundFile from "../../../Assets/Sounds/notify.mp3";
 import { GetStateformations, GetTaskInformations, ReqTasks } from "./Util/LoadingTasks"
 import { CallbackOnMessage, CloseCardDefaultGlobally, DeleteItemTaskWS, InfSenCheckItem, InfSenStates, UpTask } from "./Util/webSocketHandlers";
@@ -31,29 +14,21 @@ import { AddDays, ClearGtppWsContext, CreateStorageState, RequestNotificationPer
 
 const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 
-export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
   // AQUI COMEÇA GERENCIAMENTO DE ESTADOS
   const [taskPercent, setTaskPercent] = useState<number>(0);
-  const [task, setTask] = useState<any>({}); // achei
+  const [task, setTask] = useState<any>({});
   const [taskDetails, setTaskDetails] = useState<iTaskReq>({});
   const [onSounds, setOnSounds] = useState<boolean>(false);
   const [openCardDefault, setOpenCardDefault] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const [getTask, setGetTask] = useState<any[]>([]);
-  const [states, setStates] = useState<iStates[]>([
-    { color: "", description: "", id: 0 },
-  ]);
+  const [states, setStates] = useState<iStates[]>([{ color: "", description: "", id: 0 }]);
   const [isAdm, setIsAdm] = useState<any>(false);
   const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
-
-  const navigate = useNavigate();
-
   const { setLoading } = useMyContext();
   const { fetchData } = useConnection();
   const { userLog } = useMyContext();
-
   const ws = useRef(new GtppWebSocket());
   // AQUI TERMINA GERENCIAMENTO DE ESTADOS
 
@@ -64,17 +39,11 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     (async () => {
       setLoading(true);
       try {
-        const getNotify: any = await fetchData({
-          method: "GET",
-          params: null,
-          pathFile: "GTPP/Notify.php",
-          urlComplement: `&id_user=${userLog.id}`,
-          exception: ["No data"],
-        });
+        const getNotify = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Notify.php", urlComplement: `&id_user=${userLog.id}`, exception: ["No data"]});
         if (getNotify.error) throw new Error(getNotify.message);
         updateNotification(getNotify.data);
-      } catch (error: any) {
-        console.error(error.message);
+      } catch (error) {
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -138,7 +107,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     return CallbackOnMessage(event, updateNotification, task, setTask, loadTasks, itemUp, reloadPageDeleteItem, reloadPageItem, setOpenCardDefault, getDescription);
   }
 
-  function deleteItemTaskWS(object: any) {
+  function deleteItemTaskWS(object: unknown) {
     return DeleteItemTaskWS(object, ws, userLog, task);
   }
 
