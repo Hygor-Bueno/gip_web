@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WebSocketCLPP deve conectar com sucesso e enviar dados de autenticação 1`] = `
+Object {
+  "app_id": 18,
+  "auth": Object {
+    "token": "test",
+  },
+}
+`;

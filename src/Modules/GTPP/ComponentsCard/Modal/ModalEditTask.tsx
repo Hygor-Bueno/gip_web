@@ -53,13 +53,21 @@ export default function ModalEditTask(props: any) {
         </header>
         <section className="w-100">
           <button title="Editar tarefa" onClick={() => {
-            if (editTask.description != description || editTask.note != note) {
+            if (editTask.description != description) { // || editTask.note != note
               setMsgConfirm({ title: "Atenção", message: "Salve os dados antes de trocar de aba" });
               setConfirm(true);
             } else {
               setIsObservation(!isObservation);
             }
-          }} className={`btn btn-${isObservation ? 'primary' : 'secondary'} py-0`}>{isObservation ? "Observação" : "Descrição"}</button>
+          }} className={`btn btn-secondary py-0`}>Descrição</button>
+          <button className="btn btn-primary py-0 mx-2" onClick={() => {
+            if(editTask.note != note) {
+              setMsgConfirm({ title: "Atenção", message: "Salve os dados antes de trocar de aba" });
+              setConfirm(true);
+            } else {
+              setIsObservation(!isObservation);
+            }
+          }}>Observação</button>
           <textarea rows={8} style={{ resize: "none" }} className="form-control my-4"
             onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
               const value = event.target.value;
