@@ -25,7 +25,7 @@ export default class NotificationGTPP {
             case 2:
                 item.id = element.object.itemUp ? parseInt(element.object.itemUp.id) : parseInt(element.object.id);
                 item.task_id = element.task_id;
-                item.title = `${element.object.description} por ${name}`;
+                item.title = `${element.object.description ? 'Alteração' : element.object.note ? 'Alteração na observação' : 'Aviso observação ou descrição foram retirados'} por ${name.length <= 0 ? 'Usuário' : name}`;
                 item.message = element.object.itemUp ? element.object.itemUp.description : element.object.note;
                 item.typeNotify = 'success';
                 break;

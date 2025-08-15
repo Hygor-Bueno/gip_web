@@ -13,10 +13,16 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
   }, [notifications]);
 
   const handleClick = () => {
-    const filtered = props.idTask ? notifications.filter((item) => item.task_id === props.idTask) : notifications;
-    setFilteredNotifications(filtered);
+    const filtered = props.idTask
+      ? notifications.filter((item) => item.task_id === props.idTask)
+      : notifications;
+
+    // Remove duplicados pelo campo 'id'
+    const uniqueFiltered = Array.from(new Map(filtered.map(item => [item.id, item])).values());
+
+    setFilteredNotifications(uniqueFiltered);
     setShowModal(true);
-  };
+  };  
 
   const handleClose = () => {
     setShowModal(false);
@@ -56,7 +62,7 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
               <div className="modal-body">
                 {filteredNotifications.length > 0 ? (
                   <ul className="list-unstyled overflow-auto notification-container">
-                    {[...filteredNotifications,...filteredNotifications,...filteredNotifications,...filteredNotifications,...filteredNotifications].map((n, i) => (
+                    {[...filteredNotifications].map((n, i) => (
                       <li key={i} className="mb-2">
                         <strong>{n.title}</strong>: {n.message}
                       </li>

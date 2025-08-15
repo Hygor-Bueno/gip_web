@@ -161,7 +161,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   async function handleAddTask(description: string, task_id: string, yes_no: number, file?: string) {
-    return HandleAddTask(description, task_id, yes_no, fetchData, taskDetails, ws, userLog, reloadPagePercent, setTaskDetails, task, verifyChangeState, setLoading);
+    return HandleAddTask(description, task_id, yes_no, fetchData, taskDetails, ws, userLog, reloadPagePercent, setTaskDetails, task, verifyChangeState, setLoading, file);
   }
 
   async function changeDescription(description: string,id: number,descLocal: string) {
@@ -181,7 +181,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   async function stopAndToBackTask(taskId: number,resource: string | null,date: string | null,taskList: any) {
-    return StopAndToBackTask(taskId, resource, date, taskList, updateStateTask, setTask, task, upTask, addDays, closeCardDefaultGlobally, handleNotification);
+    return StopAndToBackTask(taskId, resource, date, taskList, updateStateTask, setTask, task, upTask, addDays, closeCardDefaultGlobally, handleNotification);/* pode ser aqui mesmo. */
   }
 
   async function updatedForQuestion(item: {task_id: number;id: number;yes_no: number;}){
@@ -227,7 +227,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   async function updateNotification(item: any[]) {
-    return UpdateNotification(item, setLoading, onSounds, soundFile, states, notifications, setNotifications, handleNotification);
+    return UpdateNotification(item, setLoading, onSounds, soundFile, states, notifications, setNotifications, handleNotification); /* Pode ser aqui! */
   }
   // AQUI TERMINA ATUALIZAÇÕES DE UI (reload de tela, updates locais)
 

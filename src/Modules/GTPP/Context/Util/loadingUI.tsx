@@ -122,11 +122,23 @@ export async function UpdateNotification(
       ...prevNotifications,
       ...notify.list,
     ]);
-    handleNotification(
-      notify.list[0]["title"],
-      notify.list[0]["message"],
-      notify.list[0]["typeNotify"]
-    );
+
+    console.log("Notificação recebida:", notify.list);
+    if (notify.list.length === 0) {
+      console.warn("Nenhuma notificação foi criada. Dados recebidos:", item);
+    }
+
+    if (notify.list.length > 0) {
+      const n = notify.list[0];
+
+      console.log(n);
+
+      handleNotification (
+        n["title"] ?? "Aviso",
+        n["message"] ?? "Alteração realizada.",
+        n["typeNotify"] ?? "info"
+      );
+    }
   } catch (error) {
     console.error(error);
   } finally {

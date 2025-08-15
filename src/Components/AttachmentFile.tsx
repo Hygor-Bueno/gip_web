@@ -65,17 +65,25 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext("2d");
-            ctx?.drawImage(img, 0, 0);
-            const webpData = canvas.toDataURL("image/webp", IMAGE_WEBP_QUALITY); // qualidade ajustável
-            setBase64File(webpData);
-          };
-          img.src = e.target?.result?.toString() || '';
+         if(file.type.startsWith('application/pdf')) {
+            setBase64File(e.target?.result?.toString() || '');
+         } else if (file.type.startsWith('image/')) {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext("2d");
+              ctx?.drawImage(img, 0, 0);
+              let webpData = canvas.toDataURL("image/webp", IMAGE_WEBP_QUALITY);
+              if (!webpData.startsWith("data:image/webp")) {
+                console.log("Conversão para WebP falhou, usando PNG como fallback.");
+                webpData = canvas.toDataURL("image/png");
+              }
+              setBase64File(webpData);
+            };
+            img.src = e.target?.result?.toString() || '';
+          }
         };
         reader.readAsDataURL(file);
       }
@@ -135,20 +143,22 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
           }} className="btn btn-danger m-2 fa-solid fa-trash" />}
         </div>
         <div className='d-flex flex-column align-items-center w-100 h-100 overflow-auto'>
-          {base64File ?
-            <FilePreview base64File={base64File}/>
-            :
-            <>
-              <label style={{ minHeight: "60px", height: "4vw", minWidth: "60px", width: "4vw" }} className='d-flex justify-content-center align-items-center btn btn-outline-primary text-primary fa fa-paperclip' >
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                />
-              </label>
-              <label className='text-danger text-bold' style={{fontSize: '0.950rem', width: '15rem', textAlign: 'center', marginTop: '1rem'}}>Pode usar CTRL+C e V para colar a imagem ou anexar ela clicando no botão</label>
-            </>
-          }
+          {base64File ? (
+            base64File.startsWith("data:application/pdf") ? (
+              <embed src={base64File} type="application/pdf" width="100%" height="500px" />
+            ) : (<FilePreview base64File={base64File}/>)
+            ) : (
+              <>
+                <label style={{ minHeight: "60px", height: "4vw", minWidth: "60px", width: "4vw" }} className='d-flex justify-content-center align-items-center btn btn-outline-primary text-primary fa fa-paperclip' >
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+                <label className='text-danger text-bold' style={{fontSize: '0.950rem', width: '15rem', textAlign: 'center', marginTop: '1rem'}}>Pode usar CTRL+C e V para colar a imagem ou anexar ela clicando no botão</label>
+              </>
+            )}
         </div>
 
         <div className='d-flex align-items-center justify-content-around w-100'>
