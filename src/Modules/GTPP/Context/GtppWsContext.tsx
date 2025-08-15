@@ -1,4 +1,4 @@
-import React, {createContext,useContext,useEffect,useRef,useState} from "react";
+import React, {createContext,useCallback,useContext,useEffect,useRef,useState} from "react";
 import { useMyContext } from "../../../Context/MainContext";
 import { useConnection } from "../../../Context/ConnContext";
 import GtppWebSocket from "./GtppWebSocket";
@@ -10,7 +10,7 @@ import {
 } from "../../../Interface/iGIPP";
 
 import soundFile from "../../../Assets/Sounds/notify.mp3";
-import { GetStateformations, GetTaskInformations, ReqTasks } from "./Util/LoadingTasks"
+import { GetStateformations, GetTaskInformations, ReqTasks } from "./Util/LoadingTasks";
 import { CallbackOnMessage, CloseCardDefaultGlobally, DeleteItemTaskWS, InfSenCheckItem, InfSenStates, UpTask } from "./Util/webSocketHandlers";
 import { AddUserTask, ChangeDescription, ChangeObservedForm, CheckedItem, CheckTaskComShoDepSub, HandleAddTask, StopAndToBackTask, UpdatedForQuestion, UpdateItemTaskFile, UpdateStateTask, VerifyChangeState } from "./Util/taskActions";
 import { GetDescription, ItemUp, ReloadPageAddItem, ReloadPageChangeQuestion, ReloadPageDeleteItem, ReloadPageItem, ReloadPagePercent, ReloadPageUpNoteItem, UpdateNotification } from "./Util/loadingUI";
@@ -77,7 +77,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   // Garante a atualização do callback do WebSocket.
   useEffect(() => {
     ws.current.callbackOnMessage = callbackOnMessage;
-  }, [states, onSounds, openCardDefault]); // Agora depende do objeto state inteiro
+  }, [states, onSounds, openCardDefault, callbackOnMessage]);
 
   useEffect(() => {
     (async () => {
@@ -97,26 +97,28 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   // AQUI TERMINA USEEFFECTS
 
   // AQUI COMEÇA CARREGAMENTO DE DADOS (fetch/load)
-  async function loadTasks(admin?: boolean) {
+
+  const reqTasks = useCallback(async (admin?: boolean) => {
+    return ReqTasks(admin ?? false, setIsAdm, setLoading, fetchData, setGetTask);
+  }, [fetchData, setLoading]);
+
+  const getTaskInformations = useCallback(async () => {
+    return GetTaskInformations(setLoading, fetchData, setTaskDetails, task ?? undefined);
+  }, [fetchData, setLoading, task]);
+
+  const getStateformations = useCallback(async () => {
+    return GetStateformations(setLoading, fetchData, createStorageState, updateStates);
+  }, [fetchData, setLoading, createStorageState, updateStates]);
+
+  const loadTasks = useCallback(async (admin?: boolean) => {
     try {
       setIsAdm(admin);
       await reqTasks(admin);
     } catch (error) {
       console.error("Erro ao obter as informações da tarefa:", error);
     }
-  }
+  }, [reqTasks]);
 
-  async function reqTasks(admin?: boolean) {
-    return ReqTasks (admin, setIsAdm, setLoading, fetchData, setGetTask);
-  }
-
-  async function getTaskInformations(): Promise<void> {
-    return GetTaskInformations (setLoading, fetchData, setTaskDetails, task);
-  }
-
-  async function getStateformations() {
-    return GetStateformations(setLoading, fetchData, createStorageState, updateStates);
-  }
   // AQUI TERMINA CARREGAMENTO DE DADOS (fetch/load)
 
   // AQUI COMEÇA WEBSOCKET (mensagens, callbacks)
