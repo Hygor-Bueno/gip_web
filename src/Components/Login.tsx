@@ -17,7 +17,7 @@ export default function Login() {
     }>({ login: "", password: "" });
 
     const navigate = useNavigate();
-    const { setLoading, setTitleHead, configUserData } = useMyContext();
+    const { setLoading, setTitleHead, configUserData,setStatusDevice } = useMyContext();
     const { setIsLogged } = useConnection();
     const { fetchData } = useConnection();
 
@@ -72,16 +72,18 @@ export default function Login() {
         try {
             const userLogin = buildUserLogin();
             setUser(userLogin);
+            //realiza o Login
             let req: any = await fetchData({ method: "POST", params: { user: userLogin.login, password: userLogin.password }, pathFile: "CCPP/Login.php", urlComplement: "&login=" });
             if (!req) throw new Error("No response from server");
             if (req.error) throw new Error(req.message);
             configLocalStoranger(req.data);
 
-
+            // Verifica o dispositivo.
             let verifyDevice: any = await fetchData({ method: "POST", params: await getOrCreateDeviceId(), pathFile: "GIPP/LoginGipp.php" });
-            console.log(verifyDevice);
+            if(verifyDevice["error"]) throw new Error("No response from server");
+            setStatusDevice(verifyDevice['origin']['device_status'])
 
-
+            //Criar as itens no localstorage
             loadLocalStorage(req.data);
             await configUserData({ id: req.data["id"], session: req.data["session"] });
             setIsLogged(true);
