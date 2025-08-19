@@ -18,6 +18,7 @@ export default class ContactList {
                     sub: item.sub_dep_name,
                 });
                 user.yourContact = 1;
+                user.notification = item.notification;
                 return user;
             })
             return { error: false, data: this.#contacts }
