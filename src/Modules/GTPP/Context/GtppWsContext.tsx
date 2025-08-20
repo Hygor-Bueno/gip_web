@@ -187,7 +187,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   async function updateStateTask(taskId: number,resource: string | null,date: string | null) {
     return UpdateStateTask(taskId, resource, date, fetchData, setLoading);
-  }
 
   async function stopAndToBackTask(taskId: number,resource: string | null,date: string | null,taskList: any) {
     return StopAndToBackTask(taskId, resource, date, taskList, updateStateTask, setTask, task, upTask, addDays, closeCardDefaultGlobally, handleNotification);/* pode ser aqui mesmo. */
@@ -231,6 +230,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   function getDescription(description: any) {
     return GetDescription(description, taskDetails, setTaskDetails);
+
   }
 
   async function updateNotification(item: any[]) {

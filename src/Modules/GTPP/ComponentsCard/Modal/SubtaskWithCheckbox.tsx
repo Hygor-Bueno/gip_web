@@ -54,7 +54,36 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
     openDialog: false
   });
 
+<<<<<<< HEAD
+  // Function that will handle the image data (base64) received from the child component
+  const getInviteImageOfServer = (base64Image: string | null) => {
+    if (base64Image) {
+      // You can now send the image to a server or do whatever you need with the base64 data.
+      // console.log('Image base64:', base64Image);
+      console.log(allData);
+      
+      // Example: sending image data to a server
+      // const response = await axios.post('your-server-endpoint', { image: base64Image });
+    } else {
+      console.error('No image data received');
+    }
+  };
+
+  const handleRadioChange = (event: any) => {
+    setSelectedOption(event.target.value);
+  }
+
+  const handleLineMarked = (id: string | number) => {
+    setMarkedLines(prevState => ({
+      ...prevState,
+      [id]: !prevState[id]
+    }));
+  }
+
+  const ModalEdit = () => {
+=======
   const ModalInformation = (props: any) => {
+>>>>>>> f54b8b7366ea6c5f17889934a8f647a5664c1f15
     return (
       <div className="cloud-balloon rounded p-2">
         <div>
@@ -118,6 +147,32 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
             key={task.id}
             className={"d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto"}
           >
+<<<<<<< HEAD
+            {(subTask.openDialog && subTask.idSubTask === task.id && task.note) && <ModalInformation description={task.note} />}
+            <InputCheckbox
+              textColor={markedLines[task.id] && (subTask.idSubTask === task.id && task.note) ? "text-white" : ""}
+              label={task.description}
+              onChange={(e: any) => {
+                checkedItem(
+                  task.id,
+                  e.target.checked,
+                  task.task_id,
+                  task
+                );
+              }}
+              value={task.check}
+              key={index}
+            />
+            <div className="d-flex gap-2">
+              <AnexoImage getInviteImageOfServer={getInviteImageOfServer} />
+              <ButtonIcon title="Observação" color={task.note ? "success" : "secondary"} icon="eye" description="" onClick={() => {
+                handleLineMarked(task.id);
+                setSubtask((prev) => ({...prev, idSubTask: task.id, openDialog: !prev.openDialog}))
+              }}/>
+              <ButtonIcon title="Observação" color="primary" icon="bars" description="" onClick={() => {
+                setSubtask((prev) => ({...prev, isObservable: !prev.isObservable, isAttachment: false, isQuestion: false, openDialog: false, idSubTask: task.id}));
+              }}/>
+=======
             {(subTask.openDialog && subTask.idSubTask === task.id && task.note) && <ModalInformation onClose={closeObservation} task description={task.note} />}
             {(task.id && positionTaskStates[task.id]) &&
               <div>
@@ -184,6 +239,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
                 }} />
                 <AnexoImage item_id={task.id || 0} file={task.file || 0} updateAttachmentFile={updateItemTaskFile} />
               </div>
+>>>>>>> f54b8b7366ea6c5f17889934a8f647a5664c1f15
             </div>
           </div>
         ))}
