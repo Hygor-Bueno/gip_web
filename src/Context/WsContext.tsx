@@ -6,6 +6,7 @@ import ContactList from '../Modules/CLPP/Class/ContactList';
 import { handleNotification } from '../Util/Util';
 import { useConnection } from './ConnContext';
 import Contact from '../Class/Contact';
+import User from '../Class/User';
 
 
 const WebSocketContext = createContext<iWebSocketContextType | undefined>(undefined);
@@ -55,10 +56,10 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 await buildContactList();
                 setLoading(false);
             }
-        }
-        )();
+        })();
         return clearChatAll();
     }, [userLog]);
+
     function clearChatAll() {
         closeChat();
         changeChat();
@@ -66,7 +67,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     // Garante a atualização do callback.
     useEffect(() => {
         ws.current.callbackOnMessage = callbackOnMessage;
-    }, [idReceived, listMessage]);
+    }, [idReceived, listMessage, contactList]);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -129,16 +130,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     // Função para atualizar contato com base no evento
     function updateContact(contact: Contact) {
-        if (contact.yourContact === 0 || contact.notification === undefined) contact.yourContact = 1;
-        if (contact.notification === 0 || contact.notification === undefined) {
-            contact.notification = 1;
-        }
+        if (contact.yourContact == 0 || contact.notification == undefined) contact.yourContact = 1;
+        if (contact.notification == 0 || contact.notification == undefined) contact.notification = 1;
         return contact;
     };
 
     async function callbackOnMessage(event: any) {
         if (event.objectType === 'notification') {
             if (event.notify && event.user == idReceived) {
+                console.log(event);
                 listMessage.forEach((item, index) => {
                     if (item.notification == 1) {
                         listMessage[index].notification = 0;
@@ -151,20 +151,25 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
     }
 
-    function changeListContact(id: number) {
+    function changeListContact(user: User) {
         let newList = contactList;
-        newList[newList.findIndex((item: iUser) => item.id == id)].notification = 0;
-        newList[newList.findIndex((item: iUser) => item.id == id)].yourContact = 1;
+        const myContact: boolean = newList.findIndex((item: iUser) => item.id == user.id) === -1 ? false : true;
+        if (!myContact) newList.push(user);
+
+
+        newList[newList.findIndex((item: iUser) => item.id == user.id)].notification = 0;
+        newList[newList.findIndex((item: iUser) => item.id == user.id)].yourContact = 1;
+
         setContactList([...newList]);
         setContNotify(newList.filter(item => item.notification == 1).length);
     }
 
     async function buildContactList() {
         try {
-            let contacts = new ContactList(userLog.id);
+
+            let contacts = new ContactList();
             const req: any = await contacts.loadListContacts();
             if (req.error) throw new Error(req.message);
-            
             setContactList([...req.data]);
             setContNotify(req.data.filter((item: any) => item.notification == 1).length);
         } catch (error) {
@@ -173,7 +178,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
     async function receivedMessage(event: any) {
         const { send_user } = event;
-        if (parseInt(send_user) === idReceived) {
+        if (parseInt(send_user) == idReceived) {
             listMessage.push({
                 id: event.id,
                 "id_user": event.send_user,
@@ -187,8 +192,9 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         } else {
             setHasNewMessage(true);
             const upContact = contactList.map((contact) =>
-                contact.id === send_user ? updateContact(contact) : contact
+                contact.id == send_user ? updateContact(contact) : contact
             );
+            console.log(upContact);
             setContactList(upContact);
             setContNotify(upContact.filter((item: any) => item.notification == 1).length);
         }

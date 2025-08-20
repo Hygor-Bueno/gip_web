@@ -1,5 +1,5 @@
 let ws: WebSocket;
-let wsGtpp: WebSocket;
+
 
 interface NotifyMessage {
   objectType?: string;
@@ -12,7 +12,7 @@ interface NotifyMessage {
 export default class WebSocketCLPP {
   isConnected: boolean = false;
   tokens: any;
-  sender: { id: string } = { id: '148' };
+  // sender: { id: string } = { id: '148' };
   callbackOnMessage!: (notify: NotifyMessage) => Promise<void>;
 
   constructor(

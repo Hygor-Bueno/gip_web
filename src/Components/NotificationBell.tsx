@@ -61,7 +61,7 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
               <div className="modal-body">
                 {filteredNotifications.length > 0 ? (
                   <ul className="list-unstyled overflow-auto notification-container">
-                    {[...filteredNotifications].map((n, i) => (
+                    {filteredNotifications.map((n, i) => (
                       <li key={i} className="mb-2">
                         <strong>{n.title}</strong> {n.message}
                       </li>

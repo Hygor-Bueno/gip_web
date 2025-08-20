@@ -29,7 +29,7 @@ interface MyMainContext {
   setModalPage: (step: boolean) => void;
 
   setModalPageElement: (value: JSX.Element) => void;
-  configUserData: (user: { id: number, session?: string; administrator?: number }) => void;
+  configUserData: (user: { id: number, session?: string; administrator?: number }) => Promise<void>;
   titleHead: { title: string; simpleTitle: string, icon?: string };
   setTitleHead: (value: { title: string; simpleTitle: string; icon?: string }) => void;
 
@@ -38,11 +38,12 @@ interface MyMainContext {
   token: any;
   setToken: ({ }: any) => void;
   loadDetailsToken: () => void;
-  contactList: User[];
-  ctlSearchUser:boolean;
-  setCtlSearchUser:(value:boolean)=>void;
-  appIdSearchUser:number | null;
-  setAppIdSearchUser:(value:number | null)=>void;
+  ctlSearchUser: boolean;
+  setCtlSearchUser: (value: boolean) => void;
+  appIdSearchUser: number | null;
+  setAppIdSearchUser: (value: number | null) => void;
+  statusDevice: number;
+  setStatusDevice: (value: number) => void;
 }
 
 interface Props {
@@ -56,6 +57,7 @@ export const MyContext = createContext<MyMainContext | undefined>(undefined);
 export function MyProvider({ children }: Props) {
   const { fetchData } = useConnection();
   const [loading, setLoading] = useState<boolean>(false);
+  const [statusDevice, setStatusDevice] = useState<number>(0);
   const [modal, setModal] = useState<boolean>(false);
   const [modalPage, setModalPage] = useState<boolean>(false);
   const [newProgressBar, setNewProgressBar] = useState<number | string | null>(null);
@@ -77,7 +79,6 @@ export function MyProvider({ children }: Props) {
   const [userLog, setUserLog] = useState<User>(
     new User({ id: parseInt(localStorage.getItem('codUserGIPP') || "0"), session: "", administrator: 0 })
   );
-  const [contactList, setContactList] = useState<User[]>([]);
   const [reset, setResetState] = useState<any>(1);
   const requestNotificationPermission = async () => {
     if (!("Notification" in window)) {
@@ -101,6 +102,7 @@ export function MyProvider({ children }: Props) {
   useEffect(() => {
     (async () => {
       await loadDetailsToken();
+      await loadDevice();
     })();
   }, [userLog]);
 
@@ -115,7 +117,17 @@ export function MyProvider({ children }: Props) {
       setUserLog(newUser);
     }
   }
-
+  async function loadDevice() {
+    try {
+      if (userLog.id) {
+        const req: any = await fetchData({ method: "GET", params: null, pathFile: "GIPP/LoginGipp.php", urlComplement: `&device_id="${localStorage.device_id}"` });
+        if (req["error"]) throw new Error(req["message"]);
+        setStatusDevice(parseInt(req["data"][0]["status"]));
+      }
+    } catch (error: any) {
+      console.error(error.message);
+    }
+  }
   async function loadDetailsToken() {
     if (userLog.id) {
       try {
@@ -127,6 +139,7 @@ export function MyProvider({ children }: Props) {
       }
     }
   }
+
   return (
     <MyContext.Provider
       value={{
@@ -139,7 +152,6 @@ export function MyProvider({ children }: Props) {
         setTitleHead,
         userLog,
         setUserLog,
-        contactList,
         setModalPage,
         setModalPageElement,
         newProgressBar,
@@ -150,10 +162,12 @@ export function MyProvider({ children }: Props) {
         token,
         setToken,
         loadDetailsToken,
-        ctlSearchUser, 
+        ctlSearchUser,
         setCtlSearchUser,
-        appIdSearchUser, 
-        setAppIdSearchUser
+        appIdSearchUser,
+        setAppIdSearchUser,
+        statusDevice,
+        setStatusDevice
       }}>
       {loading && (
         <StructureModal className="StructureModal ModalBgWhite">

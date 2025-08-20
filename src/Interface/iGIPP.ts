@@ -128,7 +128,7 @@ export interface iWebSocketContextType {
     setIdReceived: (value: number) => void;
     setSender: React.Dispatch<React.SetStateAction<iSender>>;
     setContactList: (value: Contact[]) => void;
-    changeListContact: (value: number) => void;
+    changeListContact: (value: any) => void;
 }
 
 export interface ITask {

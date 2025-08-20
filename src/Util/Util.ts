@@ -387,23 +387,23 @@ export function formatarMoedaPTBR(valor: string): string {
 }
 
 export function formatDate(value: string): string {
-  const [year, month, day] = value.split("-");
-  return `${day}/${month}/${year}`;
+    const [year, month, day] = value.split("-");
+    return `${day}/${month}/${year}`;
 }
 
 export function maskPhone(value: string): string {
-  return value?.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+    return value?.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
 }
 
 export function removeSpecialCharsAndNumbers(text: string): string {
-  return text.replace(/[^a-zA-Z\s]/g, ""); // Mantém apenas letras e espaços
+    return text.replace(/[^a-zA-Z\s]/g, ""); // Mantém apenas letras e espaços
 }
 
 export function removeStringSpecialChars(text: string): string {
     return text.replace(/\D/g, '');
 }
 
-type AllowedTypes ='numbers' | 'hasSpaces' | 'allnumber' | 'lettersWithSpaces' | 'alphanumeric' | 'alphanumericWithSpaces';
+type AllowedTypes = 'numbers' | 'hasSpaces' | 'allnumber' | 'lettersWithSpaces' | 'alphanumeric' | 'alphanumericWithSpaces';
 export function validateWithRegexAndFormat(
     type: AllowedTypes,
     value: string
@@ -464,11 +464,16 @@ export function sortListByKey<T>(
     key: keyof T,
     ascending: boolean = true
 ): T[] {
-    return [...list].sort((a, b) => sortList(a,b,key,ascending));
+    return [...list].sort((a, b) => sortList(a, b, key, ascending));
 }
 
-function sortList<T>(a: T, b: T, key: keyof T,ascending: boolean):number {
+function sortList<T>(a: T, b: T, key: keyof T, ascending: boolean): number {
     const valueOne = String(a[key]).toLowerCase();
     const valueTwo = String(b[key]).toLowerCase();
     return (valueOne > valueTwo ? 1 : valueOne < valueTwo ? -1 : 0) * (ascending ? 1 : -1);
+}
+
+export function cleanLocalStorage() {
+    localStorage.removeItem("tokenGIPP");
+    localStorage.removeItem("codUserGIPP");
 }

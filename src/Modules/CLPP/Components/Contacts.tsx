@@ -26,10 +26,11 @@ export default function Contacts(props: {
                 })
         );
     }, [props.contactList, searchName]);
-
     return (
         <div className="d-flex flex-column h-100 w-100">
-            {/* Cabeçalho com SearchUser e botão */}
+            {/* 
+                Cabeçalho com SearchUser e botão 
+            */}
             <div className="flex-shrink-0">
                 <SearchUser
                     onClose={(items) => {
