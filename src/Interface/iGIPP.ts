@@ -54,6 +54,7 @@ export interface iGtppWsContextType {
     notifications: CustomNotification[];
     states: iStates[];
     onSounds: boolean;
+    isAdm: any;
     getTask: any[];
     openCardDefault: boolean;
     updateItemTaskFile: (file: string, item_id: number) => Promise<void>;
@@ -64,10 +65,10 @@ export interface iGtppWsContextType {
     getTaskInformations: () => void;
     setOpenCardDefault: (value: boolean) => void;
     loadTasks: (admin?: boolean) => void;
-    reqTasks: (admin?: boolean) => void;
+    reqTasks: () => Promise<void>;
     setGetTask: (array: any[]) => void;
     updateStates: (array: any[]) => void;
-    setOnSounds: (value: boolean) => void
+    setOnSounds: (value: boolean) => void;
     setNotifications: (value: CustomNotification[]) => void;
     setTaskPercent: (value: number) => void;
     setTask: (value: any) => void;
@@ -78,12 +79,10 @@ export interface iGtppWsContextType {
     checkTaskComShoDepSub: (task_id: number, company_id: number, shop_id: number, depart_id: number, taskLocal: any) => void;
     changeDescription: (description: string, id: number, descLocal: string) => void;
     stopAndToBackTask: (taskId: number, resource: string | null, date: string | null, taskList: any) => void;
-<<<<<<< HEAD
     changeObservedForm: (taskId: number, subId: any, description: string, message?: any, isNote?: any) => void;
     inviteImagePushed: ( baseFileG4: string,  taskId: number, description: string) => void;
-=======
     changeObservedForm: (taskId: number, subId: number, value: string, isObservetion: boolean) => void;
->>>>>>> f54b8b7366ea6c5f17889934a8f647a5664c1f15
+    setIsAdm: (value: boolean) => void;
 }
 export interface iStates {
     color: string,
@@ -131,7 +130,7 @@ export interface iWebSocketContextType {
     setIdReceived: (value: number) => void;
     setSender: React.Dispatch<React.SetStateAction<iSender>>;
     setContactList: (value: Contact[]) => void;
-    changeListContact: (value: number) => void;
+    changeListContact: (value: any) => void;
 }
 
 export interface ITask {

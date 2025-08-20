@@ -1,31 +1,32 @@
 import User from "../../../Class/User";
-import { Connection } from "../../../Connection/Connection";
 import { fetchDataFull } from "../../../Util/Util";
 
 export default class ContactList {
     #contacts: User[] = [];
-    #idUser: number;
 
-    constructor(id: number) {
-        this.#idUser = id;
-    }
- 
     async loadListContacts(): Promise<{ error: boolean; message?: any; data?: any }> {
         try {
-            let listFull: any = await fetchDataFull({method:"GET",params:null,pathFile:'CCPP/UserAccess.php',urlComplement:`&application_id=7&web`}) || { error: false, message: '' };
-            
+            let listFull: any = await fetchDataFull({ method: "GET", params: null, pathFile: 'CLPP/ChatLog.php', urlComplement: `&onChatLog=1` }) || { error: false, message: '' };
             if (listFull && listFull.error && !listFull.message.includes('No data')) throw new Error(listFull.message);
-            this.#contacts = await this.loadInfo(listFull.data);
-            let list: any = await fetchDataFull({method:"GET",params:null,pathFile:'CLPP/Message.php',urlComplement:`&id=${this.#idUser}&id_user`});
-           
-            if (list && list.error && !list.message.includes('No data')) throw new Error(list.message);
-
-            this.checkYourContacts(list.data || []);
+            this.#contacts = listFull.data.map((item: any) => {
+                const user = new User({
+                    id: item.sender_id,
+                    name: item.name,
+                    shop: item.store_name,
+                    departament: item.departament_name,
+                    photo: item.employee_photo,
+                    sub: item.sub_dep_name,
+                });
+                user.yourContact = 1;
+                user.notification = item.notification;
+                return user;
+            })
             return { error: false, data: this.#contacts }
         } catch (error) {
             return { error: true, message: error }
         }
     }
+
 
     async loadInfo(list: any[]): Promise<User[]> {
         const promises = list.map((item) => {

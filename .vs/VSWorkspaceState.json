@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\Modules",
+    "\\src\\Modules\\GTPP",
+    "\\src\\Modules\\GTPP\\ComponentsCard",
+    "\\src\\Modules\\GTPP\\ComponentsCard\\Avatar",
+    "\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\AvatarGroup",
+    "\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\HeaderImage",
+    "\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\Image",
+    "\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ListUserTask"
+  ],
+  "SelectedNode": "\\src\\Modules\\GTPP\\Gtpp.tsx",
+  "PreviewInSolutionExplorer": false
+}

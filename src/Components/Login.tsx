@@ -7,6 +7,7 @@ import DefaultPassword from "./DefaultPassword";
 import { ReactNotifications } from "react-notifications-component";
 import { useConnection } from "../Context/ConnContext";
 import User from "../Class/User";
+import { loadLocalStorage } from "../Util/Util";
 
 export default function Login() {
     const [defaultPassword, setDefaulPassword] = useState<boolean>(false);
@@ -16,13 +17,16 @@ export default function Login() {
     }>({ login: "", password: "" });
 
     const navigate = useNavigate();
-    const { setLoading, setTitleHead, configUserData } = useMyContext();
+    const { setLoading, setTitleHead, configUserData,setStatusDevice } = useMyContext();
     const { setIsLogged } = useConnection();
     const { fetchData } = useConnection();
 
     React.useEffect(() => {
         setTitleHead({ title: "Gestão Integrada Peg Pese - GIPP", simpleTitle: "GIPP", icon: "" });
         setIsLogged(false);
+        // (async () => {
+        //     await getOrCreateDeviceId();
+        // })();
     }, []);
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -68,10 +72,19 @@ export default function Login() {
         try {
             const userLogin = buildUserLogin();
             setUser(userLogin);
+            //realiza o Login
             let req: any = await fetchData({ method: "POST", params: { user: userLogin.login, password: userLogin.password }, pathFile: "CCPP/Login.php", urlComplement: "&login=" });
             if (!req) throw new Error("No response from server");
             if (req.error) throw new Error(req.message);
             configLocalStoranger(req.data);
+
+            // Verifica o dispositivo.
+            let verifyDevice: any = await fetchData({ method: "POST", params: await getOrCreateDeviceId(), pathFile: "GIPP/LoginGipp.php" });
+            if(verifyDevice["error"]) throw new Error("No response from server");
+            setStatusDevice(verifyDevice['origin']['device_status'])
+
+            //Criar as itens no localstorage
+            loadLocalStorage(req.data);
             await configUserData({ id: req.data["id"], session: req.data["session"] });
             setIsLogged(true);
             navigate("/GIPP");
@@ -79,6 +92,75 @@ export default function Login() {
             openModalChangePassword(error.message);
         }
         setLoading(false);
+    }
+
+    async function getDeviceFingerprint(): Promise<string> {
+        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+        // Extrair apenas o sistema operacional do userAgent
+        const os = navigator.userAgent.match(/\(([^)]+)\)/)?.[1] || "";
+
+        const rawData = [
+            os, // só o sistema operacional
+            window.screen.colorDepth,
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+            navigator.hardwareConcurrency || '',
+            (navigator as any).deviceMemory || '',
+            // Só adiciona resolução se for mobile
+            ...(isMobile ? [window.screen.width, window.screen.height] : [])
+        ].join('||');
+
+        const encoder = new TextEncoder();
+        const data = encoder.encode(rawData);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    async function getOrCreateDeviceId(): Promise<{}> {
+        let deviceId = localStorage.getItem("device_id");
+        if (!deviceId) {
+            deviceId = await getDeviceFingerprint(); // gera um UUID novo
+            localStorage.setItem("device_id", deviceId);
+        }
+        const browser = detectBrowser(navigator.userAgent);
+        const platform = detectPlatform(navigator.userAgent);
+        return { device_id:deviceId, platform, browser };
+    }
+
+    function detectPlatform(userAgent: string): string {
+        switch (true) {
+            case /android/i.test(userAgent):
+                return "Android";
+            case /iPad|iPhone|iPod/i.test(userAgent):
+                return "iOS";
+            case /Win/i.test(userAgent):
+                return "Windows";
+            case /Mac/i.test(userAgent):
+                return "MacOS";
+            case /Linux/i.test(userAgent):
+                return "Linux";
+            default:
+                return "Unknown";
+        }
+    }
+
+    function detectBrowser(userAgent: string): string {
+        switch (true) {
+            case /firefox/i.test(userAgent):
+                return "Firefox";
+            case /edg/i.test(userAgent):
+                return "Edge";
+            case /opr|opera/i.test(userAgent):
+                return "Opera";
+            case /chrome/i.test(userAgent):
+                return "Chrome";
+            case /safari/i.test(userAgent):
+                return "Safari";
+            default:
+                return "Unknown";
+        }
     }
 
 }

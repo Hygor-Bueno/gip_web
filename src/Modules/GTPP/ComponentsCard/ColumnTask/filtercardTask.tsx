@@ -10,7 +10,7 @@ export const filterTasks = ( tasks: ITask[], searchTerm: String = "", rangeDateI
         if(rangeDateFinal !== "" && rangeDateFinalFinal !== "") filtred = filterDate(filtred, rangeDateFinal, rangeDateFinalFinal,"final_date");
         return filtred;
     } catch (error: any) {
-        console.log(error.message);
+        console.error(error.message);
         return tasks;
     }
 };

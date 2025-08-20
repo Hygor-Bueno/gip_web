@@ -93,8 +93,9 @@ export default class User {
     }
 
     async loadInfo(isPhoto?: boolean): Promise<void> {
-        isPhoto && await this.loadPhotos();
-        await this.loadDetails();
+        let listReq = [this.loadDetails()];
+        if(isPhoto) listReq.push(this.loadPhotos());
+        await Promise.all(listReq);
     }
 
     async loadPhotos(): Promise<void> {

@@ -223,6 +223,128 @@ button>label {
   height: clamp(50px, calc(0.8rem + 4vw + 4vh), 55px);
 }
 
+/* trello-drawer.css ou adicione ao seu arquivo CSS global */
+
+/* Overlay */
+.trello-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparente */
+  z-index: 1040; /* Um pouco abaixo do drawer */
+}
+
+/* Drawer Principal */
+.trello-drawer {
+  position: fixed;
+  top: 0;
+  right: 0; /* Começa do lado direito */
+  width: 0; /* Escondido por padrão */
+  height: 100%;
+  background-color: white; /* Cor de fundo */
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  transition: width 0.3s ease-in-out; /* Animação suave */
+  z-index: 1050; /* Acima do overlay */
+  overflow-x: hidden; /* Garante que o conteúdo não vaze */
+  display: flex; /* Para layout de cabeçalho, corpo e rodapé */
+  flex-direction: column; /* Organiza os itens verticalmente */
+}
+
+/* Quando o drawer está aberto */
+.trello-drawer.open {
+  width: 510px;
+}
+
+/* Conteúdo do Drawer */
+.trello-drawer-header {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6; /* Borda Bootstrap */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trello-drawer-title {
+  margin-bottom: 0;
+}
+
+.trello-drawer-body {
+  padding: 1rem;
+  flex-grow: 1; /* Faz o corpo ocupar o espaço restante */
+  overflow-y: auto; /* Permite scroll se o conteúdo for grande */
+}
+
+.trello-drawer-footer {
+  padding: 1rem;
+  border-top: 1px solid #dee2e6; /* Borda Bootstrap */
+  display: flex;
+  justify-content: flex-end;
+}
+
+.trello-drawer-modal {
+  max-height: 70.5vh;
+  height: 100%;
+}
+
+.img-user {
+  width: 60px !important;
+  border: 1px solid #000;
+}
+
+.image-profile {
+  width: clamp(100px, 50vmin, 220px);
+  height: clamp(100px, 50vmin, 220px);
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #bed989;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  background-color: #fff;
+}
+
+.image-profile:hover {
+  transform: scale(1.05);
+}
+
+.image-profile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-background-peg-pese {
+  background-image: url("http://192.168.0.99:71/GLOBAL/View/CLPP/static/media/bg_interlagos.b58bb3c23877f2ddf775.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  width: 100%;
+  height: 300px;
+}
+
+.notification {
+  top: -10px;
+  right: -4px;
+  color: #fff;
+  font-size: calc(0.6rem + 0.2vw);
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.notification-container {
+  height: 500px;
+}
+
+
 /* Keyframes para a animação */
 @keyframes spinner-grow {
   0% {

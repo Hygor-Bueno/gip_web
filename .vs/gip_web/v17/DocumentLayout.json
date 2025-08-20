@@ -1,0 +1,210 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\Modal\\Modal.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\GTPP\\ComponentsCard\\Avatar\\Modal\\Modal.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\Gtpp.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\GTPP\\Gtpp.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Modal\\Modal.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\GTPP\\ComponentsCard\\Modal\\Modal.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ModalUser\\ModalUser.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ModalUser\\ModalUser.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\LoadUserCheck\\LoadUserCheck.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\GTPP\\ComponentsCard\\Avatar\\LoadUserCheck\\LoadUserCheck.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ListUserTask\\ListUserTask.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ListUserTask\\ListUserTask.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\AvatarGroup\\AvatarGroup.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\GTPP\\ComponentsCard\\Avatar\\AvatarGroup\\AvatarGroup.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\FilterTask\\FilterTask.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\GTPP\\ComponentsCard\\FilterTask\\FilterTask.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\ColumnTask\\columnTask.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\GTPP\\ComponentsCard\\ColumnTask\\columnTask.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Components\\NotificationBell.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Components\\NotificationBell.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Modal.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Modal\\Modal.tsx",
+              "RelativeDocumentMoniker": "src\\Modules\\GTPP\\ComponentsCard\\Modal\\Modal.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Modal\\Modal.tsx",
+              "RelativeToolTip": "src\\Modules\\GTPP\\ComponentsCard\\Modal\\Modal.tsx",
+              "ViewState": "AQIAAA0BAAAAAAAAAAAkwBUBAAASAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T13:15:19.635Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AvatarGroup.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\AvatarGroup\\AvatarGroup.tsx",
+              "RelativeDocumentMoniker": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\AvatarGroup\\AvatarGroup.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\AvatarGroup\\AvatarGroup.tsx",
+              "RelativeToolTip": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\AvatarGroup\\AvatarGroup.tsx",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T13:11:45.174Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Modal.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\Modal\\Modal.tsx",
+              "RelativeDocumentMoniker": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\Modal\\Modal.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\Modal\\Modal.tsx",
+              "RelativeToolTip": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\Modal\\Modal.tsx",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAALAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T13:10:58.24Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ModalUser.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ModalUser\\ModalUser.tsx",
+              "RelativeDocumentMoniker": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ModalUser\\ModalUser.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ModalUser\\ModalUser.tsx",
+              "RelativeToolTip": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ModalUser\\ModalUser.tsx",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAGAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T13:01:03.262Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "LoadUserCheck.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\LoadUserCheck\\LoadUserCheck.tsx",
+              "RelativeDocumentMoniker": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\LoadUserCheck\\LoadUserCheck.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\LoadUserCheck\\LoadUserCheck.tsx",
+              "RelativeToolTip": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\LoadUserCheck\\LoadUserCheck.tsx",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAATAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T12:54:53.782Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ListUserTask.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ListUserTask\\ListUserTask.tsx",
+              "RelativeDocumentMoniker": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ListUserTask\\ListUserTask.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ListUserTask\\ListUserTask.tsx",
+              "RelativeToolTip": "src\\Modules\\GTPP\\ComponentsCard\\Avatar\\ListUserTask\\ListUserTask.tsx",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAoAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T12:54:43.919Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "columnTask.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\ColumnTask\\columnTask.tsx",
+              "RelativeDocumentMoniker": "src\\Modules\\GTPP\\ComponentsCard\\ColumnTask\\columnTask.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\ColumnTask\\columnTask.tsx",
+              "RelativeToolTip": "src\\Modules\\GTPP\\ComponentsCard\\ColumnTask\\columnTask.tsx",
+              "ViewState": "AQIAAFwAAAAAAAAAAAAUwHQAAAAZAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T12:23:19.655Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "NotificationBell.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Components\\NotificationBell.tsx",
+              "RelativeDocumentMoniker": "src\\Components\\NotificationBell.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Components\\NotificationBell.tsx",
+              "RelativeToolTip": "src\\Components\\NotificationBell.tsx",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwAcAAAAqAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T12:23:05.683Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "FilterTask.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\FilterTask\\FilterTask.tsx",
+              "RelativeDocumentMoniker": "src\\Modules\\GTPP\\ComponentsCard\\FilterTask\\FilterTask.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\ComponentsCard\\FilterTask\\FilterTask.tsx",
+              "RelativeToolTip": "src\\Modules\\GTPP\\ComponentsCard\\FilterTask\\FilterTask.tsx",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAGAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T11:48:38.309Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:130:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Gtpp.tsx",
+              "DocumentMoniker": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\Gtpp.tsx",
+              "RelativeDocumentMoniker": "src\\Modules\\GTPP\\Gtpp.tsx",
+              "ToolTip": "C:\\Users\\jonatas.santos\\Documents\\cloneGit\\gip_web\\src\\Modules\\GTPP\\Gtpp.tsx",
+              "RelativeToolTip": "src\\Modules\\GTPP\\Gtpp.tsx",
+              "ViewState": "AQIAAKAAAAAAAAAAAAAAwMYAAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2025-07-24T11:48:32.908Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
