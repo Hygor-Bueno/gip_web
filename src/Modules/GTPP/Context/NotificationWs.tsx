@@ -3,13 +3,9 @@ import InformSending from "../Class/InformSending";
 
 export async function callbackOnMessage(event: any, updateNotification:any, setTask: any, task: any, loadTasks: any, itemUp: any, reloadPageDeleteItem: any, reloadPageItem: any, setOpenCardDefault: any, getDescription: any) {
     let response = JSON.parse(event.data);
-    if (response.error && response.message.includes("This user has been connected to another place")) {
-      // Lógica de desconexão
-    }
-
+    if (response.error && response.message.includes("This user has been connected to another place")) {}
     if (!response.error && response.send_user_id != localStorage.codUserGIPP) {
       updateNotification([response]);
-
       if (response.type == -1 || response.type == 2 || response.type == 6) {
         if (response.type == 6) {
           if (task.id === response.task_id) {
@@ -31,7 +27,6 @@ export async function callbackOnMessage(event: any, updateNotification:any, setT
         await loadTasks();
       }
     }
-
     if (!response.error && response.type == 3) {
       if (response.object) {
         getDescription(response.object);
@@ -39,8 +34,7 @@ export async function callbackOnMessage(event: any, updateNotification:any, setT
     }
   };
 
-// @ts-ignore
-export const closeCardDefaultGlobally = (taskId?: number, ws: any, userLog: any) => {
+export const closeCardDefaultGlobally = (taskId?: number, ws?: any, userLog?: any) => {
     ws.current.informSending({
       error: false,
       user_id: userLog.id,

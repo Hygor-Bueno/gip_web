@@ -21,6 +21,7 @@ import FiltersSearchUser from "../../Components/FiltersSearchUser";
 
 export default function Gtpp(): JSX.Element {
   const { setTitleHead, setModalPage, setModalPageElement, userLog, setLoading } = useMyContext();
+  const { clearGtppWsContext, setOnSounds, updateStates, setOpenCardDefault, loadTasks, reqTasks, openCardDefault, taskDetails, states, onSounds, task, getTask, setIsAdm } = useWebSocket();
   const [openFilter, setOpenFilter] = useState<any>(false);
   const [openFilterGolbal, setOpenFilterGolbal] = useState<any>(false);
   const [openMenu, setOpenMenu] = useState<any>(true);
@@ -28,8 +29,8 @@ export default function Gtpp(): JSX.Element {
   const listButtonInputs: iPropsInputCheckButton[] = [
     {
       inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: async (event: boolean) => {
-        await reqTasks(event);
-      }, labelIcon: "fa-solid fa-user-tie", highlight: true
+        setIsAdm(event);
+       }, labelIcon: "fa-solid fa-user-tie", highlight: true
     },
     { inputId: `gttp_exp_ret`, nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"] },
     {
@@ -37,12 +38,11 @@ export default function Gtpp(): JSX.Element {
     },
     {
       inputId: `reload_tasks`, nameButton: "Recarregar as tarefas", onAction: async (event: boolean) => {
-        await reqTasks(false);
+        await reqTasks();
       }, labelIcon: "fa fa-refresh"
     },
   ];
   // Modified by Hygor
-  const { clearGtppWsContext, setOnSounds, updateStates, setOpenCardDefault, loadTasks, reqTasks, openCardDefault, taskDetails, states, onSounds, task, getTask } = useWebSocket();
   useEffect(() => {
     setTitleHead({
       title: "Gerenciador de Tarefas Peg Pese - GTPP",
@@ -224,21 +224,16 @@ function FilterPage() {
   useEffect(() => {
     (async () => {
       await recoverList(params);
-      await reqTasks(isAdm);
+      await reqTasks();
     })();
   }, [page, params, appIdSearchUser]);
-
 
   async function recoverList(value?: string) {
     try {
       setLoading(true);
-      let newUrlComplement = `&pPage=${page}`
-      if (value) {
-        newUrlComplement += value;
-      }
-      if (appIdSearchUser) {
-        newUrlComplement += `&pApplicationAccess=${appIdSearchUser}`
-      }
+      let newUrlComplement = `&pPage=${page}`;
+      if (value) newUrlComplement += value;
+      if (appIdSearchUser) newUrlComplement += `&pApplicationAccess=${appIdSearchUser}`;
       const req: any = await fetchData({ method: 'GET', params: null, pathFile: 'CCPP/Employee.php', urlComplement: newUrlComplement });
       if (req["error"]) throw new Error(req["message"]);
       setList(maskFilter(req["data"]));
@@ -249,6 +244,7 @@ function FilterPage() {
       setLoading(false)
     }
   }
+
   function maskFilter(array: any[]): tItemTable[] {
     return array.map(element => ({
       employee_id: maskUserSeach(element["employee_id"], "", false, true),
@@ -262,19 +258,7 @@ function FilterPage() {
 return (
   <div style={{ zIndex: "2" }} className="d-flex justify-content-end bg-dark bg-opacity-50 position-absolute top-0 start-0 w-100 h-100">
     <div className="bg-white col-12 col-sm-8 col-md-6 col-lg-5 d-flex flex-column h-100">
-      
-      {/* Cabeçalho - botão fechar */}
-      <div className="d-flex justify-content-end p-2">
-        <button
-          onClick={async () => document.getElementById('check_filter')?.click()}
-          type="button"
-          className="btn btn-danger"
-        >
-          X
-        </button>
-      </div>
-
-      {/* Filtro (altura fixa ou automática) */}
+      <div className="d-flex justify-content-end p-2"><button onClick={async () => document.getElementById('check_filter')?.click()} type="button" className="btn btn-danger">X</button></div>
       <div className="px-2">
         <FiltersSearchUser
           onAction={(e: string) => {
@@ -284,8 +268,6 @@ return (
           callBack={true}
         />
       </div>
-
-      {/* Área que deve ocupar a altura restante */}
       <div className="d-flex flex-column flex-grow-1 p-2 overflow-auto">
         {list.length > 0 && (
           <CustomTable
@@ -294,8 +276,6 @@ return (
           />
         )}
       </div>
-
-      {/* Rodapé */}
       <footer className="d-flex align-items-center justify-content-around py-2">
         <button onClick={() => navPage(false)} className="btn btn-light fa-solid fa-backward" type="button"></button>
         {`( ${page.toString().padStart(2, '0')} / ${limitPage.toString().padStart(2, '0')} )`}
@@ -318,24 +298,20 @@ return (
         csd.shop_id === Number(filter.pShopId) ||
         csd.depart_id === Number(filter.pDepartmentId)
       );
-      const colabMatch = task.colabs.some((colab: any) =>
-        filter.colabs.includes(colab.user_id)
-      );
+      const colabMatch = task.colabs.some((colab: any) => filter.colabs.includes(colab.user_id));
       const isUserOwnerMatch = filter.colabs.includes(String(task.user_id));
       return hasMatchingCSD || (colabMatch || isUserOwnerMatch);
     });
   }
 
   function navPage(isNext: boolean) {
-    // Verifica se haverá uma adição ou subtração em relação a página atual.
+    if (limitPage === 0) return;
     const newPage = isNext ? page + 1 : page - 1;
-    //Faz o controle do limite da página.
     if (newPage <= limitPage && newPage >= 1) {
       setPage(newPage);
     }
   }
   function parseQueryStringToJson(queryString: string): Record<string, string> {
-    // Remove o primeiro caractere se for "&"
     if (queryString.startsWith('&')) {
       queryString = queryString.slice(1);
     }

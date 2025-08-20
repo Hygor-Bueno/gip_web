@@ -81,10 +81,10 @@ function RenderModule({ cod }: { cod: string }) {
 
     return (
         item.path ?
-            <CustomButton onClick={() => navigate(item.path)} className='btn mx-2 col-4 col-sm-3 col-md-2 col-lg-1 p-0 m-0 shadow-lg'>
-                <img className="rounded w-100" src={item.icon} alt="Logo Peg Pese" />
-            </CustomButton>
-            :
-            <React.Fragment />
+        <CustomButton onClick={() => navigate(item.path)} className='btn mx-2 col-4 col-sm-3 col-md-2 col-lg-1 p-0 m-0 shadow-lg'>
+            <img className="rounded w-100" src={item.icon} alt="Logo Peg Pese" />
+        </CustomButton>
+        :
+        <React.Fragment />
     );
 }

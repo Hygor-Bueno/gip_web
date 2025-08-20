@@ -10,7 +10,7 @@ import {
 } from "../../../Interface/iGIPP";
 
 import soundFile from "../../../Assets/Sounds/notify.mp3";
-import { GetStateformations, GetTaskInformations, ReqTasks } from "./Util/LoadingTasks";
+import { GetStateformations, GetTaskInformations } from "./Util/LoadingTasks";
 import { CallbackOnMessage, CloseCardDefaultGlobally, DeleteItemTaskWS, InfSenCheckItem, InfSenStates, UpTask } from "./Util/webSocketHandlers";
 import { AddUserTask, ChangeDescription, ChangeObservedForm, CheckedItem, CheckTaskComShoDepSub, HandleAddTask, StopAndToBackTask, UpdatedForQuestion, UpdateItemTaskFile, UpdateStateTask, VerifyChangeState } from "./Util/taskActions";
 import { GetDescription, ItemUp, ReloadPageAddItem, ReloadPageChangeQuestion, ReloadPageDeleteItem, ReloadPageItem, ReloadPagePercent, ReloadPageUpNoteItem, UpdateNotification } from "./Util/loadingUI";
@@ -22,7 +22,6 @@ const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // AQUI COMEÇA GERENCIAMENTO DE ESTADOS
   const [taskPercent, setTaskPercent] = useState<number>(0);
   const [task, setTask] = useState<any>({}); // achei
   const [taskDetails, setTaskDetails] = useState<iTaskReq>({});
@@ -30,9 +29,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [openCardDefault, setOpenCardDefault] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const [getTask, setGetTask] = useState<any[]>([]);
-  const [states, setStates] = useState<iStates[]>([
-    { color: "", description: "", id: 0 },
-  ]);
+  const [states, setStates] = useState<iStates[]>([{ color: "", description: "", id: 0 }]);
   const [isAdm, setIsAdm] = useState<any>(false);
   const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
   const { setLoading } = useMyContext();
@@ -40,9 +37,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   const { userLog } = useMyContext();
 
   const ws = useRef(new GtppWebSocket());
-  // AQUI TERMINA GERENCIAMENTO DE ESTADOS
-
-  // AQUI COMEÇA USEEFFECTS
+  
   useEffect(() => {
     ws.current.connect();
 
@@ -74,7 +69,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  // Garante a atualização do callback do WebSocket.
   useEffect(() => {
     ws.current.callbackOnMessage = callbackOnMessage;
   }, [states, onSounds, openCardDefault, callbackOnMessage]);
@@ -94,13 +88,25 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     requestNotificationPermission();
   }, []);
-  // AQUI TERMINA USEEFFECTS
-
-  // AQUI COMEÇA CARREGAMENTO DE DADOS (fetch/load)
-
-  const reqTasks = useCallback(async (admin?: boolean) => {
-    return ReqTasks(admin ?? false, setIsAdm, setLoading, fetchData, setGetTask);
-  }, [fetchData, setLoading]);
+    
+  async function reqTasks(){
+    try {
+      setLoading(true);
+      const getTask: any = await fetchData({
+        method: "GET",
+        params: null,
+        pathFile: "GTPP/Task.php",
+        urlComplement: `${isAdm ? "&administrator=1" : ""}`,
+      });
+      if (getTask.error) throw new Error(getTask.message);
+      setGetTask(getTask.data);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
 
   const getTaskInformations = useCallback(async () => {
     return GetTaskInformations(setLoading, fetchData, setTaskDetails, task ?? undefined);
@@ -110,14 +116,19 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     return GetStateformations(setLoading, fetchData, createStorageState, updateStates);
   }, [fetchData, setLoading, createStorageState, updateStates]);
 
-  const loadTasks = useCallback(async (admin?: boolean) => {
+  const loadTasks = useCallback(async () => {
     try {
-      setIsAdm(admin);
-      await reqTasks(admin);
+      await reqTasks();
     } catch (error) {
       console.error("Erro ao obter as informações da tarefa:", error);
     }
-  }, [reqTasks]);
+  }, [isAdm]);
+
+   useEffect(() => {
+    (async()=>{
+      await reqTasks();
+    })();
+   }, [isAdm]);
 
   // AQUI TERMINA CARREGAMENTO DE DADOS (fetch/load)
 
@@ -145,9 +156,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   async function upTask(taskId: number,resource: string | null,date: string | null,taskList: any,message: string,type: number,object?: {}) {
     return UpTask(taskId, resource, date, taskList, message, type, object, setLoading, ws, userLog, loadTasks);
   }
-  // AQUI TERMINA WEBSOCKET (mensagens, callbacks)
 
-  // AQUI COMEÇA AÇÕES SOBRE TAREFAS (adicionar, editar, checar, remover)
   async function checkedItem(id: number,checked: boolean,idTask: any,taskLocal: any,yes_no?: number) {
     return CheckedItem(id, checked, idTask, taskLocal, fetchData, reloadPageChangeQuestion, reloadPagePercent, verifyChangeState, infSenCheckItem, setLoading, task, yes_no);
   }
@@ -191,9 +200,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   function addUserTask(element: any, type: number) {
     return AddUserTask(element, type, userLog, ws);
   }
-  // AQUI TERMINA AÇÕES SOBRE TAREFAS (adicionar, editar, checar, remover)
 
-  // AQUI COMEÇA ATUALIZAÇÕES DE UI (reload de tela, updates locais)
   function reloadPagePercent(value: any, taskLocal: any) {
     return ReloadPagePercent(value, taskLocal, task, setTaskPercent, getTask, setGetTask);
   }
@@ -229,17 +236,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   async function updateNotification(item: any[]) {
     return UpdateNotification(item, setLoading, onSounds, soundFile, states, notifications, setNotifications, handleNotification); /* Pode ser aqui! */
   }
-  // AQUI TERMINA ATUALIZAÇÕES DE UI (reload de tela, updates locais)
-
-  // AQUI COMEÇA FUNÇÕES UTILITÁRIAS
+  
   function updateStates(newList: any[]) { return UpdateStates(newList, setStates); }
   function createStorageState(list: iStates[]) { return CreateStorageState(list); }
   function addDays(daysToAdd: number) { return AddDays(daysToAdd); }
   function clearGtppWsContext() { return ClearGtppWsContext(setTask, setTaskDetails); }
   const requestNotificationPermission = async () => { return await RequestNotificationPermission(setOnSounds);};
-  // AQUI TERMINA FUNÇÕES UTILITÁRIAS
-
-  // AQUI COMEÇA RETORNO DO PROVIDER
+  
   return (
     <GtppWsContext.Provider
       value={{
@@ -275,16 +278,15 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         checkTaskComShoDepSub,
         changeDescription,
         stopAndToBackTask,
+        setIsAdm,
         changeObservedForm,
       }}
     >
       {children}
     </GtppWsContext.Provider>
   );
-  // AQUI TERMINA RETORNO DO PROVIDER
 };
 
-// AQUI COMEÇA HOOK CUSTOMIZADO
 export const useWebSocket = () => {
   const context = useContext(GtppWsContext);
   if (!context) {
@@ -292,4 +294,3 @@ export const useWebSocket = () => {
   }
   return context;
 };
-// AQUI TERMINA HOOK CUSTOMIZADO

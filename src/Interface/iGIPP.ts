@@ -65,7 +65,7 @@ export interface iGtppWsContextType {
     getTaskInformations: () => void;
     setOpenCardDefault: (value: boolean) => void;
     loadTasks: (admin?: boolean) => void;
-    reqTasks: (admin?: boolean) => Promise<void>;
+    reqTasks: () => Promise<void>;
     setGetTask: (array: any[]) => void;
     updateStates: (array: any[]) => void;
     setOnSounds: (value: boolean) => void;
@@ -80,6 +80,7 @@ export interface iGtppWsContextType {
     changeDescription: (description: string, id: number, descLocal: string) => void;
     stopAndToBackTask: (taskId: number, resource: string | null, date: string | null, taskList: any) => void;
     changeObservedForm: (taskId: number, subId: number, value: string, isObservetion: boolean) => void;
+    setIsAdm: (value: boolean) => void;
 }
 export interface iStates {
     color: string,

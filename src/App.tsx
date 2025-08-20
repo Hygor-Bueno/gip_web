@@ -1,4 +1,3 @@
-import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import Login from './Components/Login';
@@ -48,16 +47,11 @@ function App() {
           <Route path="/GIPP/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
           <Route path="/GIPP/CFPP" element={withPrivateProvider(<Cfpp />)} />
           <Route path='/GIPP/configuration/profile' element={withPrivateProvider(<ProfileGIPP />)} />
-
           <Route path="/GIPP/GAPP" element={withPrivateProvider(<Gapp />)} />
           <Route path="/GIPP/GAPP/Stores" element={withPrivateProvider(<Stores />)} />
           <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
-
-          
           <Route path="/GIPP/EPP" element={withPrivateProvider(<Epp />)} />
-          <Route path="/GIPP/EPP/sales" element={withPrivateProvider(<SalesPage />)} /> 
-         
-
+          <Route path="/GIPP/EPP/sales" element={withPrivateProvider(<SalesPage />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>

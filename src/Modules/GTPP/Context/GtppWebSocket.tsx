@@ -13,7 +13,7 @@ class GtppWebSocket {
   connect(): void {
 
     if (localStorage?.tokenGIPP) {
-      this.socket = new WebSocket(`${process.env.REACT_APP_API_GIPP_BASE_WS}:${process.env.REACT_APP_API_GIPP_PORT_SOCKET_SECONDARY}`);//
+      this.socket = new WebSocket(`${process.env.REACT_APP_API_GIPP_BASE_WS}:${process.env.REACT_APP_API_GIPP_PORT_SOCKET_SECONDARY}`);
       const localWs = this.socket;
       this.socket.onopen = (ev) => {
         this.onOpen(localWs);

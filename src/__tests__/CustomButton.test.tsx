@@ -56,7 +56,7 @@ test('Chama o botão checkbox e verifica se tem um nome nele', () => {
 
 test('Clica na label e ativa o checkbox, chamando onAction', async () => {
     const mockAction = jest.fn();
-    const user = userEvent.setup();
+    const user = userEvent;
 
     render(
         <InputCheckButton
@@ -74,7 +74,7 @@ test('Clica na label e ativa o checkbox, chamando onAction', async () => {
 
 test('Clica 2 vezes na label e altera valor do checkbox', async () => {
     const mockAction = jest.fn();
-    const user = userEvent.setup();
+    const user = userEvent;
 
     render (
         <InputCheckButton
@@ -96,7 +96,7 @@ test('Clica 2 vezes na label e altera valor do checkbox', async () => {
 
 test('Verifica se o checkbox muda o estado visualmente', async () => {
     const mockAction = jest.fn();
-    const user = userEvent.setup();
+    const user = userEvent;
 
     render(
         <InputCheckButton
@@ -133,7 +133,7 @@ test('Verifica se o checkbox está desativado visualmente', async () => {
 });
 
 test('muda o icone ao alterar o checkbox', async () => {
-    const user = userEvent.setup();
+    const user = userEvent;
 
     render(
         <InputCheckButton
@@ -170,7 +170,7 @@ test('muda o ícone estático se fornecido', () => {
 });
 
 test('altera cor do botão quando highlight está ativado e checkbox marcado', async () => {
-    const user = userEvent.setup();
+    const user = userEvent;
     render(
         <InputCheckButton
             inputId="name-test"
@@ -209,7 +209,7 @@ test('aplica cor do texto definida por labelColor', () => {
 
 test('não quebra se onAction lançar erro', async () => {
   const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-  const user = userEvent.setup();
+  const user = userEvent;
   const mockError = new Error('Falha simulada');
   const mockAction = jest.fn().mockRejectedValue(mockError);
 

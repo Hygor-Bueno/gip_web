@@ -16,8 +16,7 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
     const filtered = props.idTask
       ? notifications.filter((item) => item.task_id === props.idTask)
       : notifications;
-
-    // Remove duplicados pelo campo 'id'
+      
     const uniqueFiltered = Array.from(new Map(filtered.map(item => [item.id, item])).values());
 
     setFilteredNotifications(uniqueFiltered);
@@ -64,7 +63,7 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
                   <ul className="list-unstyled overflow-auto notification-container">
                     {[...filteredNotifications].map((n, i) => (
                       <li key={i} className="mb-2">
-                        <strong>{n.title}</strong>: {n.message}
+                        <strong>{n.title}</strong> {n.message}
                       </li>
                     ))}
                   </ul>
