@@ -28,7 +28,6 @@ export default function Home(): JSX.Element {
 
     const listPath = [
         { page: '/GIPP', children: 'Home', icon: 'fa fa-home' },
-        { page: '/GIPP/configuration/profile', children: 'Perfil', icon: 'fa fa-user' },
         {
             page: '/', children: 'Sair', icon: 'fa fa-sign-out', actionAdd: () => {
                 localStorage.removeItem("tokenGIPP");
@@ -69,10 +68,6 @@ function RenderModule({ cod }: { cod: string }) {
                 value.icon = iconGAPP;
                 value.path = '/GIPP/GAPP';
                 break;
-            // case '16':
-            //     value.icon = iconGAPP;
-            //     value.path = '/GIPP/EPP';
-            //     break;
             default:
                 break;
         }
@@ -81,10 +76,10 @@ function RenderModule({ cod }: { cod: string }) {
 
     return (
         item.path ?
-        <CustomButton onClick={() => navigate(item.path)} className='btn mx-2 col-4 col-sm-3 col-md-2 col-lg-1 p-0 m-0 shadow-lg'>
-            <img className="rounded w-100" src={item.icon} alt="Logo Peg Pese" />
-        </CustomButton>
-        :
-        <React.Fragment />
+            <CustomButton onClick={() => navigate(item.path)} className='btn mx-2 col-4 col-sm-3 col-md-2 col-lg-1 p-0 m-0 shadow-lg'>
+                <img className="rounded w-100" src={item.icon} alt="Logo Peg Pese" />
+            </CustomButton>
+            :
+            <React.Fragment />
     );
 }

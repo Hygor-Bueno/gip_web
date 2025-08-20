@@ -2,7 +2,7 @@ import { useMyContext } from "../../../Context/MainContext";
 import { useWebSocket } from "../../../Context/WsContext";
 import { useConnection } from "../../../Context/ConnContext";
 import { useEffect } from "react";
-import { convertDate, convertTime } from "../../../Util/Util";
+import { convertTime } from "../../../Util/Util";
 
 export default
     function ChatMessages() {

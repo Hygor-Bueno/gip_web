@@ -26,11 +26,10 @@ export default function Contacts(props: {
                 })
         );
     }, [props.contactList, searchName]);
+
     return (
         <div className="d-flex flex-column h-100 w-100">
-            {/* 
-                Cabeçalho com SearchUser e botão 
-            */}
+            {/* Cabeçalho com SearchUser e botão */}
             <div className="flex-shrink-0">
                 <SearchUser
                     onClose={(items) => {
@@ -42,7 +41,7 @@ export default function Contacts(props: {
                 <div className="d-flex justify-content-between my-2">
                     <div className="d-flex align-items-center gap-2 w-75">
                         <label htmlFor="nameUserCLPP" className="fa-solid fa-magnifying-glass"></label>
-
+                        
                         <input
                             type="text"
                             id="nameUserCLPP"

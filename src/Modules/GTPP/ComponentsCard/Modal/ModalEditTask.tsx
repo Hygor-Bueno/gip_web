@@ -7,7 +7,7 @@ export default function ModalEditTask(props: any) {
   const [note, setNote] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [confirm, setConfirm] = useState<boolean>(false);
-  const [isQuest, setIsQuest] = useState<boolean>(true);
+  const [isQuest, setIsQuest] = useState<boolean>(false);
 
   const [msgConfirm, setMsgConfirm] = useState<{ title: string, message: string }>({ title: '', message: '' });
   useEffect(()=>{
@@ -41,31 +41,25 @@ export default function ModalEditTask(props: any) {
           <div className="d-flex align-items-center">
             <input
               checked={isQuest}
-              onChange={async (event: any) => {
-                await updatedForQuestion({ id: editTask.id, task_id: editTask.task_id, yes_no: event.target.checked ? 1 : 0 });
-                setIsQuest(!event.target.checked);
-              }}
+              onChange={
+                async (event: any) => {
+                  await updatedForQuestion({ id: editTask.id, task_id: editTask.task_id, yes_no: event.target.checked ? -1 : 0 });
+                  setIsQuest(event.target.checked);
+                }
+              }
               id={`item_quest_edit_${editTask.task_id}`} type="checkbox" className="form-check-input" />
             <label htmlFor={`item_quest_edit_${editTask.task_id}`} className="form-check-label ms-2">Promover para questão</label>
           </div>
         </header>
         <section className="w-100">
           <button title="Editar tarefa" onClick={() => {
-            if (editTask.description != description || editTask.note != note) { // || editTask.note != note
+            if (editTask.description != description || editTask.note != note) {
               setMsgConfirm({ title: "Atenção", message: "Salve os dados antes de trocar de aba" });
               setConfirm(true);
             } else {
-              setIsObservation(false);
+              setIsObservation(!isObservation);
             }
-          }} className={`btn btn-secondary py-0`}>Descrição</button>
-          <button className="btn btn-primary py-0 mx-2" onClick={() => {
-            if(editTask.note != note) {
-              setMsgConfirm({ title: "Atenção", message: "Salve os dados antes de trocar de aba" });
-              setConfirm(true);
-            } else {
-              setIsObservation(true);
-            }
-          }}>Observação</button>
+          }} className={`btn btn-${isObservation ? 'primary' : 'secondary'} py-0`}>{isObservation ? "Observação" : "Descrição"}</button>
           <textarea rows={8} style={{ resize: "none" }} className="form-control my-4"
             onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => {
               const value = event.target.value;

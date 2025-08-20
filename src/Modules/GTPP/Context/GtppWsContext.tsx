@@ -1,21 +1,20 @@
-import React, {createContext,useCallback,useContext,useEffect,useRef,useState} from "react";
-import { useMyContext } from "../../../Context/MainContext";
-import { useConnection } from "../../../Context/ConnContext";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { CustomNotification, iGtppWsContextType, iStates, iTaskReq } from "../../../Interface/iGIPP";
 import GtppWebSocket from "./GtppWebSocket";
-import {
-  CustomNotification,
-  iGtppWsContextType,
-  iStates,
-  iTaskReq,
-} from "../../../Interface/iGIPP";
-
+import { Connection } from "../../../Connection/Connection";
+import { useMyContext } from "../../../Context/MainContext";
+import InformSending from "../Class/InformSending";
+import { classToJSON, handleNotification } from "../../../Util/Util";
+import NotificationGTPP from "../Class/NotificationGTPP";
 import soundFile from "../../../Assets/Sounds/notify.mp3";
-import { GetStateformations, GetTaskInformations } from "./Util/LoadingTasks";
-import { CallbackOnMessage, CloseCardDefaultGlobally, DeleteItemTaskWS, InfSenCheckItem, InfSenStates, UpTask } from "./Util/webSocketHandlers";
-import { AddUserTask, ChangeDescription, ChangeObservedForm, CheckedItem, CheckTaskComShoDepSub, HandleAddTask, StopAndToBackTask, UpdatedForQuestion, UpdateItemTaskFile, UpdateStateTask, VerifyChangeState } from "./Util/taskActions";
-import { GetDescription, ItemUp, ReloadPageAddItem, ReloadPageChangeQuestion, ReloadPageDeleteItem, ReloadPageItem, ReloadPagePercent, ReloadPageUpNoteItem, UpdateNotification } from "./Util/loadingUI";
-import { AddDays, ClearGtppWsContext, CreateStorageState, RequestNotificationPermission, UpdateStates } from "./Util/util";
-import { handleNotification } from "../../../Util/Util";
+import { useConnection } from "../../../Context/ConnContext";
+import { useNavigate } from "react-router-dom";
 
 const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 
@@ -23,34 +22,32 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [taskPercent, setTaskPercent] = useState<number>(0);
-  const [task, setTask] = useState<any>({}); // achei
+  const [task, setTask] = useState<any>({});
   const [taskDetails, setTaskDetails] = useState<iTaskReq>({});
   const [onSounds, setOnSounds] = useState<boolean>(false);
   const [openCardDefault, setOpenCardDefault] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const [getTask, setGetTask] = useState<any[]>([]);
-  const [states, setStates] = useState<iStates[]>([{ color: "", description: "", id: 0 }]);
-  const [isAdm, setIsAdm] = useState<any>(false);
+  const [states, setStates] = useState<iStates[]>([{ color: '', description: '', id: 0 }]);
+
+  const navigate = useNavigate();
+
+  // GET
   const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
   const { setLoading } = useMyContext();
   const { fetchData } = useConnection();
-  const { userLog } = useMyContext();
 
   const ws = useRef(new GtppWebSocket());
-  
+  const { userLog } = useMyContext();
+
   useEffect(() => {
+    // Abre a coonexão com o websocket.
     ws.current.connect();
 
     (async () => {
       setLoading(true);
       try {
-        const getNotify: any = await fetchData({
-          method: "GET",
-          params: null,
-          pathFile: "GTPP/Notify.php",
-          urlComplement: `&id_user=${userLog.id}`,
-          exception: ["No data"],
-        });
+        const getNotify: any = await fetchData({ method: "GET", params: null, pathFile: 'GTPP/Notify.php', urlComplement: `&id_user=${userLog.id}`, exception: ["No data"] });
         if (getNotify.error) throw new Error(getNotify.message);
         updateNotification(getNotify.data);
       } catch (error: any) {
@@ -63,186 +60,653 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     getStateformations();
     return () => {
       if (ws.current && ws.current.isConnected) {
-        localStorage.removeItem("gtppStates");
+        localStorage.removeItem('gtppStates');
         ws.current.disconnect();
       }
-    };
+    }
   }, []);
 
+  // Garante a atualização do callback.
   useEffect(() => {
     ws.current.callbackOnMessage = callbackOnMessage;
-  }, [states, onSounds, openCardDefault, callbackOnMessage]);
+<<<<<<< HEAD
+    console.log('re-rendering message 2x')
+  }, [task, taskDetails]);
+=======
+  }, [task, taskDetails, notifications, onSounds, openCardDefault]);
+>>>>>>> f54b8b7366ea6c5f17889934a8f647a5664c1f15
 
+  // Recupera as informações detalhadas da tarefa.
   useEffect(() => {
-    (async () => {
-      task.id && (await getTaskInformations());
-    })();
+    (
+      async () => {
+        task.id && await getTaskInformations();
+      }
+    )();
   }, [task]);
 
+  // Carrega lista de tarefas que você criou ou você foi vínculado.
   useEffect(() => {
-    (async () => {
-      await loadTasks();
-    })();
+    (
+      async () => {
+        await loadTasks();
+      }
+    )();
   }, []);
 
-  useEffect(() => {
-    requestNotificationPermission();
-  }, []);
-    
-  async function reqTasks(){
+  async function loadTasks(admin?: boolean) {
+    try {
+      await reqTasks(admin);
+    } catch (error) {
+      console.error("Erro ao obter as informações da tarefa:", error);
+    }
+  }
+
+  async function reqTasks(admin?: boolean) {
+    const getTask: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", urlComplement: `${admin ? '&administrator=1' : ''}` });
+    if (getTask.error) throw new Error(getTask.message);
+    setGetTask(getTask.data);
+  }
+
+  async function getStateformations() {
+    setLoading(true);
+    let listState: iStates[] = [{ id: 0, description: '', color: '' }];
+    try {
+      if (localStorage.gtppStates) {
+        listState = JSON.parse(localStorage.gtppStates);
+      } else {
+        const connection = new Connection("18", true);
+        const getStatusTask: { error: boolean, message?: string, data?: [{ id: number, description: string, color: string }] } = await connection.get("", "GTPP/TaskState.php") || { error: false };
+        if (getStatusTask.error) throw new Error(getStatusTask.message || 'Error generic');
+        const list = createStorageState(getStatusTask.data || [{ id: 0, description: '', color: '' }]);
+        listState = list;
+      }
+    } catch (error) {
+      console.error("Erro ao obter as informações da tarefa:", error);
+    } finally {
+      updateStates(listState);
+      setLoading(false);
+    }
+  }
+
+  function updateStates(newList: any[]) {
+    localStorage.gtppStates = JSON.stringify(newList);
+    setStates([...newList]);
+  }
+
+  function createStorageState(list: iStates[]) {
+    let listState: [{ id: number, description: string, color: string }] = [{ id: 0, description: '', color: '' }];
+    list.forEach((element: { id: number, description: string, color: string }, index) => {
+      const item = { id: element.id, description: element.description, color: element.color, active: true }
+      index == 0 ? listState[index] = item : listState.push(item);
+    });
+    return listState
+  }
+  async function getTaskInformations(): Promise<void> {
     try {
       setLoading(true);
-      const getTask: any = await fetchData({
-        method: "GET",
-        params: null,
-        pathFile: "GTPP/Task.php",
-        urlComplement: `${isAdm ? "&administrator=1" : ""}`,
-      });
-      if (getTask.error) throw new Error(getTask.message);
-      setGetTask(getTask.data);
-    } catch (e) {
-      console.log(e);
+      const connection = new Connection("18", true);
+      const getTaskItem: any = await connection.get(`&id=${task.id}`, "GTPP/Task.php");
+      if (getTaskItem.error) throw new Error(getTaskItem.message);
+      setTaskDetails(getTaskItem);
+    } catch (error) {
+      console.error("Erro ao obter as informações da tarefa:", error);
     } finally {
       setLoading(false);
     }
   }
-  
-
-  const getTaskInformations = useCallback(async () => {
-    return GetTaskInformations(setLoading, fetchData, setTaskDetails, task ?? undefined);
-  }, [fetchData, setLoading, task]);
-
-  const getStateformations = useCallback(async () => {
-    return GetStateformations(setLoading, fetchData, createStorageState, updateStates);
-  }, [fetchData, setLoading, createStorageState, updateStates]);
-
-  const loadTasks = useCallback(async () => {
-    try {
-      await reqTasks();
-    } catch (error) {
-      console.error("Erro ao obter as informações da tarefa:", error);
-    }
-  }, [isAdm]);
-
-   useEffect(() => {
-    (async()=>{
-      await reqTasks();
-    })();
-   }, [isAdm]);
-
-  // AQUI TERMINA CARREGAMENTO DE DADOS (fetch/load)
-
-  // AQUI COMEÇA WEBSOCKET (mensagens, callbacks)
-  async function callbackOnMessage(event: any) {
-    return CallbackOnMessage(event, updateNotification, task, setTask, loadTasks, itemUp, reloadPageDeleteItem, reloadPageItem, setOpenCardDefault, getDescription);
-  }
-
-  function deleteItemTaskWS(object: any) {
-    return DeleteItemTaskWS(object, ws, userLog, task);
-  }
-
-  const closeCardDefaultGlobally = (taskId?: number) => {
-    return CloseCardDefaultGlobally(taskId, ws, userLog);
-  };
-
-  function infSenStates(taskLocal: any, result: any) {
-    return InfSenStates(taskLocal, result, task, setTask, ws, userLog);
-  }
-
-  function infSenCheckItem(taskLocal: any, result: any) {
-    return InfSenCheckItem(taskLocal, result, ws, userLog);
-  }
-
-  async function upTask(taskId: number,resource: string | null,date: string | null,taskList: any,message: string,type: number,object?: {}) {
-    return UpTask(taskId, resource, date, taskList, message, type, object, setLoading, ws, userLog, loadTasks);
-  }
-
-  async function checkedItem(id: number,checked: boolean,idTask: any,taskLocal: any,yes_no?: number) {
-    return CheckedItem(id, checked, idTask, taskLocal, fetchData, reloadPageChangeQuestion, reloadPagePercent, verifyChangeState, infSenCheckItem, setLoading, task, yes_no);
-  }
-
-  async function verifyChangeState(newState: number,oldState: number,taskLocal: any,result: any) {
-    return VerifyChangeState(newState, oldState, taskLocal, result,loadTasks,infSenStates);
-  }
-
-  async function checkTaskComShoDepSub(task_id: number, company_id: number, shop_id: number, depart_id: number, taskLocal: any) {
-    return CheckTaskComShoDepSub(task_id, company_id, shop_id, depart_id, taskLocal, setLoading, fetchData, ws, userLog);
-  }
-
-  async function handleAddTask(description: string, task_id: string, yes_no: number, file?: string) {
-    return HandleAddTask(description, task_id, yes_no, fetchData, taskDetails, ws, userLog, reloadPagePercent, setTaskDetails, task, verifyChangeState, setLoading, file);
-  }
-
-  async function changeDescription(description: string,id: number,descLocal: string) {
-    return ChangeDescription(description, id, descLocal, fetchData, ws, userLog, setLoading);
-  }
-
-  async function updateItemTaskFile(file: string, item_id?: number) {
-    return UpdateItemTaskFile(file, Number(item_id), fetchData, task)
-  }
-
-  async function changeObservedForm(taskId: number,subId: number,value: string,isObservation: boolean) {
-    return ChangeObservedForm(taskId, subId, value, isObservation, fetchData, getTaskInformations, ws, userLog, setLoading);
-  }
-
-  async function updateStateTask(taskId: number,resource: string | null,date: string | null) {
-    return UpdateStateTask(taskId, resource, date, fetchData, setLoading);
-
-  async function stopAndToBackTask(taskId: number,resource: string | null,date: string | null,taskList: any) {
-    return StopAndToBackTask(taskId, resource, date, taskList, updateStateTask, setTask, task, upTask, addDays, closeCardDefaultGlobally, handleNotification);/* pode ser aqui mesmo. */
-  }
-
-  async function updatedForQuestion(item: {task_id: number;id: number;yes_no: number;}){
-    return UpdatedForQuestion(item, setLoading, fetchData, taskDetails, itemUp, task, upTask);
-  }
 
   function addUserTask(element: any, type: number) {
-    return AddUserTask(element, type, userLog, ws);
+    const info: {
+      error: boolean;
+      user_id: number;
+      send_user_id: number;
+      object: {
+        description: string;
+        changeUser?: number;
+        task_id?: number;
+      };
+      task_id: number;
+      type: number
+    } = {
+      "error": false,
+      "user_id": element.user_id,
+      "send_user_id": userLog.id,
+      "object": {
+        "description": type === 5 ? `${element.name} foi vinculado a tarefa` : `${element.name} foi removido da tarefa`
+      },
+      "task_id": element.task_id,
+      "type": type
+    }
+    if (type === 5) info.object.changeUser = element.user_id;
+    if (type === 5) info.object.task_id = element.task_id;
+    ws.current.informSending(info);
   }
 
-  function reloadPagePercent(value: any, taskLocal: any) {
-    return ReloadPagePercent(value, taskLocal, task, setTaskPercent, getTask, setGetTask);
+  async function callbackOnMessage(event: any) {
+
+    let response = JSON.parse(event.data);
+
+    if (
+      response.error &&
+      response.message.includes("This user has been connected to another place")
+    ) {
+      handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
+      // setTimeout(() => {
+      //   navigate("/");
+      //   localStorage.removeItem("tokenGIPP");
+      //   localStorage.removeItem("codUserGIPP");
+      // }, 5000);
+    }
+    // Verifica se essa notificação não é de sua autoria. E se ela não deu falha!
+
+    if (!response.error && response.send_user_id != localStorage.codUserGIPP) {
+      updateNotification([response]); //2º a ser observado
+      if (response.type == -1 || response.type == 2 || response.type == 6) {
+        if (response.type == 6) {
+          await loadTasks();
+        } else if (response.object) {
+          if (response.type == 2) {
+            if (response.object.isItemUp) {
+              itemUp(response.object);
+            } else if (response.object.remove) {
+              reloadPageDeleteItem(response);
+            } else {
+              reloadPageItem(response.object);
+            }
+          }
+        }
+      } else
+        if (response.type == -3 || response.type == 5) {
+          //Se você estiver com os detalhes da tarefa aberta e for removido ele deverá ser fechado!
+          if (task.id == response.task_id && response.type == -3) {
+            setOpenCardDefault(false);
+          }
+
+          await loadTasks();
+        }
+    }
+
+    if (!response.error && response.type == 3) {
+      if (response.object) {
+        getDescription(response.object);
+      }
+    }
   }
 
-  function reloadPageChangeQuestion(yes_no: number, item_id: number) {
-    return ReloadPageChangeQuestion(yes_no, item_id, taskDetails);
-  }
+  const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) {
+      console.warn("Notificações não são suportadas neste navegador.");
+      return;
+    }
 
-  function reloadPageDeleteItem(value: any) {
-    return ReloadPageDeleteItem(value, taskDetails, setTaskDetails, reloadPagePercent);
-  }
+    if (Notification.permission === "granted") {
+      setOnSounds(true);
+    } else if (Notification.permission !== "denied") {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        setOnSounds(true);
+      }
+    }
+  };
 
-  function reloadPageItem(object: any) {
-    return ReloadPageItem(object, reloadPageAddItem, reloadPageUpNoteItem);
-  }
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
-  function reloadPageAddItem(object: any) {
-    return ReloadPageAddItem(object, taskDetails, setTaskDetails, reloadPagePercent);
-  }
 
-  function reloadPageUpNoteItem(object: any) {
-    return ReloadPageUpNoteItem(object, taskDetails, setTaskDetails);
-  }
+  async function updateNotification(item: any[]) {
+    try {
+      setLoading(true);
+      if (onSounds) {
+        const audio = new Audio(soundFile);
+        audio.play().catch((error) => {
+          console.error('Erro ao reproduzir o som:', error);
+        });
+      }
 
-  function itemUp(value: any) {
-    return ItemUp(value, taskDetails, setTaskDetails, reloadPagePercent);
+      const notify = new NotificationGTPP();
+      await notify.loadNotify(item, states);
+      notifications.push(...notify.list);
+      setNotifications([...notifications]);
+      setNotifications((prevNotifications) => [...prevNotifications, ...notify.list]);
+
+      handleNotification(notify.list[0]["title"], notify.list[0]["message"], notify.list[0]["typeNotify"]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   function getDescription(description: any) {
-    return GetDescription(description, taskDetails, setTaskDetails);
-
+    if (taskDetails.data) {
+      taskDetails.data.full_description = description.full_description;
+      setTaskDetails({ ...taskDetails });
+    }
   }
 
-  async function updateNotification(item: any[]) {
-    return UpdateNotification(item, setLoading, onSounds, soundFile, states, notifications, setNotifications, handleNotification); /* Pode ser aqui! */
+  async function checkedItem(
+    id: number,
+    checked: boolean,
+    idTask: any,
+    taskLocal: any,
+    yes_no?: number
+  ) {
+    try {
+      setLoading(true);
+
+      const item = yes_no ? { id: parseInt(id.toString()), task_id: idTask.toString(), yes_no: parseInt(yes_no.toString()) } : { check: checked, id: id, task_id: idTask }
+
+      let result: { error: boolean, data?: any, message?: string } = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" }) || { error: false };
+
+      if (result.error) throw new Error(result.message);
+      if (!yes_no) taskLocal.check = checked;
+      if (yes_no) reloadPageChangeQuestion(yes_no, id);
+
+      // Atualiza o percentual da tarafa na tela principal. 
+      reloadPagePercent(result.data, { task_id: idTask });
+
+      // Verifica se o checked realizado alterou o status da tarefa. Se sim ele envia um alerta!
+      await verifyChangeState(result.data.state_id, task.state_id, taskLocal, result.data);
+
+      //Informa que um item foi marcado.
+      infSenCheckItem(taskLocal, result.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
-  
-  function updateStates(newList: any[]) { return UpdateStates(newList, setStates); }
-  function createStorageState(list: iStates[]) { return CreateStorageState(list); }
-  function addDays(daysToAdd: number) { return AddDays(daysToAdd); }
-  function clearGtppWsContext() { return ClearGtppWsContext(setTask, setTaskDetails); }
-  const requestNotificationPermission = async () => { return await RequestNotificationPermission(setOnSounds);};
-  
+
+  async function verifyChangeState(newState: number, oldState: number, taskLocal: any, result: any) {
+    if (newState != oldState) {
+      await loadTasks();
+      infSenStates(taskLocal, result);
+    }
+  }
+
+  function infSenStates(taskLocal: any, result: any) {
+    task.state_id = result.state_id;
+    setTask({ ...task });
+    ws.current.informSending(classToJSON(new InformSending(false, userLog.id, taskLocal.task_id, 6, {
+      description: "Mudou para",
+      task_id: taskLocal.task_id,
+      percent: result.percent,
+      state_id: result.state_id,
+      task: task,
+    })));
+  }
+
+  function infSenCheckItem(taskLocal: any, result: any) {
+    ws.current.informSending(classToJSON(new InformSending(false, userLog.id, taskLocal.task_id, 2, {
+      description: taskLocal.check
+        ? "Um item foi marcado"
+        : "Um item foi desmarcado",
+      percent: result.percent,
+      itemUp: taskLocal,
+      isItemUp: true,
+    })));
+  }
+
+  async function checkTaskComShoDepSub(
+    task_id: number,
+    company_id: number,
+    shop_id: number,
+    depart_id: number,
+    taskLocal: any
+  ) {
+    setLoading(true);
+    try {
+      const connection = new Connection("18");
+      await connection.post(
+        {
+          task_id: task_id,
+          company_id: company_id,
+          shop_id: shop_id,
+          depart_id: depart_id,
+        },
+        "GTPP/TaskComShoDepSub.php"
+      );
+      ws.current.informSending({
+        error: false,
+        user_id: userLog.id,
+        object: {
+          description: "A descrição completa da tarefa foi atualizada",
+          task_id: task_id,
+          company_id: company_id,
+          shop_id: shop_id,
+          depart_id: depart_id,
+        },
+        task_id: taskLocal,
+        type: 2,
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleAddTask(
+    description: string,
+    task_id: string,
+    yes_no: number,
+    file?: string
+  ) {
+    setLoading(true);
+    try {
+      const response: any = await fetchData({
+        method: "POST", params: {
+          description: description,
+          file: file ? file : '',
+          task_id: task_id,
+          yes_no
+        }, pathFile: "GTPP/TaskItem.php"
+      });
+      if (response.error) throw new Error(response.message);
+
+      const item = {
+        "id": response.data.last_id,
+        "description": description,
+        "check": false,
+        "task_id": parseInt(task_id),
+        "order": response.data.order,
+        "yes_no": response.data.yes_no,
+        "file": file ? 1 : 0,
+        "note": null
+      };
+
+      if (taskDetails.data) {
+        Array.isArray(taskDetails.data?.task_item) ? taskDetails.data?.task_item.push(item) : taskDetails.data.task_item = [item];
+      }
+
+      ws.current.informSending({
+        user_id: userLog,
+        object: {
+          "description": "Novo item adicionado",
+          "percent": response.data.percent,
+          "itemUp": item,
+        },
+        task_id,
+        type: 2
+      });
+      setTaskDetails({ ...taskDetails });
+      reloadPagePercent(response.data, { task_id: task_id });
+
+      // Verifica se o checked realizado alterou o status da tarefa. Se sim ele envia um alerta!
+      if (task.state_id != response.data.state_id) {
+        await verifyChangeState(response.data.state_id, task.state_id, { task_id: task.id }, response.data);
+      }
+
+    } catch (error: any) {
+      console.error("Error adding task:" + error.message);
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Aqui podemos trabalhar de forma horizontal para atualizar a descrição da tarefa de ponta a ponta.
+  async function changeDescription(
+    description: string,
+    id: number,
+    descLocal: string
+  ) {
+    setLoading(true);
+    try {
+      const connection = new Connection("18");
+      await connection.put(
+        { id: id, full_description: description },
+        "GTPP/Task.php"
+      );
+      ws.current.informSending({
+        error: false,
+        user_id: userLog.id,
+        object: {
+          description: "A descrição completa da tarefa foi atualizada",
+          task_id: id,
+          full_description: description,
+        },
+        task_id: descLocal,
+        type: 3,
+      });
+    } catch (error) {
+      console.log("erro ao fazer o PUT em Task.php");
+    } finally {
+      setLoading(false);
+    }
+  }
+  async function updateItemTaskFile(file: string, item_id?: number) {
+    try {
+      if (item_id) {
+        const connection = new Connection("18");
+        const req: any = await connection.put({
+          "task_id": task.id,
+          "id": item_id,
+          "file": file
+        }, 'GTPP/TaskItem.php');
+        if (req.error) throw new Error();
+      }
+    } catch (error: any) {
+      console.error(error.message);
+    }
+  }
+
+  // AQUI VOU PRECISAR MONTAR UMA CONDICIONAL PARA MUDAR A DESCRIÇÃO E COLOCAR UMA OBSERVAÇÃO.
+  async function changeObservedForm(
+    taskId: number,
+    subId: number,
+    value: string,
+    isObservation: boolean,
+  ) {
+    setLoading(true);
+    try {
+      const item: any = {
+        id: subId,
+        task_id: taskId
+      };
+      item[isObservation ? 'note' : 'description'] = value;
+
+      const response: any = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" });
+
+      if (response.error) throw new Error(response.message);
+
+      await getTaskInformations();
+      ws.current.informSending({
+        error: false,
+        user_id: userLog.id,
+        object: item,
+        task_id: taskId,
+        type: 2,
+      });
+
+    } catch (error) {
+      console.error("Ocorreu um erro ao salvar a tarefa. Tente novamente."); // Notificação amigável ao usuário
+    } finally {
+      setLoading(false); // Finaliza o carregamento
+    }
+  }
+
+<<<<<<< HEAD
+  async function inviteImagePushed(
+    baseFileG4: string, 
+    taskId: number,
+    description: string
+  ) {
+    try {
+      const connection = new Connection("18", true);
+      const response = await connection.post({ 
+        file: baseFileG4, 
+        task_id: taskId, 
+        description: description 
+      },"GTPP/TaskItem.php");
+      console.log(response);
+    } catch (error: any) {
+      console.warn("Error sending image to the server: " + error.message);
+    }
+  }
+
+=======
+  async function upTask(taskId: number, resource: string | null, date: string | null, taskList: any, message: string, type: number, object?: {}) {
+    setLoading(true);
+    ws.current.informSending(
+      classToJSON(
+        new InformSending(false, userLog.id, taskId, type, object || { description: message, task_id: taskId, reason: resource, days: date, taskState: taskList.state_id })
+      )
+    );
+    await loadTasks();
+    setLoading(false);
+  }
+>>>>>>> f54b8b7366ea6c5f17889934a8f647a5664c1f15
+
+  async function updateStateTask(taskId: number, resource: string | null, date: string | null) {
+    setLoading(true);
+    const req: any = await fetchData({ method: "PUT", params: { task_id: taskId, reason: resource, days: parseInt(date ? date : "0") }, pathFile: "GTPP/TaskState.php" }) || { error: false };
+    setLoading(false);
+    const response = req.error ? {} : req.data instanceof Array ? req.data[0].id : req.data.id;
+    return response;
+  }
+  function addDays(daysToAdd: number) {
+    const date = new Date(); // Pega a data atual
+    date.setDate(date.getDate() + daysToAdd); // Adiciona os dias
+    return date.toISOString().split('T')[0]; // Retorna no formato "YYYY-MM-DD"
+  }
+  async function stopAndToBackTask(
+    taskId: number,
+    resource: string | null,
+    date: string | null,
+    taskList: any
+  ) {
+    try {
+      const taskState: any = await updateStateTask(taskId, resource, date);
+      if (!taskState || taskState.error) throw new Error(taskState.message || "Falha genérica")
+      if (taskList.state_id == 5) {
+        upTask(taskId, resource, date, taskList, `Tarefa que estava bloquado está de volta!`, 6, {
+          "description": "send",
+          "task_id": taskId,
+          "state_id": taskState.id,
+          "percent": taskList.percent,
+          "new_final_date": addDays(parseInt(date || "0"))
+        });
+      } else if (taskList.state_id == 4 || taskList.state_id == 6) {
+        upTask(taskId, resource, date, taskList, taskList.state_id == 4 ? `send` : 'send', 6, {
+          "description": "send",
+          "task_id": taskId,
+          "state_id": taskState.id
+        });
+      } else if (taskList.state_id == 1 || taskList.state_id == 2) {
+        upTask(taskId, resource, date, taskList, "A tarefa foi parada!", 6, {
+          "description": "send",
+          "task_id": taskId,
+          "state_id": taskState.id
+        });
+      } else if (taskList.state_id == 3) {
+        upTask(taskId, resource, date, taskList, "A tarefa finalizada!", 6, {
+          "description": "send",
+          "task_id": taskId,
+          "state_id": taskState.id,
+          "percent": taskList.percent,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async function updatedForQuestion(item: { task_id: number; id: number; yes_no: number }) {
+    try {
+      setLoading(true);
+      const req: any = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" });
+      if (req.error) throw new Error(req.message);
+      const newItem = taskDetails.data?.task_item.filter((element) => element.id == item.id);
+      if (!newItem) throw new Error("Falha ao recuperar a tarefa");
+      newItem[0].yes_no = item.yes_no;
+      itemUp({ itemUp: newItem[0], id: item.task_id, percent: task.percent });
+      await upTask(item.task_id, null, null, null, "Agora é um item comum", 2, {
+        "description": item.yes_no == 0 ? "Alterado para um item comum" : "Alterado para questão ",
+        "percent": task.percent,
+        "itemUp": {
+          ...newItem[0]
+        },
+        isItemUp: true
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+<<<<<<< HEAD
+=======
+  function deleteItemTaskWS(object: any) {
+    ws.current.informSending({
+      "user_id": userLog.id,
+      object,
+      "task_id": task.id,
+      "type": 2
+    });
+  }
+  // FUNÇÕES PARA ATUALIZAR AS INFORMAÇÕES DA PÁGINA:
+  function reloadPagePercent(value: any, taskLocal: any) {
+    if (task.id == taskLocal.task_id) {
+      setTaskPercent(parseInt(value.percent));
+      if (getTask.length > 0) {
+        getTask[getTask.findIndex(item => item.id == taskLocal.task_id)].percent = parseInt(value.percent);
+        setGetTask([...getTask]);
+      }
+    }
+  }
+
+  function reloadPageChangeQuestion(yes_no: number, item_id: number) {
+    if (taskDetails.data?.task_item) {
+      taskDetails.data.task_item[taskDetails.data?.task_item.findIndex(item => item.id == item_id)].yes_no = yes_no;
+    }
+  }
+
+  function reloadPageDeleteItem(value: any) {
+    const indexDelete: number | undefined = taskDetails.data?.task_item.findIndex(item => item.id == value.object.itemUp);
+    if (indexDelete != undefined && indexDelete >= 0) {
+      taskDetails.data?.task_item.splice(indexDelete, 1);
+      setTaskDetails({ ...taskDetails });
+    }
+    reloadPagePercent(value.object, value);
+  }
+
+  function reloadPageItem(object: any) {
+    if (object.itemUp) {
+      reloadPageAddItem(object);
+    } else {
+      reloadPageUpNoteItem(object)
+    }
+  }
+  function reloadPageAddItem(object: any) {
+    taskDetails.data?.task_item.push(object.itemUp);
+    setTaskDetails({ ...taskDetails });
+    reloadPagePercent(object, object.itemUp);
+  }
+
+  function reloadPageUpNoteItem(object: any) {
+    if (taskDetails.data) taskDetails.data.task_item[0].note = object.note;
+    setTaskDetails({ ...taskDetails });
+  }
+
+  function itemUp(value: any) {
+    taskDetails.data?.task_item.forEach((element, index) => {
+      if (taskDetails.data && element.id == value.itemUp.id)
+        taskDetails.data.task_item[index] = value.itemUp;
+    });
+
+    setTaskDetails({ ...taskDetails });
+    reloadPagePercent(value, value.itemUp);
+  }
+
+>>>>>>> f54b8b7366ea6c5f17889934a8f647a5664c1f15
+  function clearGtppWsContext() {
+    setTask({});
+    setTaskDetails({});
+  }
+
   return (
     <GtppWsContext.Provider
       value={{
@@ -254,7 +718,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         states,
         onSounds,
         getTask,
-        isAdm,
         openCardDefault,
         updateItemTaskFile,
         updatedForQuestion,
@@ -278,8 +741,8 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         checkTaskComShoDepSub,
         changeDescription,
         stopAndToBackTask,
-        setIsAdm,
-        changeObservedForm,
+        inviteImagePushed,
+        changeObservedForm
       }}
     >
       {children}

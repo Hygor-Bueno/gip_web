@@ -1,5 +1,5 @@
 let ws: WebSocket;
-
+let wsGtpp: WebSocket;
 
 interface NotifyMessage {
   objectType?: string;
@@ -12,7 +12,7 @@ interface NotifyMessage {
 export default class WebSocketCLPP {
   isConnected: boolean = false;
   tokens: any;
-  // sender: { id: string } = { id: '148' };
+  sender: { id: string } = { id: '148' };
   callbackOnMessage!: (notify: NotifyMessage) => Promise<void>;
 
   constructor(
@@ -25,7 +25,7 @@ export default class WebSocketCLPP {
 
   connectWebSocket(): void {
     try {
-      const localWs = new WebSocket(`${process.env.REACT_APP_API_GIPP_BASE_WS}:${process.env.REACT_APP_API_GIPP_PORT_SOCKET_DEFAULT}`);
+      const localWs = new WebSocket('ws://gigpp.com.br:9193');
       ws = localWs;
 
       localWs.onopen = () => {
@@ -45,7 +45,7 @@ export default class WebSocketCLPP {
       };
 
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   }
 
@@ -59,7 +59,7 @@ export default class WebSocketCLPP {
   }
 
   onError(ev: Event): void {
-    console.error(ev);
+    console.log(ev);
   }
 
   onClose(): void {

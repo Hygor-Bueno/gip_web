@@ -18,7 +18,6 @@ function MessageModal(props: {
       </div>
       <div className="w-100">
         {props.isInput && <input
-          min={0}
           type={props.typeInput || "text"}
           value={props.openClock.description}
           className="form-control"
