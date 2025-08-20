@@ -10,6 +10,11 @@
     width: 100%;
 }
 
+.bodyCard {
+    /* width: clamp(300px, 100%, calc(100% - 1250px)) !important;
+    height: clamp(400px, 100%, calc(100% - 1250px)) !important; */
+}
+
 .bodyCard button {
     margin: 0px !important;
     margin-top: 5px !important;
@@ -91,6 +96,7 @@
 .menu-task {
 
 }
+
 
 .menu-task {
     height: 100%;

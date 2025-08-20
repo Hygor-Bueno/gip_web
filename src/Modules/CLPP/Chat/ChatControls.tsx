@@ -38,6 +38,7 @@ export default function ChatControls() {
                 id="chatControlsInput"
                 className="mx-2 col-8 border rounded"
             />
+
             <AttachmentFile reset={file ? false : true} file={0} onClose={(value) => callBackAttachmentFile(value)} fullFiles={true} base64={file} />
         </div>
     );
@@ -87,7 +88,10 @@ export default function ChatControls() {
             type: type,
             date: captureTime()
         });
+
         ws.current.informSending(2, idReceived.toString(), req.last_id);
+        
+        
     }
 
     async function sendText() {
@@ -106,6 +110,7 @@ export default function ChatControls() {
             type: 1,
             date: captureTime()
         });
+
         ws.current.informSending(2, idReceived.toString(), req.last_id);
     }
 

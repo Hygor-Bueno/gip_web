@@ -20,12 +20,7 @@ const CardInfo: React.FC<ICardInfoProps> = ({ setData, setHiddenForm, visibility
     try {
       setLoading(true);
       const payload = { ...item, status_infractions: status };
-      await fetchData({
-        method: "PUT",
-        params: payload,
-        pathFile: "GAPP/Infraction.php",
-        urlComplement: "",
-      });
+      await fetchData({method:'PUT', params: payload, pathFile:"GAPP/Infraction.php", urlComplement:""});
       await resetDataStore?.();
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
@@ -86,7 +81,8 @@ const CardInfo: React.FC<ICardInfoProps> = ({ setData, setHiddenForm, visibility
                 loading={loading}
                 onRecycle={handleRecycle}
                 onDelete={handleDelete}
-                onEdit={handleEdit} />
+                onEdit={handleEdit}
+              />
             ) : (
               <div className="p-3 m-auto shadow-sm border_none background_whiteGray"role="alert">
                 <b className="text-muted font_size"> Não há dado {!visibilityTrash ? "na lixeira" : "para visualizar"} </b>

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { SelectFieldDefault } from "../../../../Components/CustomForm";
 import CheckboxList from "../CheckboxList/checkboxlist";
+import { Connection } from "../../../../Connection/Connection";
 import { useWebSocket } from "../../Context/GtppWsContext";
-import { useConnection } from "../../../../Context/ConnContext";
 
 interface SelectTaskItemProps {
   data?: {
@@ -26,8 +26,6 @@ const SelectTaskItem: React.FC<SelectTaskItemProps> = (props) => {
   const [captureDep, setCaptureDep] = useState<number | any>();
   const [openModal, setOpenModal] = useState(false);
 
-  const { fetchData } = useConnection();
-
 
   useEffect(() => {
     const fetchDepartmentData = async () => {
@@ -47,7 +45,8 @@ const SelectTaskItem: React.FC<SelectTaskItemProps> = (props) => {
     };
 
     function fastLoad(param: string, path: string) {
-      const req: any = fetchData({method: "GET", pathFile: path, params: null, urlComplement: param, exception: ["no data"]});
+      const connection = new Connection("18", true);
+      const req = connection.get(param, path);
       return req;
     }
 
@@ -56,7 +55,8 @@ const SelectTaskItem: React.FC<SelectTaskItemProps> = (props) => {
         if (taskDetails.data?.csds) {
           await fetchDepartmentData();
         } else {
-          const req: any = fetchData({method: "GET", pathFile: "CCPP/Company.php", params: null, urlComplement: "", exception: ["no data"]});
+          const connection = new Connection("18", true);
+          const req: any = await connection.get("", "CCPP/Company.php");
           setCompanyOptions(req.data || []);
         }
       }
@@ -65,11 +65,13 @@ const SelectTaskItem: React.FC<SelectTaskItemProps> = (props) => {
 
   //busca das lojas
   async function getStore(idCompany: number) {
-    const req: any = fetchData({method: "GET", pathFile: "CCPP/Shop.php", params: null, urlComplement: `&company_id=${idCompany}`, exception: ["no data"]});
+    const connection = new Connection("18");
+    const req: any = await connection.get(`&company_id=${idCompany}`, "CCPP/Shop.php");
     setShopOptions(req?.data || []);
   }
   async function getDepartament(idStore: number) {
-    const req: any = fetchData({method: "GET", pathFile: "CCPP/Department.php", params: null, urlComplement: `&shop_id=${idStore}`, exception: ["no data"]});
+    const connection = new Connection("18");
+    const req: any = await connection.get(`&shop_id=${idStore}`, "CCPP/Department.php");
     setDepartmentOptions(req?.data || []);
   }
 

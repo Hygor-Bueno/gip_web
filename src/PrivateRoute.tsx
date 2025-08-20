@@ -11,6 +11,9 @@ type Props = {
 
 export default function PrivateRoute({ children }: Props) {
     const { isLogged } = useConnection();
+    console.log("PrivateRoute isLogged:", isLogged);
+    console.log("Current pathname:", window.location.pathname);
+
     return isLogged ?
         <WebSocketProvider>
             <RenderPage>

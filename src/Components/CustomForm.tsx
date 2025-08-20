@@ -28,11 +28,11 @@ type CustomFormProps = React.FormHTMLAttributes<HTMLFormElement> & {
       classLabel?: string;
       mandatory?: boolean;
       captureValue:
-      | React.InputHTMLAttributes<HTMLInputElement>
-      | (React.SelectHTMLAttributes<HTMLSelectElement> & { options?: SelectOption[], type: string })
-      | React.TextareaHTMLAttributes<HTMLTextAreaElement>
-      | CaptureValueArray
-      | CaptureValueTuple;
+        | React.InputHTMLAttributes<HTMLInputElement>
+        | (React.SelectHTMLAttributes<HTMLSelectElement> & { options?: SelectOption[], type: string })
+        | React.TextareaHTMLAttributes<HTMLTextAreaElement>
+        | CaptureValueArray
+        | CaptureValueTuple;
     };
     legend?: {
       style?: string;
@@ -53,7 +53,7 @@ interface SelectOption {
 function CustomForm({ fieldsets, onAction, classRender, classButton, notButton = true, typeButton = 'submit', titleButton = "Login", ...formProps }: CustomFormProps) {
   return (
     <form {...formProps}>
-      {fieldsets.map((fieldset: any, fieldsetIndex: any) => (
+      {fieldsets.map((fieldset: any, fieldsetIndex:any) => (
         <fieldset key={fieldsetIndex} {...fieldset.attributes}>
           <legend className={fieldset.legend?.style}>{fieldset.legend?.text}</legend>
           <label>
@@ -65,17 +65,13 @@ function CustomForm({ fieldsets, onAction, classRender, classButton, notButton =
           {renderField(fieldset.item.captureValue)}
         </fieldset>
       ))}
-      {notButton &&
-        <div>
-          <button
-            onClick={onAction}
-            type={typeButton}
-            title="Execultar ação"
-            className={classButton ? classButton : "btn my-2 "}>
-            {titleButton}
-          </button>
-        </div>
-      }
+      {notButton && 
+      <button
+        onClick={onAction}
+        type={typeButton}
+        title="Execultar ação"
+        className={classButton ? classButton : "btn my-2 "}>
+        {titleButton}</button>}
     </form>
   );
 }

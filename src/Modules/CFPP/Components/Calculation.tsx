@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { convertForTable, fetchNodeDataFull, handleNotification } from "../../../Util/Util";
-import CustomTable from "../../../Components/CustomTable";
+import TableComponent from "../../../Components/CustomTable";
 import DetailsTimeRecords from "./DetailsTimesRecords";
 import { useCfppContext } from "../Context/CfppContex";
 
@@ -39,7 +39,7 @@ export default function Calculation() {
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/TR/payment`,
-                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
+                    port: "5000",
                 }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
                 if ('message' in reqPayment && reqPayment.error) throw new Error(reqPayment.message);
                 if (reqPayment.data) setPayments(reqPayment.data);
@@ -62,7 +62,7 @@ export default function Calculation() {
                 method: 'POST',
                 params: params,
                 pathFile: '/api/GIPP/POST/payments',
-                port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
+                port: "5000",
             }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
             if (data.error) throw new Error(data.message);
             setJourneyCode([]);
@@ -90,7 +90,7 @@ export default function Calculation() {
                         <div className="d-flex flex-column bg-white p-2 rounded col-10 h-75">
                             <h1>Deseja encerrar as marcações selecionadas? </h1>
                             <div className="flex-grow-1 overflow-auto">
-                                <CustomTable
+                                <TableComponent
                                     hiddenButton={true}
                                     list={
                                         convertForTable(
@@ -124,7 +124,7 @@ export default function Calculation() {
                 <h1>Página para calcular a Hora!</h1>
                 <div className="my-4 h-75">
                     {payments.length > 0 &&
-                        <CustomTable
+                        <TableComponent
                             list={convertForTable(payments, {
                                 customTags
                             })}

@@ -3,7 +3,7 @@ import { useMyContext } from '../../../Context/MainContext';
 import { useCfppContext } from '../Context/CfppContex';
 import { convertForTable, fetchNodeDataFull, handleNotification } from '../../../Util/Util';
 import CustomForm from '../../../Components/CustomForm';
-import CustomTable from '../../../Components/CustomTable';
+import TableComponent from '../../../Components/CustomTable';
 import { TUrl } from './TypesReportsCFPP';
 import { formReports } from './ConfigsReportsCFPP';
 
@@ -24,7 +24,7 @@ export default function ReportsCFPP(): JSX.Element {
                         method: 'GET',
                         params: null,
                         pathFile: `/api/GIPP/GET/CFS/status`,
-                        port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
+                        port: "5000",
                     }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
                     if ('message' in reqStatus && reqStatus.error) throw new Error(reqStatus.message);
                     if (reqStatus.data) setStatus(reqStatus.data.map(item => { return { label: item.name, value: item.id_status } }));
@@ -75,7 +75,7 @@ export default function ReportsCFPP(): JSX.Element {
                 <div className="w-100 overflow-auto">
                     {
                         list.length > 0 &&
-                        <CustomTable
+                        <TableComponent
                             maxSelection={1}
                             list={convertForTable(list, { ocultColumns: ['totalPages'] })}
                             onConfirmList={(items: any) => {
@@ -142,7 +142,7 @@ export default function ReportsCFPP(): JSX.Element {
                 method: 'GET',
                 params: null,
                 pathFile: `/api/GIPP/GET/TR/trfs`,
-                port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
+                port: "5000",
                 urlComplement: buildUrl(urlParam)
             }, { 'Content-Type': 'application/json', 'Accept-Encoding': 'gzip, compress, br', 'Authorization': `Bearer ${tokenCFPP}` });
             if ('message' in reqStatus && reqStatus.error) throw new Error(reqStatus.message);

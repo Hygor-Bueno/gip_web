@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./style.css";
-import AvatarGroup from "../Avatar/AvatarGroup/AvatarGroup";
+import AvatarGroup from "../Avatar/avatar";
 import { TaskItem } from "./Types";
 import HeaderModal from "./Header";
 import ProgressBar from "./Progressbar";
@@ -11,13 +11,15 @@ import { useWebSocket } from "../../Context/GtppWsContext";
 import MessageModal from "../ModalMessage/messagemodal";
 import ButtonIcon from "../Button/ButtonIcon/btnicon";
 import AttachmentFile from "../../../../Components/AttachmentFile";
-import "./style.css";
+import "./style.css"
+import { Connection } from "../../../../Connection/Connection";
 import { handleNotification } from "../../../../Util/Util";
 
 interface BodyDefaultProps {
   disabledForm?: boolean;
   renderList?: any;
   listSubTasks?: any;
+  taskListFiltered?: any;
   taskCheckReset?: any;
   getPercent?: any;
   reset?: any;
@@ -42,8 +44,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
   const [expand, setExpand] = useState<boolean>(false);
   const [attachmentFile, setAttachmentFile] = useState<string>('');
   const [isQuest, setIsQuest] = useState<number>(0);
-  const {taskDetails, task, stopAndToBackTask, handleAddTask, updateItemTaskFile, setOpenCardDefault} = useWebSocket();
-  const currentTask = task; // Use 'currentTask' para clareza
+  const { taskDetails,task, stopAndToBackTask, handleAddTask,updateItemTaskFile } = useWebSocket();
 
   const [ListTask, setListTask] = useState<ValueStateTask>({
     stopTask: false,
@@ -55,57 +56,44 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
     isQuastion: false,
     isAttachment: false,
   });
-
-  const buttonConfig:any = {
-    1: { color: "danger", icon: "power-off", description: "Parar tarefas" },
-    2: { color: "danger", icon: "power-off", description: "Parar tarefas" },
-    3: { color: "success", icon: "check", description: "Deseja finalizar a tarefa?" },
-    4: { color: "success", icon: "power-off", description: "Retomar tarefas" },
-    5: { color: "dark", icon: "clock", description: "Quantos dias precisa?" },
-    6: { color: "dark", icon: "arrow-left", description: "Deseja retomar a tarefa?" }
-  }
-
-  const currentButton = buttonConfig[currentTask.state_id];
-
   return (
     <div className="d-flex flex-column h-100 p-2">
       <div style={{ height: "10%" }} className="d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center">
           <AvatarGroup
-            dataTask={currentTask}
-            users={taskDetails.data ? taskDetails.data?.task_user : []} />
+            dataTask={props.taskListFiltered}
+            users={taskDetails.data ? taskDetails.data?.task_user : []}
+          />
         </div>
         <div className="">
           {ListTask.openModalQuastionTask ? (
             <MessageModal
               typeInput={
-                currentTask.state_id == 1 || currentTask.state_id == 2
+                props.taskListFiltered.state_id == 1 || props.taskListFiltered.state_id == 2
                   ? "text"
-                  : currentTask.state_id == 5
+                  : props.taskListFiltered.state_id == 5
                     ? "number"
                     : null
               }
               title={
-                currentTask.state_id == 1 || currentTask.state_id == 2
+                props.taskListFiltered.state_id == 1 || props.taskListFiltered.state_id == 2
                   ? "Alterar tarefa para o estado Parado (informe o motivo)?"
-                  : currentTask.state_id == 4
+                  : props.taskListFiltered.state_id == 4
                     ? "Por quê deseja reabrir a tarefa?"
-                    : currentTask.state_id == 3
+                    : props.taskListFiltered.state_id == 3
                       ? "Deseja finalizar essa tarefa?"
-                      : currentTask.state_id == 5
+                      : props.taskListFiltered.state_id == 5
                         ? "Insira o total de dias que você precisa."
-                        : currentTask.state_id == 6
+                        : props.taskListFiltered.state_id == 6
                           ? "Deseja mesmo retomar a tarefa?"
                           : null
               }
-              onChange={(e: any) => {
-                setListTask((prev) => {
-                  return ({
-                    ...prev,
-                    description: e.target.value,
-                  })
-                });
-              }}
+              onChange={(e: any) =>
+                setListTask((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
               onClose={() =>
                 setListTask((prev) => ({
                   ...prev,
@@ -113,23 +101,23 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                 }))
               }
               openClock={ListTask}
-              isInput={currentTask.state_id != 3}
+              isInput={props.taskListFiltered.state_id != 3}
               onClick={() => {
                 try {
-                  if (currentTask.state_id != 3 && ListTask.description == '') throw new Error("Preencha o campo obrigatório");
+                  if (props.taskListFiltered.state_id != 3 && ListTask.description == '') throw new Error("Preencha o campo obrigatório");
                   let object: { taskId: number, resource: string | null, date: string | null, taskList: any } = {
-                    taskId: currentTask?.id,
+                    taskId: props.taskListFiltered?.id,
                     resource: null,
                     date: null,
-                    taskList: currentTask
+                    taskList: props.taskListFiltered
                   };
 
-                  switch (currentTask.state_id) {
+                  switch (props.taskListFiltered.state_id) {
                     case 4:
                       object.resource = null;
                       object.date = null;
                       break;
-                    case 5: 
+                    case 5:
                       object.resource = "";
                       object.date = ListTask.description;
                       break;
@@ -138,12 +126,12 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                       object.date = null;
                       break;
                   }
-
                   stopAndToBackTask(object.taskId, object.resource, object.date, object.taskList);
                   setListTask((prev) => ({
                     ...prev,
                     openModalQuastionTask: !prev.openModalQuastionTask,
                   }));
+
                 } catch (error:any) {
                   handleNotification("Atenção!",error.message,"danger");
                 }
@@ -158,21 +146,47 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                   ...prev,
                   openModalQuastionTask: !prev.openModalQuastionTask,
                 }));
-              }}>
-              {currentButton && (
-                <ButtonIcon 
-                  color={currentButton.color}
-                  icon={currentButton.icon}
-                  description={currentButton.description}
+              }}
+            >
+              {props.taskListFiltered.state_id == 4 ? (
+                <ButtonIcon
+                  color="success"
+                  icon="power-off"
+                  description="Retomar tarefas"
                 />
-              )}
+              ) : props.taskListFiltered.state_id == 1 || props.taskListFiltered.state_id == 2 ? (
+                <ButtonIcon
+                  color="danger"
+                  icon="power-off"
+                  description="Parar tarefas"
+                />
+              ) : props.taskListFiltered.state_id == 5 ? (
+                <ButtonIcon
+                  color="dark"
+                  icon="clock"
+                  description="Quantos dias precisa?"
+                />
+              ) : props.taskListFiltered.state_id == 3 ? (
+                <ButtonIcon
+                  color="success"
+                  icon="check"
+                  description="Deseja finalizar a tarefa?"
+                />
+              ) : props.taskListFiltered.state_id == 6 ? (
+                <ButtonIcon
+                  color="dark"
+                  icon="arrow-left"
+                  description="Deseja retomar a tarefa?"
+                />
+              ) : null}
+
             </div>
           </div>
         </div>
       </div>
       <div style={{ height: "90%" }} className="d-flex flex-column justify-content-between">
         <FormTextAreaDefault
-          task={currentTask}
+          task={props.taskListFiltered}
           details={props?.details?.data}
           disabledForm={props.disabledForm}
         />
@@ -195,6 +209,26 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                 icon="tasks"
                 description="Tarefas"
               />
+              {/*
+                <ButtonIcon
+                  onClick={() => {
+                    setListTask((prev) => ({
+                      ...prev,
+                      isChat: !prev.isChat,
+                      isCompShopDep: false,
+                      isAttachment: false,
+                      isObservable: false,
+                      isQuastion: false,
+                    }));
+                    setValueTask(false);
+                  }}
+                  color="secondary"
+                  icon="message"
+                  description="Chat"
+                  <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                  <i class="fa-solid fa-down-left-and-up-right-to-center"></i>
+                /> 
+                */}
               <ButtonIcon
                 onClick={() => {
                   setListTask((prev) => ({
@@ -260,7 +294,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
           )}
           {!valueTask && (
             <div className={"col-md-12 d-flex flex-column justify-content-between"}>
-              <SelectTaskItem data={currentTask} />
+              <SelectTaskItem data={props.taskListFiltered} />
             </div>
           )}
         </div>
@@ -268,7 +302,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
     </div>
   );
   async function insertItemTask() {
-    await handleAddTask(valueNewTask, currentTask.id, isQuest, attachmentFile);
+    await handleAddTask(valueNewTask, props.taskListFiltered.id, isQuest, attachmentFile);
     setValueNewTask("");
     setAttachmentFile("");
     setIsQuest(0);
@@ -296,11 +330,16 @@ const ModalDefault: React.FC<TaskItem> = (props) => {
       }}>
 
         <section className="header-modal-default my-2">
-          <HeaderModal color="danger" description={task.description} taskParam={task} onClick={props.close_modal} />
+          <HeaderModal
+            color="danger"
+            description={task.description}
+            taskParam={task}
+            onClick={props.close_modal}
+          />
           <ProgressBar progressValue={taskPercent} colorBar="#006645" />
         </section>
         <section style={{ overflow: "auto", backgroundColor: 'white' }} className="d-felx body-modal-default flex-grow-1">
-          <BodyDefault message={seNotificationMessage} details={props.details} />
+          <BodyDefault message={seNotificationMessage} details={props.details} taskListFiltered={task || []} />
         </section>
       </div>
     </div>

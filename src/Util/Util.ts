@@ -1,11 +1,6 @@
-
 import { Store } from "react-notifications-component";
 import { iReqConn } from "../Interface/iConnection"
 import Translator from "./Translate";
-import { dataAllProd } from "../Modules/EPP/Interfaces/InterfacesEPP";
-
-export const IMAGE_WEBP_QUALITY = 0.4; // controla a qualidade das imagens com extensões webp.
-const baseURLSgpp = process.env.REACT_APP_API_SGPP_BASE_URL;
 
 export const convertdate = (date: string): string | null => {
     if (!date) return null;
@@ -18,8 +13,6 @@ export const convertdate = (date: string): string | null => {
     return parsedDate.toLocaleDateString('pt-BR');
 };
 
-export const getProductKey = (item: dataAllProd) => `${item.id_category}-${item.description}`;
-
 export const fetchCEPData = async (cep: string, loading: any) => {
     try {
         loading(true);
@@ -27,7 +20,8 @@ export const fetchCEPData = async (cep: string, loading: any) => {
         if (!response.ok) {
             const responseStatus = new Error(`CEP encontrado!`);
             handleNotification("Sucesso", responseStatus.message, "success");
-        }
+        } 
+        
         const data = await response.json();
         if (data.erro) {
             const responseStatus = new Error("CEP não encontrado.");
@@ -46,77 +40,40 @@ export const consultingCEP = async (cep: any, setData: any, loading: any) => {
         console.warn("CEP inválido. Deve conter 8 dígitos.");
         return;
     }
+
     try {
         const data = await fetchCEPData(cep, loading);
 
         setData((prevData: any) => ({
-            ...prevData,
-            street: data.logradouro || '',
-            district: data.bairro || '',
-            city: data.localidade || '',
-            state: data.uf || '',
+        ...prevData,
+        street: data.logradouro || '',
+        district: data.bairro || '',
+        city: data.localidade || '',
+        state: data.uf || '',
         }));
     } catch (error: any) {
         console.error("Erro ao consultar o CEP:", error.message || error);
     }
 };
-export function convertTime(date: string, omitTime: boolean = false): string {
-    let response = "";
-    try {
-        if (!date) throw new Error("Invalid date");
 
+export function convertTime(date: string) {
+    if (date && date != undefined) {
         let formatTime: Intl.DateTimeFormatOptions = {
             dateStyle: "short",
+            timeStyle: "short",
             hourCycle: "h23"
         };
-
-        if (!omitTime) {
-            formatTime.timeStyle = "short";
-        }
-
-        if (date.includes("T") && date.endsWith("Z")) {
-            formatTime.timeZone = 'UTC';
-        }
-
-        const localDate = new Date(date);
-        response = new Intl.DateTimeFormat("pt-BR", formatTime).format(localDate);
-    } catch (error) {
-        console.error("Erro ao formatar data:", error);
+        if (date.includes("T") && date.endsWith("Z")) formatTime.timeZone = 'UTC';
+        const localDate = new Date(`${date}`);
+        return new Intl.DateTimeFormat("pt-BR", formatTime).format(localDate);
     }
-
-    return response;
 }
-export function convertDate(date: string, omitTime: boolean = false): string {
-    let response = "";
-    try {
-        if (!date) throw new Error("Invalid date");
-
-        let formatTime: Intl.DateTimeFormatOptions = {
-            dateStyle: "short",
-            hourCycle: "h23",
-            timeZone: "UTC" // <- Isso força UTC
-        };
-
-        if (!omitTime) {
-            formatTime.timeStyle = "short";
-        }
-
-        const localDate = new Date(date);
-        response = new Intl.DateTimeFormat("pt-BR", formatTime).format(localDate);
-    } catch (error) {
-        console.error("Erro ao formatar data:", error);
-    }
-
-    return response;
-}
-
-
 
 export function captureTime(): string {
     const date = new Date();
 
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês é 0-based
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -126,28 +83,20 @@ export function captureTime(): string {
 export function getCurrentDate() {
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // +1 porque getMonth começa em 0
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
 
 
 
-// export function convertImage(src: any) {
-//     if (src != null) {
-//         var image = new Image();
-//         image.src = "data:image/jpeg;base64, " + src;
-//         return image.src;
-//     } else {
-//         return null;
-//     }
-// }
-
-export function convertImage(src: any): string {
+export function convertImage(src: any) {
     if (src != null) {
-        return "data:image/jpeg;base64, " + src;
+        var image = new Image();
+        image.src = "data:image/jpeg;base64, " + src;
+        return image.src;
     } else {
-        return '/path/to/default-user-icon.png';
+        return null;
     }
 }
 
@@ -200,9 +149,11 @@ export function isTokenExpired(expirationDate: string): boolean {
 export async function fetchNodeDataFull(req: iReqConn, headers?: Record<string, string>) {
     let result: { error: boolean, message?: string, data?: any } = { error: true, message: "Generic Error!" };
     try {
-        const URL = `${baseURLSgpp}:${req.port}${req.pathFile}${req.urlComplement ? req.urlComplement : ""}`;
+        const URL = `http://sgpp.pegpese.com:${req.port}${req.pathFile}${req.urlComplement ? req.urlComplement : ""}`;
         let objectReq: any = { method: req.method };
-        if (headers) objectReq.headers = headers;
+        if (headers) {
+            objectReq.headers = headers;
+        }
         if (req.params) objectReq.body = JSON.stringify(req.params);
         const response = await fetch(URL, objectReq);
         const body = await response.json();
@@ -245,10 +196,9 @@ function checkedExceptionError(message: string, exceptions?: string[]): boolean 
     return result;
 }
 function settingUrl(middlewer: string, params?: string, port?: string) {
-    const portGipp = process.env.REACT_APP_API_GIPP_PORT_SERVER_DEFAULT;
-    const baseURLGipp = process.env.REACT_APP_API_GIPP_BASE_URL;
-    const httpDefault = `${baseURLGipp}:${port || portGipp}`;
-    const server = `${httpDefault}`;
+    let httpDefault = `gigpp.com.br:${port ? port : '72/GLOBAL'}`;
+    let httpTest = `10.10.10.99:${port ? port : '71/GLOBAL'}`;
+    let server = `http://${httpTest}`;
     return server + middlewer + (params ? params : "");
 }
 
@@ -282,25 +232,25 @@ export function convertForTable<T extends Record<string, any>>(
         ocultColumns?: string[]; // Chaves que devem ser ocultadas
         minWidths?: Record<string, string>; // Larguras mínimas personalizadas para colunas
         customTags?: Record<string, string>; // Mapeamento de chaves para tags personalizadas
-        customValue?: Record<string, (value: any, row?: T) => string>;
     }
 ): TableItem[] {
     return array.map((item) => {
         const tableItem: TableItem = {};
+
         // Itera sobre as chaves do objeto
         for (const key in item) {
             if (Object.prototype.hasOwnProperty.call(item, key)) {
-                const rawValue = item[key];
-                const formatter = options?.customValue?.[key];
-                const formattedValue = formatter ? formatter(rawValue, item) : rawValue?.toString() || "";
-                const isImage = options?.isImageKeys?.includes(key);
-                const ocultColumn = options?.ocultColumns?.includes(key);
-                const minWidth = options?.minWidths?.[key] || "150px";
-                const tag = options?.customTags?.[key] || key;
+                const value = item[key]?.toString() || ""; // Converte o valor para string
+                const isImage = options?.isImageKeys?.includes(key); // Verifica se é uma imagem
+                const ocultColumn = options?.ocultColumns?.includes(key); // Verifica se a coluna deve ser oculta
+                const minWidth = options?.minWidths?.[key] || '150px'; // Largura mínima personalizada
+                const tag = options?.customTags?.[key] || key; // Usa a tag personalizada ou a chave como fallback
 
-                tableItem[key] = maskUserSeach(formattedValue, tag, isImage, ocultColumn, minWidth);
+                // Cria a coluna dinamicamente usando maskUserSeach
+                tableItem[key] = maskUserSeach(value, tag, isImage, ocultColumn, minWidth);
             }
         }
+
         return tableItem;
     });
 }
@@ -325,25 +275,6 @@ export function objectForString(
         }
     });
     return result.join(separator);
-}
-
-export async function loadLocalStorage(user: any) {
-    try {
-        const response = await fetchDataFull({
-            method: 'GET',
-            params: null,
-            pathFile: "CCPP/Employee.php",
-            urlComplement: `&id=${user.id}&all_data`,
-        });
-
-        if (response.error) throw new Error(response.message);
-
-        localStorage.setItem("num_store", response.data[0]?.number_shop ?? "");
-        localStorage.setItem("store", response.data[0]?.shop ?? "");
-
-    } catch (e: any) {
-        console.error(e.toString());
-    }
 }
 
 export function getFormattedDate(daysToSubtract?: number): string {
@@ -386,94 +317,25 @@ export function formatarMoedaPTBR(valor: string): string {
     });
 }
 
-export function formatDate(value: string): string {
-    const [year, month, day] = value.split("-");
-    return `${day}/${month}/${year}`;
-}
+type AllowedTypes ='numbers' | 'hasSpaces' | 'allnumber' | 'lettersWithSpaces' | 'alphanumeric' | 'alphanumericWithSpaces';
 
-export function maskPhone(value: string): string {
-    return value?.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
-}
-
-export function removeSpecialCharsAndNumbers(text: string): string {
-    return text.replace(/[^a-zA-Z\s]/g, ""); // Mantém apenas letras e espaços
-}
-
-export function removeStringSpecialChars(text: string): string {
-    return text.replace(/\D/g, '');
-}
-
-type AllowedTypes = 'numbers' | 'hasSpaces' | 'allnumber' | 'lettersWithSpaces' | 'alphanumeric' | 'alphanumericWithSpaces';
 export function validateWithRegexAndFormat(
-    type: AllowedTypes,
-    value: string
+  type: AllowedTypes,
+  value: string
 ): { isValid: boolean; formatted?: string | null } {
-    const regex = regexMenu()[type];
-    const isEmpty = /^\s*$/.test(value);
-    const isValid = isEmpty || regex.test(value);
-    return { isValid, formatted: isEmpty ? '' : undefined, };
+  const regex = regexMenu()[type];
+  const isEmpty = /^\s*$/.test(value);
+  const isValid = isEmpty || regex.test(value);
+  return { isValid, formatted: isEmpty ? '' : undefined,};
 }
 
 function regexMenu(): Record<AllowedTypes, RegExp> {
-    return {
-        numbers: /^\d+$/,
-        hasSpaces: /\s/,
-        allnumber: /^\d+$/,
-        lettersWithSpaces: /^[A-Za-zÀ-ÿ\s]+$/,
-        alphanumeric: /^[A-Za-z0-9]+$/,
-        alphanumericWithSpaces: /^[A-Za-z0-9\s]+$/,
-    };
-}
-
-/**
- * Formata um nome, deixando a primeira letra de cada palavra em maiúscula.
- * Exemplo: "joão da silva" → "João Da Silva"
- *
- * @param text - Texto que representa o nome a ser formatado
- * @returns Nome formatado com letras iniciais maiúsculas
- */
-export function maskName(text: string): string {
-    // Converte todo o texto para minúsculo, depois aplica uma expressão regular
-    // que identifica a primeira letra de cada palavra e a converte para maiúscula.
-    const result = text.toLowerCase().replace(/(^\w{1})|(\s+\w{1})/g, letra => letra.toUpperCase());
-    return result;
-}
-
-/**
- * Formata um valor numérico ou texto numérico no padrão monetário brasileiro (R$).
- * Exemplo: "1234.5" → "R$ 1.234,50"
- *
- * @param value - Valor que será convertido para o formato monetário BRL
- * @returns Valor formatado como moeda brasileira
- */
-export function maskMoney(value: string | number): string {
-    // Converte para número e formata com a localidade 'pt-BR' e moeda 'BRL'
-    return parseFloat(value.toString()).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-/**
- * Ordena um array de objetos JSON com base em uma chave específica.
- * 
- * @param list - Array de objetos JSON a ser ordenado.
- * @param key - Chave usada para ordenar os objetos.
- * @param ascending - Define se a ordenação será crescente (true) ou decrescente (false).
- * @returns Novo array ordenado com base na chave especificada.
- */
-export function sortListByKey<T>(
-    list: T[],
-    key: keyof T,
-    ascending: boolean = true
-): T[] {
-    return [...list].sort((a, b) => sortList(a, b, key, ascending));
-}
-
-function sortList<T>(a: T, b: T, key: keyof T, ascending: boolean): number {
-    const valueOne = String(a[key]).toLowerCase();
-    const valueTwo = String(b[key]).toLowerCase();
-    return (valueOne > valueTwo ? 1 : valueOne < valueTwo ? -1 : 0) * (ascending ? 1 : -1);
-}
-
-export function cleanLocalStorage() {
-    localStorage.removeItem("tokenGIPP");
-    localStorage.removeItem("codUserGIPP");
+  return {
+    numbers: /^\d+$/,
+    hasSpaces: /\s/,
+    allnumber: /^\d+$/,
+    lettersWithSpaces: /^[A-Za-zÀ-ÿ\s]+$/,
+    alphanumeric: /^[A-Za-z0-9]+$/,
+    alphanumericWithSpaces: /^[A-Za-z0-9\s]+$/,
+  };
 }

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { fetchDataFull } from "../Util/Util";
+import { fetchDataFull, handleNotification } from "../Util/Util";
 import { ConnectionContextProps, iReqConn } from "../Interface/iConnection";
 
 
@@ -19,7 +19,7 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             return request
     };
     return (
-        <ConnectionContext.Provider value={{ fetchData, isLogged, setIsLogged }} >
+        <ConnectionContext.Provider value={{ fetchData, isLogged, setIsLogged }}>
             {children}
         </ConnectionContext.Provider>
     );

@@ -44,7 +44,7 @@ export function CfppProvider({ children }: TypeCfppProvider) {
                 method: 'POST',
                 params: { session: localStorage.tokenGIPP },
                 pathFile: '/api/auth/login',
-                port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
+                port: "5000",
             }, { 'Content-Type': 'application/json' });
             if (data.error) throw new Error(data.message);
             sessionStorage.setItem("tokenCFPP", data?.data);
@@ -58,7 +58,7 @@ export function CfppProvider({ children }: TypeCfppProvider) {
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/BCC/branch`,
-                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
+                    port: "5000",
                 }, { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tokenCFPP || sessionStorage.tokenCFPP}` });
                 if ('message' in reqBranch && reqBranch.error) throw new Error(reqBranch.message);
                 reqBranch.data &&
@@ -79,7 +79,7 @@ export function CfppProvider({ children }: TypeCfppProvider) {
                     method: 'GET',
                     params: null,
                     pathFile: `/api/GIPP/GET/BCC/costCenter`,
-                    port: process.env.REACT_APP_API_GIPP_PORT_SERVER_SECONDARY,
+                    port: "5000",
                 }, { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tokenCFPP || sessionStorage.tokenCFPP}` });
                 if ('message' in reqCostCenter && reqCostCenter.error) throw new Error(reqCostCenter.message);
                 reqCostCenter.data &&

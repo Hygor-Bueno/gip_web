@@ -23,6 +23,7 @@ const CardSearch: React.FC<CardSearchProps> = ({ items, loading, onEdit, onDelet
     const [selectedGravitity, setSelectedGravitity] = useState("");
     const [selectedPoints, setSelectedPoints] = useState("");
 
+    // Filter for search by infraction name.
     const filteredItems = useMemo(() => {
         return items.filter((item) => {
             const matchInfraction = item.infraction?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -32,11 +33,13 @@ const CardSearch: React.FC<CardSearchProps> = ({ items, loading, onEdit, onDelet
         });
     }, [items, searchTerm, selectedGravitity, selectedPoints]);
 
+    // Filter for search by gravity name.
     const uniqueGravities = useMemo(() => {
         const gravities = items.map((item) => item.gravitity);
         return Array.from(new Set(gravities));
     }, [items]);
 
+    // Filter for search by point number.
     const uniquePoints = useMemo(() => {
         const points = items.map((item) => item.points);
         return Array.from(new Set(points)).sort((a, b) => a - b);
@@ -77,19 +80,23 @@ const CardSearch: React.FC<CardSearchProps> = ({ items, loading, onEdit, onDelet
             <div className="container">
                 <div className="row">
                     {filteredItems.length > 0 ? (
-                        filteredItems.slice().reverse().map((item: any, index: any) => (
-                            <GenericCardItem<InfractionItem>
-                                key={`card_${index}`}
-                                item={item}
-                                fields={restFields}
-                                loading={loading}
-                                onEdit={onEdit}
-                                onDelete={onDelete}
-                                onRecycle={onRecycle}
-                                showEdit={item.status_infractions === 1}
-                                showDelete={item.status_infractions === 1}
-                                showRecycle={item.status_infractions === 0}/>
-                            ))) : (
+                        filteredItems
+                            .slice()
+                            .reverse()
+                            .map((item: any, index: any) => (
+                                <GenericCardItem<InfractionItem>
+                                    key={`card_${index}`}
+                                    item={item}
+                                    fields={restFields}
+                                    loading={loading}
+                                    onEdit={onEdit}
+                                    onDelete={onDelete}
+                                    onRecycle={onRecycle}
+                                    showEdit={item.status_infractions === 1}
+                                    showDelete={item.status_infractions === 1}
+                                    showRecycle={item.status_infractions === 0}/>
+                            ))
+                    ) : (
                         <div className="p-3 m-auto shadow-sm border_none background_whiteGray" role="alert">
                             <b className="text-muted font_size">Nenhum resultado encontrado</b>
                         </div>

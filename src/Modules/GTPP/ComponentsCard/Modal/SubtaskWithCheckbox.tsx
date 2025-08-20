@@ -4,6 +4,8 @@ import { SubTasksWithCheckboxProps } from "./Types";
 import { useWebSocket } from "../../Context/GtppWsContext";
 import ButtonIcon from "../Button/ButtonIcon/btnicon";
 import AnexoImage from "../../../../Components/AttachmentFile";
+import ConfirmModal from "../../../../Components/CustomConfirm";
+import { Connection } from "../../../../Connection/Connection";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import ModalEditTask from "./ModalEditTask";
@@ -18,18 +20,7 @@ interface iSubTask {
 }
 
 const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
-  const { 
-    checkedItem,
-    changeObservedForm,
-    task, 
-    taskDetails, 
-    setTaskDetails, 
-    reloadPagePercent, 
-    deleteItemTaskWS, 
-    updatedForQuestion, 
-    updateItemTaskFile 
-  } = useWebSocket();
-  
+  const { checkedItem, changeObservedForm, task, taskDetails, setTaskDetails, reloadPagePercent, deleteItemTaskWS, updatedForQuestion, updateItemTaskFile } = useWebSocket();
   const { setLoading } = useMyContext();
   const { fetchData } = useConnection();
   const [editTask, setEditTask] = useState<any>("");
@@ -133,8 +124,10 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
     }
   }
   async function updatePositionTaskItem(item: { id: number, next_or_previous: "next" | "previous" }) {
+    const connection = new Connection("18");
     const value: { task_id: number, id: number, next_or_previous: "next" | "previous" } = { task_id: task.id, id: item.id, next_or_previous: item.next_or_previous };
-    await fetchData({method: "PUT", params: value, pathFile: "GTPP/TaskItem.php", exception: ["no data"], urlComplement: ""});
+    const req = await connection.put(value, 'GTPP/TaskItem.php');
+    console.log(req);
   }
 
   return (

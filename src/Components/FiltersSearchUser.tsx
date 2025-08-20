@@ -4,7 +4,7 @@ import CustomForm from "./CustomForm"
 import { useConnection } from "../Context/ConnContext";
 import { useMyContext } from "../Context/MainContext";
 
-export default function FiltersSearchUser(props: { onAction: (value: string) => void,callBack?:boolean }) {
+export default function FiltersSearchUser(props: { onAction: (value: string) => void }) {
     const [company, setCompany] = useState<any[]>([]);
     const [store, setStore] = useState<any[]>([]);
     const [departament, setDepartament] = useState<any[]>([]);
@@ -76,9 +76,8 @@ export default function FiltersSearchUser(props: { onAction: (value: string) => 
     }
     function changeSelecteds(value: number, key: "pCompanyId" | "pShopId" | "pDepartmentId" | "pSubDepartmentId") {
         const newValue = selecteds;
-        newValue[key] = isNaN(value) ? undefined : value;
+        newValue[key] = isNaN(value) ? undefined : value;;
         setSelecteds(newValue);
-        if(props.callBack) props.onAction(buildQueryString(newValue)); //props.onAction();
     }
     async function loadSubdepartament(idDepartament: number) {
         try {

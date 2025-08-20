@@ -6,7 +6,7 @@ import autoTable from 'jspdf-autotable'; // Importe o autoTable diretamente
 
 const defaultImage = require('../Assets/Image/groupCLPP.png');
 
-interface CustomTableProps {
+interface TableComponentProps {
   list: tItemTable[];
   onConfirmList: (selected: tItemTable[]) => void;
   selectedItems?: tItemTable[];
@@ -16,12 +16,12 @@ interface CustomTableProps {
   hiddenButton?: boolean;
 }
 
-export default function CustomTable(props: CustomTableProps) {
+export default function TableComponent(props: TableComponentProps) {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: string } | null>(null);
   const [filters, setFilters] = useState<{ [key: string]: string }>({});
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<tItemTable[]>(props.selectedItems || []);
-
+  
   // Função para verificar se uma linha deve ser selecionada
   const isRowSelected = (row: tItemTable): boolean => {
     if (!props.selectionList || !props.selectionKey || !row[props.selectionKey]) return false;
@@ -108,17 +108,10 @@ export default function CustomTable(props: CustomTableProps) {
   const sortedItemTable = [...props.list].sort((a, b) => {
     if (!sortConfig) return 0;
     const { key, direction } = sortConfig;
-    const rawA = a[key]?.value ?? "";
-    const rawB = b[key]?.value ?? "";
-
-    const valueA = isNaN(Number(rawA)) ? rawA.toLowerCase() : Number(rawA);
-    const valueB = isNaN(Number(rawB)) ? rawB.toLowerCase() : Number(rawB);
-
-    if (valueA < valueB) return direction === "asc" ? -1 : 1;
-    if (valueA > valueB) return direction === "asc" ? 1 : -1;
-    return 0;
+    const valueA = a[key]?.value?.toLowerCase() || ""; // Verificação de segurança
+    const valueB = b[key]?.value?.toLowerCase() || ""; // Verificação de segurança
+    return direction === "asc" ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
   });
-
 
   const filteredItemsTable = sortedItemTable.filter((item) =>
     Object.keys(filters).every((key) =>
@@ -160,8 +153,8 @@ export default function CustomTable(props: CustomTableProps) {
     );
   };
 
-  function setSelectedAllRows() {
-    setSelectedRows([...props.list]);
+  function setSelectedAllRows(){
+    setSelectedRows([...props.list]); 
   }
 
   return (
@@ -220,7 +213,7 @@ export default function CustomTable(props: CustomTableProps) {
           {
             !props.maxSelection && <button title={"Selecionar todo o conteúdo da tabela"} className="btn btn-primary mt-3 w-25" onClick={() => { setSelectedAllRows(); }}> Selecionar tudo</button>
           }
-
+          
           <button title="Limpar seleção atual" className="btn btn-secondary text-white mt-3 w-25" onClick={() => setSelectedRows([])}>
             Limpar Seleção
           </button>

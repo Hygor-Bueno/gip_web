@@ -4,6 +4,7 @@ import CustomForm from "./CustomForm";
 import { useMyContext } from "../Context/MainContext";
 import { handleNotification } from "../Util/Util";
 import { useConnection } from "../Context/ConnContext";
+import { Connection } from "../Connection/Connection";
 
 export default function DefaultPassword(props: {
     open: boolean,
