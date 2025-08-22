@@ -12,11 +12,11 @@ const FormTextAreaDefault: React.FC<FormTextAreaDefaultProps> = ({
   rows = 5,
   cols = 10,
   task,
-  details
+  details,
 }) => {
-  const [isOpenButton, setIsOpenButton] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [valueChange, setValueChange] = useState<string>("");
-  const {changeDescription} = useWebSocket();
+  const { changeDescription } = useWebSocket();
 
   useEffect(() => {
     setValueChange(details?.full_description || "");
@@ -28,27 +28,37 @@ const FormTextAreaDefault: React.FC<FormTextAreaDefaultProps> = ({
     if (onChange) onChange(newValue);
   };
 
+  const handleToggleEdit = () => {
+    if (isEditing) {
+      const trimmedCurrent = (details?.full_description || "").trim();
+      const trimmedNew = valueChange.trim();
+
+      if (trimmedNew !== trimmedCurrent) {
+        changeDescription(trimmedNew, task.id, task.id);
+      }
+    }
+
+    setIsEditing(!isEditing);
+  };
+
   return (
     <div className="d-flex align-items-end flex-column position-relative h-25">
       <textarea
-        style={{ resize: "none",margin:"0px",padding:"0px" }}
+        style={{ resize: "none", margin: "0px", padding: "0px" }}
         onChange={handleTextChange}
-        disabled={disabledForm || !isOpenButton}
+        disabled={disabledForm || !isEditing}
         value={valueChange}
-        className={`${textAreaClasses}`}
+        className={textAreaClasses}
         cols={cols}
         rows={rows}
         aria-label="Descrição da tarefa"
       />
       <button
-        onClick={() => {
-          changeDescription(valueChange, task.id, task.id);
-          setIsOpenButton((prev) => !prev);
-        }}
-        className={`${buttonClasses} position-absolute`} 
-        aria-label={isOpenButton ? buttonTextOpen : buttonTextClosed}
+        onClick={handleToggleEdit}
+        className={`${buttonClasses} position-absolute`}
+        aria-label={isEditing ? buttonTextOpen : buttonTextClosed}
       >
-        <i className={`fa fa-pencil text-${isOpenButton ? "success" : "secundary"}`}></i>
+        <i className={`fa fa-pencil text-${isEditing ? "success" : "secondary"}`}></i>
       </button>
     </div>
   );

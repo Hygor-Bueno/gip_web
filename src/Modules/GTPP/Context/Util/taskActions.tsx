@@ -71,6 +71,7 @@ export async function CheckTaskComShoDepSub(
   userLog: any
 ) {
   setLoading(true);
+  console.log("teste");
   try {
     await fetchData({
       method: "POST",
@@ -173,25 +174,30 @@ export async function ChangeDescription(
   userLog: any,
   setLoading: any
 ) {
-  setLoading(true);
+  const response: any = await fetchData({
+    method: "GET",
+    params: "",
+    pathFile: "GTPP/Task.php",
+    urlComplement: ""
+  });
+  // procurar onde o texarear é desabilitado.
+  const task = response.data.find((element: any) => element.id === id);
   try {
-    await fetchData({
-      method: "PUT",
-      pathFile: "GTPP/Task.php",
-      exception: ["no data"],
-      params: { id, full_description: description },
-    });
-    ws.current.informSending({
-      error: false,
-      user_id: userLog.id,
-      object: {
-        description: "A descrição completa da tarefa foi atualizada",
-        task_id: id,
-        full_description: description,
-      },
-      task_id: descLocal,
-      type: 3,
-    });
+    if(task.description.length > 0) {
+      setLoading(true);
+      await fetchData ({method: "PUT", pathFile: "GTPP/Task.php", exception: ["no data"], params: { id, full_description: description }});
+      ws.current.informSending({
+        error: false,
+        user_id: userLog.id,
+        object: {
+          description: "A descrição completa da tarefa foi atualizada",
+          task_id: id,
+          full_description: description,
+        },
+        task_id: descLocal,
+        type: 3,
+      });
+    }
   } catch (error) {
     console.error("erro ao fazer o PUT em Task.php");
   } finally {

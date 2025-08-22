@@ -1,4 +1,11 @@
-import React, {createContext,useCallback,useContext,useEffect,useRef,useState} from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useMyContext } from "../../../Context/MainContext";
 import { useConnection } from "../../../Context/ConnContext";
 import GtppWebSocket from "./GtppWebSocket";
@@ -11,11 +18,46 @@ import {
 
 import soundFile from "../../../Assets/Sounds/notify.mp3";
 import { GetStateformations, GetTaskInformations } from "./Util/LoadingTasks";
-import { CallbackOnMessage, CloseCardDefaultGlobally, DeleteItemTaskWS, InfSenCheckItem, InfSenStates, UpTask } from "./Util/webSocketHandlers";
-import { AddUserTask, ChangeDescription, ChangeObservedForm, CheckedItem, CheckTaskComShoDepSub, HandleAddTask, StopAndToBackTask, UpdatedForQuestion, UpdateItemTaskFile, UpdateStateTask, VerifyChangeState } from "./Util/taskActions";
-import { GetDescription, ItemUp, ReloadPageAddItem, ReloadPageChangeQuestion, ReloadPageDeleteItem, ReloadPageItem, ReloadPagePercent, ReloadPageUpNoteItem, UpdateNotification } from "./Util/loadingUI";
-import { AddDays, ClearGtppWsContext, CreateStorageState, RequestNotificationPermission, UpdateStates } from "./Util/util";
+import {
+  CallbackOnMessage,
+  CloseCardDefaultGlobally,
+  DeleteItemTaskWS,
+  InfSenCheckItem,
+  InfSenStates,
+  UpTask,
+} from "./Util/webSocketHandlers";
+import {
+  AddUserTask,
+  ChangeDescription,
+  ChangeObservedForm,
+  CheckedItem,
+  HandleAddTask,
+  StopAndToBackTask,
+  UpdatedForQuestion,
+  UpdateItemTaskFile,
+  UpdateStateTask,
+  VerifyChangeState,
+} from "./Util/taskActions";
+import {
+  GetDescription,
+  ItemUp,
+  ReloadPageAddItem,
+  ReloadPageChangeQuestion,
+  ReloadPageDeleteItem,
+  ReloadPageItem,
+  ReloadPagePercent,
+  ReloadPageUpNoteItem,
+  UpdateNotification,
+} from "./Util/loadingUI";
+import {
+  AddDays,
+  ClearGtppWsContext,
+  CreateStorageState,
+  RequestNotificationPermission,
+  UpdateStates,
+} from "./Util/util";
 import { handleNotification } from "../../../Util/Util";
+import { error } from "console";
 
 const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 
@@ -29,7 +71,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [openCardDefault, setOpenCardDefault] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const [getTask, setGetTask] = useState<any[]>([]);
-  const [states, setStates] = useState<iStates[]>([{ color: "", description: "", id: 0 }]);
+  const [states, setStates] = useState<iStates[]>([
+    { color: "", description: "", id: 0 },
+  ]);
   const [isAdm, setIsAdm] = useState<any>(false);
   const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
   const { setLoading } = useMyContext();
@@ -37,7 +81,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   const { userLog } = useMyContext();
 
   const ws = useRef(new GtppWebSocket());
-  
+
   useEffect(() => {
     ws.current.connect();
 
@@ -88,8 +132,8 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     requestNotificationPermission();
   }, []);
-    
-  async function reqTasks(){
+
+  async function reqTasks() {
     try {
       setLoading(true);
       const getTask: any = await fetchData({
@@ -106,35 +150,55 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       setLoading(false);
     }
   }
-  
 
   const getTaskInformations = useCallback(async () => {
-    return GetTaskInformations(setLoading, fetchData, setTaskDetails, task ?? undefined);
+    return GetTaskInformations(
+      setLoading,
+      fetchData,
+      setTaskDetails,
+      task ?? undefined
+    );
   }, [fetchData, setLoading, task]);
 
   const getStateformations = useCallback(async () => {
-    return GetStateformations(setLoading, fetchData, createStorageState, updateStates);
+    return GetStateformations(
+      setLoading,
+      fetchData,
+      createStorageState,
+      updateStates
+    );
   }, [fetchData, setLoading, createStorageState, updateStates]);
 
-  const loadTasks = useCallback(async () => {
+  const loadTasks = async () => {
     try {
       await reqTasks();
     } catch (error) {
       console.error("Erro ao obter as informações da tarefa:", error);
     }
-  }, [isAdm]);
+  };
 
-   useEffect(() => {
-    (async()=>{
+  useEffect(() => {
+    (async () => {
       await reqTasks();
     })();
-   }, [isAdm]);
+  }, [isAdm]);
 
   // AQUI TERMINA CARREGAMENTO DE DADOS (fetch/load)
 
   // AQUI COMEÇA WEBSOCKET (mensagens, callbacks)
   async function callbackOnMessage(event: any) {
-    return CallbackOnMessage(event, updateNotification, task, setTask, loadTasks, itemUp, reloadPageDeleteItem, reloadPageItem, setOpenCardDefault, getDescription);
+    return CallbackOnMessage(
+      event,
+      updateNotification,
+      task,
+      setTask,
+      loadTasks,
+      itemUp,
+      reloadPageDeleteItem,
+      reloadPageItem,
+      setOpenCardDefault,
+      getDescription
+    );
   }
 
   function deleteItemTaskWS(object: any) {
@@ -153,48 +217,212 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     return InfSenCheckItem(taskLocal, result, ws, userLog);
   }
 
-  async function upTask(taskId: number,resource: string | null,date: string | null,taskList: any,message: string,type: number,object?: {}) {
-    return UpTask(taskId, resource, date, taskList, message, type, object, setLoading, ws, userLog, loadTasks);
+  async function upTask(
+    taskId: number,
+    resource: string | null,
+    date: string | null,
+    taskList: any,
+    message: string,
+    type: number,
+    object?: {}
+  ) {
+    return UpTask(
+      taskId,
+      resource,
+      date,
+      taskList,
+      message,
+      type,
+      object,
+      setLoading,
+      ws,
+      userLog,
+      loadTasks
+    );
   }
 
-  async function checkedItem(id: number,checked: boolean,idTask: any,taskLocal: any,yes_no?: number) {
-    return CheckedItem(id, checked, idTask, taskLocal, fetchData, reloadPageChangeQuestion, reloadPagePercent, verifyChangeState, infSenCheckItem, setLoading, task, yes_no);
+  async function checkedItem(
+    id: number,
+    checked: boolean,
+    idTask: any,
+    taskLocal: any,
+    yes_no?: number
+  ) {
+    return CheckedItem(
+      id,
+      checked,
+      idTask,
+      taskLocal,
+      fetchData,
+      reloadPageChangeQuestion,
+      reloadPagePercent,
+      verifyChangeState,
+      infSenCheckItem,
+      setLoading,
+      task,
+      yes_no
+    );
   }
 
-  async function verifyChangeState(newState: number,oldState: number,taskLocal: any,result: any) {
-    return VerifyChangeState(newState, oldState, taskLocal, result,loadTasks,infSenStates);
+  async function verifyChangeState(
+    newState: number,
+    oldState: number,
+    taskLocal: any,
+    result: any
+  ) {
+    return VerifyChangeState(
+      newState,
+      oldState,
+      taskLocal,
+      result,
+      loadTasks,
+      infSenStates
+    );
   }
 
-  async function checkTaskComShoDepSub(task_id: number, company_id: number, shop_id: number, depart_id: number, taskLocal: any) {
-    return CheckTaskComShoDepSub(task_id, company_id, shop_id, depart_id, taskLocal, setLoading, fetchData, ws, userLog);
+  async function checkTaskComShoDepSub(
+    task_id: number,
+    company_id: number,
+    shop_id: number,
+    depart_id: number,
+    taskLocal: any
+  ) {
+    setLoading(true);
+    let req = { error: false, message: "" };
+    try {
+      req = await fetchData({
+        method: "POST",
+        urlComplement: "",
+        pathFile: "GTPP/TaskComShoDepSub.php",
+        exception: ["no data"],
+        params: { task_id, company_id, shop_id, depart_id },
+      });
+      ws.current.informSending({
+        error: false,
+        user_id: userLog.id,
+        object: {
+          description: "A descrição completa da tarefa foi atualizada",
+          task_id,
+          company_id,
+          shop_id,
+          depart_id,
+        },
+        task_id: taskLocal,
+        type: 2,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+      return req;
+    }
   }
 
-  async function handleAddTask(description: string, task_id: string, yes_no: number, file?: string) {
-    return HandleAddTask(description, task_id, yes_no, fetchData, taskDetails, ws, userLog, reloadPagePercent, setTaskDetails, task, verifyChangeState, setLoading, file);
+  async function handleAddTask(
+    description: string,
+    task_id: string,
+    yes_no: number,
+    file?: string
+  ) {
+    return HandleAddTask(
+      description,
+      task_id,
+      yes_no,
+      fetchData,
+      taskDetails,
+      ws,
+      userLog,
+      reloadPagePercent,
+      setTaskDetails,
+      task,
+      verifyChangeState,
+      setLoading,
+      file
+    );
   }
 
-  async function changeDescription(description: string,id: number,descLocal: string) {
-    return ChangeDescription(description, id, descLocal, fetchData, ws, userLog, setLoading);
+  async function changeDescription(
+    description: string,
+    id: number,
+    descLocal: string
+  ) {
+    return ChangeDescription(
+      description,
+      id,
+      descLocal,
+      fetchData,
+      ws,
+      userLog,
+      setLoading
+    );
   }
 
   async function updateItemTaskFile(file: string, item_id?: number) {
-    return UpdateItemTaskFile(file, Number(item_id), fetchData, task)
+    return UpdateItemTaskFile(file, Number(item_id), fetchData, task);
   }
 
-  async function changeObservedForm(taskId: number,subId: number,value: string,isObservation: boolean) {
-    return ChangeObservedForm(taskId, subId, value, isObservation, fetchData, getTaskInformations, ws, userLog, setLoading);
+  async function changeObservedForm(
+    taskId: number,
+    subId: number,
+    value: string,
+    isObservation: boolean
+  ) {
+    return ChangeObservedForm(
+      taskId,
+      subId,
+      value,
+      isObservation,
+      fetchData,
+      getTaskInformations,
+      ws,
+      userLog,
+      setLoading
+    );
   }
 
-  async function updateStateTask(taskId: number,resource: string | null,date: string | null) {
+  async function updateStateTask(
+    taskId: number,
+    resource: string | null,
+    date: string | null
+  ) {
     return UpdateStateTask(taskId, resource, date, fetchData, setLoading);
   }
 
-  async function stopAndToBackTask(taskId: number,resource: string | null,date: string | null,taskList: any) {
-    return StopAndToBackTask(taskId, resource, date, taskList, updateStateTask, setTask, task, upTask, addDays, closeCardDefaultGlobally, handleNotification);/* pode ser aqui mesmo. */
+  async function stopAndToBackTask(
+    taskId: number,
+    resource: string | null,
+    date: string | null,
+    taskList: any
+  ) {
+    return StopAndToBackTask(
+      taskId,
+      resource,
+      date,
+      taskList,
+      updateStateTask,
+      setTask,
+      task,
+      upTask,
+      addDays,
+      closeCardDefaultGlobally,
+      handleNotification
+    ); /* pode ser aqui mesmo. */
   }
 
-  async function updatedForQuestion(item: {task_id: number;id: number;yes_no: number;}){
-    return UpdatedForQuestion(item, setLoading, fetchData, taskDetails, itemUp, task, upTask);
+  async function updatedForQuestion(item: {
+    task_id: number;
+    id: number;
+    yes_no: number;
+  }) {
+    return UpdatedForQuestion(
+      item,
+      setLoading,
+      fetchData,
+      taskDetails,
+      itemUp,
+      task,
+      upTask
+    );
   }
 
   function addUserTask(element: any, type: number) {
@@ -202,7 +430,14 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   function reloadPagePercent(value: any, taskLocal: any) {
-    return ReloadPagePercent(value, taskLocal, task, setTaskPercent, getTask, setGetTask);
+    return ReloadPagePercent(
+      value,
+      taskLocal,
+      task,
+      setTaskPercent,
+      getTask,
+      setGetTask
+    );
   }
 
   function reloadPageChangeQuestion(yes_no: number, item_id: number) {
@@ -210,7 +445,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   function reloadPageDeleteItem(value: any) {
-    return ReloadPageDeleteItem(value, taskDetails, setTaskDetails, reloadPagePercent);
+    return ReloadPageDeleteItem(
+      value,
+      taskDetails,
+      setTaskDetails,
+      reloadPagePercent
+    );
   }
 
   function reloadPageItem(object: any) {
@@ -218,7 +458,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   function reloadPageAddItem(object: any) {
-    return ReloadPageAddItem(object, taskDetails, setTaskDetails, reloadPagePercent);
+    return ReloadPageAddItem(
+      object,
+      taskDetails,
+      setTaskDetails,
+      reloadPagePercent
+    );
   }
 
   function reloadPageUpNoteItem(object: any) {
@@ -234,15 +479,34 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   async function updateNotification(item: any[]) {
-    return UpdateNotification(item, setLoading, onSounds, soundFile, states, notifications, setNotifications, handleNotification); /* Pode ser aqui! */
+    return UpdateNotification(
+      item,
+      setLoading,
+      onSounds,
+      soundFile,
+      states,
+      notifications,
+      setNotifications,
+      handleNotification
+    ); /* Pode ser aqui! */
   }
-  
-  function updateStates(newList: any[]) { return UpdateStates(newList, setStates); }
-  function createStorageState(list: iStates[]) { return CreateStorageState(list); }
-  function addDays(daysToAdd: number) { return AddDays(daysToAdd); }
-  function clearGtppWsContext() { return ClearGtppWsContext(setTask, setTaskDetails); }
-  const requestNotificationPermission = async () => { return await RequestNotificationPermission(setOnSounds);};
-  
+
+  function updateStates(newList: any[]) {
+    return UpdateStates(newList, setStates);
+  }
+  function createStorageState(list: iStates[]) {
+    return CreateStorageState(list);
+  }
+  function addDays(daysToAdd: number) {
+    return AddDays(daysToAdd);
+  }
+  function clearGtppWsContext() {
+    return ClearGtppWsContext(setTask, setTaskDetails);
+  }
+  const requestNotificationPermission = async () => {
+    return await RequestNotificationPermission(setOnSounds);
+  };
+
   return (
     <GtppWsContext.Provider
       value={{

@@ -49,6 +49,9 @@ export default class Translator {
             case "Only administrator can do this":
                 this.#messagePT = "Somente o administrador pode fazer isso.";
                 break;
+            case "Only the task creator or administrator can do this":
+                this.#messagePT = "Somente o criador da tarefa ou o administrador podem fazer isso."
+                break;
             default:
                 this.#messagePT = messagePT;
                 break;

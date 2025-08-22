@@ -240,8 +240,15 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                   icon="arrow-right"
                   onClick={async () => { await insertItemTask() }}
                 />
-                <AttachmentFile reset={attachmentFile ? false : true} file={0} onClose={(value) => setAttachmentFile(value)} updateAttachmentFile={updateItemTaskFile} />
-                <button onClick={() => { setIsQuest(isQuest == 0 ? -1 : 0) }} title="Marca como questão?" className={`btn btn-primary fa-solid fa-question ${isQuest == 0 ? 'opacity-25' : 'opacity-100'}`}></button>
+                <AttachmentFile 
+                  reset={attachmentFile ? false : true}
+                  file={0}
+                  onClose={(value) => setAttachmentFile(value)}
+                  updateAttachmentFile={updateItemTaskFile}
+                />
+                <button title="Marca como questão?" className={`btn btn-primary fa-solid fa-question ${isQuest == 0 ? 'opacity-25' : 'opacity-100'}`} onClick={() => { 
+                  setIsQuest(isQuest == 0 ? -1 : 0) 
+                }}></button>
               </div>
               <div className="col-12 col-sm-8 col-md-9 my-2">
                 <input
