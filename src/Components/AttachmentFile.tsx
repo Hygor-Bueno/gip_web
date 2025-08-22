@@ -80,18 +80,22 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
 
         setFileName(file.name);
         const reader = new FileReader();
-        const allowedFileTypes = [
+        const allowedMimeTypes = [
             'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword',
             'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel',
-            'text/csv', 'application/xml', 'text/xml'
+            'text/csv', 'application/xml', 'text/xml',
+            'application/zip', 'application/x-zip-compressed',
+            'application/vnd.rar', 'application/x-rar-compressed'
         ];
 
-        const isAllowedMimeType = allowedFileTypes.includes(file.type);
+        const isAllowedMimeType = allowedMimeTypes.includes(file.type);
         const isExcalidrawFile = file.name.toLowerCase().endsWith('.excalidraw');
+        const isZipFile = file.name.toLowerCase().endsWith('.zip');
+        const isRarFile = file.name.toLowerCase().endsWith('.rar');
         const isImageFile = file.type.startsWith('image/');
 
-        if (isAllowedMimeType || isExcalidrawFile || isImageFile) {
+        if (isAllowedMimeType || isExcalidrawFile || isZipFile || isRarFile || isImageFile) {
             reader.onload = (e) => {
                 const result = e.target?.result?.toString() || '';
                 if (isImageFile) {
@@ -125,27 +129,25 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
         const handlePaste = (event: ClipboardEvent) => {
             const items = event.clipboardData?.items;
             if (!items) return;
-
             for (const item of items) {
                 if (item.kind === 'file') {
                     const file = item.getAsFile();
                     processFile(file);
-                    event.preventDefault(); 
-                    return; 
+                    event.preventDefault();
+                    return;
                 }
             }
         };
-
-        // CORREÇÃO APLICADA AQUI
         window.addEventListener("paste", handlePaste as EventListener);
         return () => {
-            // E AQUI
             window.removeEventListener("paste", handlePaste as EventListener);
         };
     }, []);
 
     const FileDownloadPreview = ({ base64File, fileName }: { base64File: string; fileName: string; }) => {
         const fileTypeStyles = {
+            zip: { name: 'Arquivo ZIP', color: '#8395a7', icon: 'fa-solid fa-file-zipper text-white' },
+            rar: { name: 'Arquivo RAR', color: '#8395a7', icon: 'fa-solid fa-file-zipper text-white' },
             excalidraw: { name: 'Excalidraw', color: '#343a40', icon: 'fa-solid fa-pen-ruler text-white' },
             word: { name: 'Word', color: '#2b579a', icon: 'fa-solid fa-file-word text-white' },
             excel: { name: 'Excel', color: '#1d6f42', icon: 'fa-solid fa-file-excel text-white' },
@@ -156,7 +158,11 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
         };
 
         const getFileTypeInfo = () => {
-            if (fileName.toLowerCase().endsWith('.excalidraw')) { return fileTypeStyles.excalidraw; }
+            const lowerCaseFileName = fileName.toLowerCase();
+            if (lowerCaseFileName.endsWith('.zip')) { return fileTypeStyles.zip; }
+            if (lowerCaseFileName.endsWith('.rar')) { return fileTypeStyles.rar; }
+            if (lowerCaseFileName.endsWith('.excalidraw')) { return fileTypeStyles.excalidraw; }
+
             if (base64File.startsWith('data:application/vnd.openxmlformats-officedocument.wordprocessingml.document') || base64File.startsWith('data:application/msword')) { return fileTypeStyles.word; }
             if (base64File.startsWith('data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || base64File.startsWith('data:application/vnd.ms-excel')) { return fileTypeStyles.excel; }
             if (base64File.startsWith('data:application/vnd.openxmlformats-officedocument.presentationml.presentation') || base64File.startsWith('data:application/vnd.ms-powerpoint')) { return fileTypeStyles.powerpoint; }
@@ -203,12 +209,12 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
                             }
                         })()
                     ) : (
-                        <>
+                        <React.Fragment>
                             <label style={{ minHeight: "60px", height: "4vw", minWidth: "60px", width: "4vw" }} className='d-flex justify-content-center align-items-center btn btn-outline-primary text-primary fa fa-paperclip' >
-                                <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".pdf,.doc,.docx,.xml,.ppt,.pptx,.xls,.xlsx,.csv,.excalidraw,image/*" />
+                                <input type="file" onChange={handleFileChange} style={{ display: 'none' }} accept=".pdf,.doc,.docx,.xml,.ppt,.pptx,.xls,.xlsx,.csv,.excalidraw,.zip,.rar,image/*" />
                             </label>
                             <label className='text-danger text-bold' style={{ fontSize: '0.950rem', width: '15rem', textAlign: 'center', marginTop: '1rem' }}>Pode usar CTRL+V para colar um arquivo ou clicar para anexar</label>
-                        </>
+                        </React.Fragment>
                     )}
                 </div>
                 <div className='d-flex align-items-center justify-content-around w-100'>
