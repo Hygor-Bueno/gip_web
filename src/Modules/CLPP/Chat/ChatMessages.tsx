@@ -3,6 +3,7 @@ import { useWebSocket } from "../../../Context/WsContext";
 import { useConnection } from "../../../Context/ConnContext";
 import { useEffect } from "react";
 import { convertDate, convertTime } from "../../../Util/Util";
+import { parse } from "path";
 
 export default
     function ChatMessages() {
@@ -45,22 +46,38 @@ export default
     function iconFileMessage(message: any) {
         let style: string = '';
         let icon: string = '';
-        if (parseInt(message.type) === 3) {
+        const type = parseInt(message.type);
+
+        if (type === 3) {
             style = "text-danger h1";
             icon = "fa-solid fa-file-pdf";
-        } else if (parseInt(message.type) === 4) {
+        } else if (type === 4) {
             style = "text-success";
-            icon = "fa-solid fa-file-code"
-        } else if (parseInt(message.type) === 6) {
+            icon = "fa-solid fa-file-code";
+        } else if (type === 6) {
             style = "text-primary";
-            icon = "fa-solid fa-file-word"
-        } else if (parseInt(message.type) === 7) {
+            icon = "fa-solid fa-file-word";
+        } else if (type === 7) {
             style = "text-success";
-            icon = "fa-solid fa-file-excel"
-        }
-        else if (parseInt(message.type) === 8) {
+            icon = "fa-solid fa-file-excel";
+        } else if (type === 8) {
             style = "text-warning";
-            icon = "fa-solid fa-file-powerpoint"
+            icon = "fa-solid fa-file-powerpoint";
+        } else if (type === 9) {
+            style = "text-secondary";
+            icon = "fa-solid fa-file-code";
+        } else if (type === 10) {
+            style = "text-warning";
+            icon = "fa-solid fa-file-powerpoint";
+        } else if (type === 12) {
+            style = "text-secondary";
+            icon = "fa-solid fa-file-zipper";
+        } else if (type === 13) {
+            style = "text-secondary";
+            icon = "fa-solid fa-file-archive";
+        } else {
+            style = "text-secondary";
+            icon = "fa-solid fa-file";
         }
         return componentFile(message, style, icon);
     }

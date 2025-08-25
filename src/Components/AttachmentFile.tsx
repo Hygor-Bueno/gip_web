@@ -75,8 +75,15 @@ function AttachmentPreview(props: { closeModal: () => void; item_id: number, bas
     const { base64File, setBase64File, closeModal, item_id } = props;
     const [fileName, setFileName] = useState('');
 
+    const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+
     const processFile = (file: File | null) => {
         if (!file) return;
+
+        if (file.size > MAX_FILE_SIZE) {
+            alert("O arquivo excede o limite de 15MB.");
+            return;
+        }
 
         setFileName(file.name);
         const reader = new FileReader();

@@ -72,6 +72,7 @@ export default function ChatControls() {
 
     async function sendFile() {
         const type = changeTypeMessageForFile(file);
+        const extension = getBase64FileExtension(file);
         const req: any = await fetchData({
             method: "POST",
             params: classToJSON(new SendMessage(file.split('base64,')[1], idReceived, userLog.id, type)),
@@ -82,7 +83,7 @@ export default function ChatControls() {
         includesMessage({
             id: req.last_id,
             id_user: userLog.id,
-            message: `${idReceived}_${userLog.id}_${req.last_id}.${getBase64FileExtension(file)}`,
+            message: `${idReceived}_${userLog.id}_${req.last_id}.${extension}`,
             notification: 1,
             type: type,
             date: captureTime()
@@ -127,61 +128,37 @@ export default function ChatControls() {
         setMessage("");
     }
 
-    function changeTypeMessageForFile(type: string): number {
-        const upperType = type.toUpperCase();
-        let result = 0;
-        switch (true) {
-            case upperType.includes('IMAGE') && !upperType.toUpperCase().includes('OFFICEDOCUMENT'):
-                result = 2;
-                break;
-            case upperType.includes('PDF') && !upperType.toUpperCase().includes('OFFICEDOCUMENT'):
-                result = 3;
-                break;
-            case upperType.includes('XML') && !upperType.toUpperCase().includes('OFFICEDOCUMENT'):
-                result = 4;
-                break;
-            case upperType.includes('CSV') && !upperType.toUpperCase().includes('OFFICEDOCUMENT'):
-                result = 5;
-                break;
-            case type.toUpperCase().includes('WORDPROCESSINGML'):
-                result = 6;
-                break;
-            case type.toUpperCase().includes('SPREADSHEETML'):
-                result = 7;
-                break;
-            case type.toUpperCase().includes('PRESENTATIONML'):
-                result = 8;
-                break;
-            default:
-                console.log(type);
-                result = 9;
-                break;
-        }
-        return result;
+    function changeTypeMessageForFile(base64: string): number {
+        const upperType = base64.toUpperCase();
+        let type = 11;
+        if (upperType.includes('IMAGE') && !upperType.includes('OFFICEDOCUMENT')) type = 2;
+        if (upperType.includes('PDF')) type=3;
+        if (upperType.includes('XML')) type=4;
+        if (upperType.includes('CSV')) type=5;
+        if (upperType.includes('WORDPROCESSINGML')) type=8;
+        if (upperType.includes('SPREADSHEETML')) type=9;
+        if (upperType.includes('PRESENTATIONML')) type=10;
+        if (upperType.includes('ZIP')) type=12;
+        if (upperType.includes('RAR')) type=13;
+        return type;
     }
 
     function getBase64FileExtension(base64: string) {
-        const isOffice = base64.includes('openxmlformats-officedocument');
-        isOffice && typeFileOffice(base64);
-        const match = base64.match(/^data:(.+);base64,/);
-        if (!match) {
-            throw new Error("Formato Base64 inválido");
+        let extension = 'txt';
+        if (base64.includes('wordprocessingml')) extension = 'docx';
+        else if (base64.includes('spreadsheetml')) extension = 'xlsx';
+        else if (base64.includes('presentationml')) extension = 'pptx';
+        else if (base64.includes('x-rar-compressed')) extension = 'rar';
+        else if (base64.includes('x-zip-compressed')) extension = 'zip';
+        else {
+            const match = base64.match(/^data:(.+);base64,/);
+            if (match) {
+                const mimeType = match[1];
+                extension = mimeType.split("/")[1];
+            } else {
+                extension = 'txt';
+            }
         }
-
-        const mimeType = match[1];
-        return isOffice ? typeFileOffice(base64) : mimeType.split("/")[1];
-    }
-
-    function typeFileOffice(base64: string): string {
-        let result = '';
-        if (base64.includes('wordprocessingml')) {
-            result = 'docx';
-        } else if (base64.includes('spreadsheetml')) {
-            result = 'xlsx';
-        } else if (base64.includes('presentationml')) {
-            result = 'pptx';
-        }
-        console.log(result);
-        return result;
+        return extension;
     }
 }
