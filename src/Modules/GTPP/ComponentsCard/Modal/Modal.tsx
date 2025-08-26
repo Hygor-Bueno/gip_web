@@ -43,7 +43,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
   const [attachmentFile, setAttachmentFile] = useState<string>('');
   const [isQuest, setIsQuest] = useState<number>(0);
   const {taskDetails, task, stopAndToBackTask, handleAddTask, updateItemTaskFile, setOpenCardDefault} = useWebSocket();
-  const currentTask = task; // Use 'currentTask' para clareza
+  const currentTask = task;
 
   const [ListTask, setListTask] = useState<ValueStateTask>({
     stopTask: false,
@@ -107,10 +107,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                 });
               }}
               onClose={() =>
-                setListTask((prev) => ({
-                  ...prev,
-                  openModalQuastionTask: !prev.openModalQuastionTask,
-                }))
+                setListTask((prev) => ({...prev, openModalQuastionTask: !prev.openModalQuastionTask }))
               }
               openClock={ListTask}
               isInput={currentTask.state_id != 3}
@@ -140,10 +137,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                   }
 
                   stopAndToBackTask(object.taskId, object.resource, object.date, object.taskList);
-                  setListTask((prev) => ({
-                    ...prev,
-                    openModalQuastionTask: !prev.openModalQuastionTask,
-                  }));
+                  setListTask((prev) => ({...prev, openModalQuastionTask: !prev.openModalQuastionTask,}));
                 } catch (error:any) {
                   handleNotification("Atenção!",error.message,"danger");
                 }
@@ -154,10 +148,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
             <div
               className="cursor-pointer"
               onClick={() => {
-                setListTask((prev) => ({
-                  ...prev,
-                  openModalQuastionTask: !prev.openModalQuastionTask,
-                }));
+                setListTask((prev) => ({...prev, openModalQuastionTask: !prev.openModalQuastionTask}));
               }}>
               {currentButton && (
                 <ButtonIcon 

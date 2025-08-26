@@ -310,16 +310,6 @@ export async function StopAndToBackTask(
         taskState?.message || "Falha genérica ao atualizar o estado da tarefa."
       );
     }
-    if (task.id === taskId) {
-      setTask((prevTask: any) => {
-        const newState = {
-          ...prevTask,
-          state_id: taskState,
-          percent: task.percent || prevTask.percent,
-        };
-        return newState;
-      });
-    }
     if (taskList.state_id == 5) {
       upTask(
         taskId,
@@ -358,6 +348,16 @@ export async function StopAndToBackTask(
         task_id: taskId,
         state_id: taskState,
         percent: task.percent || taskList.percent,
+      });
+    }
+    if (task.id && !isNaN(taskState)) {
+      setTask((prevTask: any) => {
+        const newState = {
+          ...prevTask,
+          state_id: taskState,
+          percent: task.percent || prevTask.percent,
+        };
+        return newState;
       });
     }
     closeCardDefaultGlobally(taskId);

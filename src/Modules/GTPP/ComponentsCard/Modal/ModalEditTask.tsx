@@ -86,13 +86,13 @@ export default function ModalEditTask(props: any) {
             <div className="d-flex align-items-center">
               <input
                 checked={isQuest}
-                onChange={async (event: any) => {
-                  await updatedForQuestion({
+                onChange={(event: any) => {
+                  setIsQuest(event.target.checked);
+                  updatedForQuestion({
                     id: editTask.id,
                     task_id: editTask.task_id,
                     yes_no: event.target.checked ? 1 : 0,
                   });
-                  setIsQuest(event.target.checked);
                 }}
                 id={`item_quest_edit_${editTask.task_id}`}
                 type="checkbox"

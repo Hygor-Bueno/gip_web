@@ -43,7 +43,7 @@ function AttachmentFile(props:
                 }
             } catch (error: any) { console.error(error.message); }
         })();
-    }, [props]);
+    }, [props.file, props.item_id, fetchData]);
 
     useEffect(() => {
         (async () => {
