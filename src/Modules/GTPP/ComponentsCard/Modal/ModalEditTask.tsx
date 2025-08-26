@@ -110,7 +110,7 @@ export default function ModalEditTask(props: any) {
           <section className="w-100">
             <button
               title="Editar Descrição"
-              className="btn btn-secondary py-0"
+              className={`btn btn-secondary py-0 opacity-${isObservation ? "25" : "100"}`}
               onClick={() => {
                 if (editTask.description !== description || editTask.note !== note) {
                   setMsgConfirm({
@@ -128,7 +128,7 @@ export default function ModalEditTask(props: any) {
             </button>
 
             <button
-              className="btn btn-primary py-0 mx-2"
+              className={`btn btn-secondary py-0 mx-2 ${!isObservation ? "opacity-25" : "opacity-100"}`}
               title="Editar Observação"
               onClick={() => {
                 if (editTask.description !== description || editTask.note !== note) {

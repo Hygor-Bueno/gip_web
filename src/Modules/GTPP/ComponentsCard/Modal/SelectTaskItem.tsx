@@ -176,6 +176,7 @@ const SelectTaskItem: React.FC<SelectTaskItemProps> = (props) => {
           className="form-select"
           value={selectedCompany}
           onChange={handleCompanyChange}
+          disabled={selectedDepartments.length > 0} // Desabilita se houver departamentos selecionados
         >
           <option value="">Selecione uma companhia</option>
           {sortedCompanies.map((company) => (
@@ -187,10 +188,11 @@ const SelectTaskItem: React.FC<SelectTaskItemProps> = (props) => {
 
         {/* ✅ LÓGICA: Seletor de Loja - Habilitado apenas se uma companhia for selecionada */}
         <select
+          key={selectedDepartments.length} // força re-render ao mudar departamentos
           className="form-select"
           value={selectedShop}
           onChange={handleShopChange}
-          disabled={!selectedCompany} // Desabilita se não houver companhia
+          disabled={!selectedCompany || selectedDepartments.length > 0} // Desabilita se não houver companhia ou se houver departamentos selecionados
         >
           <option value="">Selecione uma loja</option>
           {shopOptions.map((shop) => (
