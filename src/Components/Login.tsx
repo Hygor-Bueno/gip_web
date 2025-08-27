@@ -8,6 +8,7 @@ import { ReactNotifications } from "react-notifications-component";
 import { useConnection } from "../Context/ConnContext";
 import User from "../Class/User";
 import { loadLocalStorage } from "../Util/Util";
+import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
 export default function Login() {
     const [defaultPassword, setDefaulPassword] = useState<boolean>(false);
@@ -17,7 +18,7 @@ export default function Login() {
     }>({ login: "", password: "" });
 
     const navigate = useNavigate();
-    const { setLoading, setTitleHead, configUserData,setStatusDevice } = useMyContext();
+    const { setLoading, setTitleHead, configUserData, setStatusDevice } = useMyContext();
     const { setIsLogged } = useConnection();
     const { fetchData } = useConnection();
 
@@ -80,7 +81,7 @@ export default function Login() {
 
             // Verifica o dispositivo.
             let verifyDevice: any = await fetchData({ method: "POST", params: await getOrCreateDeviceId(), pathFile: "GIPP/LoginGipp.php" });
-            if(verifyDevice["error"]) throw new Error("No response from server");
+            if (verifyDevice["error"]) throw new Error("No response from server");
             setStatusDevice(verifyDevice['origin']['device_status'])
 
             //Criar as itens no localstorage
@@ -94,39 +95,24 @@ export default function Login() {
         setLoading(false);
     }
 
-    async function getDeviceFingerprint(): Promise<string> {
-        const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    async function loadFingerprint() {
+        const fp = await FingerprintJS.load();
+        const result = await fp.get();
+        return result.visitorId;
+    };
+    
+    // Função para obter ou criar o device_id
+    async function getOrCreateDeviceId(): Promise<{ device_id: string, platform: string, browser: string }> {
+        // let deviceId = localStorage.getItem("device_id");
+        // if (!deviceId) {
+        let deviceId = await loadFingerprint();
+        localStorage.setItem("device_id", deviceId);
+        // }
 
-        // Extrair apenas o sistema operacional do userAgent
-        const os = navigator.userAgent.match(/\(([^)]+)\)/)?.[1] || "";
-
-        const rawData = [
-            os, // só o sistema operacional
-            window.screen.colorDepth,
-            Intl.DateTimeFormat().resolvedOptions().timeZone,
-            navigator.hardwareConcurrency || '',
-            (navigator as any).deviceMemory || '',
-            // Só adiciona resolução se for mobile
-            ...(isMobile ? [window.screen.width, window.screen.height] : [])
-        ].join('||');
-
-        const encoder = new TextEncoder();
-        const data = encoder.encode(rawData);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    }
-
-    async function getOrCreateDeviceId(): Promise<{}> {
-        let deviceId = localStorage.getItem("device_id");
-        if (!deviceId) {
-            deviceId = await getDeviceFingerprint(); // gera um UUID novo
-            localStorage.setItem("device_id", deviceId);
-        }
         const browser = detectBrowser(navigator.userAgent);
         const platform = detectPlatform(navigator.userAgent);
-        return { device_id:deviceId, platform, browser };
+
+        return { device_id: deviceId, platform, browser };
     }
 
     function detectPlatform(userAgent: string): string {

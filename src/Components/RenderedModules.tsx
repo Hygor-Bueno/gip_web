@@ -18,7 +18,7 @@ export default function RenderedModules(props: Props): JSX.Element {
     return (
         <div className='d-flex flex-row w-100 h-100 overflow-hidden'>
             {
-                statusDevice !== 0 ?
+                /*statusDevice !== 0*/ true ?
                     <React.Fragment>
                         {props.children}
                         <Clpp />
