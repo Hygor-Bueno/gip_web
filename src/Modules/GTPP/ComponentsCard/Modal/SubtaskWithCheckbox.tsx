@@ -113,7 +113,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
       <div>
         <ModalEditTask onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
 
-        {(taskDetails.data?.task_item || []).map((task, index: number) => (
+        {(taskDetails.data?.task_item || []).map((task, index: number) => {
+          return (
           <div
             key={task.id}
             className={"d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto"}
@@ -186,7 +187,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
               </div>
             </div>
           </div>
-        ))}
+        );})}
       </div>
     </div>
   );

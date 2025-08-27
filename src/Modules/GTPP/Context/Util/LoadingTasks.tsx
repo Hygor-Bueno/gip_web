@@ -3,6 +3,7 @@ import { iStates } from "../../../../Interface/iGIPP";
 export async function GetTaskInformations(setLoading: any, fetchData: any, setTaskDetails: any, task: any): Promise<void> {
   try {
     setLoading(true);
+    console.log("aqui", task)
     const getTaskItem: any = await fetchData({
       method: "GET",
       params: null,

@@ -142,6 +142,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         pathFile: "GTPP/Task.php",
         urlComplement: `${isAdm ? "&administrator=1" : ""}`,
       });
+      console.log(getTask);
       if (getTask.error) throw new Error(getTask.message);
       setGetTask(getTask.data);
     } catch (e) {
