@@ -2,7 +2,6 @@ import { classToJSON } from "../../../../Util/Util";
 import InformSending from "../../Class/InformSending";
 
 export async function CallbackOnMessage(event: any, updateNotification: any, task: any, setTask: any, loadTasks: any, itemUp: any, reloadPageDeleteItem: any, reloadPageItem: any, setOpenCardDefault: any, getDescription: any ) {
-  
   let response = JSON.parse(event.data);
   if (response.error && response.message.includes("This user has been connected to another place")) {
     setOpenCardDefault(false);
