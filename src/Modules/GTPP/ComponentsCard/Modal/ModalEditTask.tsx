@@ -21,13 +21,14 @@ export default function ModalEditTask(props: any) {
 
   const { updatedForQuestion, changeObservedForm } = useWebSocket();
 
+  const [isQuest, setIsQuest] = useState<boolean>(false);
+
   useEffect(() => {
     setDescription(editTask.description);
     setNote(editTask.note);
-    setIsQuest(editTask.yes_no === 1);
+    // Marcar como questão se yes_no for 1, 2 ou 3
+    setIsQuest(editTask.yes_no === 1 || editTask.yes_no === 2 || editTask.yes_no === 3);
   }, [editTask]);
-
-  const [isQuest, setIsQuest] = useState<boolean>(true);
 
   const handleConfirm = () => {
     const value = isObservation ? note : description;
@@ -91,7 +92,9 @@ export default function ModalEditTask(props: any) {
                   updatedForQuestion({
                     id: editTask.id,
                     task_id: editTask.task_id,
-                    yes_no: event.target.checked ? 1 : 0,
+                    yes_no: event.target.checked
+                      ? 3 // Marcar como questão neutra ao marcar
+                      : 0 // Voltar para comum ao desmarcar
                   });
                 }}
                 id={`item_quest_edit_${editTask.task_id}`}

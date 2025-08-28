@@ -20,13 +20,11 @@ interface iSubTask {
 const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
   const { 
     checkedItem,
-    changeObservedForm,
-    task, 
+    task,
     taskDetails, 
     setTaskDetails, 
     reloadPagePercent, 
-    deleteItemTaskWS, 
-    updatedForQuestion, 
+    deleteItemTaskWS,
     updateItemTaskFile 
   } = useWebSocket();
   
@@ -112,12 +110,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
     <div ref={containerTaskItemsRef} className="overflow-auto rounded flex-grow-1">
       <div>
         <ModalEditTask onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
-
         {(taskDetails.data?.task_item || []).map((task, index: number) => (
-          <div
-            key={task.id}
-            className={"d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto"}
-          >
+          <div key={task.id} className={"d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto"}>
             {(subTask.openDialog && subTask.idSubTask === task.id && task.note) && <ModalInformation onClose={closeObservation} task description={task.note} />}
             {(task.id && positionTaskStates[task.id]) &&
               <div>

@@ -14,36 +14,57 @@ export async function CheckedItem(
 ) {
   try {
     setLoading(true);
+
+    // Construa o item para ser enviado na requisição
     const item = yes_no
       ? {
           id: parseInt(id.toString()),
           task_id: idTask.toString(),
           yes_no: parseInt(yes_no.toString()),
         }
-      : { check: checked, id: id, task_id: idTask };
-    let result: { error: boolean; data?: any; message?: string } =
-      (await fetchData({
-        method: "PUT",
-        params: item,
-        pathFile: "GTPP/TaskItem.php",
-      })) || { error: false };
+      : { check: checked, id, task_id: idTask };
+
+    // Envie a requisição PUT
+    const result = await fetchData({
+      method: "PUT",
+      params: item,
+      pathFile: "GTPP/TaskItem.php",
+    }) || { error: false };
+
+    // Verifique se ocorreu um erro na requisição
     if (result.error) throw new Error(result.message);
-    if (!yes_no) taskLocal.check = checked;
-    if (yes_no) reloadPageChangeQuestion(yes_no, id);
+
+    // Atualize o estado local do item
+    if (!yes_no) {
+      taskLocal.check = checked;
+    }
+
+    // Caso seja uma questão, recarregue a página ou a parte específica
+    if (yes_no) {
+      reloadPageChangeQuestion(yes_no, id);
+    }
+
+    // Atualize o progresso da página
     reloadPagePercent(result.data, { task_id: idTask });
+
+    // Verifique e atualize o estado da tarefa
     await verifyChangeState(
       result.data.state_id,
       task.state_id,
       taskLocal,
       result.data
     );
+
+    // Chame a função que irá atualizar a interface ou estado com as informações
     infSenCheckItem(taskLocal, result.data);
   } catch (error) {
-    console.error(error);
+    console.error("Erro ao atualizar o item:", error);
   } finally {
+    // Certifique-se de desabilitar o loading no final
     setLoading(false);
   }
 }
+
 
 export async function VerifyChangeState(
   newState: number,
@@ -310,45 +331,47 @@ export async function StopAndToBackTask(
         taskState?.message || "Falha genérica ao atualizar o estado da tarefa."
       );
     }
-    if (taskList.state_id == 5) {
-      upTask(
-        taskId,
-        resource,
-        date,
-        taskList,
-        `Tarefa que estava bloqueada está de volta!`,
-        6,
-        {
+    if(!taskState.error) {
+      if (taskList.state_id == 5) {
+        upTask(
+          taskId,
+          resource,
+          date,
+          taskList,
+          `Tarefa que estava bloqueada está de volta!`,
+          6,
+          {
+            description: "send",
+            task_id: taskId,
+            state_id: taskState,
+            percent: task.percent || taskList.percent,
+            new_final_date: addDays(parseInt(date || "0")),
+          }
+        );
+      } else if (taskList.state_id == 4 || taskList.state_id == 6) {
+        upTask(
+          taskId,
+          resource,
+          date,
+          taskList,
+          taskList.state_id == 4 ? `send` : "send",
+          6,
+          { description: "send", task_id: taskId, state_id: taskState }
+        );
+      } else if (taskList.state_id == 1 || taskList.state_id == 2) {
+        upTask(taskId, resource, date, taskList, "A tarefa foi parada!", 6, {
+          description: "send",
+          task_id: taskId,
+          state_id: taskState,
+        });
+      } else if (taskList.state_id == 3) {
+        upTask(taskId, resource, date, taskList, "A tarefa finalizada!", 6, {
           description: "send",
           task_id: taskId,
           state_id: taskState,
           percent: task.percent || taskList.percent,
-          new_final_date: addDays(parseInt(date || "0")),
-        }
-      );
-    } else if (taskList.state_id == 4 || taskList.state_id == 6) {
-      upTask(
-        taskId,
-        resource,
-        date,
-        taskList,
-        taskList.state_id == 4 ? `send` : "send",
-        6,
-        { description: "send", task_id: taskId, state_id: taskState }
-      );
-    } else if (taskList.state_id == 1 || taskList.state_id == 2) {
-      upTask(taskId, resource, date, taskList, "A tarefa foi parada!", 6, {
-        description: "send",
-        task_id: taskId,
-        state_id: taskState,
-      });
-    } else if (taskList.state_id == 3) {
-      upTask(taskId, resource, date, taskList, "A tarefa finalizada!", 6, {
-        description: "send",
-        task_id: taskId,
-        state_id: taskState,
-        percent: task.percent || taskList.percent,
-      });
+        });
+      }
     }
     if (task.id && !isNaN(taskState)) {
       setTask((prevTask: any) => {

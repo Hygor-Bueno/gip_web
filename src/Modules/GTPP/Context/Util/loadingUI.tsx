@@ -130,9 +130,6 @@ export async function UpdateNotification(
 
     if (notify.list.length > 0) {
       const n = notify.list[0];
-
-      console.log(n);
-
       handleNotification (
         n["title"] ?? "Aviso",
         n["message"] ?? "Alteração realizada.",

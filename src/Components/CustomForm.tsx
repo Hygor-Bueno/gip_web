@@ -162,13 +162,25 @@ export function SelectFieldDefault(props: {
   )
 }
 
-export function InputCheckbox(props: { label?: string, checked?: boolean, onChange: any, textColor?: string, task: any, yesNo: number, id: string, order: number, onPosition: () => void }) {
-  const { yesNo, onPosition } = props;
+export function InputCheckbox(props: { 
+  label?: string, 
+  checked?: boolean, 
+  onChange: any, 
+  textColor?: string, 
+  task: any, 
+  yesNo: number, 
+  id: string, 
+  order: number, 
+  onPosition: () => void, 
+  isQuestion?: boolean 
+}) {
+  const [localChecked, setLocalChecked] = React.useState(props.yesNo);
+
 
   return (
     <div className='d-flex align-items-center col-12'>
-      <button onClick={onPosition} title='Alterar posição do item' className='btn btn-secondary p-0 rounded rounded-circle col-2 col-sm-1'>{props.order.toString().padStart(2, "0")}</button>
-      {yesNo == 0 ? <OptionItem /> : <QuestionItem />}
+      <button onClick={props.onPosition} title='Alterar posição do item' className='btn btn-secondary p-0 rounded rounded-circle col-2 col-sm-1'>{props.order.toString().padStart(2, "0")}</button>
+      {props.yesNo == 0 ? <OptionItem /> : <QuestionItem />}
       <label htmlFor={`item_task_${props.id}`} className='fs-6 col-7 col-sm-9'>{props.label}</label>
     </div>
   )
@@ -177,28 +189,34 @@ export function InputCheckbox(props: { label?: string, checked?: boolean, onChan
     return (
       <div className='d-flex flex-column col-3 col-sm-2 ps-2'>
         <label className='fs-6'>
-          <input type="checkbox" name={props.id} checked={yesNo == 1 ? true : false} value={1} onChange={
-            (e: any) => {
-              submitQuestionItem(e.target, 1);
-            }
-          } className='form-check-input me-1' />
+          <input 
+            type="checkbox" 
+            className='form-check-input me-1'
+            name={props.id} 
+            checked={props.yesNo === 1} 
+            value={1} 
+            onChange={() => submitQuestionItem(1)} 
+          />
           Sim
         </label>
         <label className='fs-6'>
-          <input type="checkbox" name={props.id} checked={yesNo == 2 ? true : false} value={2} onChange={
-            (e: any) => {
-              submitQuestionItem(e.target, 2);
-            }
-          } className='form-check-input me-1' />
+          <input 
+            type="checkbox" 
+            className='form-check-input me-1' 
+            name={props.id} 
+            checked={props.yesNo === 2} 
+            value={2} 
+            onChange={() => submitQuestionItem(2)} 
+          />
           Não
         </label>
       </div>
     );
   }
 
-  function submitQuestionItem(event: any, response: number) {
-    const value = yesNo == response ? -1 : event.value;
-    props.onChange(props.id, event.checked, props.task.task_id, props.task, value);
+  function submitQuestionItem(response: number) {
+    const value = props.yesNo === response ? 3 : response;
+    props.onChange(props.id, value !== 3, props.task.task_id, props.task, value);
   }
 
   function OptionItem() {

@@ -66,45 +66,19 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
   }
 
   const currentButton = buttonConfig[currentTask.state_id];
+  const typeInput = currentTask.state_id == 1 || currentTask.state_id == 2 ? "text" : currentTask.state_id == 5 ? "number" : null;
+  const title = currentTask.state_id == 1 || currentTask.state_id == 2 ? "Alterar tarefa para o estado Parado (informe o motivo)?" : currentTask.state_id == 4 ? "Por quê deseja reabrir a tarefa?" : currentTask.state_id == 3 ? "Deseja finalizar essa tarefa?" : currentTask.state_id == 5 ? "Insira o total de dias que você precisa." : currentTask.state_id == 6 ? "Deseja mesmo retomar a tarefa?" : null
 
   return (
     <div className="d-flex flex-column h-100 p-2">
       <div style={{ height: "10%" }} className="d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center">
-          <AvatarGroup
-            dataTask={currentTask}
-            users={taskDetails.data ? taskDetails.data?.task_user : []} />
+          <AvatarGroup dataTask={currentTask} users={taskDetails.data ? taskDetails.data?.task_user : []} />
         </div>
         <div className="">
           {ListTask.openModalQuastionTask ? (
-            <MessageModal
-              typeInput={
-                currentTask.state_id == 1 || currentTask.state_id == 2
-                  ? "text"
-                  : currentTask.state_id == 5
-                    ? "number"
-                    : null
-              }
-              title={
-                currentTask.state_id == 1 || currentTask.state_id == 2
-                  ? "Alterar tarefa para o estado Parado (informe o motivo)?"
-                  : currentTask.state_id == 4
-                    ? "Por quê deseja reabrir a tarefa?"
-                    : currentTask.state_id == 3
-                      ? "Deseja finalizar essa tarefa?"
-                      : currentTask.state_id == 5
-                        ? "Insira o total de dias que você precisa."
-                        : currentTask.state_id == 6
-                          ? "Deseja mesmo retomar a tarefa?"
-                          : null
-              }
-              onChange={(e: any) => {
-                setListTask((prev) => {
-                  return ({
-                    ...prev,
-                    description: e.target.value,
-                  })
-                });
+            <MessageModal typeInput={typeInput} title={title || ""} onChange={(e: any) => {
+                setListTask((prev) => { return ({...prev, description: e.target.value })});
               }}
               onClose={() =>
                 setListTask((prev) => ({...prev, openModalQuastionTask: !prev.openModalQuastionTask }))
