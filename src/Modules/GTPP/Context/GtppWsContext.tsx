@@ -1,63 +1,15 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState, } from "react";
 import { useMyContext } from "../../../Context/MainContext";
 import { useConnection } from "../../../Context/ConnContext";
 import GtppWebSocket from "./GtppWebSocket";
-import {
-  CustomNotification,
-  iGtppWsContextType,
-  iStates,
-  iTaskReq,
-} from "../../../Interface/iGIPP";
-
+import { CustomNotification, iGtppWsContextType, iStates, iTaskReq } from "../../../Interface/iGIPP";
 import soundFile from "../../../Assets/Sounds/notify.mp3";
 import { GetStateformations, GetTaskInformations } from "./Util/LoadingTasks";
-import {
-  CallbackOnMessage,
-  CloseCardDefaultGlobally,
-  DeleteItemTaskWS,
-  InfSenCheckItem,
-  InfSenStates,
-  UpTask,
-} from "./Util/webSocketHandlers";
-import {
-  AddUserTask,
-  ChangeDescription,
-  ChangeObservedForm,
-  CheckedItem,
-  HandleAddTask,
-  StopAndToBackTask,
-  UpdatedForQuestion,
-  UpdateItemTaskFile,
-  UpdateStateTask,
-  VerifyChangeState,
-} from "./Util/taskActions";
-import {
-  GetDescription,
-  ItemUp,
-  ReloadPageAddItem,
-  ReloadPageChangeQuestion,
-  ReloadPageDeleteItem,
-  ReloadPageItem,
-  ReloadPagePercent,
-  ReloadPageUpNoteItem,
-  UpdateNotification,
-} from "./Util/loadingUI";
-import {
-  AddDays,
-  ClearGtppWsContext,
-  CreateStorageState,
-  RequestNotificationPermission,
-  UpdateStates,
-} from "./Util/util";
+import { CallbackOnMessage, CloseCardDefaultGlobally, DeleteItemTaskWS, InfSenCheckItem, InfSenStates, UpTask } from "./Util/webSocketHandlers";
+import { AddUserTask, ChangeDescription, ChangeObservedForm, CheckedItem, HandleAddTask, StopAndToBackTask, UpdatedForQuestion, UpdateItemTaskFile, UpdateStateTask, VerifyChangeState } from "./Util/taskActions";
+import { GetDescription, ItemUp, ReloadPageAddItem, ReloadPageChangeQuestion, ReloadPageDeleteItem, ReloadPageItem, ReloadPagePercent, ReloadPageUpNoteItem, UpdateNotification } from "./Util/loadingUI";
+import { AddDays, ClearGtppWsContext, CreateStorageState, RequestNotificationPermission, UpdateStates } from "./Util/util";
 import { handleNotification } from "../../../Util/Util";
-import { error } from "console";
 
 const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 
@@ -79,7 +31,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   const { setLoading } = useMyContext();
   const { fetchData } = useConnection();
   const { userLog } = useMyContext();
-
   const ws = useRef(new GtppWebSocket());
 
   useEffect(() => {
@@ -454,7 +405,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   function reloadPageItem(object: any) {
-    return ReloadPageItem(object, reloadPageAddItem, reloadPageUpNoteItem);
+    if (task.id == object.itemUp.task_id) {
+      return ReloadPageItem(object, reloadPageAddItem, reloadPageUpNoteItem);
+    }
   }
 
   function reloadPageAddItem(object: any) {
@@ -475,7 +428,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   function getDescription(description: any) {
-    return GetDescription(description, taskDetails, setTaskDetails);
+    if(task.id == description.task_id) return GetDescription(description, taskDetails, setTaskDetails);
   }
 
   async function updateNotification(item: any[]) {
