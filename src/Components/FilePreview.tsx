@@ -3,6 +3,7 @@ import { handleNotification, IMAGE_WEBP_QUALITY } from '../Util/Util';
 
 interface FilePreviewProps {
   base64File: string; // Base64 completo, incluindo o prefixo
+  fileName?: string; // Nome do arquivo, opcional
 }
 
 export default function FilePreview(props: FilePreviewProps) {
@@ -17,7 +18,6 @@ export default function FilePreview(props: FilePreviewProps) {
 
   // Recupera o tipo do arquivo
   const fileType: any = getFileTypeFromBase64(processedBase64);
-
 
   const convertToWebP = (base64: string): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -59,59 +59,6 @@ export default function FilePreview(props: FilePreviewProps) {
       setProcessedBase64(processedBase64); // Usa como está
     }
   }, [processedBase64]);
-
-
-  
-
-  const decodeAndFormatXML = (base64: string): string => {
-    try {
-      const decodedXML = atob(base64.split(',')[1] || ''); // Decodifica o conteúdo Base64
-      const parser = new DOMParser(); 
-      const xmlDoc = parser.parseFromString(decodedXML, 'application/xml'); // Parseia como XML
-
-      // Verifica erros de parsing
-      const parseError = xmlDoc.getElementsByTagName('parsererror');
-      if (parseError.length > 0) {
-        console.error('Erro ao analisar o XML:', parseError[0].textContent);
-        return 'Erro ao carregar o XML.';
-      }
-
-      const serializer = new XMLSerializer();
-      const rawXML = serializer.serializeToString(xmlDoc); // Converte para string
-      
-      // Formata o XML de forma indentada
-      return formatXML(rawXML);
-    } catch (error) {
-      handleNotification("Atenção!",`Erro ao decodificar ou formatar o XML: ${error}`,"danger");
-      return 'Erro ao carregar o XML.';
-    }
-  };
-
-  // Função para formatar XML
-  const formatXML = (xml: string): string => {
-    const PADDING = '  '; // Espaço para indentação
-    const reg = /(>)(<)(\/*)/g; // RegEx para quebrar linhas entre tags
-    let formatted = xml.replace(reg, '$1\n$2');
-    let pad = 0;
-    return formatted
-      .split('\n')
-      .map((line) => {
-        let indent = 0;
-        if (line.match(/.+<\/\w[^>]*>$/)) {
-          indent = 0; // Linha com tag única
-        } else if (line.match(/^<\/\w/)) {
-          pad -= 1; // Linha de fechamento
-        } else if (line.match(/^<\w[^>]*[^\/]>.*$/)) {
-          indent = 1; // Linha de abertura
-        } else {
-          indent = 0; // Conteúdo
-        }
-        const padding = PADDING.repeat(pad);
-        pad += indent;
-        return padding + line;
-      })
-      .join('\n');
-  };
 
   const openImageInNewTab = () => {
     const newWindow = window.open();
@@ -233,71 +180,79 @@ export default function FilePreview(props: FilePreviewProps) {
       );
     }
 
-    // XML ou CSV
-    if (fileType === 'text/xml' || fileType === 'text/csv') {
-      return (
-        <textarea
-          className="border rounded"
-          readOnly
-          value={decodeAndFormatXML(processedBase64)}
-          style={{ resize: "none", 
-            width: '60vw', 
-            height: '60vh', 
-            whiteSpace: 'pre', 
-            fontFamily: 'monospace' 
-          }}
-        />
-      );
-    }
+    // --- Botão estilizado para todos os arquivos não visualizáveis ---
+    const fileTypeStyles = {
+      zip: { name: 'ZIP', color: '#8395a7', icon: 'fa-solid fa-file-zipper text-white' },
+      rar: { name: 'RAR', color: '#8395a7', icon: 'fa-solid fa-file-zipper text-white' },
+      excalidraw: { name: 'Excalidraw', color: '#343a40', icon: 'fa-solid fa-pen-ruler text-white' },
+      word: { name: 'Word', color: '#2b579a', icon: 'fa-solid fa-file-word text-white' },
+      excel: { name: 'Excel', color: '#1d6f42', icon: 'fa-solid fa-file-excel text-white' },
+      powerpoint: { name: 'PowerPoint', color: '#d24726', icon: 'fa-solid fa-file-powerpoint text-white' },
+      xml: { name: 'XML', color: '#617a8c', icon: 'fa-solid fa-file-code text-white' },
+      csv: { name: 'CSV', color: '#556b2f', icon: 'fa-solid fa-file-csv text-white' },
+      pdf: { name: 'PDF', color: '#b71c1c', icon: 'fa-solid fa-file-pdf text-white' },
+      default: { name: 'Arquivo', color: '#6c757d', icon: 'fa-solid fa-file text-white' }
+    };
 
-    // === Adicionei o tratamento específico para DOCX aqui ===
-    if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        const suggestedFileName = `documento_${Date.now()}.docx`; // Nome sugerido
-        return (
-            <div style={{ textAlign: 'center', padding: '20px' }}>
-                <p>Pré-visualização não disponível para arquivos DOCX.</p>
-                {blobUrl && (
-                    <a href={blobUrl} download={suggestedFileName} className="btn btn-primary">
-                        Baixar Documento Word
-                    </a>
-                )}
-                {!blobUrl && <p>Carregando...</p>}
-            </div>
-        );
-    }
+    const getFileTypeInfo = () => {
+      const lowerCaseFileName = (props.fileName || '').toLowerCase();
+      if (lowerCaseFileName.endsWith('.zip')) return fileTypeStyles.zip;
+      if (lowerCaseFileName.endsWith('.rar')) return fileTypeStyles.rar;
+      if (lowerCaseFileName.endsWith('.excalidraw')) return fileTypeStyles.excalidraw;
+      if (lowerCaseFileName.endsWith('.doc') || lowerCaseFileName.endsWith('.docx')) return fileTypeStyles.word;
+      if (lowerCaseFileName.endsWith('.xls') || lowerCaseFileName.endsWith('.xlsx')) return fileTypeStyles.excel;
+      if (lowerCaseFileName.endsWith('.ppt') || lowerCaseFileName.endsWith('.pptx')) return fileTypeStyles.powerpoint;
+      if (lowerCaseFileName.endsWith('.xml')) return fileTypeStyles.xml;
+      if (lowerCaseFileName.endsWith('.csv')) return fileTypeStyles.csv;
+      if (lowerCaseFileName.endsWith('.pdf')) return fileTypeStyles.pdf;
+      if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || fileType === 'application/msword') return fileTypeStyles.word;
+      if (fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || fileType === 'application/vnd.ms-excel') return fileTypeStyles.excel;
+      if (fileType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' || fileType === 'application/vnd.ms-powerpoint') return fileTypeStyles.powerpoint;
+      if (fileType === 'application/xml' || fileType === 'text/xml') return fileTypeStyles.xml;
+      if (fileType === 'text/csv') return fileTypeStyles.csv;
+      if (fileType === 'application/pdf') return fileTypeStyles.pdf;
+      return fileTypeStyles.default;
+    };
 
-    // Word ou Excel (outros formatos ou genérico)
-    const wordExcelTypes = [
-      'application/msword', // .doc
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-      'application/vnd.ms-excel', // .xls
-    ];
+    const fileInfo = getFileTypeInfo();
 
-    if (wordExcelTypes.includes(fileType)) {
-      const suggestedFileName = `${fileType.includes('word') ? 'documento' : 'planilha'}_${Date.now()}.${fileType.includes('word') ? 'doc' : 'xlsx'}`;
-      return (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p>Pré-visualização não disponível para este tipo de arquivo do Office.</p>
-          {blobUrl && (
-              <a href={blobUrl} download={suggestedFileName} className="btn btn-success">
-                Baixar {fileType.includes('word') ? 'Word (antigo)' : 'Excel'}
-              </a>
-          )}
-          {!blobUrl && <p>Carregando...</p>}
-        </div>
-      );
-    }
+    // Usa sempre o blobUrl para download se disponível
+    const downloadUrl = blobUrl || processedBase64;
+    const downloadName = props.fileName || `arquivo.${fileInfo.name.toLowerCase()}`;
 
-    // Outros tipos não suportados
     return (
-      <div style={{ padding: '20px', border: '1px solid #ccc', textAlign: 'center' }}>
-        <p>Pré-visualização não disponível para este tipo de arquivo.</p>
-        {blobUrl && (
-            <a href={blobUrl} download="arquivo_desconhecido" className="btn btn-primary">
-              Baixar Arquivo
-            </a>
-        )}
-        {!blobUrl && <p>Carregando...</p>}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+        <a
+          href={downloadUrl}
+          download={downloadName}
+          className="btn"
+          style={{
+            background: fileInfo.color,
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: 22,
+            padding: '2rem 2.5rem',
+            borderRadius: 16,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            border: 'none',
+            transition: 'background 0.2s'
+          }}
+        >
+          <i className={`${fileInfo.icon} fa-3x mb-2`} />
+          <span style={{ fontSize: 18, marginBottom: 4 }}>Baixar {fileInfo.name}</span>
+          <span style={{
+            fontSize: 13,
+            opacity: 0.85,
+            maxWidth: 220,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}>{props.fileName}</span>
+          <i className="fa-solid fa-download fa-lg mt-3 text-white" />
+        </a>
       </div>
     );
   }
