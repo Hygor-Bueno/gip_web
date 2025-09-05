@@ -38,7 +38,6 @@ const CardSaleEPP: React.FC<CardSaleEPPProps> = (props) => {
       const updated = new Set(prev);
       products.forEach(product => {
         const isInLog = props.dataLogSale.some(log => log.eppIdProduct === product.id_product);
-        console.log(isInLog);
         if (isInLog) {
           updated.add(getProductKey(product));
         }
@@ -139,9 +138,6 @@ const CardSaleEPP: React.FC<CardSaleEPPProps> = (props) => {
     return sum.toFixed(2).replace(".", ",");
   }, [confirmedItems]);
   
-
-  console.log(selectedItems)
-
   return (
     <React.Fragment>
       <div className="d-flex gap-2 mb-2">

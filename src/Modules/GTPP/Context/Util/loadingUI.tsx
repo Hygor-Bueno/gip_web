@@ -123,7 +123,6 @@ export async function UpdateNotification(
       ...notify.list,
     ]);
 
-    console.log("Notificação recebida:", notify.list);
     if (notify.list.length === 0) {
       console.warn("Nenhuma notificação foi criada. Dados recebidos:", item);
     }

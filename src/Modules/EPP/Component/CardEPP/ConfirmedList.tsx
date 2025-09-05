@@ -9,14 +9,12 @@ interface ConfirmedListProps {
 }
 
 const ConfirmedList: React.FC<ConfirmedListProps> = ({ confirmedItems, onRemove }) => {
-  console.log(confirmedItems);
   return (
   <div className="w-25 border d-flex flex-column rounded p-2 overflow-auto" style={{ maxHeight: "100%" }}>
     <h6 className="mb-3">Confirmados:</h6>
     {Object.keys(confirmedItems).length === 0 && <p className="text-muted">Nenhum item confirmado</p>} {/* verifica se há dados para ser montado */}
     {Object.entries(confirmedItems).map(([key, { product, quantity, subtotal }]) => 
     {
-      console.log(confirmedItems)
       return (
       <ConfirmedItemEpp
         key={key}

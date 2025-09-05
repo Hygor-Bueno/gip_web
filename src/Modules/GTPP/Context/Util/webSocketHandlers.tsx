@@ -12,8 +12,6 @@ export async function CallbackOnMessage(event: any, updateNotification: any, tas
     if (response.type == -1 || response.type == 2 || response.type == 6) {
       if (response.type == 6) {
         if (task.id === response.task_id) {
-          console.log("[websocket response]", response);
-          console.log("[websocket task]", task);
           const updatedTask = {
             ...task,
             state_id: response.object?.state_id,

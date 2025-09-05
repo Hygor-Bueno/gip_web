@@ -92,7 +92,6 @@ export async function CheckTaskComShoDepSub(
   userLog: any
 ) {
   setLoading(true);
-  console.log("teste");
   try {
     await fetchData({
       method: "POST",

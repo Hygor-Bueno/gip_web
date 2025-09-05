@@ -41,7 +41,6 @@ function ShopCard({ OrderId, setCaptureHtml }: Props) {
         }
       });
       await Promise.all(pricePromises);
-      console.log(priceMap);
       setProductPrices(priceMap);
     };
     loadingListProd(); 
@@ -67,7 +66,6 @@ function ShopCard({ OrderId, setCaptureHtml }: Props) {
         }
       });
       await Promise.all(pricePromises);
-      console.log(priceMap);
       setProductPrices(priceMap);
     };
     loadingListProd(); 

@@ -138,7 +138,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     async function callbackOnMessage(event: any) {
         if (event.objectType === 'notification') {
             if (event.notify && event.user == idReceived) {
-                console.log(event);
                 listMessage.forEach((item, index) => {
                     if (item.notification == 1) {
                         listMessage[index].notification = 0;
@@ -194,7 +193,6 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const upContact = contactList.map((contact) =>
                 contact.id == send_user ? updateContact(contact) : contact
             );
-            console.log(upContact);
             setContactList(upContact);
             setContNotify(upContact.filter((item: any) => item.notification == 1).length);
         }

@@ -50,7 +50,6 @@ export default function Gtpp(): JSX.Element {
       icon: "fa fa-home",
     });
   }, [setTitleHead]);
-  useEffect(() => { console.log(openFilterGolbal) }, [openFilterGolbal])
 
   function handleCheckboxChange(stateId: number) {
     const newItem: any = [...states];

@@ -17,7 +17,6 @@ const ProductList: React.FC<ProductListProps> = ({
   return (
     <div className="overflow-auto w-75 border rounded p-2" style={{ maxHeight: "100%" }}>
       {products.map(item => {
-        console.log('este');
         return (
         <ProductItem
           key={getKey(item)}
