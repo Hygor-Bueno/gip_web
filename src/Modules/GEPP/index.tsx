@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useMyContext } from "../../Context/MainContext";
 import NavBar from "../../Components/NavBar";
 import { listPathGEPP } from "./ConfigGepp";
-import CardProd from "./CardProd";
+import CardProd from "./ManagerCard";
 import Manager from "./Manager/Manager";
 import useWindowSize from "../GAPP/Infraction/hook/useWindowSize";
 
