@@ -7,22 +7,16 @@ import { Card } from "../Components/Card";
 import { cardsConfig } from "../Json/Card";
 
 function ProductSalesInfo({ data, product, children }: ISalesC5Information) {
-
   return (
     <main className="container page-bg py-3 h-100 overflow-auto">
-      {/* Cabeçalho */}
       <HeaderC5 data={data} product={product} />
-      {/* Informações não-quantitativas */}
       <InformationText product={product} />
-      {/* Cards principais */}
       <div className="row mb-4 gx-3 gy-3">
-        {/* Estoque & Vendas */}
-        {cardsConfig(product).map((cardProps, index) => (
-          <Card key={index} outsideValues={cardProps} />
-        ))}
+        {cardsConfig(product).map((cardProps, index) => <Card key={`card_${index}_${product?.code_product}`} outsideValues={cardProps} />)}
       </div>
       <hr />
-      {/* Espaço para children adicionais */}
+
+      {/* Espaço para componentes adicionais */}
       {children}
     </main>
   );
