@@ -20,6 +20,16 @@ export const convertdate = (date: string): string | null => {
 
 export const getProductKey = (item: dataAllProd) => `${item.id_category}-${item.description}`;
 
+export function formatDateBR(date?: string | Date | null) {
+    if (!date) return "--"; // fallback se não tiver data
+    const dt = new Date(date);
+    return dt.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }
+
 export const fetchCEPData = async (cep: string, loading: any) => {
     try {
         loading(true);

@@ -20,28 +20,28 @@ const Gepp = () => {
     });
   }, [setTitleHead]);
 
-  const isMobile = width <= 768; // ajuste o breakpoint conforme o design
+  const isMobile = width <= 768;
 
   return (
-    <>
+    <React.Fragment>
       <NavBar list={listPathGEPP} />
       <div className="d-flex justify-content-center align-items-center w-100 mt-4">
         <div className="d-flex justify-content-center w-100 h-100">
           {isMobile ? (
-            // --- MOBILE ---
             selectedProduct ? (
-              // Produto selecionado → mostra apenas detalhes
-              <CardProd product={selectedProduct} />
+              <React.Fragment>
+                <CardProd setProduct={setSelectedProduct} product={selectedProduct} />
+              </React.Fragment>
             ) : (
-              // Nenhum produto selecionado → mostra tabela
-              <Manager
-                selectedProduct={selectedProduct}
-                setSelectedProduct={setSelectedProduct}
-              />
+              <React.Fragment>
+                <Manager
+                  selectedProduct={selectedProduct}
+                  setSelectedProduct={setSelectedProduct}
+                />
+              </React.Fragment>
             )
           ) : (
-            // --- DESKTOP ---
-            <>
+            <React.Fragment>
               <div className="w-50 pe-2">
                 <Manager
                   selectedProduct={selectedProduct || []}
@@ -49,13 +49,13 @@ const Gepp = () => {
                 />
               </div>
               <div className="w-50 ps-2">
-                <CardProd product={selectedProduct || []} />
+                <CardProd setProduct={setSelectedProduct} product={selectedProduct || []} />
               </div>
-            </>
+            </React.Fragment>
           )}
         </div>
       </div>
-    </>
+    </React.Fragment>
   );
 };
 

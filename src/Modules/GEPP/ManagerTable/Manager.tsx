@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useConnection } from "../../../Context/ConnContext";
 import CustomTable from "../../../Components/CustomTable";
 import { IManagerProps } from "./Interfaces/IManager";
+import { formatDateBR } from "../../../Util/Util";
 
 function Manager({ setSelectedProduct }: IManagerProps) {
   const { fetchData } = useConnection();
@@ -34,7 +35,7 @@ function Manager({ setSelectedProduct }: IManagerProps) {
         new_price: { value: `R$ ${p.new_price}`, tag: "Novo Preço" },
         quantity: { value: p.quantity, tag: "Qtd" },
         store_number: { value: p.store_number, tag: "Loja" },
-        expiration_date: { value: p.expiration_date, tag: "Validade" },
+        expiration_date: { value: formatDateBR(p.expiration_date), tag: "Validade" },
       }));
 
       setTableData(mapped);

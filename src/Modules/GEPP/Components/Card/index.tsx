@@ -1,5 +1,6 @@
 import React from "react";
 import ProgressBar from "../../../GTPP/ComponentsCard/Modal/Progressbar";
+import "./style.css";
 
 // ==========================
 // Interfaces
@@ -13,32 +14,24 @@ interface OutsideValues {
   color?: string;
 }
 
-interface InternalValues {
-  children?: JSX.Element | JSX.Element[];
-}
-
 interface CardProps {
   outsideValues: OutsideValues;
-  internalValues?: InternalValues;
 }
 
 // ==========================
 // Componente Principal
 // ==========================
-export function Card({ outsideValues, internalValues }: CardProps) {
+export function Card({ outsideValues }: CardProps) {
   const { titleCard, subTitle, productCard, meta, icon = "warehouse", color = "primary" } = outsideValues;
 
   return (
     <ContainerCard titleCard={titleCard} icon={icon} color={color}>
-      {/* Renderiza children internos se existirem */}
-      {internalValues?.children}
-
       {/* Renderiza valores ou progress bar */}
       {!meta ? (
         <CardWithValues subTitle={subTitle} productCard={productCard || {}} />
       ) : (
         <ProgressBar
-          secondaryClassName="w-100"
+          secondaryClassName="w-100 progressCard"
           colorBar="#198754"
           progressValue={Number(meta) || 0}
         />
@@ -60,12 +53,14 @@ interface ContainerCardProps {
 function ContainerCard({ children, titleCard, icon, color }: ContainerCardProps) {
   return (
     <div className="col-md-4 col-12">
-      <div
-        className={`card-summary bg-${color} text-white p-3 d-flex flex-column justify-content-center align-items-center`}
-        style={{ height: "100%" }}
-      >
-        <TitleCard titleCard={titleCard} icon={icon} />
-        {children}
+      <div className={`card-summary bg-${color} text-white p-3 d-flex flex-column justify-content-between align-items-center`} style={{ height: "100%" }}>
+        <div>
+          <TitleCard titleCard={titleCard} icon={icon} />
+        </div>
+        <div className="w-100">
+          {children}
+        </div>
+        <div></div>
       </div>
     </div>
   );
