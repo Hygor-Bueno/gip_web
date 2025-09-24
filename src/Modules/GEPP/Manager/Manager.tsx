@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useConnection } from "../../../Context/ConnContext";
 import CustomTable from "../../../Components/CustomTable";
+import { IManagerProps } from "./Interfaces/IManager";
 
-type Props = {
-  setSelectedProduct?: any;
-  selectedProduct?: any;
-};
-
-function Gerenciador({ setSelectedProduct }: Props) {
+function Manager({ setSelectedProduct }: IManagerProps) {
   const { fetchData } = useConnection();
   const [tableData, setTableData] = useState<any[]>([]);
   const productCache = new Map<number, any>();
@@ -114,4 +110,4 @@ function Gerenciador({ setSelectedProduct }: Props) {
   );
 }
 
-export default Gerenciador;
+export default Manager;

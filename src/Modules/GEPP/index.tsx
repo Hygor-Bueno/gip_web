@@ -3,7 +3,7 @@ import { useMyContext } from "../../Context/MainContext";
 import NavBar from "../../Components/NavBar";
 import { listPathGEPP } from "./ConfigGepp";
 import CardProd from "./CardProd";
-import Gerenciador from "./Gerenciador/Gerenciador";
+import Manager from "./Manager/Manager";
 import useWindowSize from "../GAPP/Infraction/hook/useWindowSize";
 
 const Gepp = () => {
@@ -34,7 +34,7 @@ const Gepp = () => {
               <CardProd product={selectedProduct} />
             ) : (
               // Nenhum produto selecionado → mostra tabela
-              <Gerenciador
+              <Manager
                 selectedProduct={selectedProduct}
                 setSelectedProduct={setSelectedProduct}
               />
@@ -43,7 +43,7 @@ const Gepp = () => {
             // --- DESKTOP ---
             <>
               <div className="w-50 pe-2">
-                <Gerenciador
+                <Manager
                   selectedProduct={selectedProduct || []}
                   setSelectedProduct={setSelectedProduct}
                 />

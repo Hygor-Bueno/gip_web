@@ -1,41 +1,9 @@
 import React from "react";
 import "./style.css";
 import ProgressBar from "../../GTPP/ComponentsCard/Modal/Progressbar";
+import { ISalesC5Information } from "./Interfaces/ISalesC5Information";
 
-type DataProps = {
-  id?: string | number;
-  store?: string;
-  user?: string;
-  dateTime?: string; // Data de análise do produto
-};
-
-type ProductProps = {
-  categoryName: string;
-  code_category: string;
-  code_family: string;
-  code_product: string;
-  description: string;
-  ean: string;
-  expiration_date: string; // Data de validade
-  first_date: string; // Data da primeira venda
-  last_date: string; // Data da última venda
-  meta: string;
-  quantity: string; // Quantidade em estoque
-  store: string;
-  store_number: string;
-  total_quantity: string; // Quantidade total vendida
-  value: string;
-  price?: string;
-  new_price?: string;
-};
-
-type Props = {
-  data?: DataProps;
-  product?: ProductProps;
-  children?: any;
-};
-
-function ProductSalesInfo({ data, product, children }: Props) {
+function ProductSalesInfo({ data, product, children }: ISalesC5Information) {
   return (
     <main className="container page-bg py-3 h-100 overflow-auto">
       {/* Cabeçalho */}
