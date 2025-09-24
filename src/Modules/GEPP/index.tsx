@@ -3,7 +3,7 @@ import { useMyContext } from "../../Context/MainContext";
 import NavBar from "../../Components/NavBar";
 import { listPathGEPP } from "./ConfigGepp";
 import CardProd from "./ManagerCard";
-import Manager from "./Manager/Manager";
+import Manager from "./ManagerTable/Manager";
 import useWindowSize from "../GAPP/Infraction/hook/useWindowSize";
 
 const Gepp = () => {
