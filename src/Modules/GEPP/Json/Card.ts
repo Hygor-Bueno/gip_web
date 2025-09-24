@@ -1,5 +1,5 @@
 // ==========================
-// Configuração dos cards
+// Adicione mais cards por aqui!
 // ==========================
 export const cardsConfig = (product: any) => [
   {

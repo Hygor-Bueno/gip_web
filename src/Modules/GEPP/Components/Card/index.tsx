@@ -1,3 +1,4 @@
+import React from "react";
 import ProgressBar from "../../../GTPP/ComponentsCard/Modal/Progressbar";
 
 // ==========================
@@ -80,7 +81,7 @@ interface CardWithValuesProps {
 
 function CardWithValues({ subTitle, productCard }: CardWithValuesProps) {
   return (
-    <>
+    <React.Fragment>
       <div className="d-flex justify-content-between border-bottom pb-2 mb-2 w-100">
         <span>{subTitle?.titleSecondary || "Vazio"}</span>
         <strong>{productCard?.valueOne ?? 0}</strong>
@@ -93,7 +94,7 @@ function CardWithValues({ subTitle, productCard }: CardWithValuesProps) {
         <span>Total</span>
         <strong>{productCard?.valueThree ?? 0}</strong>
       </div>
-    </>
+    </React.Fragment>
   );
 }
 
@@ -107,11 +108,11 @@ interface TitleCardProps {
 
 function TitleCard({ titleCard, icon }: TitleCardProps) {
   return (
-    <>
+    <React.Fragment>
       <div className="summary-icon mb-2">
         <i className={`fa fa-${icon} fa-2x`}></i>
       </div>
       <h5 className="fw-bold">{titleCard?.title || "Sem título"}</h5>
-    </>
+    </React.Fragment>
   );
 }
