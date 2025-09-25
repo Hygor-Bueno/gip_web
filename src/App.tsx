@@ -53,7 +53,7 @@ function App() {
           <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
           <Route path="/GIPP/EPP" element={withPrivateProvider(<Epp />)} />
           <Route path="/GIPP/EPP/sales" element={withPrivateProvider(<SalesPage />)} />
-          <Route path='/GEPP' element={withPrivateProvider(<Gepp />)} />
+          <Route path='/GIPP/GEPP' element={withPrivateProvider(<Gepp />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>

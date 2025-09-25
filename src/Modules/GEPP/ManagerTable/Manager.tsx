@@ -3,6 +3,7 @@ import { useConnection } from "../../../Context/ConnContext";
 import CustomTable from "../../../Components/CustomTable";
 import { IManagerProps } from "./Interfaces/IManager";
 import { formatDateBR } from "../../../Util/Util";
+require("./Style.css");
 
 function Manager({ setSelectedProduct }: IManagerProps) {
   const { fetchData } = useConnection();
@@ -96,7 +97,7 @@ function Manager({ setSelectedProduct }: IManagerProps) {
   }
 
   return (
-    <div className="container">
+    <div className={`container ${tableData.length > 0 ? null : 'h-100' }`}>
       {tableData.length > 0 ? (
         <CustomTable
           list={tableData}
@@ -105,7 +106,11 @@ function Manager({ setSelectedProduct }: IManagerProps) {
           hiddenButton={false}
         />
       ) : (
-        <p>Carregando produtos...</p>
+        <div className="empty-state h-100">
+          <i className="fas fa-box-open empty-icon" aria-hidden="true"></i>
+          <h2>Nenhum produto encontrado</h2>
+          <p>Os dados que você está procurando não foram encontrados.</p>
+        </div>
       )}
     </div>
   );
