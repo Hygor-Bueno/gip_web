@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useMyContext } from "../../Context/MainContext";
 import NavBar from "../../Components/NavBar";
 import { listPathGEPP } from "./ConfigGepp";
@@ -11,6 +11,8 @@ const Gepp = () => {
   const { width } = useWindowSize();
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const reloadRef = useRef<() => void>();
+
 
   useEffect(() => {
     setTitleHead({
@@ -34,19 +36,13 @@ const Gepp = () => {
               </React.Fragment>
             ) : (
               <React.Fragment>
-                <Manager
-                  selectedProduct={selectedProduct}
-                  setSelectedProduct={setSelectedProduct}
-                />
+                <Manager selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} />
               </React.Fragment>
             )
           ) : (
             <React.Fragment>
               <div className="w-50 pe-2">
-                <Manager
-                  selectedProduct={selectedProduct || []}
-                  setSelectedProduct={setSelectedProduct}
-                />
+                <Manager selectedProduct={selectedProduct || []} setSelectedProduct={setSelectedProduct} />
               </div>
               <div className="w-50 ps-2">
                 <CardProd setProduct={setSelectedProduct} product={selectedProduct || []} />

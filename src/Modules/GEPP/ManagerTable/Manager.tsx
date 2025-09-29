@@ -28,15 +28,17 @@ function Manager({ setSelectedProduct }: IManagerProps) {
         return;
       }
 
-      const mapped = data.data.map((p: any) => ({
+      const mapped = data.data
+      .map((p: any) => ({
         id_products: { value: p.id_products, tag: "ID" },
         ean: { value: p.ean, tag: "EAN" },
         description: { value: p.description, tag: "Descrição" },
         price: { value: `R$ ${p.price}`, tag: "Preço" },
         new_price: { value: `R$ ${p.new_price}`, tag: "Novo Preço" },
         quantity: { value: p.quantity, tag: "Qtd" },
-        store_number: { value: p.store_number, tag: "Loja" },
         expiration_date: { value: formatDateBR(p.expiration_date), tag: "Validade" },
+        store_number: { value: storeString(p.store_number), tag: "Loja" },
+        id_status_step_fk: {value: statusStepString(p.id_status_step_fk), tag: "Status"  },
       }));
 
       setTableData(mapped);
@@ -44,6 +46,25 @@ function Manager({ setSelectedProduct }: IManagerProps) {
       console.error("Erro ao carregar dados:", error.message);
     }
   }
+
+  function statusStepString(value: string): string {
+    const map: Record<string, any> = {
+      '1': <strong className="text-purple">Analise</strong>,
+      '2': <strong className="text-success">Aprovado</strong>,
+      '3': <strong className="text-danger">Reprovado</strong>,
+      '4': <strong className="text-dark">Finalizado</strong>
+    }
+    return map[value] ?? "Desconhecido";
+  }
+
+  function storeString(value: string): string {
+    const map: Record<string, any> = {
+      '1': <strong>Interlagos</strong>
+    }
+
+    return map[value] ?? "Desconhecido";
+  }
+
 
   useEffect(() => {
     loadData();
@@ -77,9 +98,8 @@ function Manager({ setSelectedProduct }: IManagerProps) {
           exception: ["no data"],
         });
 
-
         // Combina os resultados
-        const combined = [(firstData.data || []), ...(secondData.data || [])];
+        const combined = [(firstData.data || []), (secondData.data || [])];
 
         // Salva no cache
         productCache.set(id, combined);

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import InformationSalesC5 from "../InformationSalesC5";
-import "./CardProd.css";
 import useWindowSize from "../../GAPP/Infraction/hook/useWindowSize";
 import { formatDateBR } from "../../../Util/Util";
+require("./CardProd.css");
 
-function CardProd({ product, setProduct }: { product: any[][], setProduct: any }) {
+function CardProd({ product, setProduct }: { product: any[][], setProduct: any, setDataList?: any; }) {
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevProductsRef = useRef<any[][]>([]);
 
@@ -81,9 +82,9 @@ function CardProd({ product, setProduct }: { product: any[][], setProduct: any }
       <InformationSalesC5
         key={`product_${mySqlData?.id_products}_${oracleData?.code_category}`}
         data={{
-          dateTime: formatDateBR(mySqlData?.created_at),
-          id: mySqlData?.id_products,
-          store: oracleData?.store || mySqlData?.store,
+          created_at: formatDateBR(mySqlData?.created_at),
+          id_products: mySqlData?.id_products,
+          store_number: oracleData?.store || mySqlData?.store,
           user: mySqlData?.created_by,
         }}
         product={{
@@ -93,13 +94,15 @@ function CardProd({ product, setProduct }: { product: any[][], setProduct: any }
           code_product: oracleData?.code_product,
           description: oracleData?.description || mySqlData?.description,
           ean: oracleData?.ean || mySqlData?.ean,
-          expiration_date:
-            formatDateBR(oracleData?.expiration_date) || mySqlData?.expiration_date,
+          expiration_date: oracleData?.expiration_date || mySqlData?.expiration_date, // formatDateBR(oracleData?.expiration_date)
           first_date: formatDateBR(oracleData?.first_date),
           last_date: formatDateBR(oracleData?.last_date),
           meta: oracleData?.meta,
           quantity: oracleData?.quantity || mySqlData?.quantity,
           store: oracleData?.store || mySqlData?.store,
+          status_product: mySqlData?.status_product,
+          id_status_step_fk: mySqlData?.id_status_step_fk,
+          id_reasons_fk: mySqlData?.id_reasons_fk,
           store_number: oracleData?.store_number || mySqlData?.store_number,
           total_quantity: oracleData?.total_quantity,
           value: oracleData?.value,
@@ -109,15 +112,17 @@ function CardProd({ product, setProduct }: { product: any[][], setProduct: any }
         children={
           product.length > 1 && (
             <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
-              <button className="btn btn-outline-secondary" onClick={prev}>
-                {"<"}
-              </button>
-              <span className="fw-bold">
-                {currentIndex + 1} / {product.length}
-              </span>
-              <button className="btn btn-outline-secondary" onClick={next}>
-                {">"}
-              </button>
+              <div>
+                <button className="btn btn-outline-secondary" onClick={prev}>
+                  {"<"}
+                </button>
+                <span className="fw-bold">
+                  {currentIndex + 1} / {product.length}
+                </span>
+                <button className="btn btn-outline-secondary" onClick={next}>
+                  {">"}
+                </button>
+              </div>
             </div>
           )
         }

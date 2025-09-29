@@ -1,8 +1,8 @@
 interface DataProps {
-  id?: string | number;
-  store?: string;
+  id_products?: string | number;
+  store_number?: string;
   user?: string;
-  dateTime?: string; // Data de análise do produto
+  created_at?: string; // Data de análise do produto
 };
 
 interface ProductProps {
@@ -18,6 +18,9 @@ interface ProductProps {
   meta: string;
   quantity: string; // Quantidade em estoque
   store: string;
+  id_status_step_fk: string;
+  id_reasons_fk: string;
+  status_product: string;
   store_number: string;
   total_quantity: string; // Quantidade total vendida
   value: string;
