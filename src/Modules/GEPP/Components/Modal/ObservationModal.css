@@ -12,7 +12,7 @@
 }
 
 .modal-container {
-  background-color: #121212; /* fundo preto sólido para o modal */
+  background-color: #f4f4f4; /* fundo preto sólido para o modal */
   padding: 20px;
   border-radius: 12px;
   width: 400px;
@@ -24,7 +24,7 @@
 }
 
 .modal-title {
-  color: #fff;
+  color: #000000;
   margin: 0;
 }
 
@@ -35,7 +35,7 @@
   border-radius: 8px;
   border: 1px solid #555;
   background-color: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: #000000;
   font-family: Arial, Helvetica, sans-serif;
   resize: none;
 }
@@ -70,4 +70,29 @@
 
 .observation strong {
     font-size: 1.5rem;
+}
+
+
+.modal-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 1rem;
+  color: #666;
+  transition: all 0.3s ease;
+  outline: none;
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.modal-select:focus {
+  border-color: #339cff;
+  box-shadow: 0 0 4px rgba(51, 156, 255, 0.5);
+}
+
+.modal-select.selected {
+  font-family: "Arial", "Helvetica", sans-serif;
+  color: #333;
 }

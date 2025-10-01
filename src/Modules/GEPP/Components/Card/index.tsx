@@ -1,6 +1,6 @@
 import React from "react";
 import ProgressBar from "../../../GTPP/ComponentsCard/Modal/Progressbar";
-import "./style.css";
+require("./style.css");
 
 // ==========================
 // Interfaces

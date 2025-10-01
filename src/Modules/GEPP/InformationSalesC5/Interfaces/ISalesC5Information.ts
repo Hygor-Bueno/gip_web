@@ -26,10 +26,14 @@ interface ProductProps {
   value: string;
   price?: string;
   new_price?: string;
+  created_name: string;
+  updated_name: string;
 };
 
 export interface ISalesC5Information {
   data?: DataProps;
   product?: ProductProps;
   children?: any;
+  loadData?: any;
+  setProduct?: any;
 };

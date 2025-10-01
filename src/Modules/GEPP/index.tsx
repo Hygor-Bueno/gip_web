@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useMyContext } from "../../Context/MainContext";
 import NavBar from "../../Components/NavBar";
 import { listPathGEPP } from "./ConfigGepp";
@@ -11,8 +11,12 @@ const Gepp = () => {
   const { width } = useWindowSize();
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const reloadRef = useRef<() => void>();
 
+  const [reloadFunction, setReloadFunction] = useState<(() => void) | null>(null);
+
+  const loadList = useCallback((load: () => void) => {
+    setReloadFunction(() => load);
+  }, []); 
 
   useEffect(() => {
     setTitleHead({
@@ -32,20 +36,20 @@ const Gepp = () => {
           {isMobile ? (
             selectedProduct ? (
               <React.Fragment>
-                <CardProd setProduct={setSelectedProduct} product={selectedProduct} />
+                <CardProd reloadFunction={reloadFunction} setProduct={setSelectedProduct} product={selectedProduct} />
               </React.Fragment>
             ) : (
               <React.Fragment>
-                <Manager selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} />
+                <Manager loadList={loadList} selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} />
               </React.Fragment>
             )
           ) : (
             <React.Fragment>
               <div className="w-50 pe-2">
-                <Manager selectedProduct={selectedProduct || []} setSelectedProduct={setSelectedProduct} />
+                <Manager loadList={loadList} selectedProduct={selectedProduct || []} setSelectedProduct={setSelectedProduct} />
               </div>
               <div className="w-50 ps-2">
-                <CardProd setProduct={setSelectedProduct} product={selectedProduct || []} />
+                <CardProd reloadFunction={reloadFunction} setProduct={setSelectedProduct} product={selectedProduct || []} />
               </div>
             </React.Fragment>
           )}

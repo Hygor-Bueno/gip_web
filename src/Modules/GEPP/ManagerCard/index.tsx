@@ -4,7 +4,7 @@ import useWindowSize from "../../GAPP/Infraction/hook/useWindowSize";
 import { formatDateBR } from "../../../Util/Util";
 require("./CardProd.css");
 
-function CardProd({ product, setProduct }: { product: any[][], setProduct: any, setDataList?: any; }) {
+function CardProd({ product, setProduct, reloadFunction }: { product: any[][], setProduct: any, setDataList?: any; reloadFunction: any; }) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevProductsRef = useRef<any[][]>([]);
@@ -73,6 +73,7 @@ function CardProd({ product, setProduct }: { product: any[][], setProduct: any, 
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
+
       {isMobile && (
         <div className="d-flex justify-content-end gap-2 p-2">
           <button onClick={() => {console.log('reload lista')}} className="fa fa-rotate btn btn-primary"></button>
@@ -80,6 +81,8 @@ function CardProd({ product, setProduct }: { product: any[][], setProduct: any, 
         </div>
       )}
       <InformationSalesC5
+        setProduct={setProduct}
+        loadData={reloadFunction}
         key={`product_${mySqlData?.id_products}_${oracleData?.code_category}`}
         data={{
           created_at: formatDateBR(mySqlData?.created_at),
@@ -108,11 +111,13 @@ function CardProd({ product, setProduct }: { product: any[][], setProduct: any, 
           value: oracleData?.value,
           price: mySqlData?.price,
           new_price: mySqlData?.new_price,
+          created_name: mySqlData?.created_name,
+          updated_name: mySqlData?.updated_name
         }}
         children={
           product.length > 1 && (
-            <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
-              <div>
+            <div className="d-flex justify-content-center">
+              <div className="d-flex gap-2 align-items-center align">
                 <button className="btn btn-outline-secondary" onClick={prev}>
                   {"<"}
                 </button>
