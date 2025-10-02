@@ -12,7 +12,9 @@ interface ProductProps {
   code_product: string;
   description: string;
   ean: string;
+  observation: string;
   expiration_date: string; // Data de validade
+  sellout: string;
   first_date: string; // Data da primeira venda
   last_date: string; // Data da última venda
   meta: string;

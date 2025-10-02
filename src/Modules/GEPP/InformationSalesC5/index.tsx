@@ -5,24 +5,21 @@ import InformationText from "../Components/InformationText";
 import { Card } from "../Components/Card";
 import { cardsConfig } from "../ManagerCard/Json/Card";
 import { useConnection } from "../../../Context/ConnContext";
-import { EditModalConfirm, ObservationModal } from "../Components/Modal";
+import { ObservationModal } from "../Components/Modal";
 import { handleNotification } from "../../../Util/Util";
+import { Button } from "react-bootstrap";
 
 require("./style.css");
 
 function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISalesC5Information) {
   const { fetchData } = useConnection();
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showObservationModal, setShowObservationModal] = useState(false);
   const [stepStatus, setStepStatus] = useState<any[]>([]);
-  const [selectedStepId, setSelectedStepId] = useState<string>(""); // Armazena o step selecionado
+  const [selectedStepId, setSelectedStepId] = useState<string>(""); // Valor selecionado
+  const [valueSellout, setValueSellout] = useState<string>("0.00");
 
-  // Busca os status de etapas
   useEffect(() => {
-    async function loadStatusSteps() {
-      await getStatusStep();
-    }
-    loadStatusSteps();
+    getStatusStep();
   }, []);
 
   async function getStatusStep() {
@@ -36,26 +33,17 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
       });
 
       if (!response || response.error) {
-        handleNotification(
-          "Erro ao buscar status",
-          response?.message || "Falha na comunicação com o servidor.",
-          "danger"
-        );
+        handleNotification("Erro ao buscar status", response?.message || "Falha na comunicação", "danger");
         return;
       }
 
       setStepStatus(response.data || []);
     } catch (error) {
       console.error("Erro no getStatusStep:", error);
-      handleNotification(
-        "Erro inesperado",
-        "Ocorreu um erro ao buscar os status de etapa.",
-        "danger"
-      );
+      handleNotification("Erro inesperado", "Ocorreu um erro ao buscar os status de etapa.", "danger");
     }
   }
 
-  // Funções de atualização de status
   async function handleStatusAprove() {
     const response = await fetchData({
       method: "PUT",
@@ -67,14 +55,13 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
         price: Number(product?.price),
         new_price: Number(product?.new_price),
         quantity: Number(product?.quantity),
+        sellout: valueSellout,
         store_number: Number(product?.store_number),
         expiration_date: product?.expiration_date,
         status_product: 2,
         id_reasons_fk: 1,
         id_status_step_fk: 2,
       },
-      urlComplement: "",
-      exception: ["no data"],
     });
 
     if (!response.error) {
@@ -98,17 +85,14 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
         quantity: Number(product?.quantity),
         store_number: Number(product?.store_number),
         expiration_date: product?.expiration_date,
-        updated_by: 214,
-        status_product: Number(product?.status_product),
+        status_product: 2,
         id_reasons_fk: 1,
-        id_status_step_fk: 3,
+        id_status_step_fk: 3
       },
-      urlComplement: "",
-      exception: ["no data"],
     });
 
     if (!response.error) {
-      handleNotification("Enviado com sucesso!", response.message, "success");
+      handleNotification("Reprovado com sucesso!", response.message, "success");
       loadData();
       setProduct(null);
     }
@@ -125,14 +109,13 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
         price: Number(product?.price),
         new_price: Number(product?.new_price),
         quantity: Number(product?.quantity),
+        sellout: Number(product?.sellout),
         store_number: Number(product?.store_number),
         expiration_date: product?.expiration_date,
         status_product: 0,
         id_reasons_fk: 1,
         id_status_step_fk: Number(product?.id_status_step_fk),
       },
-      urlComplement: "",
-      exception: ["no data"],
     });
 
     if (!response.error) {
@@ -154,39 +137,45 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
         new_price: Number(product?.new_price),
         quantity: Number(product?.quantity),
         store_number: Number(product?.store_number),
+        sellout: Number(product?.sellout), 
         expiration_date: product?.expiration_date,
         status_product: 4,
         id_reasons_fk: 1,
-        id_status_step_fk: Number(stepId), // ✅ usa o valor selecionado
+        id_status_step_fk: Number(stepId),
       },
-      urlComplement: "",
-      exception: ["no data"],
     });
 
     if (!response.error) {
-      handleNotification("Atualizado com sucesso!", response?.message, "success");
+      handleNotification("Status atualizado!", response?.message, "success");
       loadData();
       setProduct(null);
     }
   }
 
-  // Seleção do modal Edit
-  async function handleConfirmSelect(value: string) {
-    setSelectedStepId(value); // salva valor selecionado
+  function handleSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setSelectedStepId(e.target.value);
+  }
 
-    if (value === "2") {
+  async function handleSubmit() {
+    if (!selectedStepId) {
+      handleNotification("Selecione uma ação!", "É necessário escolher um status.", "warning");
+      return;
+    }
+
+    if (selectedStepId === "2") {
       await handleStatusAprove();
-      setShowEditModal(false);
-    } else if (value === "3") {
-      setShowEditModal(false);
+    } else if (selectedStepId === "3") {
       setShowObservationModal(true);
-    } else if (value === "5" || value === "6" || value === "7") {
-      await handleStatusFinally(value); // envia o valor selecionado
-      setShowEditModal(false);
     } else {
-      setShowEditModal(false);
+      await handleStatusFinally(selectedStepId);
     }
   }
+
+  const filteredOptions = stepStatus.filter((item: any) => {
+    if (Number(product?.status_product) === 1) return item.step === "2";
+    if (Number(product?.status_product) === 3) return item.step === "4";
+    return false;
+  });
 
   return (
     <main className="container page-bg py-3 h-100 overflow-auto">
@@ -200,44 +189,62 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
           onClose={() => setShowObservationModal(false)}
         />
       )}
-
-      {/* Modal de Edição */}
-      <EditModalConfirm
-        isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        onConfirm={handleConfirmSelect}
-        title="Editar Produto"
-        options={stepStatus
-          .filter((item: any) => {
-            if (Number(product?.status_product) === 1) return item.step === "2";
-            if (Number(product?.status_product) === 3) return item.step === "4";
-            return false;
-          })
-          .map((item: any) => ({
-            label: item.description,
-            value: item.id_status,
-          }))}
-      />
-
-      {/* Botões de ação */}
-      <div className="d-flex w-100 justify-content-between gap-2 mb-2">
-        <div className="d-flex gap-2">
-          <button
-            onClick={() => setShowEditModal(true)}
-            className={`btn btn-success fa fa-pencil`}
-          ></button>
-        </div>
-        {Number(product?.status_product) > 0 && Number(product?.status_product) <= 4 && (
-          <button
-            onClick={handleStatusTrash}
-            className="btn btn-outline-danger fa fa-trash d-block"
-          ></button>
-        )}
-      </div>
-
+      {/* Cabeçalho e informações */}
       <HeaderC5 data={data} product={product} />
       <InformationText product={product} />
 
+      {/* Select + botão */}
+      <div className="d-flex flex-wrap align-items-start gap-3 my-3">
+        {/* Select de Fluxo de Aprovação */}
+        <div className="flex-grow-1 min-w-250 ">
+          <label className="form-label fw-bold w-100">
+            Fluxo de aprovação
+            <select
+              className="form-select mt-1"
+              value={selectedStepId}
+              onChange={handleSelectChange}
+            >
+              <option value="">Selecione uma ação...</option>
+              {filteredOptions.map((item: any) => (
+                <option key={item.id_status} value={item.id_status}>
+                  {item.description}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        {/* Input de Sellout */}
+        <div className="flex-grow-1 min-w-150">
+          <label className="form-label fw-bold w-100">
+            Sellout
+            <input
+              type="number"
+              placeholder="0.00"
+              className="form-control mt-1"
+              onChange={(e) => setValueSellout(e.target.value)}
+              disabled={Number(product?.status_product) !== 1}
+              value={Number(product?.status_product) !== 1 ? product?.sellout : valueSellout}
+            />
+          </label>
+        </div>
+
+        {/* Botões */}
+        <div className="d-flex gap-2 flex-wrap align-items-center mt-2 pt-4">
+          <Button variant="primary" onClick={handleSubmit}>
+            Enviar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={handleStatusTrash}
+            className="d-flex gap-2 align-items-center"
+          >
+            <i className="fa fa-trash text-white"></i> Deletar
+          </Button>
+        </div>
+      </div>
+
+      {/* Cards */}
       <div className="row mb-4 gx-3 gy-3">
         {cardsConfig(product).map((cardProps, index) => (
           <Card
@@ -246,6 +253,7 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
           />
         ))}
       </div>
+
       <hr />
       {children}
     </main>

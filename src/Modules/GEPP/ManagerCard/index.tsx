@@ -95,6 +95,8 @@ function CardProd({ product, setProduct, reloadFunction }: { product: any[][], s
           code_category: oracleData?.code_category,
           code_family: oracleData?.code_family,
           code_product: oracleData?.code_product,
+          sellout: mySqlData?.sellout,
+          observation: mySqlData?.observation,
           description: oracleData?.description || mySqlData?.description,
           ean: oracleData?.ean || mySqlData?.ean,
           expiration_date: oracleData?.expiration_date || mySqlData?.expiration_date, // formatDateBR(oracleData?.expiration_date)
