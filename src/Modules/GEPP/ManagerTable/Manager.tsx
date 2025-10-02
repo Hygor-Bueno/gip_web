@@ -3,13 +3,14 @@ import { useConnection } from "../../../Context/ConnContext";
 import CustomTable from "../../../Components/CustomTable";
 import { IManagerProps } from "./Interfaces/IManager";
 import { formatDateBR, handleNotification } from "../../../Util/Util";
+import { EStatusProduct } from "./Enum/statusProduct";
 require("./Style.css");
 
 function Manager({ setSelectedProduct, loadList }: IManagerProps) {
   const { fetchData } = useConnection();
 
   const [tableData, setTableData] = useState<any[]>([]);
-  const [stepStatus, setStepStatus] = useState<{ id_status: string; description: string, step?: string }[]>([]);
+  const [stepStatus, setStepStatus] = useState<{ id_status: string; description: string; step?: string }[]>([]);
   const [statusProduct, setStatusProduct] = useState<number>(1);
   const [eanSearch, setEanSearch] = useState<string>("");
   const [firstDate, setFirstDate] = useState<string>("");
@@ -65,7 +66,9 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
     if (lastDate) filters.last_date = lastDate;
     if (storeSearch) filters.store_number = storeSearch;
     if (expirationDate) filters.expiration_date = expirationDate;
-    if (statusProduct) filters.status_product = statusProduct;
+
+    // Aqui a correção principal: statusProduct pode ser 0
+    if (statusProduct != null) filters.status_product = statusProduct;
 
     // Envia all=1 apenas se nenhum filtro específico estiver ativo
     if (Object.keys(filters).length === 0) {
@@ -165,12 +168,13 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
     <div className={`container ${tableData.length > 0 ? "" : "h-100"}`}>
 
       {/* Botões */}
-        <div className="d-flex align-items-end gap-2 mt-2 w-100 justify-content-between mb-3">
-          <strong>Filtros de pesquisa:</strong>
-          <button className="btn btn-secondary btn-sm d-flex align-items-center gap-2" onClick={resetFilters}>
-            <i className="fa fa-times me-1 text-white"></i>Limpar
-          </button>
-        </div>
+      <div className="d-flex align-items-end gap-2 mt-2 w-100 justify-content-between mb-3">
+        <strong>Filtros de pesquisa:</strong>
+        <button className="btn btn-secondary btn-sm d-flex align-items-center gap-2" onClick={resetFilters}>
+          <i className="fa fa-times me-1 text-white"></i>Limpar
+        </button>
+      </div>
+
       <div className="d-flex flex-wrap align-items-end gap-2 mb-3">
         {/* EAN */}
         <div className="d-flex flex-column w-auto">
@@ -208,14 +212,12 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
         <div className="d-flex flex-column w-auto">
           <label className="fw-bold mb-1 small">Status</label>
           <select className="form-select form-select-sm" value={statusProduct} onChange={(e) => setStatusProduct(Number(e.target.value))}>
-            <option value={1}>Análise</option>
-            <option value={2}>Aprovado/Reprovado</option>
-            <option value={3}>Executando</option>
-            <option value={4}>Finalizados</option> 
+            <option value={EStatusProduct.DELETED}>Deletados/Reprovados</option>
+            <option value={EStatusProduct.ACTIVE}>Ativos</option>
+            <option value={EStatusProduct.EXECUTED}>Executados</option>
+            <option value={EStatusProduct.FINALIZED}>Finalizados</option>
           </select>
         </div>
-
-        
       </div>
 
       {tableData.length > 0 ? (

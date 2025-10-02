@@ -58,7 +58,7 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
         sellout: valueSellout,
         store_number: Number(product?.store_number),
         expiration_date: product?.expiration_date,
-        status_product: 2,
+        status_product: 1,
         id_reasons_fk: 1,
         id_status_step_fk: 2,
       },
@@ -85,7 +85,7 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
         quantity: Number(product?.quantity),
         store_number: Number(product?.store_number),
         expiration_date: product?.expiration_date,
-        status_product: 2,
+        status_product: 0,
         id_reasons_fk: 1,
         id_status_step_fk: 3
       },
@@ -139,7 +139,7 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
         store_number: Number(product?.store_number),
         sellout: Number(product?.sellout), 
         expiration_date: product?.expiration_date,
-        status_product: 4,
+        status_product: 3,
         id_reasons_fk: 1,
         id_status_step_fk: Number(stepId),
       },
@@ -172,8 +172,10 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
   }
 
   const filteredOptions = stepStatus.filter((item: any) => {
-    if (Number(product?.status_product) === 1) return item.step === "2";
-    if (Number(product?.status_product) === 3) return item.step === "4";
+    if(Number(product?.status_product) === 1 && Number(product?.id_status_step_fk) === 1) {
+      return item.step === "2";
+    }
+    if (Number(product?.status_product) === 2) return item.step === "4";
     return false;
   });
 
@@ -197,6 +199,7 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
       <div className="d-flex flex-wrap align-items-start gap-3 my-3">
         {/* Select de Fluxo de Aprovação */}
         <div className="flex-grow-1 min-w-250 ">
+
           <label className="form-label fw-bold w-100">
             Fluxo de aprovação
             <select
