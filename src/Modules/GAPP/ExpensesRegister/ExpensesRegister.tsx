@@ -118,7 +118,7 @@ export default function ExpensesRegister(): JSX.Element {
 
     return (
         <div className="d-flex flex-column align-items-center justify-content-between overflow-hidden text-white w-100" >
-            <div className="container">
+            <div className="w-100 px-2">
                 {editExpenses ? <EditExpenses expen_id={editExpenses} onClose={() => setEditExpenses(0)} />:<React.Fragment />}
                 <CustomForm
                     onSubmit={(event: React.FormEvent<HTMLFormElement>) => {

@@ -75,7 +75,7 @@ export default function Stores(): JSX.Element {
                     <div className='d-flex justify-content-end w-100 gap-2'>
                         {listButtonInputs.map((button, index) => <InputCheckButton key={`btn_header_table_gapp_${index}`} {...button} />)}
                     </div>
-                    <div className="container">
+                    <div className="px-2 w-100">
                         {openForm &&
                             <Form
                                 handleFunction={[
