@@ -57,7 +57,7 @@ const EditInfraction: React.FC<EditInfractionProps> = ({
       pageNation={pageNation}
     >
       <CustomForm
-        notButton={true} // já temos o botão de salvar no modal
+        notButton={false}
         onAction={handleSave}
         fieldsets={[
           {

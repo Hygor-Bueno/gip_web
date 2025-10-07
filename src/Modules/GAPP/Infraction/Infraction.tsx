@@ -80,7 +80,7 @@ const Infraction: React.FC = () => {
     setSelectedItems(list);
     setCurrentIndex(0);
     mapFieldsFromItem(list[0]); // preenche o formulário com o primeiro item
-    setEditModalVisible(true); // abre modal de edição
+    setEditModalVisible(true);
   };
 
   /**
@@ -106,7 +106,7 @@ const Infraction: React.FC = () => {
         pathFile: "GAPP/Infraction.php",
         params: payload,
       });
-      
+
       fetchInfractions("1");
 
       if (isEdit) {
