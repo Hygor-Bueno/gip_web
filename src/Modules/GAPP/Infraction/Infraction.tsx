@@ -163,7 +163,7 @@ const Infraction: React.FC = () => {
     <React.Fragment>
       <NavBar list={listPathGAPP} />
 
-      <div className="w-100" style={{ height: "93%" }}>
+      <div className="w-100" style={{ height: "90%" }}>
         <div className="p-2 w-100">
           <button
             className="btn btn-success"

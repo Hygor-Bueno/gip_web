@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-require("./ObservationModal.css");
+import './ObservationModal.module.css';
 
 interface IObservationModal {
   onClose?: () => void;
