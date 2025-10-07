@@ -8,6 +8,7 @@ import { useConnection } from "../../../Context/ConnContext";
 import { ObservationModal } from "../Components/Modal";
 import { handleNotification } from "../../../Util/Util";
 import { Button } from "react-bootstrap";
+import { getProductParams } from "./Hooks/useProductParams";
 
 require("./style.css");
 
@@ -45,25 +46,8 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
   }
 
   async function handleStatusAprove() {
-    const response = await fetchData({
-      method: "PUT",
-      pathFile: "GEPP/Product.php",
-      params: {
-        id_products: Number(data?.id_products),
-        ean: product?.ean,
-        description: product?.description,
-        price: Number(product?.price),
-        new_price: Number(product?.new_price),
-        quantity: Number(product?.quantity),
-        sellout: valueSellout,
-        store_number: Number(product?.store_number),
-        expiration_date: product?.expiration_date,
-        status_product: 1,
-        id_reasons_fk: 1,
-        id_status_step_fk: 2,
-      },
-    });
-
+    const params = getProductParams(data, product, { sellout: valueSellout, stepId: 2 });
+    const response = await fetchData({ method: "PUT", pathFile: "GEPP/Product.php", params });
     if (!response.error) {
       handleNotification("Enviado com sucesso!", response.message, "success");
       loadData();
@@ -72,25 +56,8 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
   }
 
   async function handleStatusReprove(observation: string) {
-    const response = await fetchData({
-      method: "PUT",
-      pathFile: "GEPP/Product.php",
-      params: {
-        id_products: Number(data?.id_products),
-        ean: product?.ean,
-        description: product?.description,
-        observation,
-        price: Number(product?.price),
-        new_price: Number(product?.new_price),
-        quantity: Number(product?.quantity),
-        store_number: Number(product?.store_number),
-        expiration_date: product?.expiration_date,
-        status_product: 0,
-        id_reasons_fk: 1,
-        id_status_step_fk: 3
-      },
-    });
-
+    const params = getProductParams(data, product, { stepId: 3, observation });
+    const response = await fetchData({ method: "PUT", pathFile: "GEPP/Product.php", params });
     if (!response.error) {
       handleNotification("Reprovado com sucesso!", response.message, "success");
       loadData();
@@ -99,25 +66,16 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
   }
 
   async function handleStatusTrash() {
-    const response = await fetchData({
-      method: "PUT",
-      pathFile: "GEPP/Product.php",
-      params: {
-        id_products: Number(data?.id_products),
-        ean: String(product?.ean),
-        description: String(product?.description),
-        price: Number(product?.price),
-        new_price: Number(product?.new_price),
-        quantity: Number(product?.quantity),
-        sellout: Number(product?.sellout),
-        store_number: Number(product?.store_number),
-        expiration_date: product?.expiration_date,
-        status_product: 0,
-        id_reasons_fk: 1,
-        id_status_step_fk: Number(product?.id_status_step_fk),
-      },
+    const params = getProductParams(data, product, {
+      stepId: Number(product?.id_status_step_fk),
+      observation: product?.observation,
+      sellout: product?.sellout?.toString(),
     });
 
+    // Atualiza para "apagado"
+    params.status_product = 0;
+
+    const response = await fetchData({ method: "PUT", pathFile: "GEPP/Product.php", params });
     if (!response.error) {
       handleNotification("Card apagado com sucesso!", response?.message, "success");
       loadData();
@@ -126,25 +84,9 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
   }
 
   async function handleStatusFinally(stepId: string) {
-    const response = await fetchData({
-      method: "PUT",
-      pathFile: "GEPP/Product.php",
-      params: {
-        id_products: Number(data?.id_products),
-        ean: String(product?.ean),
-        description: String(product?.description),
-        price: Number(product?.price),
-        new_price: Number(product?.new_price),
-        quantity: Number(product?.quantity),
-        store_number: Number(product?.store_number),
-        sellout: Number(product?.sellout), 
-        expiration_date: product?.expiration_date,
-        status_product: 3,
-        id_reasons_fk: 1,
-        id_status_step_fk: Number(stepId),
-      },
-    });
-
+    const params = getProductParams(data, product, { stepId: 3 });
+    params.id_status_step_fk = Number(stepId);
+    const response = await fetchData({ method: "PUT", pathFile: "GEPP/Product.php", params});
     if (!response.error) {
       handleNotification("Status atualizado!", response?.message, "success");
       loadData();
@@ -180,7 +122,7 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
   });
 
   return (
-    <main className="container page-bg py-3 h-100 overflow-auto">
+    <main className="container overflow-auto">
       {/* Modal de Observação */}
       {showObservationModal && (
         <ObservationModal

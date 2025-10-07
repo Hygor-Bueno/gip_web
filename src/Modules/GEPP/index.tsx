@@ -8,12 +8,8 @@ import useWindowSize from "../GAPP/Infraction/hook/useWindowSize";
 
 const Gepp = () => {
   const { setTitleHead } = useMyContext();
-  const { width } = useWindowSize();
-
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-
   const [reloadFunction, setReloadFunction] = useState<(() => void) | null>(null);
-
   const loadList = useCallback((load: () => void) => {
     setReloadFunction(() => load);
   }, []); 
@@ -26,25 +22,14 @@ const Gepp = () => {
     });
   }, [setTitleHead]);
 
-  const isMobile = width <= 768;
-
   return (
     <React.Fragment>
       <NavBar list={listPathGEPP} />
       <div className="d-flex justify-content-center align-items-center w-100 mt-4">
         <div className="d-flex justify-content-center w-100 h-100">
-          {isMobile ? (
-            selectedProduct ? (
-              <React.Fragment>
-                <CardProd reloadFunction={reloadFunction} setProduct={setSelectedProduct} product={selectedProduct} />
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <Manager loadList={loadList} selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} />
-              </React.Fragment>
-            )
-          ) : (
-            <React.Fragment>
+          
+
+          <React.Fragment>
               <div className="w-50 pe-2">
                 <Manager loadList={loadList} selectedProduct={selectedProduct || []} setSelectedProduct={setSelectedProduct} />
               </div>
@@ -52,7 +37,6 @@ const Gepp = () => {
                 <CardProd reloadFunction={reloadFunction} setProduct={setSelectedProduct} product={selectedProduct || []} />
               </div>
             </React.Fragment>
-          )}
         </div>
       </div>
     </React.Fragment>

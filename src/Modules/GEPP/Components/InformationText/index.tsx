@@ -4,7 +4,7 @@ import { formatDateBR } from "../../../../Util/Util";
 
 function InformationText({ product }: ISalesC5Information) {
   return (
-    <div className="row mb-4 info-grid g-3">
+    <div className="row info-grid">
       <InfoItem label="EAN" value={product?.ean} />
       <InfoItem label="Cód Produto" value={product?.code_product} />
       <InfoItem label="Cód Família" value={product?.code_family} />
@@ -27,7 +27,7 @@ interface InfoItemProps { label: string; value?: string | number | null; mobcol?
 function InfoItem({ label, value, mobcol, deskcol, bg, color }: InfoItemProps) {
   return (
     <div className={`col-md-${deskcol ?? 3} col-${mobcol ?? 12}`}>
-      <div className={`p-3 rounded shadow-sm h-100 bg-${bg ?? "white"}`} style={{ fontFamily: "'Arial', 'Helvetica', sans-serif", transition: "all 0.2s" }}>
+      <div className={`px-2 rounded shadow-sm h-100 bg-${bg ?? "white"}`} style={{ fontFamily: "'Arial', 'Helvetica', sans-serif", transition: "all 0.2s" }}>
         <span className="d-block text-muted small fw-semibold mb-1">{label}:</span>
         <span className={`fw-bold text-${color ? color : "dark"}`}>{value ?? "—"}</span>
       </div>

@@ -18,3 +18,12 @@
 .text-purple {
   color: #8238B3 !important;
 }
+
+.wd-auto {
+  width: 18%;
+
+  @media screen and (max-width: 762px) {
+    width: auto;
+  }
+}
+

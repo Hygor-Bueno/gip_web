@@ -1,26 +1,65 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useConnection } from "../../../Context/ConnContext";
 import CustomTable from "../../../Components/CustomTable";
 import { IManagerProps } from "./Interfaces/IManager";
 import { formatDateBR, handleNotification } from "../../../Util/Util";
 import { EStatusProduct } from "./Enum/statusProduct";
+import CustomForm from "../../../Components/CustomForm";
 require("./Style.css");
 
 function Manager({ setSelectedProduct, loadList }: IManagerProps) {
   const { fetchData } = useConnection();
 
+  // tabela
   const [tableData, setTableData] = useState<any[]>([]);
   const [stepStatus, setStepStatus] = useState<{ id_status: string; description: string; step?: string }[]>([]);
-  const [statusProduct, setStatusProduct] = useState<number>(1);
-  const [eanSearch, setEanSearch] = useState<string>("");
-  const [firstDate, setFirstDate] = useState<string>("");
-  const [lastDate, setLastDate] = useState<string>("");
-  const [storeSearch, setStoreSearch] = useState<string>("");
-  const [expirationDate, setExpirationDate] = useState<string>("");
 
+  // filtros
+  const [eanSearch, setEanSearch] = useState("");
+  const [firstDate, setFirstDate] = useState("");
+  const [lastDate, setLastDate] = useState("");
+  const [storeSearch, setStoreSearch] = useState("");
+  const [expirationDate, setExpirationDate] = useState("");
+  const [statusProduct, setStatusProduct] = useState<number>(1);
+
+  // cache de produtos
   const productCache = new Map<number, any>();
 
-  // Busca status das etapas
+  // opções de select
+  const storeOptions: any[] = [{ value: 1, label: "Interlagos" }];
+  const statusOptions: any[] = [
+    { value: EStatusProduct.DELETED, label: "Deletados/Reprovados" },
+    { value: EStatusProduct.ACTIVE, label: "Ativos" },
+    { value: EStatusProduct.EXECUTED, label: "Executados" },
+    { value: EStatusProduct.FINALIZED, label: "Finalizados" },
+  ];
+
+  // fieldsets para CustomForm
+const filterFieldsets = [
+  {
+    attributes: { className: "p-3 bg-light rounded shadow-sm mb-3 d-flex flex-wrap gap-2" }, // deixa os campos em linha
+    item: {
+      classLabel: "fw-bold mb-2 text-dark w-100", // label do grupo ocupa a linha inteira
+      captureValue: [
+        { type: "text", value: eanSearch, placeholder: "EAN", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setEanSearch(e.target.value) },
+        { type: "date", value: firstDate, placeholder: "Data Inicial", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setFirstDate(e.target.value) },
+        { type: "date", value: lastDate, placeholder: "Data Final", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setLastDate(e.target.value) },
+        { type: "date", value: expirationDate, placeholder: "Validade", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setExpirationDate(e.target.value) },
+        { type: "select", value: storeSearch, options: storeOptions, className: "form-select wd-auto form-select-sm d-inline-block", onChange: (e: any) => setStoreSearch(e.target.value) },
+        { type: "select", value: statusProduct, options: statusOptions, className: "form-select wd-auto form-select-sm d-inline-block", style: { width: "140px" }, onChange: (e: any) => setStatusProduct(Number(e.target.value)) },
+      ],
+    },
+    legend: { text: "Filtros", style: "fs-5 fw-bold text-secondary mb-2" },
+  },
+];
+
+
+
+  const handleFilterSubmit = () => {
+    loadData();
+  };
+
+  // busca status das etapas
   async function getStatusStep() {
     try {
       const response = await fetchData({
@@ -30,12 +69,10 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
         urlComplement: "&all=1",
         exception: ["no data"],
       });
-
       if (!response || response.error) {
         handleNotification("Erro ao buscar status", response?.message || "Falha na comunicação com o servidor.", "danger");
         return;
       }
-
       setStepStatus(response.data || []);
     } catch (error) {
       console.error("Erro no getStatusStep:", error);
@@ -43,47 +80,33 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
     }
   }
 
-  // Converte status em string com cores
   function statusStepString(value: string) {
     const step = stepStatus.find((s) => s.id_status === value);
     if (!step) return <strong className="text-muted">Desconhecido</strong>;
-
     const classMap: Record<string, string> = {
       "1": "text-purple",
       "2": "text-success",
       "3": "text-danger",
     };
-
     return <strong className={classMap[value] || "text-dark"}>{step.description}</strong>;
   }
 
-  // Monta filtros para query string
   function buildFilters() {
     const filters: Record<string, string | number> = {};
-
     if (eanSearch) filters.eanGepp = eanSearch;
     if (firstDate) filters.first_date = firstDate;
     if (lastDate) filters.last_date = lastDate;
     if (storeSearch) filters.store_number = storeSearch;
     if (expirationDate) filters.expiration_date = expirationDate;
-
-    // Aqui a correção principal: statusProduct pode ser 0
     if (statusProduct != null) filters.status_product = statusProduct;
-
-    // Envia all=1 apenas se nenhum filtro específico estiver ativo
-    if (Object.keys(filters).length === 0) {
-      filters.all = 1;
-    }
-
+    if (Object.keys(filters).length === 0) filters.all = 1;
     return Object.entries(filters)
       .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
       .join("&");
   }
 
-  // Carrega dados da tabela
   async function loadData() {
     if (!stepStatus.length) return;
-
     try {
       const filters = buildFilters();
       const data = await fetchData({
@@ -93,13 +116,11 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
         urlComplement: `&${filters}`,
         exception: ["no data"],
       });
-
       if (data.error) {
         handleNotification("Sem registros", data.message, "warning");
         setTableData([]);
         return;
       }
-
       const mapped = (data.data || []).map((p: any) => ({
         id_products: { value: p.id_products, tag: "ID" },
         ean: { value: p.ean, tag: "EAN" },
@@ -111,32 +132,26 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
         store_number: { value: p.store_number, tag: "Loja" },
         id_status_step_fk: { value: statusStepString(p.id_status_step_fk), tag: "Status" },
       }));
-
       setTableData(mapped);
     } catch (error: any) {
       console.error("Erro ao carregar dados:", error.message);
     }
   }
 
-  // Confirma seleção da tabela
   async function handleConfirmList(selected: any[]) {
     if (!selected || selected.length === 0) return;
-
     try {
       const fetchPromises = selected.map(async (item) => {
         const id = item.id_products.value;
         if (productCache.has(id)) return productCache.get(id);
-
         const [firstData, secondData] = await Promise.all([
           fetchData({ method: "GET", pathFile: "GEPP/Progress.php", params: null, urlComplement: `&id=${id}`, exception: ["no data"] }),
           fetchData({ method: "GET", pathFile: "GEPP/Product.php", params: null, urlComplement: `&id=${id}`, exception: ["no data"] }),
         ]);
-
         const combined = [firstData.data || [], secondData.data || []];
         productCache.set(id, combined);
         return combined;
       });
-
       const results = await Promise.all(fetchPromises);
       setSelectedProduct?.(results);
     } catch (error: any) {
@@ -144,7 +159,6 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
     }
   }
 
-  // Reseta filtros
   function resetFilters() {
     setEanSearch("");
     setFirstDate("");
@@ -155,7 +169,7 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
     loadData();
   }
 
-  // Debounce automático para filtros
+  // debounce automático
   useEffect(() => {
     const timer = setTimeout(() => loadData(), 300);
     return () => clearTimeout(timer);
@@ -165,60 +179,22 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
   useEffect(() => { if (loadList) loadList(loadData); }, [loadList]);
 
   return (
-    <div className={`container ${tableData.length > 0 ? "" : "h-100"}`}>
-
-      {/* Botões */}
+    <div className='container'>
       <div className="d-flex align-items-end gap-2 mt-2 w-100 justify-content-between mb-3">
         <strong>Filtros de pesquisa:</strong>
-        <button className="btn btn-secondary btn-sm d-flex align-items-center gap-2" onClick={resetFilters}>
-          <i className="fa fa-times me-1 text-white"></i>Limpar
+        <button className="btn btn-danger btn-sm d-flex align-items-center gap-2" onClick={resetFilters}>
+          <i className="fa-solid fa-eraser text-white"></i>Limpar
         </button>
       </div>
 
-      <div className="d-flex flex-wrap align-items-end gap-2 mb-3">
-        {/* EAN */}
-        <div className="d-flex flex-column w-auto">
-          <label className="fw-bold mb-1 small">EAN</label>
-          <input type="text" className="form-control form-control-sm" placeholder="EAN" value={eanSearch} onChange={(e) => setEanSearch(e.target.value)} />
-        </div>
-
-        {/* Data Inicial */}
-        <div className="d-flex flex-column w-auto">
-          <label className="fw-bold mb-1 small">Data Inicial</label>
-          <input type="date" className="form-control form-control-sm" value={firstDate} onChange={(e) => setFirstDate(e.target.value)} />
-        </div>
-
-        {/* Data Final */}
-        <div className="d-flex flex-column w-auto">
-          <label className="fw-bold mb-1 small">Data Final</label>
-          <input type="date" className="form-control form-control-sm" value={lastDate} onChange={(e) => setLastDate(e.target.value)} />
-        </div>
-
-        {/* Validade */}
-        <div className="d-flex flex-column w-auto">
-          <label className="fw-bold mb-1 small">Validade</label>
-          <input type="date" className="form-control form-control-sm" value={expirationDate} onChange={(e) => setExpirationDate(e.target.value)} />
-        </div>
-
-        {/* Loja */}
-        <div className="d-flex flex-column w-auto">
-          <label className="fw-bold mb-1 small">Loja</label>
-          <select className="form-select form-select-sm" value={storeSearch} onChange={(e) => setStoreSearch(e.target.value)}>
-            <option value={1}>Interlagos</option>
-          </select>
-        </div>
-
-        {/* Status */}
-        <div className="d-flex flex-column w-auto">
-          <label className="fw-bold mb-1 small">Status</label>
-          <select className="form-select form-select-sm" value={statusProduct} onChange={(e) => setStatusProduct(Number(e.target.value))}>
-            <option value={EStatusProduct.DELETED}>Deletados/Reprovados</option>
-            <option value={EStatusProduct.ACTIVE}>Ativos</option>
-            <option value={EStatusProduct.EXECUTED}>Executados</option>
-            <option value={EStatusProduct.FINALIZED}>Finalizados</option>
-          </select>
-        </div>
-      </div>
+      {/* CustomForm substituindo todos os filtros */}
+      <CustomForm
+        fieldsets={filterFieldsets}
+        notButton={false}
+        titleButton="Filtrar"
+        typeButton="button"
+        onAction={handleFilterSubmit}
+      />
 
       {tableData.length > 0 ? (
         <CustomTable list={tableData} onConfirmList={handleConfirmList} selectionKey="id_products" hiddenButton={false} />

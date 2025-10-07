@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import InformationSalesC5 from "../InformationSalesC5";
 import useWindowSize from "../../GAPP/Infraction/hook/useWindowSize";
 import { formatDateBR } from "../../../Util/Util";
+import useFormattedProduct from "./Hooks/useFormattedProduct";
 require("./CardProd.css");
 
 function CardProd({ product, setProduct, reloadFunction }: { product: any[][], setProduct: any, setDataList?: any; reloadFunction: any; }) {
@@ -67,6 +68,8 @@ function CardProd({ product, setProduct, reloadFunction }: { product: any[][], s
   const oracleData = currentProduct?.[0] || {};
   const mySqlData = currentProduct?.[1] || {};
 
+  const formattedProduct = useFormattedProduct(currentProduct);
+
   return (
     <div
       className="carousel-container w-100"
@@ -90,32 +93,7 @@ function CardProd({ product, setProduct, reloadFunction }: { product: any[][], s
           store_number: oracleData?.store || mySqlData?.store,
           user: mySqlData?.created_by,
         }}
-        product={{
-          categoryName: oracleData?.category,
-          code_category: oracleData?.code_category,
-          code_family: oracleData?.code_family,
-          code_product: oracleData?.code_product,
-          sellout: mySqlData?.sellout,
-          observation: mySqlData?.observation,
-          description: oracleData?.description || mySqlData?.description,
-          ean: oracleData?.ean || mySqlData?.ean,
-          expiration_date: oracleData?.expiration_date || mySqlData?.expiration_date, // formatDateBR(oracleData?.expiration_date)
-          first_date: formatDateBR(oracleData?.first_date),
-          last_date: formatDateBR(oracleData?.last_date),
-          meta: oracleData?.meta,
-          quantity: oracleData?.quantity || mySqlData?.quantity,
-          store: oracleData?.store || mySqlData?.store,
-          status_product: mySqlData?.status_product,
-          id_status_step_fk: mySqlData?.id_status_step_fk,
-          id_reasons_fk: mySqlData?.id_reasons_fk,
-          store_number: oracleData?.store_number || mySqlData?.store_number,
-          total_quantity: oracleData?.total_quantity,
-          value: oracleData?.value,
-          price: mySqlData?.price,
-          new_price: mySqlData?.new_price,
-          created_name: mySqlData?.created_name,
-          updated_name: mySqlData?.updated_name
-        }}
+        product={formattedProduct}
         children={
           product.length > 1 && (
             <div className="d-flex justify-content-center">
