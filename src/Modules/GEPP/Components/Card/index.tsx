@@ -26,7 +26,6 @@ export function Card({ outsideValues }: CardProps) {
 
   return (
     <ContainerCard titleCard={titleCard} icon={icon} color={color}>
-      {/* Renderiza valores ou progress bar */}
       {!meta ? (
         <CardWithValues subTitle={subTitle} productCard={productCard || {}} />
       ) : (
