@@ -1,129 +1,100 @@
-// src/pages/GAPP/Infraction/Infraction.tsx
 import React, { useState, useEffect } from "react";
+import { Button } from "react-bootstrap";
 import NavBar from "../../../Components/NavBar";
-import { useMyContext } from "../../../Context/MainContext";
-import { useConnection } from "../../../Context/ConnContext";
 import CustomTable from "../../../Components/CustomTable";
 import EditInfraction from "./Component/EditInfraction/EditInfraction";
 import CreateInfraction from "./Component/CreateInfraction/CreateInfraction";
 import { listPathGAPP } from "../ConfigGapp";
-import { Button } from "react-bootstrap";
+import { useMyContext } from "../../../Context/MainContext";
 import { handleNotification } from "../../../Util/Util";
+import { useConnection } from "../../../Context/ConnContext";
+import useInfractionFields from "./hook/useInfractionFields";
 require("bootstrap/dist/css/bootstrap.min.css");
-
-const useInfractionFields = () => {
-  const [infractionId, setInfractionId] = useState("");
-  const [infraction, setInfraction] = useState("");
-  const [gravity, setGravity] = useState("");
-  const [points, setPoints] = useState("");
-  const [statusInfractions, setStatusInfractions] = useState("ativo");
-
-  const resetFields = () => {
-    setInfractionId("");
-    setInfraction("");
-    setGravity("");
-    setPoints("");
-    setStatusInfractions("ativo");
-  };
-
-  return {
-    infractionId,
-    setInfractionId,
-    infraction,
-    setInfraction,
-    gravity,
-    setGravity,
-    points,
-    setPoints,
-    statusInfractions,
-    setStatusInfractions,
-    resetFields,
-  };
-};
 
 const Infraction: React.FC = () => {
   const { fetchData } = useConnection();
   const { setLoading } = useMyContext();
-
   const [dataStore, setDataStore] = useState<any[]>([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [createModalVisible, setCreateModalVisible] = useState(false);
-
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-
-  const {
-    infractionId,
-    setInfractionId,
-    infraction,
-    setInfraction,
-    gravity,
-    setGravity,
-    points,
-    setPoints,
-    statusInfractions,
-    setStatusInfractions,
-    resetFields,
-  } = useInfractionFields();
-
+  const {infractionId, infraction, gravity, points, statusInfractions,setField, resetFields} = useInfractionFields();
   useEffect(() => {
-    fetchInfractionData("1");
+    fetchInfractions("1");
   }, []);
 
-  const fetchInfractionData = async (status: "1" | "0") => {
+  const fetchInfractions = async (status: "1" | "0") => {
     setLoading(true);
     try {
-      const response: any = await fetchData({
+      const res = await fetchData({
         method: "GET",
-        params: null,
         pathFile: "GAPP/Infraction.php",
         urlComplement: `&status_infractions=${status}`,
+        params: null,
       });
-      setDataStore(response.data || []);
-    } catch (error) {
-      console.error(error);
+      setDataStore(res?.data || []);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const setFieldsFromItem = (item: any) => {
-    setInfractionId(item?.infraction_id?.value ?? "");
-    setInfraction(item?.infraction?.value ?? "");
-    setGravity(item?.gravity?.value ?? "");
-    setPoints(item?.points?.value ?? "");
-    setStatusInfractions(item?.status_infractions?.value ?? "ativo");
+  /**
+   * Mapeia os campos do item recebido da tabela para os campos do formulário
+   * Isso permite abrir o modal com os dados preenchidos
+   * @param item - objeto com dados da infração selecionada
+   */
+  const mapFieldsFromItem = (item: any) => {
+    ["infraction_id", "infraction", "gravity", "points", "status_infractions"].forEach((key) => {
+      const fieldMap: Record<string, string> = {
+        infraction_id: "infractionId",
+        status_infractions: "statusInfractions",
+      };
+      const fieldKey = fieldMap[key] || key;
+      setField(fieldKey, item?.[key]?.value ?? (key === "status_infractions" ? "ativo" : ""));
+    });
   };
 
-  const handleClick = (selectedList: any[]) => {
-    if (!selectedList || selectedList.length === 0) return;
+  /**
+   * Navega entre os itens selecionados para edição
+   * Atualiza o índice atual e os campos do formulário com o item correto
+   * @param direction - número que indica direção da navegação (1 para próximo, -1 para anterior)
+   */
+  const navigateItem = (direction: number) => {
+    const nextIndex = currentIndex + direction;
+    if (nextIndex >= 0 && nextIndex < selectedItems.length) {
+      setCurrentIndex(nextIndex);
+      mapFieldsFromItem(selectedItems[nextIndex]);
+    }
+  };
 
-    setSelectedItems(selectedList);
+  /**
+   * Manipulador para quando a lista de itens é selecionada na tabela
+   * Atualiza os itens selecionados, inicializa o índice e abre modal de edição
+   * @param list - lista de itens selecionados na tabela
+   */
+  const handleClick = (list: any[]) => {
+    if (!list.length) return;
+    setSelectedItems(list);
     setCurrentIndex(0);
-
-    setFieldsFromItem(selectedList[0]);
-    setEditModalVisible(true);
+    mapFieldsFromItem(list[0]); // preenche o formulário com o primeiro item
+    setEditModalVisible(true); // abre modal de edição
   };
 
-  const handleBack = () => {
-    if (currentIndex <= 0) return;
-    const prevIndex = currentIndex - 1;
-    setCurrentIndex(prevIndex);
-    setFieldsFromItem(selectedItems[prevIndex]);
-  };
-
-  const handleNext = () => {
-    if (currentIndex >= selectedItems.length - 1) return;
-    const nextIndex = currentIndex + 1;
-    setCurrentIndex(nextIndex);
-    setFieldsFromItem(selectedItems[nextIndex]);
-  };
-
-  const handleSaveEdit = async () => {
+  /**
+   * Função que salva as alterações feitas no modal, tanto para edição quanto criação
+   * Faz a chamada à API e atualiza a lista em seguida
+   * @param type - "edit" para editar infração existente, "create" para criar nova infração
+   */
+  const handleSave = async (type: "edit" | "create") => {
+    const isEdit = type === "edit";
+    // Monta payload para envio, adaptando campos conforme tipo da operação
     const payload = {
-      infraction_id: infractionId,
+      ...(isEdit && { infraction_id: infractionId }),
       infraction,
-      gravitity: gravity,
+      gravitity: gravity, // *Note que há um typo no campo 'gravitity' (deveria ser gravity)
       points,
       status_infractions: statusInfractions === "ativo" ? 1 : 0,
     };
@@ -131,59 +102,39 @@ const Infraction: React.FC = () => {
     setLoading(true);
     try {
       await fetchData({
-        method: "PUT",
-        params: payload,
+        method: isEdit ? "PUT" : "POST",
         pathFile: "GAPP/Infraction.php",
-        urlComplement: "",
+        params: payload,
       });
+      
+      fetchInfractions("1");
 
-      fetchInfractionData("1");
-
-      // Avança automaticamente após salvar
-      if (currentIndex < selectedItems.length - 1) {
-        handleNext();
+      if (isEdit) {
+        if (currentIndex < selectedItems.length - 1) {
+          navigateItem(1);
+        } else {
+          handleNotification("Sucesso!", "Todas as alterações foram salvas!", "success");
+          setEditModalVisible(false);
+        }
       } else {
-        handleNotification("Sucesso!", "Todas as alterações foram salvas!", "success");
-        setEditModalVisible(false);
+        setCreateModalVisible(false);  // Após criar, fecha modal e reseta campos para próxima criação
+        resetFields();
       }
-    } catch (error) {
-      console.error("Erro ao salvar edição:", error);
+    } catch (err) {
+      console.error("Erro ao salvar:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSaveCreate = async () => {
-    const payload = {
-      infraction,
-      gravitity: gravity,
-      points,
-      status_infractions: statusInfractions === "ativo" ? 1 : 0,
-    };
-
-    setLoading(true);
-    try {
-      await fetchData({
-        method: "POST",
-        params: payload,
-        pathFile: "GAPP/Infraction.php",
-        urlComplement: "",
-      });
-
-      setCreateModalVisible(false);
-      fetchInfractionData("1");
-      resetFields();
-    } catch (error) {
-      console.error("Erro ao criar:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const infractionsTable = dataStore.map((item: any) => ({
+  /**
+   * Formata os dados para a exibição na tabela CustomTable
+   * Adiciona valor e uma tag para cada coluna, para renderização
+   */
+  const tableData = dataStore.map((item: any) => ({
     infraction_id: { value: item?.infraction_id ?? "", tag: "ID" },
     infraction: { value: item?.infraction ?? "", tag: "Infração" },
-    gravity: { value: item?.gravitity ?? "", tag: "Gravidade" },
+    gravity: { value: item?.gravitity ?? "", tag: "Gravidade" }, // typo repetido aqui também
     points: { value: item?.points ?? "", tag: "Pontos" },
     status_infractions: {
       value: item?.status_infractions > 0 ? "ativo" : "inativo",
@@ -191,39 +142,40 @@ const Infraction: React.FC = () => {
     },
   }));
 
-  const safeInfractionsTable = infractionsTable.filter(Boolean);
+  /**
+   * Prepara as props compartilhadas para os modais de edição e criação
+   * Passa os campos e suas funções setters para controle dos formulários
+   */
+  const getModalProps = () => ({
+    infractionId, setInfractionId: (v: string) => setField("infractionId", v),
+    infraction, setInfraction: (v: string) => setField("infraction", v),
+    gravity, setGravity: (v: string) => setField("gravity", v),
+    points, setPoints: (v: string) => setField("points", v),
+    statusInfractions, setStatusInfractions: (v: string) => setField("statusInfractions", v),
+  });
 
   return (
-    <>
+    <React.Fragment>
       <NavBar list={listPathGAPP} />
 
       <div className="w-100" style={{ height: "90%" }}>
         <div className="p-2 w-100">
-          <Button
-            variant="primary"
-            onClick={() => {
-              resetFields();
-              setCreateModalVisible(true);
-            }}
-          >
-            <i className="fa fa-plus text-white"></i>
+          <Button variant="primary" onClick={() => { resetFields(); setCreateModalVisible(true); }}>
+            <i className="fa fa-plus text-white" />
           </Button>
         </div>
 
-        {safeInfractionsTable.length > 0 ? (
+        {tableData.length > 0 ? (
           <CustomTable
-            list={safeInfractionsTable}
+            list={tableData}
             onConfirmList={handleClick}
             hiddenButton={false}
             selectionKey=""
           />
         ) : (
-          <div
-            className="d-flex justify-content-center align-items-center w-100"
-            style={{ minHeight: "300px" }}
-          >
+          <div className="d-flex justify-content-center align-items-center w-100" style={{ minHeight: "300px" }}>
             <div className="text-center" role="alert">
-              <i className="fa fa-magnifying-glass fa-3x d-block mb-2"></i>
+              <i className="fa fa-magnifying-glass fa-3x d-block mb-2" />
               <strong>Lista vazia</strong>
               <br />
               Nenhum item foi encontrado.
@@ -235,37 +187,21 @@ const Infraction: React.FC = () => {
       <EditInfraction
         showModal={editModalVisible}
         setShowModal={setEditModalVisible}
-        handleSave={handleSaveEdit}
-        infractionId={infractionId}
-        setInfractionId={setInfractionId}
-        infraction={infraction}
-        setInfraction={setInfraction}
-        gravity={gravity}
-        setGravity={setGravity}
-        points={points}
-        setPoints={setPoints}
-        statusInfractions={statusInfractions}
-        setStatusInfractions={setStatusInfractions}
-        onBack={handleBack}
-        onNext={handleNext}
+        handleSave={() => handleSave("edit")}
+        onBack={() => navigateItem(-1)}
+        onNext={() => navigateItem(1)}
         showNavigation={selectedItems.length > 1}
         pageNation={`${currentIndex + 1} / ${selectedItems.length}`}
+        {...getModalProps()}
       />
 
       <CreateInfraction
         showModal={createModalVisible}
         setShowModal={setCreateModalVisible}
-        handleSave={handleSaveCreate}
-        infraction={infraction}
-        setInfraction={setInfraction}
-        gravity={gravity}
-        setGravity={setGravity}
-        points={points}
-        setPoints={setPoints}
-        statusInfractions={statusInfractions}
-        setStatusInfractions={setStatusInfractions}
+        handleSave={() => handleSave("create")}
+        {...getModalProps()}
       />
-    </>
+    </React.Fragment>
   );
 };
 
