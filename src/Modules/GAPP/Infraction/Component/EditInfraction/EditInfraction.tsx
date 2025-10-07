@@ -1,6 +1,6 @@
 import React from "react";
-import { Form } from "react-bootstrap";
 import GenericModal from "../InfractionModel/InfractionModel";
+import CustomForm from "../../../../../Components/CustomForm";
 
 type EditInfractionProps = {
   showModal: boolean;
@@ -16,6 +16,12 @@ type EditInfractionProps = {
   setPoints: (value: string) => void;
   statusInfractions: string;
   setStatusInfractions: (value: string) => void;
+
+  // props novos para navegação
+  onBack?: () => void;
+  onNext?: () => void;
+  pageNation?: string | number;
+  showNavigation?: boolean;
 };
 
 const EditInfraction: React.FC<EditInfractionProps> = ({
@@ -23,6 +29,7 @@ const EditInfraction: React.FC<EditInfractionProps> = ({
   setShowModal,
   handleSave,
   infractionId,
+  setInfractionId,
   infraction,
   setInfraction,
   gravity,
@@ -31,6 +38,10 @@ const EditInfraction: React.FC<EditInfractionProps> = ({
   setPoints,
   statusInfractions,
   setStatusInfractions,
+  onBack,
+  onNext,
+  pageNation,
+  showNavigation = false,
 }) => {
   return (
     <GenericModal
@@ -40,51 +51,92 @@ const EditInfraction: React.FC<EditInfractionProps> = ({
       title="Editar Infração"
       saveButtonLabel="Salvar Alterações"
       saveButtonVariant="success"
+      showNavigation={showNavigation}
+      onBack={onBack}
+      onNext={onNext}
+      pageNation={pageNation}
     >
-      <Form>
-        <Form.Group>
-          <Form.Label>ID</Form.Label>
-          <Form.Control type="text" value={infractionId} disabled />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Infração</Form.Label>
-          <Form.Control
-            type="text"
-            value={infraction}
-            onChange={(e) => setInfraction(e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Gravidade</Form.Label>
-          <Form.Control
-            type="text"
-            value={gravity}
-            onChange={(e) => setGravity(e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Pontos</Form.Label>
-          <Form.Control
-            type="number"
-            value={points}
-            onChange={(e) => setPoints(e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Status</Form.Label>
-          <Form.Select
-            value={statusInfractions}
-            onChange={(e) => setStatusInfractions(e.target.value)}
-          >
-            <option value="ativo">Ativo</option>
-            <option value="inativo">Inativo</option>
-          </Form.Select>
-        </Form.Group>
-      </Form>
+      <CustomForm
+        notButton={true} // já temos o botão de salvar no modal
+        onAction={handleSave}
+        fieldsets={[
+          {
+            item: {
+              label: "ID",
+              captureValue: {
+                name: "infractionId",
+                type: "text",
+                value: infractionId,
+                disabled: true,
+                className: "form-control",
+              },
+            },
+          },
+          {
+            item: {
+              label: "Infração",
+              mandatory: true,
+              captureValue: {
+                name: "infraction",
+                type: "text",
+                value: infraction,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                  setInfraction(e.target.value),
+                className: "form-control",
+                placeholder: "Ex: Avanço de sinal",
+              },
+            },
+          },
+          {
+            item: {
+              label: "Gravidade",
+              mandatory: true,
+              captureValue: {
+                name: "gravity",
+                type: "text",
+                value: gravity,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                  setGravity(e.target.value),
+                className: "form-control",
+                placeholder: "Ex: Alta",
+              },
+            },
+          },
+          {
+            item: {
+              label: "Pontos",
+              mandatory: true,
+              captureValue: {
+                name: "points",
+                type: "number",
+                value: points,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                  setPoints(e.target.value),
+                className: "form-control",
+                placeholder: "Ex: 5",
+              },
+            },
+          },
+          {
+            item: {
+              label: "Status",
+              mandatory: true,
+              captureValue: {
+                name: "statusInfractions",
+                type: "select",
+                value: statusInfractions,
+                onChange: (e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setStatusInfractions(e.target.value),
+                className: "form-select",
+                options: [
+                  { value: "ativo", label: "Ativo" },
+                  { value: "inativo", label: "Inativo" },
+                ],
+              },
+            },
+          },
+        ]}
+      />
     </GenericModal>
   );
 };

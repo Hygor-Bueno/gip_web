@@ -1,3 +1,4 @@
+// src/pages/GAPP/Infraction/Infraction.tsx
 import React, { useState, useEffect } from "react";
 import NavBar from "../../../Components/NavBar";
 import { useMyContext } from "../../../Context/MainContext";
@@ -6,9 +7,10 @@ import CustomTable from "../../../Components/CustomTable";
 import EditInfraction from "./Component/EditInfraction/EditInfraction";
 import CreateInfraction from "./Component/CreateInfraction/CreateInfraction";
 import { listPathGAPP } from "../ConfigGapp";
+import { Button } from "react-bootstrap";
+import { handleNotification } from "../../../Util/Util";
 require("bootstrap/dist/css/bootstrap.min.css");
 
-// Hook customizado para gerenciar campos da infração
 const useInfractionFields = () => {
   const [infractionId, setInfractionId] = useState("");
   const [infraction, setInfraction] = useState("");
@@ -47,6 +49,9 @@ const Infraction: React.FC = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
+  const [selectedItems, setSelectedItems] = useState<any[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+
   const {
     infractionId,
     setInfractionId,
@@ -82,14 +87,36 @@ const Infraction: React.FC = () => {
     }
   };
 
-  const handleClick = (selectedItem: any[]) => {
-    const item = selectedItem[0];
+  const setFieldsFromItem = (item: any) => {
     setInfractionId(item?.infraction_id?.value ?? "");
     setInfraction(item?.infraction?.value ?? "");
     setGravity(item?.gravity?.value ?? "");
     setPoints(item?.points?.value ?? "");
     setStatusInfractions(item?.status_infractions?.value ?? "ativo");
+  };
+
+  const handleClick = (selectedList: any[]) => {
+    if (!selectedList || selectedList.length === 0) return;
+
+    setSelectedItems(selectedList);
+    setCurrentIndex(0);
+
+    setFieldsFromItem(selectedList[0]);
     setEditModalVisible(true);
+  };
+
+  const handleBack = () => {
+    if (currentIndex <= 0) return;
+    const prevIndex = currentIndex - 1;
+    setCurrentIndex(prevIndex);
+    setFieldsFromItem(selectedItems[prevIndex]);
+  };
+
+  const handleNext = () => {
+    if (currentIndex >= selectedItems.length - 1) return;
+    const nextIndex = currentIndex + 1;
+    setCurrentIndex(nextIndex);
+    setFieldsFromItem(selectedItems[nextIndex]);
   };
 
   const handleSaveEdit = async () => {
@@ -110,8 +137,15 @@ const Infraction: React.FC = () => {
         urlComplement: "",
       });
 
-      setEditModalVisible(false);
       fetchInfractionData("1");
+
+      // Avança automaticamente após salvar
+      if (currentIndex < selectedItems.length - 1) {
+        handleNext();
+      } else {
+        handleNotification("Sucesso!", "Todas as alterações foram salvas!", "success");
+        setEditModalVisible(false);
+      }
     } catch (error) {
       console.error("Erro ao salvar edição:", error);
     } finally {
@@ -160,27 +194,26 @@ const Infraction: React.FC = () => {
   const safeInfractionsTable = infractionsTable.filter(Boolean);
 
   return (
-    <React.Fragment>
+    <>
       <NavBar list={listPathGAPP} />
 
       <div className="w-100" style={{ height: "90%" }}>
         <div className="p-2 w-100">
-          <button
-            className="btn btn-success"
+          <Button
+            variant="primary"
             onClick={() => {
               resetFields();
               setCreateModalVisible(true);
             }}
           >
             <i className="fa fa-plus text-white"></i>
-          </button>
+          </Button>
         </div>
 
         {safeInfractionsTable.length > 0 ? (
           <CustomTable
             list={safeInfractionsTable}
             onConfirmList={handleClick}
-            maxSelection={1}
             hiddenButton={false}
             selectionKey=""
           />
@@ -199,7 +232,6 @@ const Infraction: React.FC = () => {
         )}
       </div>
 
-      {/* Modal de Edição */}
       <EditInfraction
         showModal={editModalVisible}
         setShowModal={setEditModalVisible}
@@ -214,9 +246,12 @@ const Infraction: React.FC = () => {
         setPoints={setPoints}
         statusInfractions={statusInfractions}
         setStatusInfractions={setStatusInfractions}
+        onBack={handleBack}
+        onNext={handleNext}
+        showNavigation={selectedItems.length > 1}
+        pageNation={`${currentIndex + 1} / ${selectedItems.length}`}
       />
 
-      {/* Modal de Criação */}
       <CreateInfraction
         showModal={createModalVisible}
         setShowModal={setCreateModalVisible}
@@ -230,7 +265,7 @@ const Infraction: React.FC = () => {
         statusInfractions={statusInfractions}
         setStatusInfractions={setStatusInfractions}
       />
-    </React.Fragment>
+    </>
   );
 };
 

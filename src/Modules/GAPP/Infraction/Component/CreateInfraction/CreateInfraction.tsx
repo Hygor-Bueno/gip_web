@@ -1,18 +1,18 @@
 import React from 'react';
-import { Form } from 'react-bootstrap';
 import GenericModal from '../InfractionModel/InfractionModel';
+import CustomForm from '../../../../../Components/CustomForm';
 
 type CreateInfractionProps = {
   showModal: boolean;
-  setShowModal: (value: boolean) => void;
-  handleSave: () => void;
   infraction: string;
-  setInfraction: (value: string) => void;
   gravity: string;
-  setGravity: (value: string) => void;
   points: string;
-  setPoints: (value: string) => void;
   statusInfractions: string;
+  handleSave: () => void;
+  setInfraction: (value: string) => void;
+  setGravity: (value: string) => void;
+  setPoints: (value: string) => void;
+  setShowModal: (value: boolean) => void;
   setStatusInfractions: (value: string) => void;
 };
 
@@ -38,42 +38,71 @@ const CreateInfraction: React.FC<CreateInfractionProps> = ({
       saveButtonLabel="Criar"
       saveButtonVariant="primary"
     >
-      <Form>
-        <Form.Group>
-          <Form.Label>Infração</Form.Label>
-          <Form.Control
-            type="text"
-            value={infraction}
-            onChange={(e) => setInfraction(e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Gravidade</Form.Label>
-          <Form.Control
-            type="text"
-            value={gravity}
-            onChange={(e) => setGravity(e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Pontos</Form.Label>
-          <Form.Control
-            type="number"
-            value={points}
-            onChange={(e) => setPoints(e.target.value)}
-          />
-        </Form.Group>
-
-        <Form.Group>
-          <Form.Label>Status</Form.Label>
-          <Form.Select value={statusInfractions} onChange={(e) => setStatusInfractions(e.target.value)}>
-            <option value="ativo">Ativo</option>
-            <option value="inativo">Inativo</option>
-          </Form.Select>
-        </Form.Group>
-      </Form>
+      <CustomForm
+        notButton={false} // porque já tem botão no modal
+        onAction={handleSave}
+        fieldsets={[
+          {
+            item: {
+              label: "Infração",
+              mandatory: true,
+              captureValue: {
+                name: "infraction",
+                type: "text",
+                value: infraction,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) => setInfraction(e.target.value),
+                className: "form-control",
+                placeholder: "Ex: Avanço de sinal"
+              }
+            }
+          },
+          {
+            item: {
+              label: "Gravidade",
+              mandatory: true,
+              captureValue: {
+                name: "gravity",
+                type: "text",
+                value: gravity,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) => setGravity(e.target.value),
+                className: "form-control",
+                placeholder: "Ex: Alta"
+              }
+            }
+          },
+          {
+            item: {
+              label: "Pontos",
+              mandatory: true,
+              captureValue: {
+                name: "points",
+                type: "number",
+                value: points,
+                onChange: (e: React.ChangeEvent<HTMLInputElement>) => setPoints(e.target.value),
+                className: "form-control",
+                placeholder: "Ex: 5"
+              }
+            }
+          },
+          {
+            item: {
+              label: "Status",
+              mandatory: true,
+              captureValue: {
+                name: "statusInfractions",
+                type: "select",
+                value: statusInfractions,
+                onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setStatusInfractions(e.target.value),
+                className: "form-select",
+                options: [
+                  { value: "ativo", label: "Ativo" },
+                  { value: "inativo", label: "Inativo" }
+                ]
+              }
+            }
+          }
+        ]}
+      />
     </GenericModal>
   );
 };
