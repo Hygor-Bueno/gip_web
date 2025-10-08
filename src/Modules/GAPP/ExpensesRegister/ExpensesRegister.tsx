@@ -138,8 +138,8 @@ export default function ExpensesRegister(): JSX.Element {
                     <CustomTable
                         maxSelection={1}
                         list={convertForTable(data, {
-                            customTags: customTagsExpense,
                             ocultColumns: ["exp_type_id_fk", "vehicle_id", "unit_id"],
+                            customTags: customTagsExpense,
                             minWidths: minWidthsExpense
                         })}
                         onConfirmList={(event: any) => setEditExpenses(event[0].expen_id.value)}
