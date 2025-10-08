@@ -111,6 +111,10 @@ button>label {
   font-size: clamp(20px, calc(0.2rem + 0.5vw + 0.5vh), 24px) !important;
 }
 
+label, h1 {
+    font-size: inherit;
+}
+
 #root {
   display: flex;
   width: 100vw;
@@ -168,6 +172,8 @@ button>label {
   /* Adiciona "..." ao final do texto */
   font-size: clamp(12px, calc(0.12rem + 0.5vw + 0.5vh), 26px) !important;
 }
+
+
 
 
 #loginCustomForm {

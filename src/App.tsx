@@ -19,6 +19,7 @@ import Gapp from './Modules/GAPP/Gapp';
 import Epp from './Modules/EPP/Epp';
 import SalesPage from './Modules/EPP/Pages/SalesPage';
 import ProfileGIPP from './Modules/ProfileGIPP/ProfileGIPP';
+import Gepp from './Modules/GEPP';
 function App() {
   function withProvider(component: JSX.Element) {
     return (
@@ -52,6 +53,7 @@ function App() {
           <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
           <Route path="/GIPP/EPP" element={withPrivateProvider(<Epp />)} />
           <Route path="/GIPP/EPP/sales" element={withPrivateProvider(<SalesPage />)} />
+          <Route path='/GIPP/GEPP' element={withPrivateProvider(<Gepp />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>

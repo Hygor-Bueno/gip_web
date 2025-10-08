@@ -4,9 +4,10 @@ interface ProgressBarProps {
   progressValue: number;
   resetValue?: boolean;
   colorBar?: string
+  secondaryClassName?: string;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ progressValue, colorBar }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ progressValue, colorBar, secondaryClassName }) => {
   const clampedValue = Math.min(Math.max((progressValue), 0), 100);
 
   const getProgressClass = () => {
@@ -16,7 +17,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progressValue, colorBar }) =>
   };
 
   return (
-    <div className="progress mt-2 mx-2">
+    <div className={`progress mt-2 mx-2 ${secondaryClassName ? secondaryClassName : ''}`}>
       <div
         title="Barra de progresso"
         className={`progress-bar ${!colorBar && getProgressClass()}`}

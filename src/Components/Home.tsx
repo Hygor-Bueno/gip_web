@@ -7,6 +7,7 @@ import { useConnection } from '../Context/ConnContext';
 const iconGTPP = require("../Assets/Image/GTTP_icon.png");
 const iconCFPP = require("../Assets/Image/CFPP_icon.png");
 const iconGAPP = require("../Assets/Image/GAPP_icon.jpg");
+const iconGEPP = require("../Assets/Image/GEPP_icon.webp");
 
 export default function Home(): JSX.Element {
     const { setTitleHead, setLoading, userLog } = useMyContext();
@@ -69,10 +70,10 @@ function RenderModule({ cod }: { cod: string }) {
                 value.icon = iconGAPP;
                 value.path = '/GIPP/GAPP';
                 break;
-            // case '16':
-            //     value.icon = iconGAPP;
-            //     value.path = '/GIPP/EPP';
-            //     break;
+            case '20':
+                value.icon = iconGEPP;
+                value.path = '/GIPP/GEPP';
+                break;
             default:
                 break;
         }

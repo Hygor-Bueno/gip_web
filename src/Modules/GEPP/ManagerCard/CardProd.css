@@ -1,0 +1,46 @@
+.card-prod-container {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 16px;
+  height: 100%;
+  scroll-snap-type: x mandatory;
+}
+
+.card-prod-home {
+  width: 92%;
+  margin: auto;
+}
+
+.card-prod-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.card-prod-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.card-prod-item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  min-width: 480px;
+  max-width: 500px;
+}
+
+
+@media (max-width: 768px) {
+  .card-prod-container {
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: visible;
+  }
+
+  .card-prod-item {
+    min-width: 100%;
+    max-width: 100%;
+  }
+}
+
+

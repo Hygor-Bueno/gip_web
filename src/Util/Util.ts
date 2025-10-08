@@ -20,26 +20,42 @@ export const convertdate = (date: string): string | null => {
 
 export const getProductKey = (item: dataAllProd) => `${item.id_category}-${item.description}`;
 
+export function formatDateBR(date?: string | Date | null) {
+    if (!date) return "--"; // fallback se não tiver data
+    const dt = new Date(date);
+    return dt.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }
+
 export const fetchCEPData = async (cep: string, loading: any) => {
     try {
         loading(true);
+
         const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+
         if (!response.ok) {
-            const responseStatus = new Error(`CEP encontrado!`);
-            handleNotification("Sucesso", responseStatus.message, "success");
+            throw new Error("Erro ao buscar o CEP.");
         }
+
         const data = await response.json();
+
         if (data.erro) {
-            const responseStatus = new Error("CEP não encontrado.");
-            handleNotification("Erro", responseStatus.message, "danger");
+            throw new Error("CEP não encontrado.");
         }
+
         return data;
-    } catch (error) {
-        handleNotification("Error", "", "danger");
+
+    } catch (error: any) {
+        handleNotification("Erro", error.message || "Erro desconhecido", "danger");
+        return null; // <- importante: retorne algo previsível para quem chama a função
     } finally {
         loading(false);
     }
 };
+
 
 export const consultingCEP = async (cep: any, setData: any, loading: any) => {
     if (cep.length !== 8) {

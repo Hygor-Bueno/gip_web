@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from "react";
-// import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Pie, PieChart, Line, LineChart, Cell, Legend } from 'recharts';
+import { useEffect } from "react";
 import NavBar from "../../Components/NavBar";
 import { listPathGAPP } from "./ConfigGapp";
-import { useConnection } from "../../Context/ConnContext";
 import ExpensesRegister from "./ExpensesRegister/ExpensesRegister";
 import { useMyContext } from "../../Context/MainContext";
 
