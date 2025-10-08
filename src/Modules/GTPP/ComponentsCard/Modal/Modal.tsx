@@ -69,7 +69,6 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
   const typeInput = currentTask.state_id == 1 || currentTask.state_id == 2 ? "text" : currentTask.state_id == 5 ? "number" : null;
   const title = currentTask.state_id == 1 || currentTask.state_id == 2 ? "Alterar tarefa para o estado Parado (informe o motivo)?" : currentTask.state_id == 4 ? "Por quê deseja reabrir a tarefa?" : currentTask.state_id == 3 ? "Deseja finalizar essa tarefa?" : currentTask.state_id == 5 ? "Insira o total de dias que você precisa." : currentTask.state_id == 6 ? "Deseja mesmo retomar a tarefa?" : null
 
-  useEffect(()=>console.log(props.details.task_item),[props.details]);
   return (
     <div className="d-flex flex-column h-100 p-2">
       <div style={{ height: "10%" }} className="d-flex justify-content-between align-items-center">
