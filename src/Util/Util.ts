@@ -184,6 +184,8 @@ export function classToJSON(instance: object): Record<string, unknown> {
         .forEach(([key]) => {
             json[key] = (instance as any)[key];
         });
+
+    console.log(json);
     return json;
 }
 
@@ -469,7 +471,7 @@ export function maskMoney(value: string | number): string {
 
 /**
  * Ordena um array de objetos JSON com base em uma chave específica.
- * 
+ *
  * @param list - Array de objetos JSON a ser ordenado.
  * @param key - Chave usada para ordenar os objetos.
  * @param ascending - Define se a ordenação será crescente (true) ou decrescente (false).

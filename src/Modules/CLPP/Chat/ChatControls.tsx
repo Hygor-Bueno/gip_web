@@ -36,8 +36,7 @@ export default function ChatControls() {
                 onPaste={(e) => handlePaste(e)}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
                 id="chatControlsInput"
-                className="mx-2 col-8 border rounded"
-            />
+                className="mx-2 col-8 border rounded" />
             <AttachmentFile reset={file ? false : true} file={0} onClose={(value) => callBackAttachmentFile(value)} fullFiles={true} base64={file} />
         </div>
     );
@@ -73,6 +72,7 @@ export default function ChatControls() {
     async function sendFile() {
         const type = changeTypeMessageForFile(file);
         const extension = getBase64FileExtension(file);
+
         const req: any = await fetchData({
             method: "POST",
             params: classToJSON(new SendMessage(file.split('base64,')[1], idReceived, userLog.id, type)),
@@ -130,26 +130,53 @@ export default function ChatControls() {
 
     function changeTypeMessageForFile(base64: string): number {
         const upperType = base64.toUpperCase();
+
         let type = 11;
-        if (upperType.includes('IMAGE') && !upperType.includes('OFFICEDOCUMENT')) type = 2;
-        if (upperType.includes('PDF')) type=3;
-        if (upperType.includes('XML')) type=4;
-        if (upperType.includes('CSV')) type=5;
-        if (upperType.includes('WORDPROCESSINGML')) type=8;
-        if (upperType.includes('SPREADSHEETML')) type=9;
-        if (upperType.includes('PRESENTATIONML')) type=10;
-        if (upperType.includes('ZIP')) type=12;
-        if (upperType.includes('RAR')) type=13;
+
+        switch (true) {
+            case upperType.includes('DATA:IMAGE/WEBP'):
+                type = 2;
+                break;
+            case upperType.includes('DATA:APPLICATION/PDF'):
+                type = 3;
+                break;
+            case upperType.includes('DATA:TEXT/XML'):
+                type = 4;
+                break;
+            case upperType.includes('DATA:TEXT/CSV'):
+                type = 5;
+                break;
+            case upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT'):
+                type = 6;
+                break;
+            case upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET'):
+                type = 7;
+                break;
+            case upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION'):
+                type = 8;
+                break;
+            case upperType.includes('DATA:APPLICATION/X-ZIP-COMPRESSED'):
+                type = 9;
+                break;
+            case upperType.includes('DATA:APPLICATION/OCTET-STREAM'):
+                type = 10;
+                break;
+        }
+
         return type;
     }
 
     function getBase64FileExtension(base64: string) {
+        const upperType = base64.toUpperCase();
         let extension = 'txt';
-        if (base64.includes('wordprocessingml')) extension = 'docx';
-        else if (base64.includes('spreadsheetml')) extension = 'xlsx';
-        else if (base64.includes('presentationml')) extension = 'pptx';
-        else if (base64.includes('x-rar-compressed')) extension = 'rar';
-        else if (base64.includes('x-zip-compressed')) extension = 'zip';
+        if (upperType.includes('DATA:APPLICATION/PDF')) extension = 'pdf';
+        else if (upperType.includes('DATA:APPLICATION/PDF')) extension = 'xml';
+        else if (upperType.includes('DATA:TEXT/CSV')) extension = 'csv';
+        else if (upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT')) extension = 'docx';
+        else if (upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET')) extension = 'xlsx';
+        else if (upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION')) extension = 'pptx';
+        else if (upperType.includes('X-ZIP-COMPRESSED')) extension = 'zip';
+        else if (upperType.includes('OCTET-STREAM')) extension = 'rar';
         else {
             const match = base64.match(/^data:(.+);base64,/);
             if (match) {

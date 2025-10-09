@@ -1,9 +1,7 @@
 import { useMyContext } from "../../../Context/MainContext";
 import { useWebSocket } from "../../../Context/WsContext";
 import { useConnection } from "../../../Context/ConnContext";
-import { useEffect } from "react";
-import { convertDate, convertTime } from "../../../Util/Util";
-import { parse } from "path";
+import { convertTime } from "../../../Util/Util";
 
 export default
     function ChatMessages() {
@@ -17,6 +15,7 @@ export default
             onScroll={handleScroll}
             className='d-flex flex-column overflow-auto h-100 w-100 p-2'
         >
+
             {listMessage.map((item, index) => (
                 <div key={`message_${index}`} className={`d-flex flex-column my-2 w-100 ${item.id_user == userLog.id ? 'text-end align-items-end ' + `${item.type <= 2 && 'messageSent'} ` : 'text-start align-items-start ' + `${item.type <= 2 && 'messageReceived'}`}`}>
                     <strong>{convertTime(item.date)}</strong>
@@ -47,34 +46,30 @@ export default
         let style: string = '';
         let icon: string = '';
         const type = parseInt(message.type);
-
         if (type === 3) {
             style = "text-danger h1";
             icon = "fa-solid fa-file-pdf";
         } else if (type === 4) {
             style = "text-success";
             icon = "fa-solid fa-file-code";
+        } else if (type === 5) {
+            style = "text-success";
+            icon = "fa-solid fa-file-csv";
         } else if (type === 6) {
             style = "text-primary";
             icon = "fa-solid fa-file-word";
         } else if (type === 7) {
-            style = "text-success";
+            style = "text-primary";
             icon = "fa-solid fa-file-excel";
         } else if (type === 8) {
             style = "text-warning";
-            icon = "fa-solid fa-file-powerpoint";
+            icon = "fa-solid fa-file-powerpoint"
         } else if (type === 9) {
-            style = "text-secondary";
-            icon = "fa-solid fa-file-code";
-        } else if (type === 10) {
-            style = "text-warning";
-            icon = "fa-solid fa-file-powerpoint";
-        } else if (type === 12) {
-            style = "text-secondary";
+            style = "text-dark";
             icon = "fa-solid fa-file-zipper";
-        } else if (type === 13) {
-            style = "text-secondary";
-            icon = "fa-solid fa-file-archive";
+        } else if (type === 10) {
+            style = "text-info";
+            icon = "fa-solid fa-cubes";
         } else {
             style = "text-secondary";
             icon = "fa-solid fa-file";
@@ -85,9 +80,7 @@ export default
     function componentFile(message: any, style: string, icon: string): JSX.Element {
         return (
             <footer id='divMessageFile' className="d-flex flex-column fileStyle bg-white p-2 rounded ">
-                <a href={`http://gigpp.com.br:72/GLOBAL/Controller/CLPP/uploads/${message.message}`} target='_blank'>
-                    <i className={`${style} ${icon}`} />
-                </a>
+                <a href={`http://gigpp.com.br:72/GLOBAL/Controller/CLPP/uploads/${message.message}`} target='_blank'><i className={`${style} ${icon}`} /></a>
                 <div className="d-flex justify-content-end my-2" onClick={async () => {
                     try {
                         const req: { error: boolean, fileName: string, fileContent: string, message?: 'string' } = await await fetchData({ method: "GET", params: null, pathFile: "GIPP/LoginGipp.php", urlComplement: `&file=${message.message}` }) || { error: true, fileName: '', fileContent: '' };
