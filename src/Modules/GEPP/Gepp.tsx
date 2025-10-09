@@ -4,9 +4,8 @@ import NavBar from "../../Components/NavBar";
 import { listPathGEPP } from "./ConfigGepp";
 import CardProd from "./ManagerCard";
 import Manager from "./ManagerTable/Manager";
-import useWindowSize from "../GAPP/Infraction/hook/useWindowSize";
 
-const Gepp = () => {
+export default function Gepp(){
   const { setTitleHead } = useMyContext();
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [reloadFunction, setReloadFunction] = useState<(() => void) | null>(null);
@@ -42,5 +41,3 @@ const Gepp = () => {
     </React.Fragment>
   );
 };
-
-export default Gepp;
