@@ -70,7 +70,7 @@ export default function ChatControls() {
     }
 
     async function sendFile() {
-        const type = changeTypeMessageForFile(file) || 2;
+        const type = changeTypeMessageForFile(file);
         console.log(type);
         const extension = getBase64FileExtension(file);
         const req: any = await fetchData({
@@ -130,35 +130,37 @@ export default function ChatControls() {
 
     function changeTypeMessageForFile(base64: string): number {
         const upperType = base64.toUpperCase();
-        let type = 11; // Default
+        console.warn(upperType);
+
+        let type = 11;
 
         switch (true) {
-            case upperType.includes('IMAGE/WEBP'):
+            case upperType.includes('DATA:IMAGE/WEBP'):
                 type = 2;
                 break;
-            case upperType.includes('PDF'):
+            case upperType.includes('DATA:APPLICATION/PDF'):
                 type = 3;
                 break;
-            case upperType.includes('XML'):
+            case upperType.includes('DATA:TEXT/XML'):
                 type = 4;
                 break;
-            case upperType.includes('CSV'):
+            case upperType.includes('DATA:TEXT/CSV'):
                 type = 5;
                 break;
-            case upperType.includes('WORDPROCESSINGML'):
+            case upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT'):
+                type = 6;
+                break;
+            case upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET'):
+                type = 7;
+                break;
+            case upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION'):
                 type = 8;
                 break;
-            case upperType.includes('SPREADSHEETML'):
+            case upperType.includes('DATA:APPLICATION/X-ZIP-COMPRESSED'):
                 type = 9;
                 break;
-            case upperType.includes('PRESENTATIONML'):
+            case upperType.includes('DATA:APPLICATION/OCTET-STREAM'):
                 type = 10;
-                break;
-            case upperType.includes('ZIP'):
-                type = 12;
-                break;
-            case upperType.includes('RAR'):
-                type = 13;
                 break;
         }
 

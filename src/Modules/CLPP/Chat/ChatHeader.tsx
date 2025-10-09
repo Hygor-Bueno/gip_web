@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useWebSocket } from "../../../Context/WsContext";
-import User from "../../../Class/User";
 import CardUser from "../Components/CardUser";
 import { iUser } from "../../../Interface/iGIPP";
 
