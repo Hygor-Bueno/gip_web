@@ -71,8 +71,8 @@ export default function ChatControls() {
 
     async function sendFile() {
         const type = changeTypeMessageForFile(file);
-        console.log(type);
         const extension = getBase64FileExtension(file);
+
         const req: any = await fetchData({
             method: "POST",
             params: classToJSON(new SendMessage(file.split('base64,')[1], idReceived, userLog.id, type)),
@@ -130,7 +130,6 @@ export default function ChatControls() {
 
     function changeTypeMessageForFile(base64: string): number {
         const upperType = base64.toUpperCase();
-        console.warn(upperType);
 
         let type = 11;
 
@@ -168,12 +167,16 @@ export default function ChatControls() {
     }
 
     function getBase64FileExtension(base64: string) {
+        const upperType = base64.toUpperCase();
         let extension = 'txt';
-        if (base64.includes('wordprocessingml')) extension = 'docx';
-        else if (base64.includes('spreadsheetml')) extension = 'xlsx';
-        else if (base64.includes('presentationml')) extension = 'pptx';
-        else if (base64.includes('x-rar-compressed')) extension = 'rar';
-        else if (base64.includes('x-zip-compressed')) extension = 'zip';
+        if (upperType.includes('DATA:APPLICATION/PDF')) extension = 'pdf';
+        else if (upperType.includes('DATA:APPLICATION/PDF')) extension = 'xml';
+        else if (upperType.includes('DATA:TEXT/CSV')) extension = 'csv';
+        else if (upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.WORDPROCESSINGML.DOCUMENT')) extension = 'docx';
+        else if (upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.SPREADSHEETML.SHEET')) extension = 'xlsx';
+        else if (upperType.includes('DATA:APPLICATION/VND.OPENXMLFORMATS-OFFICEDOCUMENT.PRESENTATIONML.PRESENTATION')) extension = 'pptx';
+        else if (upperType.includes('X-ZIP-COMPRESSED')) extension = 'zip';
+        else if (upperType.includes('OCTET-STREAM')) extension = 'rar';
         else {
             const match = base64.match(/^data:(.+);base64,/);
             if (match) {

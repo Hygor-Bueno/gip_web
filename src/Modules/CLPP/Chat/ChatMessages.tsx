@@ -1,9 +1,7 @@
 import { useMyContext } from "../../../Context/MainContext";
 import { useWebSocket } from "../../../Context/WsContext";
 import { useConnection } from "../../../Context/ConnContext";
-import { useEffect } from "react";
-import { convertDate, convertTime } from "../../../Util/Util";
-import { parse } from "path";
+import { convertTime } from "../../../Util/Util";
 
 export default
     function ChatMessages() {
@@ -17,6 +15,7 @@ export default
             onScroll={handleScroll}
             className='d-flex flex-column overflow-auto h-100 w-100 p-2'
         >
+
             {listMessage.map((item, index) => (
                 <div key={`message_${index}`} className={`d-flex flex-column my-2 w-100 ${item.id_user == userLog.id ? 'text-end align-items-end ' + `${item.type <= 2 && 'messageSent'} ` : 'text-start align-items-start ' + `${item.type <= 2 && 'messageReceived'}`}`}>
                     <strong>{convertTime(item.date)}</strong>
@@ -47,31 +46,28 @@ export default
         let style: string = '';
         let icon: string = '';
         const type = parseInt(message.type);
-
-        // console.log(type);
-
-        if (type == 3) {
+        if (type === 3) {
             style = "text-danger h1";
             icon = "fa-solid fa-file-pdf";
-        } else if (type == 4) {
+        } else if (type === 4) {
             style = "text-success";
             icon = "fa-solid fa-file-code";
-        } else if (type == 5) {
+        } else if (type === 5) {
             style = "text-success";
             icon = "fa-solid fa-file-csv";
-        } else if (type == 6) {
+        } else if (type === 6) {
             style = "text-primary";
             icon = "fa-solid fa-file-word";
-        } else if (type == 7) {
+        } else if (type === 7) {
             style = "text-primary";
             icon = "fa-solid fa-file-excel";
-        } else if (type == 8) {
+        } else if (type === 8) {
             style = "text-warning";
             icon = "fa-solid fa-file-powerpoint"
-        } else if (type == 9) {
+        } else if (type === 9) {
             style = "text-dark";
             icon = "fa-solid fa-file-zipper";
-        } else if (type == 10) {
+        } else if (type === 10) {
             style = "text-info";
             icon = "fa-solid fa-cubes";
         } else {
