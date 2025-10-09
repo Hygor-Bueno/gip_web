@@ -1,9 +1,9 @@
 import { useMyContext } from "../../../Context/MainContext";
 import { useWebSocket } from "../../../Context/WsContext";
 import { useConnection } from "../../../Context/ConnContext";
+import { useEffect } from "react";
 import { convertDate, convertTime } from "../../../Util/Util";
-
-require('../Clpp.css');
+import { parse } from "path";
 
 export default
     function ChatMessages() {
@@ -85,9 +85,8 @@ export default
     function componentFile(message: any, style: string, icon: string): JSX.Element {
         return (
             <footer id='divMessageFile' className="d-flex flex-column fileStyle bg-white p-2 rounded ">
-                <a href={`http://gigpp.com.br:72/GLOBAL/Controller/CLPP/uploads/${message.message}`} target='_blank' className="w-50 h-50">
-                    {message.type && <i className={`${style} ${icon}`} />}
-                    {/* <img alt="Mensagem no formato de imagem." className={`fileStyle img-fluid rounded ${style}`} src={`http://gigpp.com.br:72/GLOBAL/Controller/CLPP/uploads/${message.message}`} /> */}
+                <a href={`http://gigpp.com.br:72/GLOBAL/Controller/CLPP/uploads/${message.message}`} target='_blank'>
+                    <i className={`${style} ${icon}`} />
                 </a>
                 <div className="d-flex justify-content-end my-2" onClick={async () => {
                     try {

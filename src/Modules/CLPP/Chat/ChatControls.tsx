@@ -36,8 +36,7 @@ export default function ChatControls() {
                 onPaste={(e) => handlePaste(e)}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
                 id="chatControlsInput"
-                className="mx-2 col-8 border rounded"
-            />
+                className="mx-2 col-8 border rounded" />
             <AttachmentFile reset={file ? false : true} file={0} onClose={(value) => callBackAttachmentFile(value)} fullFiles={true} base64={file} />
         </div>
     );
@@ -71,7 +70,8 @@ export default function ChatControls() {
     }
 
     async function sendFile() {
-        const type = changeTypeMessageForFile(file);
+        const type = changeTypeMessageForFile(file) || 2;
+        console.log(type);
         const extension = getBase64FileExtension(file);
         const req: any = await fetchData({
             method: "POST",
@@ -130,16 +130,38 @@ export default function ChatControls() {
 
     function changeTypeMessageForFile(base64: string): number {
         const upperType = base64.toUpperCase();
-        let type = 11;
-        if (upperType.includes('IMAGE') && !upperType.includes('OFFICEDOCUMENT')) type = 2;
-        if (upperType.includes('PDF')) type=3;
-        if (upperType.includes('XML')) type=4;
-        if (upperType.includes('CSV')) type=5;
-        if (upperType.includes('WORDPROCESSINGML')) type=8;
-        if (upperType.includes('SPREADSHEETML')) type=9;
-        if (upperType.includes('PRESENTATIONML')) type=10;
-        if (upperType.includes('ZIP')) type=12;
-        if (upperType.includes('RAR')) type=13;
+        let type = 11; // Default
+
+        switch (true) {
+            case upperType.includes('IMAGE/WEBP'):
+                type = 2;
+                break;
+            case upperType.includes('PDF'):
+                type = 3;
+                break;
+            case upperType.includes('XML'):
+                type = 4;
+                break;
+            case upperType.includes('CSV'):
+                type = 5;
+                break;
+            case upperType.includes('WORDPROCESSINGML'):
+                type = 8;
+                break;
+            case upperType.includes('SPREADSHEETML'):
+                type = 9;
+                break;
+            case upperType.includes('PRESENTATIONML'):
+                type = 10;
+                break;
+            case upperType.includes('ZIP'):
+                type = 12;
+                break;
+            case upperType.includes('RAR'):
+                type = 13;
+                break;
+        }
+
         return type;
     }
 
