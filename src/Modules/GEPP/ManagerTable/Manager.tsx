@@ -2,10 +2,23 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useConnection } from "../../../Context/ConnContext";
 import CustomTable from "../../../Components/CustomTable";
 import { IManagerProps } from "./Interfaces/IManager";
-import { formatDateBR, handleNotification } from "../../../Util/Util";
+import { convertForTable, formatDateBR, handleNotification } from "../../../Util/Util";
 import { EStatusProduct } from "./Enum/statusProduct";
 import CustomForm from "../../../Components/CustomForm";
 require("./Style.css");
+
+const customTags = {
+  id_products: "ID",
+  ean: "EAN",
+  description: "Descrição",
+  price: "Preço",
+  new_price: "Novo Preço",
+  quantity: "Qtd",
+  expiration_date: "Validade",
+  store_number: "Loja",
+  id_status_step_fk: "Etapa",
+  created_name: "Criador"
+};
 
 function Manager({ setSelectedProduct, loadList }: IManagerProps) {
   const { fetchData } = useConnection();
@@ -33,31 +46,24 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
     { value: EStatusProduct.EXECUTED, label: "Executados" },
     { value: EStatusProduct.FINALIZED, label: "Finalizados" },
   ];
-
   // fieldsets para CustomForm
-const filterFieldsets = [
-  {
-    attributes: { className: "p-3 bg-light rounded shadow-sm mb-3 d-flex flex-wrap gap-2" }, // deixa os campos em linha
-    item: {
-      classLabel: "fw-bold mb-2 text-dark w-100", // label do grupo ocupa a linha inteira
-      captureValue: [
-        { type: "text", value: eanSearch, placeholder: "EAN", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setEanSearch(e.target.value) },
-        { type: "date", value: firstDate, placeholder: "Data Inicial", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setFirstDate(e.target.value) },
-        { type: "date", value: lastDate, placeholder: "Data Final", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setLastDate(e.target.value) },
-        { type: "date", value: expirationDate, placeholder: "Validade", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setExpirationDate(e.target.value) },
-        { type: "select", value: storeSearch, options: storeOptions, className: "form-select wd-auto form-select-sm d-inline-block", onChange: (e: any) => setStoreSearch(e.target.value) },
-        { type: "select", value: statusProduct, options: statusOptions, className: "form-select wd-auto form-select-sm d-inline-block", style: { width: "140px" }, onChange: (e: any) => setStatusProduct(Number(e.target.value)) },
-      ],
+  const filterFieldsets = [
+    {
+      attributes: { className: "p-3 bg-light rounded shadow-sm mb-3 d-flex flex-wrap gap-2" }, // deixa os campos em linha
+      item: {
+        classLabel: "fw-bold mb-2 text-dark w-100", // label do grupo ocupa a linha inteira
+        captureValue: [
+          { type: "text", value: eanSearch, placeholder: "EAN", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setEanSearch(e.target.value) },
+          { type: "date", value: firstDate, placeholder: "Data Inicial", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setFirstDate(e.target.value) },
+          { type: "date", value: lastDate, placeholder: "Data Final", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setLastDate(e.target.value) },
+          { type: "date", value: expirationDate, placeholder: "Validade", className: "form-control form-control-sm d-inline-block", style: { width: "120px" }, onChange: (e: any) => setExpirationDate(e.target.value) },
+          { type: "select", value: storeSearch, options: storeOptions, className: "form-select wd-auto form-select-sm d-inline-block", onChange: (e: any) => setStoreSearch(e.target.value) },
+          { type: "select", value: statusProduct, options: statusOptions, className: "form-select wd-auto form-select-sm d-inline-block", style: { width: "140px" }, onChange: (e: any) => setStatusProduct(Number(e.target.value)) },
+        ],
+      },
+      legend: { text: "Filtros", style: "fs-5 fw-bold text-secondary mb-2" },
     },
-    legend: { text: "Filtros", style: "fs-5 fw-bold text-secondary mb-2" },
-  },
-];
-
-
-
-  const handleFilterSubmit = () => {
-    loadData();
-  };
+  ];
 
   // busca status das etapas
   async function getStatusStep() {
@@ -69,26 +75,11 @@ const filterFieldsets = [
         urlComplement: "&all=1",
         exception: ["no data"],
       });
-      if (!response || response.error) {
-        handleNotification("Erro ao buscar status", response?.message || "Falha na comunicação com o servidor.", "danger");
-        return;
-      }
+      if (!response || response.error) throw new Error(response?.message);
       setStepStatus(response.data || []);
-    } catch (error) {
-      console.error("Erro no getStatusStep:", error);
-      handleNotification("Erro inesperado", "Falha ao buscar status de etapa.", "danger");
+    } catch (error: any) {
+      handleNotification("Erro!", error.getMessage(), "danger");
     }
-  }
-
-  function statusStepString(value: string) {
-    const step = stepStatus.find((s) => s.id_status === value);
-    if (!step) return <strong className="text-muted">Desconhecido</strong>;
-    const classMap: Record<string, string> = {
-      "1": "text-purple",
-      "2": "text-success",
-      "3": "text-danger",
-    };
-    return <strong className={classMap[value] || "text-dark"}>{step.description}</strong>;
   }
 
   function buildFilters() {
@@ -106,35 +97,18 @@ const filterFieldsets = [
   }
 
   async function loadData() {
-    if (!stepStatus.length) return;
     try {
-      const filters = buildFilters();
       const data = await fetchData({
         method: "GET",
         pathFile: "GEPP/Product.php",
         params: null,
-        urlComplement: `&${filters}`,
+        urlComplement: `&isWeb=1`,
         exception: ["no data"],
       });
-      if (data.error) {
-        handleNotification("Sem registros", data.message, "warning");
-        setTableData([]);
-        return;
-      }
-      const mapped = (data.data || []).map((p: any) => ({
-        id_products: { value: p.id_products, tag: "ID" },
-        ean: { value: p.ean, tag: "EAN" },
-        description: { value: p.description, tag: "Descrição" },
-        price: { value: `R$ ${p.price}`, tag: "Preço" },
-        new_price: { value: `R$ ${p.new_price}`, tag: "Novo Preço" },
-        quantity: { value: p.quantity, tag: "Qtd" },
-        expiration_date: { value: formatDateBR(p.expiration_date), tag: "Validade" },
-        store_number: { value: p.store_number, tag: "Loja" },
-        id_status_step_fk: { value: statusStepString(p.id_status_step_fk), tag: "Status" },
-      }));
-      setTableData(mapped);
+      if(data.error) throw new Error(data.message);
+      setTableData(data.data);
     } catch (error: any) {
-      console.error("Erro ao carregar dados:", error.message);
+      setTableData([]);
     }
   }
 
@@ -143,11 +117,14 @@ const filterFieldsets = [
     try {
       const fetchPromises = selected.map(async (item) => {
         const id = item.id_products.value;
+
         if (productCache.has(id)) return productCache.get(id);
+
         const [firstData, secondData] = await Promise.all([
           fetchData({ method: "GET", pathFile: "GEPP/Progress.php", params: null, urlComplement: `&id=${id}`, exception: ["no data"] }),
           fetchData({ method: "GET", pathFile: "GEPP/Product.php", params: null, urlComplement: `&id=${id}`, exception: ["no data"] }),
         ]);
+
         const combined = [firstData.data || [], secondData.data || []];
         productCache.set(id, combined);
         return combined;
@@ -189,15 +166,16 @@ const filterFieldsets = [
 
       {/* CustomForm substituindo todos os filtros */}
       <CustomForm
+
         fieldsets={filterFieldsets}
         notButton={false}
         titleButton="Filtrar"
         typeButton="button"
-        onAction={handleFilterSubmit}
+        onAction={loadData}
       />
 
       {tableData.length > 0 ? (
-        <CustomTable list={tableData} onConfirmList={handleConfirmList} selectionKey="id_products" hiddenButton={false} />
+        <CustomTable list={convertForTable(tableData, { customTags })} onConfirmList={handleConfirmList} selectionKey="id_products" hiddenButton={false} />
       ) : (
         <div className="empty-state h-100">
           <i className="fas fa-box-open empty-icon" aria-hidden="true"></i>
