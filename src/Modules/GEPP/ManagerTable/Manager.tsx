@@ -20,7 +20,7 @@ const customTags = {
   created_name: "Criador"
 };
 
-function Manager({ setSelectedProduct, loadList }: IManagerProps) {
+function Manager({ setSelectedProduct, loadList, setCardProd }: IManagerProps) {
   const { fetchData } = useConnection();
 
   // tabela
@@ -156,9 +156,8 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
   useEffect(() => { if (loadList) loadList(loadData); }, [loadList]);
 
   return (
-    <div className='container'>
-      <div className="d-flex align-items-end gap-2 mt-2 w-100 justify-content-between mb-3">
-        <strong>Filtros de pesquisa:</strong>
+    <div className="p-4 h-75 w-100">
+      <div className="d-flex align-items-end gap-2 mt-2 w-100 justify-content-end mb-3">
         <button className="btn btn-danger btn-sm d-flex align-items-center gap-2" onClick={resetFilters}>
           <i className="fa-solid fa-eraser text-white"></i>Limpar
         </button>
@@ -166,7 +165,6 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
 
       {/* CustomForm substituindo todos os filtros */}
       <CustomForm
-
         fieldsets={filterFieldsets}
         notButton={false}
         titleButton="Filtrar"
@@ -175,7 +173,7 @@ function Manager({ setSelectedProduct, loadList }: IManagerProps) {
       />
 
       {tableData.length > 0 ? (
-        <CustomTable list={convertForTable(tableData, { customTags })} onConfirmList={handleConfirmList} selectionKey="id_products" hiddenButton={false} />
+        <CustomTable list={convertForTable(tableData, { customTags })} onConfirmList={(event)=>{handleConfirmList(event);setCardProd(true)}} selectionKey="id_products" hiddenButton={false} />
       ) : (
         <div className="empty-state h-100">
           <i className="fas fa-box-open empty-icon" aria-hidden="true"></i>

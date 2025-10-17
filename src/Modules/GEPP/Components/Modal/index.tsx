@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import './ObservationModal.module.css';
+
+import './ObservationModal.Style.css'
 
 interface IObservationModal {
   onClose?: () => void;
