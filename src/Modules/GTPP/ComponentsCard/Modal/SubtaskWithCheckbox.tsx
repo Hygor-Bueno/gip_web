@@ -8,7 +8,7 @@ import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import ModalEditTask from "./ModalEditTask";
 import { Image } from "react-bootstrap";
-import { convertImage } from "../../../../Util/Util";
+import { convertImage, handleNotification } from "../../../../Util/Util";
 import imageUser from "../../../../Assets/Image/user.png";
 require('animate.css');
 
@@ -30,6 +30,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
     reloadPagePercent,
     deleteItemTaskWS,
     updateItemTaskFile,
+    getTaskInformations,
     getUser,
     recoverList
   } = useWebSocket();
@@ -153,7 +154,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
       assigned_to: item.user_id
     };
 
-    const { data, message, error } = await fetchData({
+    const { message, error } = await fetchData({
       method: "PUT",
       params: value,
       pathFile: "GTPP/TaskItem.php",
@@ -162,30 +163,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
 
     if (error) throw new Error(message);
 
-    setTaskDetails((prev: any) => {
-      if (!prev?.data?.task_item) return prev;
-
-      const updatedItems = prev.data.task_item.map((taskItem: any) => {
-        if (taskItem.id === item.id) {
-          return {
-            ...taskItem,
-            assigned_to: item.user_id,
-            last_assigned_to: data.last_assigned_to,
-          };
-        }
-        return taskItem;
-      });
-
-      return {
-        ...prev,
-        data: {
-          ...prev.data,
-          task_item: updatedItems,
-        }
-      };
-    });
-
-    console.warn("Atualização local feita com sucesso", data);
+    setUserState((prev:any) => ({...prev, isListUser: false, loadingList: []}))
+    getTaskInformations();
+    handleNotification("Assinatura realizada!", message, "success");
   }
 
 
