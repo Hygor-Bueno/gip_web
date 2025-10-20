@@ -128,47 +128,14 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
     await fetchData({ method: "PUT", params: value, pathFile: "GTPP/TaskItem.php", exception: ["no data"], urlComplement: "" });
   }
 
-  // async function updateUserNewTaskItem(item: {task_id: number, user_id: number, id: number}) {
-  //   const value = {
-  //     task_id: item.task_id,
-  //     id: item.id,
-  //     assigned_to: item.user_id
-  //   };
-
-  //   const { data, message, error } = await fetchData({
-  //     method: "PUT",
-  //     params: value,
-  //     pathFile: "GTPP/TaskItem.php",
-  //     urlComplement: ""
-  //   });
-
-  //   if (error) throw new Error(message);
-
-  //   console.warn(data);
-  // }
-
   async function updateUserNewTaskItem(item: {task_id: number, user_id: number, id: number}) {
-    const value = {
-      task_id: item.task_id,
-      id: item.id,
-      assigned_to: item.user_id
-    };
-
-    const { message, error } = await fetchData({
-      method: "PUT",
-      params: value,
-      pathFile: "GTPP/TaskItem.php",
-      urlComplement: ""
-    });
-
+    const value = {task_id: item.task_id,id: item.id,assigned_to: item.user_id};
+    const { message, error } = await fetchData({method: "PUT",params: value,pathFile: "GTPP/TaskItem.php",urlComplement: ""});
     if (error) throw new Error(message);
-
     setUserState((prev:any) => ({...prev, isListUser: false, loadingList: []}))
     getTaskInformations();
     handleNotification("Assinatura realizada!", message, "success");
   }
-
-
 
   const assinatura = userState.loadingList?.listTask?.assigned_to;
   return (
