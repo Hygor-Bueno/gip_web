@@ -7,6 +7,10 @@ import AnexoImage from "../../../../Components/AttachmentFile";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import ModalEditTask from "./ModalEditTask";
+import { Image } from "react-bootstrap";
+import { convertImage } from "../../../../Util/Util";
+import imageUser from "../../../../Assets/Image/user.png";
+require('animate.css');
 
 interface iSubTask {
   isObservable: boolean;
@@ -17,17 +21,19 @@ interface iSubTask {
   openDialog: boolean
 }
 
-const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
-  const { 
+const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props}) => {
+  const {
     checkedItem,
     task,
-    taskDetails, 
-    setTaskDetails, 
-    reloadPagePercent, 
+    taskDetails,
+    setTaskDetails,
+    reloadPagePercent,
     deleteItemTaskWS,
-    updateItemTaskFile 
+    updateItemTaskFile,
+    getUser,
+    recoverList
   } = useWebSocket();
-  
+
   const { setLoading } = useMyContext();
   const { fetchData } = useConnection();
   const [editTask, setEditTask] = useState<any>("");
@@ -36,6 +42,13 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
   const [onScrollDown, setOnScrollDown] = useState<boolean>(true);
   const [onEditTask, setOnEditTask] = useState<boolean>(false);
   const containerTaskItemsRef = useRef<HTMLDivElement>(null);
+
+  const [userState, setUserState] = useState({
+    loadingList: { users: undefined, listTask: undefined } as { users?: any; listTask?: any },
+    isListUser: false,
+    getListUser: { name: undefined, photo: undefined, user_id: undefined } as { name?: string; photo?: string; user_id?: number },
+    listUserBtn: { isGetTaskOrIncludeColaborator: false },
+  });
 
   useEffect(() => {
     if (containerTaskItemsRef.current && onScrollDown) {
@@ -51,6 +64,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
     idSubTask: "",
     openDialog: false
   });
+
+  
 
   const ModalInformation = (props: any) => {
     return (
@@ -75,6 +90,10 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
       [taskId]: !prevStates[taskId],
     }));
   };
+
+  function isMissing(value: any) {
+    return !value;
+  }
 
   function changePositionItem(next: boolean, id: number) {
     if (taskDetails.data && taskDetails.data.task_item) {
@@ -101,17 +120,137 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
       setTaskDetails({ ...taskDetails });
     }
   }
+
+
   async function updatePositionTaskItem(item: { id: number, next_or_previous: "next" | "previous" }) {
     const value: { task_id: number, id: number, next_or_previous: "next" | "previous" } = { task_id: task.id, id: item.id, next_or_previous: item.next_or_previous };
-    await fetchData({method: "PUT", params: value, pathFile: "GTPP/TaskItem.php", exception: ["no data"], urlComplement: ""});
+    await fetchData({ method: "PUT", params: value, pathFile: "GTPP/TaskItem.php", exception: ["no data"], urlComplement: "" });
   }
 
+  // async function updateUserNewTaskItem(item: {task_id: number, user_id: number, id: number}) {
+  //   const value = {
+  //     task_id: item.task_id,
+  //     id: item.id,
+  //     assigned_to: item.user_id
+  //   };
+
+  //   const { data, message, error } = await fetchData({
+  //     method: "PUT",
+  //     params: value,
+  //     pathFile: "GTPP/TaskItem.php",
+  //     urlComplement: ""
+  //   });
+
+  //   if (error) throw new Error(message);
+
+  //   console.warn(data);
+  // }
+
+  async function updateUserNewTaskItem(item: {task_id: number, user_id: number, id: number}) {
+    const value = {
+      task_id: item.task_id,
+      id: item.id,
+      assigned_to: item.user_id
+    };
+
+    const { data, message, error } = await fetchData({
+      method: "PUT",
+      params: value,
+      pathFile: "GTPP/TaskItem.php",
+      urlComplement: ""
+    });
+
+    if (error) throw new Error(message);
+
+    setTaskDetails((prev: any) => {
+      if (!prev?.data?.task_item) return prev;
+
+      const updatedItems = prev.data.task_item.map((taskItem: any) => {
+        if (taskItem.id === item.id) {
+          return {
+            ...taskItem,
+            assigned_to: item.user_id,
+            last_assigned_to: data.last_assigned_to,
+          };
+        }
+        return taskItem;
+      });
+
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          task_item: updatedItems,
+        }
+      };
+    });
+
+    console.warn("Atualização local feita com sucesso", data);
+  }
+
+
+
+  const assinatura = userState.loadingList?.listTask?.assigned_to;
   return (
     <div ref={containerTaskItemsRef} className="overflow-auto rounded flex-grow-1">
+      {userState.isListUser && (
+        <div className="position-absolute list-user-task rounded p-2 cursor-pointer bg-list-user overflow-hidden">
+            <div><button className="btn btn-danger" onClick={() => {setUserState((prev:any) => ({...prev, isListUser: false, loadingList: []}))}}><i className="fa fa-solid fa-x text-white"></i></button></div>
+            <div className="overflow-auto">
+              {(userState.loadingList?.users?.map((item: any, idx: number) => (
+                  <div
+                    key={`add_users_${idx}`}
+                    className={`d-flex align-items-center bg-white rounded my-2 px-1 py-2 cursor-pointer
+                      ${assinatura === item.user_id ? 'bg-selected' : ''}
+                      ${assinatura && assinatura !== item.user_id ? 'opacity-50' : 'holver-effect'}
+                    `}
+                    onClick={async () => {
+                        const alreadyAssigned = userState.loadingList?.listTask?.assigned_to === item.user_id;
+
+                        const payload = {
+                          task_id: userState.loadingList?.listTask?.task_id,
+                          id: userState.loadingList?.listTask?.id,
+                          user_id: alreadyAssigned ? 0 : item.user_id
+                        };
+
+                        await updateUserNewTaskItem(payload);
+
+                        if (!alreadyAssigned) {
+                          setUserState((prev) => ({ ...prev, getListUser: item }));
+                        }
+                    }}
+                  >
+                  <div
+                    className="rounded-circle overflow-hidden d-flex align-items-center justify-content-center"
+                    style={{ width: "30px", height: "30px" }}
+                  >
+                    <Image
+                      src={item.photo && convertImage(item.photo) || imageUser}
+                      alt="Foto do usuário"
+                      className="img-fluid"
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  </div>
+                  <label className="ms-3 mb-0"><strong>{item.name}</strong></label>
+                </div>
+              ))
+            )}
+            </div>
+        </div>
+      )}
       <div>
         <ModalEditTask onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
-        {(taskDetails.data?.task_item || []).map((task, index: number) => (
-          <div key={task.id} className={"d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto"}>
+        {(taskDetails.data?.task_item || []).map((task, index: number) => {
+
+          const list = users?.find((item: {user_id: number}) => item?.user_id == task?.created_by);
+          const creator = !isMissing(list?.name) ? list?.name : getUser.name;
+
+          const assignedUser = props.details.data?.task_user?.find(
+            (user: any) => user.user_id === task.assigned_to
+          ); 
+
+          return (
+        <div key={task.id} className={`d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto ${userState.loadingList.listTask?.id == task.id  ? 'border-mark' : ''}`}>
             {(subTask.openDialog && subTask.idSubTask === task.id && task.note) && <ModalInformation onClose={closeObservation} task description={task.note} />}
             {(task.id && positionTaskStates[task.id]) &&
               <div>
@@ -125,8 +264,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
                 }} title="Descer uma posição" className="btn py-1 px-3 my-1 btn-outline-danger fa-solid fa-arrow-down-long"></button>
               </div>
             }
-            <div className="GIPP-section d-flex justify-content-between align-items-center w-100">
-              <div className="GIPP-section-sm">
+          <div className="container-fluid">
+            <div className="row align-items-center mb-2">
+              <div className="col-md-10 col-sm-9">
                 <div className="text-wrap text-break">
                   <InputCheckbox
                     label={task.description}
@@ -134,7 +274,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
                     onChange={checkedItem}
                     onPosition={() => {
                       togglePositionTask(task.id || 0);
-                      setOnScrollDown(!onScrollDown)
+                      setOnScrollDown(!onScrollDown);
                     }}
                     yesNo={task.yes_no || 0}
                     checked={task.check || false}
@@ -144,43 +284,106 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = () => {
                   />
                 </div>
               </div>
+              <div className="col-md-2 col-sm-3 text-center">
+                <div
+                  className="mx-auto cursor-pointer border-warning"
+                  onClick={() => {
+                    setUserState((prev:any)=>({...prev,
+                      loadingList: {
+                        users: props.details.data?.task_user,
+                        listTask: task
+                      },
+                      isListUser: true,
+                      listUserBtn: {isGetTaskOrIncludeColaborator: false}
+                    }));
+                  }}
+                >
+                  {Number(task?.assigned_to) > 0 && assignedUser ? (
+                    <Image
+                      title={assignedUser.name}
+                      src={convertImage(assignedUser.photo) || imageUser}
+                      alt={`Foto de ${assignedUser.name}`}
+                      className="rounded-circle"
+                      style={{ width: "30px", height: "30px", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <i className="fa my-2 fa-plus text-secondary"></i>
+                  )}
+                </div>
+              </div>
+            </div>
 
-              <div className="GIPP-aside-sm d-flex justify-content-end gap-2 my-2">
-                {task.note &&
-                  <ButtonIcon title="Visualizar observação" color="primary" icon="circle-info" description="" onClick={() => {
-                    closeObservation(task);
-                  }} />
-                }
-                <ButtonIcon title="Observação" color="primary" icon="pencil" description="" onClick={() => {
-                  setEditTask(task);
-                  setOnEditTask(true);
-                }} />
-                <ButtonIcon title="Observação" color="danger" icon="trash" description="" onClick={async () => {
-                  try {
-                    setLoading(true);
-                    if (task.id && task.task_id) {
-                      const result = await deleteTaskItem({ id: task.id, task_id: task.task_id });
-                      if (result.error) throw new Error(result.message);
-                      removeItemOfList(task.id);
-                      reloadPagePercent(result.data, task);
-                      deleteItemTaskWS({
-                        description: "Um item foi removido.",
-                        itemUp: task.id,
-                        percent: parseInt(result.data.percent),
-                        remove: true
-                      });
+            <div className="row justify-content-between align-items-center">
+              <div className="col-sm-6">
+                <i>
+                  <small className="text-secondary">
+                    Por: {task.created_by ? creator : getUser?.name}
+                  </small>
+                </i>
+              </div>
+              <div className="col-sm-6 d-flex justify-content-end gap-2">
+                {task.note && (
+                  <ButtonIcon
+                    title="Visualizar observação"
+                    color="primary"
+                    icon="circle-info"
+                    description=""
+                    onClick={() => closeObservation(task)}
+                  />
+                )}
+                <ButtonIcon
+                  title="Observação"
+                  color="primary"
+                  icon="pencil"
+                  description=""
+                  onClick={() => {
+                    setEditTask(task);
+                    setOnEditTask(true);
+                  }}
+                />
+
+                <ButtonIcon
+                  title="Remover"
+                  color="danger"
+                  icon="trash"
+                  description=""
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      if (task.id && task.task_id) {
+                        const result = await deleteTaskItem({
+                          id: task.id,
+                          task_id: task.task_id,
+                        });
+                        if (result.error) throw new Error(result.message);
+                        removeItemOfList(task.id);
+                        reloadPagePercent(result.data, task);
+                        deleteItemTaskWS({
+                          description: "Um item foi removido.",
+                          itemUp: task.id,
+                          percent: parseInt(result.data.percent),
+                          remove: true,
+                        });
+                      }
+                    } catch (error: any) {
+                      console.error(error.message);
+                    } finally {
+                      setLoading(false);
                     }
-                  } catch (error: any) {
-                    console.error(error.message);
-                  } finally {
-                    setLoading(false);
-                  }
-                }} />
-                <AnexoImage item_id={task.id || 0} file={task.file || 0} updateAttachmentFile={updateItemTaskFile} />
+                  }}
+                />
+
+                <AnexoImage
+                  item_id={task.id || 0}
+                  file={task.file || 0}
+                  updateAttachmentFile={updateItemTaskFile}
+                />
               </div>
             </div>
           </div>
-        ))}
+        </div>
+        )
+        })}
       </div>
     </div>
   );

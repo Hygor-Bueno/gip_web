@@ -69,7 +69,6 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
   const typeInput = currentTask.state_id == 1 || currentTask.state_id == 2 ? "text" : currentTask.state_id == 5 ? "number" : null;
   const title = currentTask.state_id == 1 || currentTask.state_id == 2 ? "Alterar tarefa para o estado Parado (informe o motivo)?" : currentTask.state_id == 4 ? "Por quê deseja reabrir a tarefa?" : currentTask.state_id == 3 ? "Deseja finalizar essa tarefa?" : currentTask.state_id == 5 ? "Insira o total de dias que você precisa." : currentTask.state_id == 6 ? "Deseja mesmo retomar a tarefa?" : null
 
-  useEffect(()=>console.log(props.details.task_item),[props.details]);
   return (
     <div className="d-flex flex-column h-100 p-2">
       <div style={{ height: "10%" }} className="d-flex justify-content-between align-items-center">
@@ -191,6 +190,8 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
           </div>
           {valueTask && (
             <SubTasksWithCheckbox
+              props={props}
+              users={props.details.data?.task_user}
               message={props.message}
               onTaskChange={(e) => console.log(e)}
               allData={props}
@@ -212,9 +213,9 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                   onClose={(value) => setAttachmentFile(value)}
                   updateAttachmentFile={updateItemTaskFile}
                 />
-                <button title="Marca como questão?" className={`btn btn-primary fa-solid fa-question ${isQuest == 0 ? 'opacity-25' : 'opacity-100'}`} onClick={() => { 
-                  setIsQuest(isQuest == 0 ? -1 : 0) 
-                }}></button>
+                <button title="Marca como questão?" className={`btn btn-primary`} onClick={() => { 
+                  setIsQuest(isQuest == 0 ? -1 : 0)
+                }}><i className={`fa-solid fa-question ${isQuest == 0 ? 'opacity-25 text-white' : 'opacity-100 text-white'}`}></i></button>
               </div>
               <div className="col-12 col-sm-8 col-md-9 my-2">
                 <input

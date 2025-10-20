@@ -55,6 +55,9 @@ export default class Translator {
             case "This user can not do this":
                 this.#messagePT = "Este usuário não tem permissão para fazer essa ação"
                 break;
+            case "Assigned updated successfully":
+                this.#messagePT = "Assinatura realizada com sucesso!"
+            break;
             default:
                 this.#messagePT = messagePT;
                 break;

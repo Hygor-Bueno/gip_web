@@ -28,7 +28,7 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
   const [modalConfirmCancel, setModalConfirmCancel] = useState<boolean>(false);
   const [userTask, setUserTask] = useState<User>();
   const titleTaskInput = useRef<HTMLInputElement>(null);
-  const { getTask, task, loadTasks } = useWebSocket();
+  const { getTask, task, loadTasks, setGetUser } = useWebSocket();
   const { setLoading } = useMyContext();
   const { fetchData } = useConnection();
 
@@ -81,6 +81,8 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
       setLoading(true);
       const user = new User({ id: task.user_id });
       await user.loadInfo(true);
+      console.log(user);
+      setGetUser(user);
       setUserTask(user);
     } catch (error) {
       console.error(error);

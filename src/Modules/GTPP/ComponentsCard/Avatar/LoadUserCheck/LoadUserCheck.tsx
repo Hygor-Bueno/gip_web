@@ -69,15 +69,12 @@ const LoadUserCheck = (props: any) => {
       </div>
       <div className="overflow-auto h-100">
         {list.map((item: any) => {
-          const filterCheckList = props.dataPhotosUsers.some((user: any) => Number(item.employee_id) === Number(user.id));
           return (
             <ListUserTask
               key={item.employee_id}
               item={item}
               taskid={props.list.data.datatask.id}
               loadUserTaskLis={loadUserTaskLis}
-              dataPhotosUsers={props.dataPhotosUsers || ImageUser}
-              check={filterCheckList}
               userId={item.employee_id}
             />
           );

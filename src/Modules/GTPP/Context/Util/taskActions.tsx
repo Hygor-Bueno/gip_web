@@ -150,6 +150,7 @@ export async function HandleAddTask(
       task_id: parseInt(task_id),
       order: response.data.order,
       yes_no: response.data.yes_no,
+      created_by: response.data.created_by, // FX - jonatas
       file: file ? 1 : 0,
       note: null,
     };
@@ -201,6 +202,9 @@ export async function ChangeDescription(
     urlComplement: ""
   });
   // procurar onde o texarear é desabilitado.
+
+  console.log(response);
+
   const task = response.data.find((element: any) => element.id === id);
   try {
     if(task.description.length > 0) {
