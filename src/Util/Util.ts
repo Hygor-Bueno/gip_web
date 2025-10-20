@@ -184,8 +184,6 @@ export function classToJSON(instance: object): Record<string, unknown> {
         .forEach(([key]) => {
             json[key] = (instance as any)[key];
         });
-
-    console.log(json);
     return json;
 }
 

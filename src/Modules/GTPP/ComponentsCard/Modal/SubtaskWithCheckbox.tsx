@@ -134,7 +134,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
     if (error) throw new Error(message);
     setUserState((prev:any) => ({...prev, isListUser: false, loadingList: []}))
     getTaskInformations();
-    handleNotification("Assinatura realizada!", message, "success");
+    handleNotification("Enviado com Sucesso", "", "success");
   }
 
   const assinatura = userState.loadingList?.listTask?.assigned_to;
@@ -152,30 +152,16 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
                       ${assinatura && assinatura !== item.user_id ? 'opacity-50' : 'holver-effect'}
                     `}
                     onClick={async () => {
-                        const alreadyAssigned = userState.loadingList?.listTask?.assigned_to === item.user_id;
-
-                        const payload = {
-                          task_id: userState.loadingList?.listTask?.task_id,
-                          id: userState.loadingList?.listTask?.id,
-                          user_id: alreadyAssigned ? 0 : item.user_id
-                        };
-
-                        await updateUserNewTaskItem(payload);
-
-                        if (!alreadyAssigned) {
-                          setUserState((prev) => ({ ...prev, getListUser: item }));
-                        }
-                    }}
-                  >
-                  <div
-                    className="rounded-circle overflow-hidden d-flex align-items-center justify-content-center"
-                    style={{ width: "30px", height: "30px" }}
-                  >
-                    <Image
-                      src={item.photo && convertImage(item.photo) || imageUser}
-                      alt="Foto do usuário"
-                      className="img-fluid"
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      const alreadyAssigned = userState.loadingList?.listTask?.assigned_to === item.user_id;
+                      const payload = {task_id: userState.loadingList?.listTask?.task_id,id: userState.loadingList?.listTask?.id,user_id: alreadyAssigned ? 0 : item.user_id};
+                      await updateUserNewTaskItem(payload);
+                      if (!alreadyAssigned) setUserState((prev) => ({ ...prev, getListUser: item }));
+                    }}>
+                  <div className="rounded-circle overflow-hidden d-flex align-items-center justify-content-center" style={{ width: "30px", height: "30px" }}>
+                    <Image 
+                      src={item.photo && convertImage(item.photo) || imageUser} 
+                      alt="Foto do usuário" className="img-fluid" 
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }} 
                     />
                   </div>
                   <label className="ms-3 mb-0"><strong>{item.name}</strong></label>

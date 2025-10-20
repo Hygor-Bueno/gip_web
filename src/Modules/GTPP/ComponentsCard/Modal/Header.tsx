@@ -81,7 +81,6 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
       setLoading(true);
       const user = new User({ id: task.user_id });
       await user.loadInfo(true);
-      console.log(user);
       setGetUser(user);
       setUserTask(user);
     } catch (error) {
