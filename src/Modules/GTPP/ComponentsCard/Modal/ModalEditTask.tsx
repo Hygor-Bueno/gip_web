@@ -89,13 +89,7 @@ export default function ModalEditTask(props: any) {
                 checked={isQuest}
                 onChange={(event: any) => {
                   setIsQuest(event.target.checked);
-                  updatedForQuestion({
-                    id: editTask.id,
-                    task_id: editTask.task_id,
-                    yes_no: event.target.checked
-                      ? 3 // Marcar como questão neutra ao marcar
-                      : 0 // Voltar para comum ao desmarcar
-                  });
+                  updatedForQuestion({ id: editTask.id, task_id: editTask.task_id, yes_no: event.target.checked ? 3 : 0 });
                 }}
                 id={`item_quest_edit_${editTask.task_id}`}
                 type="checkbox"

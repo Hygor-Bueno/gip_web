@@ -117,11 +117,11 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
 
   async function updateUserNewTaskItem(item: {task_id: number, user_id: number, id: number}) {
     const value = {task_id: item.task_id,id: item.id,assigned_to: item.user_id};
-    const { message, error } = await fetchData({method: "PUT",params: value, pathFile: "GTPP/TaskItem.php",urlComplement: ""});
+    const { error } = await fetchData({method: "PUT",params: value, pathFile: "GTPP/TaskItem.php",urlComplement: ""});
     if(!error) {
       setUserState((prev:any) => ({...prev, isListUser: false, loadingList: []}))
       getTaskInformations();
-      handleNotification("Enviado com Sucesso", message, "success");
+      handleNotification('Sucesso', 'usuário vinculado!', 'success');
     }
   }
   const assinatura = userState.loadingList?.listTask?.assigned_to;
@@ -162,10 +162,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
       <div>
         <ModalEditTask onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
         {(taskDetails.data?.task_item || []).map((task, index: number) => {
-
           const list = users?.find((item: {user_id: number}) => item?.user_id == task?.created_by);
           const creator = !isMissing(list?.name) ? list?.name : getUser.name;
-
           const assignedUser = props.details.data?.task_user?.find(
             (user: any) => user.user_id === task.assigned_to
           );
@@ -222,12 +220,10 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
                       const payload: any = {
                         id: task.id,
                         task_id: task.task_id,
-                        user_id: userLog.id
+                        user_id: task.assigned_to == 0 ? userLog.id : task.assigned_to
                       }
-
                       await updateUserNewTaskItem(payload);
                     }
-
                   }}
                 >
                   {Number(task?.assigned_to) > 0 && assignedUser ? (
