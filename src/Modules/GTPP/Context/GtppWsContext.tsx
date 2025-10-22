@@ -426,7 +426,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   function reloadPageItem(object: any) {
-    if (task.id == object.itemUp.task_id) {
+    if (task.id == object.task_id) {
       return ReloadPageItem(object, reloadPageAddItem, reloadPageUpNoteItem);
     }
   }

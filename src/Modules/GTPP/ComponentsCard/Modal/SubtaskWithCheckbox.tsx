@@ -35,7 +35,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
     recoverList
   } = useWebSocket();
 
-  const { setLoading } = useMyContext();
+  const { setLoading, userLog } = useMyContext();
   const { fetchData } = useConnection();
   const [editTask, setEditTask] = useState<any>("");
   const [isObservation, setIsObservation] = useState<boolean>(false);
@@ -99,25 +99,12 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
   function changePositionItem(next: boolean, id: number) {
     if (taskDetails.data && taskDetails.data.task_item) {
       const items = taskDetails.data.task_item;
-
-      // Encontra o índice do item com o ID fornecido
       const currentIndex = items.findIndex(item => item.id === id);
-
-      // Se o item não for encontrado, retorne
       if (currentIndex === -1) return;
-
-      // Determina a nova posição
       const newIndex = next ? currentIndex + 1 : currentIndex - 1;
-
-      // Verifica se a nova posição está dentro dos limites do array
       if (newIndex < 0 || newIndex >= items.length) return;
-
-      // Remove o item da posição atual
       const [movedItem] = items.splice(currentIndex, 1);
-
-      // Insere o item na nova posição
       items.splice(newIndex, 0, movedItem);
-
       setTaskDetails({ ...taskDetails });
     }
   }
@@ -130,13 +117,13 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
 
   async function updateUserNewTaskItem(item: {task_id: number, user_id: number, id: number}) {
     const value = {task_id: item.task_id,id: item.id,assigned_to: item.user_id};
-    const { message, error } = await fetchData({method: "PUT",params: value,pathFile: "GTPP/TaskItem.php",urlComplement: ""});
-    if (error) throw new Error(message);
-    setUserState((prev:any) => ({...prev, isListUser: false, loadingList: []}))
-    getTaskInformations();
-    handleNotification("Enviado com Sucesso", "", "success");
+    const { message, error } = await fetchData({method: "PUT",params: value, pathFile: "GTPP/TaskItem.php",urlComplement: ""});
+    if(!error) {
+      setUserState((prev:any) => ({...prev, isListUser: false, loadingList: []}))
+      getTaskInformations();
+      handleNotification("Enviado com Sucesso", message, "success");
+    }
   }
-
   const assinatura = userState.loadingList?.listTask?.assigned_to;
   return (
     <div ref={containerTaskItemsRef} className="overflow-auto rounded flex-grow-1">
@@ -145,29 +132,30 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
             <div><button className="btn btn-danger" onClick={() => {setUserState((prev:any) => ({...prev, isListUser: false, loadingList: []}))}}><i className="fa fa-solid fa-x text-white"></i></button></div>
             <div className="overflow-auto">
               {(userState.loadingList?.users?.map((item: any, idx: number) => (
-                  <div
-                    key={`add_users_${idx}`}
-                    className={`d-flex align-items-center bg-white rounded my-2 px-1 py-2 cursor-pointer
-                      ${assinatura === item.user_id ? 'bg-selected' : ''}
-                      ${assinatura && assinatura !== item.user_id ? 'opacity-50' : 'holver-effect'}
-                    `}
-                    onClick={async () => {
-                      const alreadyAssigned = userState.loadingList?.listTask?.assigned_to === item.user_id;
-                      const payload = {task_id: userState.loadingList?.listTask?.task_id,id: userState.loadingList?.listTask?.id,user_id: alreadyAssigned ? 0 : item.user_id};
-                      await updateUserNewTaskItem(payload);
-                      if (!alreadyAssigned) setUserState((prev) => ({ ...prev, getListUser: item }));
-                    }}>
-                  <div className="rounded-circle overflow-hidden d-flex align-items-center justify-content-center" style={{ width: "30px", height: "30px" }}>
-                    <Image 
-                      src={item.photo && convertImage(item.photo) || imageUser} 
-                      alt="Foto do usuário" className="img-fluid" 
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-                    />
+                    <div
+                      key={`add_users_${idx}`}
+                      className={`d-flex align-items-center bg-white rounded my-2 px-1 py-2 cursor-pointer
+                        ${assinatura === item.user_id ? 'bg-selected' : ''}
+                        ${assinatura && assinatura !== item.user_id ? 'opacity-50' : 'holver-effect'}
+                      `}
+                      onClick={async () => {
+                        const alreadyAssigned = userState.loadingList?.listTask?.assigned_to === item.user_id;
+                        const payload = {task_id: userState.loadingList?.listTask?.task_id,id: userState.loadingList?.listTask?.id,user_id: alreadyAssigned ? 0 : item.user_id};
+                        await updateUserNewTaskItem(payload);
+                        if (!alreadyAssigned) setUserState((prev) => ({ ...prev, getListUser: item }));
+                      }}
+                    >
+                    <div className="rounded-circle overflow-hidden d-flex align-items-center justify-content-center" style={{ width: "30px", height: "30px" }}>
+                      <Image 
+                        src={item.photo && convertImage(item.photo) || imageUser} 
+                        alt="Foto do usuário" className="img-fluid" 
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                      />
+                    </div>
+                    <label className="ms-3 mb-0"><strong>{item.name}</strong></label>
                   </div>
-                  <label className="ms-3 mb-0"><strong>{item.name}</strong></label>
-                </div>
-              ))
-            )}
+                ))
+              )}
             </div>
         </div>
       )}
@@ -180,7 +168,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
 
           const assignedUser = props.details.data?.task_user?.find(
             (user: any) => user.user_id === task.assigned_to
-          ); 
+          );
 
           return (
         <div key={task.id} className={`d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto ${userState.loadingList.listTask?.id == task.id  ? 'border-mark' : ''}`}>
@@ -218,17 +206,28 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
                 </div>
               </div>
               <div className="col-md-2 col-sm-3 text-center">
-                <div
-                  className="mx-auto cursor-pointer border-warning"
-                  onClick={() => {
-                    setUserState((prev:any)=>({...prev,
-                      loadingList: {
-                        users: props.details.data?.task_user,
-                        listTask: task
-                      },
-                      isListUser: true,
-                      listUserBtn: {isGetTaskOrIncludeColaborator: false}
-                    }));
+                <div className="mx-auto cursor-pointer userPhotoAnimation border-warning"
+                  onClick={async () => {
+                    if(userLog.administrator == 1 || task.created_by == userLog.id) {
+                      setUserState((prev:any)=>({
+                        ...prev,
+                        loadingList: {
+                          users: props.details.data?.task_user,
+                          listTask: task
+                        },
+                        isListUser: true,
+                        listUserBtn: {isGetTaskOrIncludeColaborator: false}
+                      }));
+                    } else {
+                      const payload: any = {
+                        id: task.id,
+                        task_id: task.task_id,
+                        user_id: userLog.id
+                      }
+
+                      await updateUserNewTaskItem(payload);
+                    }
+
                   }}
                 >
                   {Number(task?.assigned_to) > 0 && assignedUser ? (

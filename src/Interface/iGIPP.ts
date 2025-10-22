@@ -105,7 +105,6 @@ export interface iTaskReq {
             yes_no?: number,
             file?: number,
             note?: any,
-            assigned_name?: any,
             assigned_to?: number,
             created_by?: number,
             creator_name?: string,

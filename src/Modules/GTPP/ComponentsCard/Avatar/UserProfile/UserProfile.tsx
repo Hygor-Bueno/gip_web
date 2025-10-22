@@ -3,7 +3,7 @@ import { convertImage } from "../../../../../Util/Util";
 import Image from "../Image/Image";
 import './Style.css';
 
-const UserProfile = ({ detailsmodaluser, data, getUser }: any) => {
+const UserProfile = ({ detailsmodaluser, data }: any) => {
   return (
     <div>
       <div className="d-flex align-items-center justify-content-between mb-3">

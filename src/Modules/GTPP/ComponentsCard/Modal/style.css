@@ -125,13 +125,11 @@
     width: 100% !important;
     padding: 2%;
     animation: expandToTop 1s ease-in-out forwards;
-    /* 2 segundos para a animação */
 }
 
 @keyframes expandToTop {
     0% {
         top: 38.5%;
-        /* Posição inicial (75% da altura do modal) */
     }
 
 }
@@ -183,11 +181,13 @@
         height: 90% !important;
         overflow: auto;
     }
+
 }
 
 @media screen and (max-width: 1180px) {
     .list-user-task {
         left: 0%;
+        z-index: 1;
         margin-left: 1rem;
         width: 95% !important;
         height: 80% !important;
@@ -206,6 +206,27 @@
     }   
 }
 
+.userPhotoAnimation {
+    transform: scale(1);
+    transition: all ease .5s;
+}
+
+.userPhotoAnimation:hover {
+    transition: all ease .5s;
+    transform: scale(1.2);
+
+    & > i {
+        color: #919191 !important;
+    }
+}
+
 .border-mark {
     border: 4px solid #b9c8d3 !important;
+}
+
+@media screen and (max-width: 330px) {
+    .modal-btn {
+        flex-direction: column !important;
+        gap: 1rem;
+    }
 }

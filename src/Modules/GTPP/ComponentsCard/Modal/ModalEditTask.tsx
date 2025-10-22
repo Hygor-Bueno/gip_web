@@ -111,7 +111,8 @@ export default function ModalEditTask(props: any) {
           </header>
 
           <section className="w-100">
-            <button
+            <div className="d-flex mt-3 modal-btn">
+              <button
               title="Editar Descrição"
               className={`btn btn-secondary py-0 opacity-${isObservation ? "25" : "100"}`}
               onClick={() => {
@@ -148,6 +149,7 @@ export default function ModalEditTask(props: any) {
             >
               Observação
             </button>
+            </div>
 
             <textarea
               rows={8}
