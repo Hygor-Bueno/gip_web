@@ -23,6 +23,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   const [openCardDefault, setOpenCardDefault] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const [getTask, setGetTask] = useState<any[]>([]);
+  const [getUser, setGetUser]  = useState<any[]>([]);
   const [states, setStates] = useState<iStates[]>([
     { color: "", description: "", id: 0 },
   ]);
@@ -339,6 +340,26 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     return UpdateStateTask(taskId, resource, date, fetchData, setLoading);
   }
 
+
+  async function recoverList(value?: string, page?: string) {
+    let req;
+    try {
+          setLoading(true);
+          req = await fetchData({ 
+            method: 'GET', 
+            params: null, 
+            pathFile: 'CCPP/Employee.php', 
+            urlComplement: `&pApplicationAccess=3&pPage=${page = "1"}`
+          });
+          if (req["error"]) throw new Error(req["message"]);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          console.log(req);
+          setLoading(false)
+      }
+  }
+
   async function stopAndToBackTask(
     taskId: number,
     resource: string | null,
@@ -357,7 +378,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       addDays,
       closeCardDefaultGlobally,
       handleNotification
-    ); /* pode ser aqui mesmo. */
+    );
   }
 
   async function updatedForQuestion(item: {
@@ -405,7 +426,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   function reloadPageItem(object: any) {
-    if (task.id == object.itemUp.task_id) {
+    if (task.id == object.task_id) {
       return ReloadPageItem(object, reloadPageAddItem, reloadPageUpNoteItem);
     }
   }
@@ -441,7 +462,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       notifications,
       setNotifications,
       handleNotification
-    ); /* Pode ser aqui! */
+    );
   }
 
   function updateStates(newList: any[]) {
@@ -473,12 +494,14 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         getTask,
         isAdm,
         openCardDefault,
+        getUser,
         updateItemTaskFile,
         updatedForQuestion,
         reloadPagePercent,
         deleteItemTaskWS,
         addUserTask,
         getTaskInformations,
+        setGetUser,
         setOpenCardDefault,
         loadTasks,
         reqTasks,
@@ -497,6 +520,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         stopAndToBackTask,
         setIsAdm,
         changeObservedForm,
+        recoverList,
       }}
     >
       {children}

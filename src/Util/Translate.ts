@@ -52,9 +52,9 @@ export default class Translator {
             case "Only the task creator or administrator can do this":
                 this.#messagePT = "Somente o criador da tarefa ou o administrador podem fazer isso."
                 break;
-            case "This user can not do this":
-                this.#messagePT = "Este usuário não tem permissão para fazer essa ação"
-                break;
+            case "Assigned updated successfully":
+                this.#messagePT = "Assinatura realizada com sucesso!"
+            break;
             default:
                 this.#messagePT = messagePT;
                 break;

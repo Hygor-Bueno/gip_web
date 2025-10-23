@@ -41,4 +41,18 @@ export type TaskItem = {
     onTaskChange: (id: number, checked: boolean) => void;
     allData: any;
     message?: any;
+    users?: any;
+    props?: any;
+
+    /*
+
+    [{
+      task_id: number;
+      user_id: number;
+      status: boolean;
+      name: string;
+      photo: string;
+    }];
+    
+    */
   }

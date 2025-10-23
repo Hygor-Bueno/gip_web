@@ -190,6 +190,8 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
           </div>
           {valueTask && (
             <SubTasksWithCheckbox
+              props={props}
+              users={props.details.data?.task_user}
               message={props.message}
               onTaskChange={(e) => console.log(e)}
               allData={props}
@@ -211,9 +213,9 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                   onClose={(value) => setAttachmentFile(value)}
                   updateAttachmentFile={updateItemTaskFile}
                 />
-                <button title="Marca como questão?" className={`btn btn-primary fa-solid fa-question ${isQuest == 0 ? 'opacity-25' : 'opacity-100'}`} onClick={() => { 
-                  setIsQuest(isQuest == 0 ? -1 : 0) 
-                }}></button>
+                <button title="Marca como questão?" className={`btn btn-primary`} onClick={() => { 
+                  setIsQuest(isQuest == 0 ? -1 : 0)
+                }}><i className={`fa-solid fa-question ${isQuest == 0 ? 'opacity-25 text-white' : 'opacity-100 text-white'}`}></i></button>
               </div>
               <div className="col-12 col-sm-8 col-md-9 my-2">
                 <input
