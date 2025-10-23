@@ -79,7 +79,6 @@ export default function ChatControls() {
             pathFile: "CLPP/Message.php"
         });
         if (req.error) throw new Error(req.message);
-
         includesMessage({
             id: req.last_id,
             id_user: userLog.id,
@@ -130,11 +129,10 @@ export default function ChatControls() {
 
     function changeTypeMessageForFile(base64: string): number {
         const upperType = base64.toUpperCase();
-
         let type = 11;
 
         switch (true) {
-            case upperType.includes('DATA:IMAGE/WEBP'):
+            case (upperType.includes('DATA:IMAGE/WEBP') || upperType.includes('DATA:IMAGE/PNG')):
                 type = 2;
                 break;
             case upperType.includes('DATA:APPLICATION/PDF'):

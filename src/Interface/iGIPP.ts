@@ -112,9 +112,10 @@ export interface iTaskReq {
             updated_at?: string,
             updated_by?: number
         }],
-        task_user: [{ task?: number, user_id?: number, status?: boolean }]
+        task_user: taskItem[]
     }
 }
+export interface taskItem{ task_id?: number, user_id?: number, status?: boolean,name?:string,photo?:string}
 
 export interface iWebSocketContextType {
     contactList: iUser[];

@@ -43,8 +43,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
   const [attachmentFile, setAttachmentFile] = useState<string>('');
   const [isQuest, setIsQuest] = useState<number>(0);
   const {taskDetails, task, stopAndToBackTask, handleAddTask, updateItemTaskFile, setOpenCardDefault} = useWebSocket();
-  const currentTask = task;
-
+  console.log(task);
   const [ListTask, setListTask] = useState<ValueStateTask>({
     stopTask: false,
     openModalQuastionTask: false,
@@ -65,15 +64,15 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
     6: { color: "dark", icon: "arrow-left", description: "Deseja retomar a tarefa?" }
   }
 
-  const currentButton = buttonConfig[currentTask.state_id];
-  const typeInput = currentTask.state_id == 1 || currentTask.state_id == 2 ? "text" : currentTask.state_id == 5 ? "number" : null;
-  const title = currentTask.state_id == 1 || currentTask.state_id == 2 ? "Alterar tarefa para o estado Parado (informe o motivo)?" : currentTask.state_id == 4 ? "Por quê deseja reabrir a tarefa?" : currentTask.state_id == 3 ? "Deseja finalizar essa tarefa?" : currentTask.state_id == 5 ? "Insira o total de dias que você precisa." : currentTask.state_id == 6 ? "Deseja mesmo retomar a tarefa?" : null
+  const currentButton = buttonConfig[task.state_id];
+  const typeInput = task.state_id == 1 || task.state_id == 2 ? "text" : task.state_id == 5 ? "number" : null;
+  const title = task.state_id == 1 || task.state_id == 2 ? "Alterar tarefa para o estado Parado (informe o motivo)?" : task.state_id == 4 ? "Por quê deseja reabrir a tarefa?" : task.state_id == 3 ? "Deseja finalizar essa tarefa?" : task.state_id == 5 ? "Insira o total de dias que você precisa." : task.state_id == 6 ? "Deseja mesmo retomar a tarefa?" : null
 
   return (
     <div className="d-flex flex-column h-100 p-2">
       <div style={{ height: "10%" }} className="d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center">
-          <AvatarGroup dataTask={currentTask} users={taskDetails.data ? taskDetails.data?.task_user : []} />
+          <AvatarGroup dataTask={task} users={taskDetails.data ? taskDetails.data?.task_user : []} />
         </div>
         <div className="">
           {ListTask.openModalQuastionTask ? (
@@ -84,18 +83,18 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
                 setListTask((prev) => ({...prev, openModalQuastionTask: !prev.openModalQuastionTask }))
               }
               openClock={ListTask}
-              isInput={currentTask.state_id != 3}
+              isInput={task.state_id != 3}
               onClick={() => {
                 try {
-                  if (currentTask.state_id != 3 && ListTask.description == '') throw new Error("Preencha o campo obrigatório");
+                  if (task.state_id != 3 && ListTask.description == '') throw new Error("Preencha o campo obrigatório");
                   let object: { taskId: number, resource: string | null, date: string | null, taskList: any } = {
-                    taskId: currentTask?.id,
+                    taskId: task?.id,
                     resource: null,
                     date: null,
-                    taskList: currentTask
+                    taskList: task
                   };
 
-                  switch (currentTask.state_id) {
+                  switch (task.state_id) {
                     case 4:
                       object.resource = null;
                       object.date = null;
@@ -137,7 +136,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
       </div>
       <div style={{ height: "90%" }} className="d-flex flex-column justify-content-between">
         <FormTextAreaDefault
-          task={currentTask}
+          task={task}
           details={props?.details?.data}
           disabledForm={props.disabledForm}
         />
@@ -234,7 +233,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
           )}
           {!valueTask && (
             <div className={"col-md-12 d-flex flex-column justify-content-between"}>
-              <SelectTaskItem data={currentTask} />
+              <SelectTaskItem data={task} />
             </div>
           )}
         </div>
@@ -242,7 +241,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
     </div>
   );
   async function insertItemTask() {
-    await handleAddTask(valueNewTask, currentTask.id, isQuest, attachmentFile);
+    await handleAddTask(valueNewTask, task.id, isQuest, attachmentFile);
     setValueNewTask("");
     setAttachmentFile("");
     setIsQuest(0);
