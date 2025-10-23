@@ -66,7 +66,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     openDialog: false
   });
 
-  // Hygor Bueno 23/10/2025
+  // Hygor Bueno 23/10/2025 -
   function includeAuthorInList(listUser: any) {
     let list: any = [...listUser];
     if (listUser && listUser?.length > 0) {
