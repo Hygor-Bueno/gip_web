@@ -97,17 +97,22 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({users, props
   }
 
   function changePositionItem(next: boolean, id: number) {
-    if (taskDetails.data && taskDetails.data.task_item) {
-      const items = taskDetails.data.task_item;
-      const currentIndex = items.findIndex(item => item.id === id);
-      if (currentIndex === -1) return;
-      const newIndex = next ? currentIndex + 1 : currentIndex - 1;
-      if (newIndex < 0 || newIndex >= items.length) return;
+  let result = false;
+  if (taskDetails.data && taskDetails.data.task_item) {
+    const items = taskDetails.data.task_item;
+    const currentIndex = items.findIndex(item => item.id === id);
+    const newIndex = next ? currentIndex + 1 : currentIndex - 1;
+    const validMove = currentIndex !== -1 && newIndex >= 0 && newIndex < items.length;
+    if (validMove) {
       const [movedItem] = items.splice(currentIndex, 1);
       items.splice(newIndex, 0, movedItem);
       setTaskDetails({ ...taskDetails });
+      result = true;
     }
   }
+  return result;
+}
+
 
 
   async function updatePositionTaskItem(item: { id: number, next_or_previous: "next" | "previous" }) {
