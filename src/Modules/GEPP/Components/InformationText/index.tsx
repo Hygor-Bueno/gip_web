@@ -10,7 +10,7 @@ function InformationText({ product }: ISalesC5Information) {
       <InfoItem label="Cód Família" value={product?.code_family} />
       <InfoItem label="Categoria" value={product?.code_category} />
       <InfoItem label="Fornecedor" value="-" />
-      <InfoItem label="1ª Venda" value={product?.first_date} />
+      <InfoItem label="Primeira Venda" value={product?.first_date} />
       <InfoItem label="Última Venda" value={product?.last_date} />
       <InfoItem label="Vencimento" value={formatDateBR(product?.expiration_date)} />
       <InfoItem label="Observação" value={product?.observation} mobcol={12} deskcol={12} />

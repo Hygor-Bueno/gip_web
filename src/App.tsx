@@ -19,7 +19,7 @@ import Gapp from './Modules/GAPP/Gapp';
 import Epp from './Modules/EPP/Epp';
 import SalesPage from './Modules/EPP/Pages/SalesPage';
 import ProfileGIPP from './Modules/ProfileGIPP/ProfileGIPP';
-import Gepp from './Modules/GEPP';
+import Gepp from './Modules/GEPP/Gepp';
 function App() {
   function withProvider(component: JSX.Element) {
     return (

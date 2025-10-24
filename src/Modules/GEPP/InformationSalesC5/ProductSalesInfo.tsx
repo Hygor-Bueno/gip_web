@@ -8,10 +8,10 @@ import { useConnection } from "../../../Context/ConnContext";
 import { ObservationModal } from "../Components/Modal";
 import { handleNotification } from "../../../Util/Util";
 import { Button } from "react-bootstrap";
-import { getProductParams } from "./Hooks/useProductParams";
-import { InputField, SelectField } from "../../../Components/CustomForm";
+import CustomForm from "../../../Components/CustomForm";
+import { formFieldsData, getProductParams, putProductParams } from "./ProductSalesInfo.Config";
 
-require("./style.css");
+require("./ProductSalesInfo.Style.css");
 
 function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISalesC5Information) {
   const { fetchData } = useConnection();
@@ -54,18 +54,13 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
     }
   }
 
-  const handleStatusAprove = () =>
-    updateProductStatus(getProductParams(data, product, { sellout: valueSellout, stepId: 2 }), "Enviado com sucesso!");
-
-  const handleStatusReprove = (observation: string) =>
-    updateProductStatus(getProductParams(data, product, { stepId: 3, observation }), "Reprovado com sucesso!");
-
+  const handleStatusAprove = () => updateProductStatus(putProductParams(data, product, { sellout: valueSellout, stepId: 2 }), "Enviado com sucesso!");
+  const handleStatusReprove = (observation: string) => updateProductStatus(getProductParams(data, product, { stepId: 3, observation }), "Reprovado com sucesso!");
   const handleStatusFinally = (stepId: string) => {
     const params = getProductParams(data, product, { stepId: 3 });
     params.id_status_step_fk = Number(stepId);
     return updateProductStatus(params, "Status atualizado!");
   };
-
   const handleStatusTrash = () => {
     const params = {
       ...getProductParams(data, product, {
@@ -80,15 +75,15 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => setSelectedStepId(e.target.value);
 
-  const handleSubmit = async () => {
-    if (!selectedStepId) {
-      handleNotification("Selecione uma ação!", "É necessário escolher um status.", "warning");
-      return;
-    }
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    try {
+      event.preventDefault();
+      if (selectedStepId === "2") await handleStatusAprove();
+      else if (selectedStepId === "3") setShowObservationModal(true);
+      else await handleStatusFinally(selectedStepId);
+    } catch (error) {
 
-    if (selectedStepId === "2") await handleStatusAprove();
-    else if (selectedStepId === "3") setShowObservationModal(true);
-    else await handleStatusFinally(selectedStepId);
+    }
   };
 
   // --- Filtra opções do select de acordo com o status do produto ---
@@ -97,27 +92,6 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
     if (Number(product?.status_product) === 2) return item.step === "4";
     return false;
   });
-
-  // --- Campos do formulário ---
-  const formFields: any = [
-    {
-      type: "select",
-      label: "Fluxo de aprovação",
-      value: selectedStepId,
-      onChange: handleSelectChange,
-      options: filteredOptions.map(item => ({ label: item.description, value: item.id_status })),
-      className: "flex-grow-1 min-w-250",
-    },
-    {
-      type: "number",
-      label: "Sellout",
-      value: Number(product?.status_product) !== 1 ? product?.sellout : valueSellout,
-      onChange: (e:any) => setValueSellout(e.target.value),
-      disabled: Number(product?.status_product) !== 1,
-      placeholder: "0.00",
-      className: "flex-grow-1 min-w-150",
-    },
-  ];
 
   return (
     <main className="container overflow-auto">
@@ -136,30 +110,6 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
       <HeaderC5 data={data} product={product} />
       <InformationText product={product} />
 
-      {/* Formulário simplificado */}
-      <div className="d-flex flex-wrap align-items-start gap-3 my-3">
-        {formFields.map((field: any, i:any) =>
-          field.type === "select" ? (
-            <div key={i} className={field.className}>
-              <SelectField {...field} />
-            </div>
-          ) : (
-            <div key={i} className={field.className}>
-              <InputField {...field} />
-            </div>
-          )
-        )}
-
-        {/* Botões */}
-        <div className="d-flex gap-2 flex-wrap align-items-center mt-2 pt-4">
-          <Button variant="primary" onClick={handleSubmit}>
-            Enviar
-          </Button>
-          <Button variant="danger" onClick={handleStatusTrash} className="d-flex gap-2 align-items-center">
-            <i className="fa fa-trash text-white"></i> Deletar
-          </Button>
-        </div>
-      </div>
 
       {/* Cards */}
       <div className="row mb-4 gx-3 gy-3">
@@ -167,9 +117,14 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
           <Card key={`card_${index}_${product?.code_product}`} outsideValues={cardProps} />
         ))}
       </div>
-
       <hr />
       {children}
+      {/* Formulário simplificado */}
+      <div className="d-flex align-items-start">
+        <CustomForm fieldsets={formFieldsData(selectedStepId, handleSelectChange, filteredOptions, product, valueSellout, setValueSellout)} className="container row gap-2 my-2" titleButton="Enviar" classButton="btn btn-primary" onSubmit={handleSubmit} />
+        <button title="Excluir item" onClick={handleStatusTrash} className="btn btn-danger fa fa-trash" />
+      </div>
+
     </main>
   );
 }
