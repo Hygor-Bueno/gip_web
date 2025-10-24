@@ -56,7 +56,7 @@ export interface iGtppWsContextType {
     onSounds: boolean;
     isAdm: any;
     getTask: any[];
-    getUser: any; // FX 02 - TIPAGEM OBRIGATORIA.
+    
     openCardDefault: boolean;
     updateItemTaskFile: (file: string, item_id: number) => Promise<void>;
     updatedForQuestion: (item: { task_id: number; id: number; yes_no: number }) => void;
@@ -82,9 +82,11 @@ export interface iGtppWsContextType {
     stopAndToBackTask: (taskId: number, resource: string | null, date: string | null, taskList: any) => void;
     changeObservedForm: (taskId: number, subId: number, value: string, isObservetion: boolean) => void;
     setIsAdm: (value: boolean) => void;
+    
+    getUser?: any; // FX 02 - TIPAGEM OBRIGATORIA. - Jonatas
+    setGetUser?: any; //FX - TIPAGEM OBRIGATORIA. WEBSOCKET
 
-    setGetUser: any; //FX - TIPAGEM OBRIGATORIA. WEBSOCKET
-    recoverList: any;
+    updatedAddUserTaskItem: (item: { task_id: number, user_id: number, id: number }, x: any) => void; // { task_id: number, user_id: number, id: number }
 }
 export interface iStates {
     color: string,

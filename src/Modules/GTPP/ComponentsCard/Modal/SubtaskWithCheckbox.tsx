@@ -30,9 +30,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     reloadPagePercent,
     deleteItemTaskWS,
     updateItemTaskFile,
-    getTaskInformations,
-    getUser,
-    recoverList
+    updatedAddUserTaskItem,
+    getUser    
   } = useWebSocket();
 
   const { setLoading, userLog } = useMyContext();
@@ -135,16 +134,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     const value: { task_id: number, id: number, next_or_previous: "next" | "previous" } = { task_id: task.id, id: item.id, next_or_previous: item.next_or_previous };
     await fetchData({ method: "PUT", params: value, pathFile: "GTPP/TaskItem.php", exception: ["no data"], urlComplement: "" });
   }
-
-  async function updateUserNewTaskItem(item: { task_id: number, user_id: number, id: number }) {
-    const value = { task_id: item.task_id, id: item.id, assigned_to: item.user_id };
-    const { error } = await fetchData({ method: "PUT", params: value, pathFile: "GTPP/TaskItem.php", urlComplement: "" });
-    if (!error) {
-      setUserState((prev: any) => ({ ...prev, isListUser: false, loadingList: [] }))
-      getTaskInformations();
-      handleNotification('Sucesso', 'usuário vinculado!', 'success');
-    }
-  }
+  
   const assinatura = userState.loadingList?.listTask?.assigned_to;
   return (
     <div ref={containerTaskItemsRef} className="overflow-auto rounded flex-grow-1">
@@ -162,7 +152,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                 onClick={async () => {
                   const alreadyAssigned = userState.loadingList?.listTask?.assigned_to === item.user_id;
                   const payload = { task_id: userState.loadingList?.listTask?.task_id, id: userState.loadingList?.listTask?.id, user_id: alreadyAssigned ? 0 : item.user_id };
-                  await updateUserNewTaskItem(payload);
+                  await updatedAddUserTaskItem(payload, setUserState);
                   if (!alreadyAssigned) setUserState((prev) => ({ ...prev, getListUser: item }));
                 }}
               >
@@ -228,7 +218,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                   <div className="col-md-2 col-sm-3 text-center">
                     <div className="mx-auto cursor-pointer userPhotoAnimation border-warning"
                       onClick={async () => {
-                        if (userLog.administrator == 1 || task.created_by == userLog.id) {
+                        if (userLog.administrator == 1 || getUser.id == userLog.id) {
                           setUserState((prev: any) => ({
                             ...prev,
                             loadingList: {
@@ -244,7 +234,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                             task_id: task.task_id,
                             user_id: task.assigned_to == 0 ? userLog.id : task.assigned_to
                           }
-                          await updateUserNewTaskItem(payload);
+                          await updatedAddUserTaskItem(payload, setUserState);
                         }
                       }}
                     >

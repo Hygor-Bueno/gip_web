@@ -43,7 +43,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
   const [attachmentFile, setAttachmentFile] = useState<string>('');
   const [isQuest, setIsQuest] = useState<number>(0);
   const {taskDetails, task, stopAndToBackTask, handleAddTask, updateItemTaskFile, setOpenCardDefault} = useWebSocket();
-  console.log(task);
+  
   const [ListTask, setListTask] = useState<ValueStateTask>({
     stopTask: false,
     openModalQuastionTask: false,

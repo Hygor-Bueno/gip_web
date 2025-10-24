@@ -24,7 +24,7 @@ type PriorityCardResult = {
 
 const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
     const {userLog} = useMyContext();
-    
+
     const colorPriorityCard = (numberKey: Number | string = 0): PriorityCardResult => {
         switch (numberKey) {
             case 0: return { color: 'primary', title: 'baixa' }
@@ -60,7 +60,7 @@ const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
                 <div className="card-task-footer d-flex justify-content-between align-items-center">
                     <i className={`fa-solid  ${userLog.id == props.create_by? "fa-star text-warning":"fa-handshake text-muted"}`}></i>
                     <div className="flex-grow-1">
-                        <ProgressBar progressValue={props.percent || 0} colorBar="#006645" />
+                        <ProgressBar progressValue={props.percent  || 0} colorBar="#006645" /> {/* Jonatas - Analise / Porcetagem não carregando quando chica um item da tarefa. */}
                     </div>
                     <div className={`card-task-priority bg-${color} text-white px-2 fw-bold rounded-4 font-small mt-2`}>{title}</div>
                 </div>

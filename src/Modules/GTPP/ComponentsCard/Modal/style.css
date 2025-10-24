@@ -207,7 +207,6 @@
 }
 
 .userPhotoAnimation {
-    transform: scale(1);
     transition: all ease .5s;
 }
 
