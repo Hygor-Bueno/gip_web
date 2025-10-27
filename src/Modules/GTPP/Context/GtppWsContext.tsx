@@ -445,7 +445,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         "check": false,
         "task_id": parseInt(task_id),
         "order": response.data.order,
-        "created_by": response.data.created_by,
+        "created_by": response.data.created_by, // Modificação - Jonatas 17/10/2025
         "yes_no": response.data.yes_no,
         "file": file ? 1 : 0,
         "note": null
