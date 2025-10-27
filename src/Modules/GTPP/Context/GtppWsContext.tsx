@@ -1,5 +1,4 @@
-import React, {createContext,useContext,useEffect,useRef,useState,
-} from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { CustomNotification, iGtppWsContextType, iStates, iTaskReq } from "../../../Interface/iGIPP";
 import GtppWebSocket from "./GtppWebSocket";
 import { useMyContext } from "../../../Context/MainContext";
@@ -10,40 +9,125 @@ import soundFile from "../../../Assets/Sounds/notify.mp3";
 import { useConnection } from "../../../Context/ConnContext";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * Contexto para gerenciamento do WebSocket e estado relacionado às tarefas no sistema GTPP.
+ * @constant {React.Context<iGtppWsContextType | undefined>} GtppWsContext
+ */
 const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 
-export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+/**
+ * Provedor de contexto para WebSocket e gerenciamento de tarefas no sistema GTPP.
+ * @param {Object} props - Propriedades do componente.
+ * @param {React.ReactNode} props.children - Componentes filhos que serão encapsulados pelo provedor.
+ * @returns {JSX.Element} Provedor do contexto WebSocket com os filhos.
+ */
+export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  /**
+   * Estado que armazena o percentual de progresso da tarefa atual.
+   * @type {[number, React.Dispatch<React.SetStateAction<number>>]}
+   */
   const [taskPercent, setTaskPercent] = useState<number>(0);
-  const [task, setTask] = useState<any>({}); // achei
+
+  /**
+   * Estado que armazena os dados da tarefa atual.
+   * @type {[any, React.Dispatch<React.SetStateAction<any>>]}
+   */
+  const [task, setTask] = useState<any>({});
+
+  /**
+   * Estado que armazena os detalhes da tarefa atual.
+   * @type {[iTaskReq, React.Dispatch<React.SetStateAction<iTaskReq>>]}
+   */
   const [taskDetails, setTaskDetails] = useState<iTaskReq>({});
+
+  /**
+   * Estado que controla se as notificações sonoras estão ativadas.
+   * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+   */
   const [onSounds, setOnSounds] = useState<boolean>(false);
+
+  /**
+   * Estado que controla se o card padrão está aberto.
+   * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
+   */
   const [openCardDefault, setOpenCardDefault] = useState<boolean>(false);
+
+  /**
+   * Estado que armazena a lista de notificações do sistema.
+   * @type {[CustomNotification[], React.Dispatch<React.SetStateAction<CustomNotification[]>>]}
+   */
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
+
+  /**
+   * Estado que armazena a lista de tarefas recuperadas.
+   * @type {[any[], React.Dispatch<React.SetStateAction<any[]>>]}
+   */
   const [getTask, setGetTask] = useState<any[]>([]);
+
+  /**
+   * Estado que armazena a lista de estados possíveis das tarefas.
+   * @type {[iStates[], React.Dispatch<React.SetStateAction<iStates[]>>]}
+   */
   const [states, setStates] = useState<iStates[]>([{ color: '', description: '', id: 0 }]);
+
+  /**
+   * Estado que indica se o usuário é administrador.
+   * @type {[any, React.Dispatch<React.SetStateAction<any>>]}
+   */
   const [isAdm, setIsAdm] = useState<any>(false);
+
+  /**
+   * Estado que armazena informações do usuário atual.
+   * @type {[any, React.Dispatch<React.SetStateAction<any>>]}
+   */
   const [getUser, setGetUser] = useState<any>("");
 
+  /**
+   * Estado que armazena a lista de vinculações de usuários às tarefas.
+   * @type {[any[], React.Dispatch<React.SetStateAction<any[]>>]}
+   */
+  const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
+
+  /**
+   * Contexto principal da aplicação, contendo informações do usuário logado e controle de loading.
+   * @type {Object}
+   */
+  const { setLoading, userLog } = useMyContext();
+
+  /**
+   * Hook para realizar navegação entre rotas.
+   * @type {Function}
+   */
   const navigate = useNavigate();
 
-  // GET
-  const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
-  const { setLoading } = useMyContext();
+  /**
+   * Hook para realizar chamadas à API.
+   * @type {Object}
+   */
   const { fetchData } = useConnection();
 
+  /**
+   * Referência ao objeto WebSocket para comunicação em tempo real.
+   * @type {React.MutableRefObject<GtppWebSocket>}
+   */
   const ws = useRef(new GtppWebSocket());
-  const { userLog } = useMyContext();
 
+  /**
+   * Efeito que inicializa a conexão WebSocket, carrega notificações e estados iniciais.
+   * @function
+   */
   useEffect(() => {
-    // Abre a coonexão com o websocket.
     ws.current.connect();
-
     (async () => {
       setLoading(true);
       try {
-        const getNotify: any = await fetchData({ method: "GET", params: null, pathFile: 'GTPP/Notify.php', urlComplement: `&id_user=${userLog.id}`, exception: ["No data"] });
+        const getNotify: any = await fetchData({
+          method: "GET",
+          params: null,
+          pathFile: 'GTPP/Notify.php',
+          urlComplement: `&id_user=${userLog.id}`,
+          exception: ["No data"]
+        });
         if (getNotify.error) throw new Error(getNotify.message);
         updateNotification(getNotify.data);
       } catch (error: any) {
@@ -52,38 +136,48 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         setLoading(false);
       }
     })();
-
     getStateformations();
     return () => {
       if (ws.current && ws.current.isConnected) {
         localStorage.removeItem('gtppStates');
         ws.current.disconnect();
       }
-    }
+    };
   }, []);
 
-  // Garante a atualização do callback.
+  /**
+   * Efeito que atualiza o callback de mensagens do WebSocket.
+   * @function
+   */
   useEffect(() => {
     ws.current.callbackOnMessage = callbackOnMessage;
   }, [task, taskDetails, notifications, onSounds, openCardDefault]);
 
-  // Recupera as informações detalhadas da tarefa.
+  /**
+   * Efeito que carrega detalhes da tarefa quando a tarefa muda.
+   * @function
+   */
   useEffect(() => {
-    (
-      async () => {
-        task.id && await getTaskInformations();
-      }
-    )();
+    (async () => {
+      task.id && await getTaskInformations();
+    })();
   }, [task]);
 
-  // Carrega lista de tarefas que você criou ou você foi vínculado.
+  /**
+   * Efeito que carrega a lista de tarefas vinculadas ao usuário.
+   * @function
+   */
   useEffect(() => {
-    if (!userLog?.id) return; // evita chamada sem usuário
+    if (!userLog?.id) return;
     loadTasks();
   }, [isAdm, userLog?.id]);
 
-   // Modificado - Jonatas 27/10/2025
-   const loadTasks = async () => {
+  /**
+   * Carrega a lista de tarefas do usuário ou administrador.
+   * @function
+   * @async
+   */
+  const loadTasks = async () => {
     try {
       await reqTasks();
     } catch (error) {
@@ -91,7 +185,11 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Modificado - Jonatas 27/10/2025
+  /**
+   * Faz a requisição de tarefas via API.
+   * @function
+   * @async
+   */
   async function reqTasks() {
     try {
       setLoading(true);
@@ -110,6 +208,11 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  /**
+   * Recupera os estados das tarefas do armazenamento local ou API.
+   * @function
+   * @async
+   */
   async function getStateformations() {
     setLoading(true);
     let listState: iStates[] = [{ id: 0, description: '', color: '' }];
@@ -118,7 +221,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         listState = JSON.parse(localStorage.gtppStates);
       } else {
         const getStatusTask: { error: boolean, message?: string, data?: [{ id: number, description: string, color: string }] } = 
-        await fetchData({method: "GET", pathFile: "GTPP/TaskState.php", params: null, exception: ["no data"], urlComplement: ""});
+        await fetchData({ method: "GET", pathFile: "GTPP/TaskState.php", params: null, exception: ["no data"], urlComplement: "" });
         if (getStatusTask.error) throw new Error(getStatusTask.message || 'Error generic');
         const list = createStorageState(getStatusTask.data || [{ id: 0, description: '', color: '' }]);
         listState = list;
@@ -131,7 +234,11 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
-  // Criei uma função necessaria
+  /**
+   * Fecha o card padrão globalmente e notifica outros usuários.
+   * @function
+   * @param {number} [taskId] - ID da tarefa (opcional).
+   */
   const closeCardDefaultGlobally = (taskId?: number) => {
     ws.current.informSending({
       error: false,
@@ -145,24 +252,42 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  /**
+   * Atualiza os estados das tarefas no armazenamento local e no estado.
+   * @function
+   * @param {any[]} newList - Nova lista de estados.
+   */
   function updateStates(newList: any[]) {
     localStorage.gtppStates = JSON.stringify(newList);
     setStates([...newList]);
   }
 
+  /**
+   * Cria uma lista de estados para armazenamento local.
+   * @function
+   * @param {iStates[]} list - Lista de estados.
+   * @returns {[{ id: number, description: string, color: string }]} Lista formatada.
+   */
   function createStorageState(list: iStates[]) {
     let listState: [{ id: number, description: string, color: string }] = [{ id: 0, description: '', color: '' }];
     list.forEach((element: { id: number, description: string, color: string }, index) => {
-      const item = { id: element.id, description: element.description, color: element.color, active: true }
+      const item = { id: element.id, description: element.description, color: element.color, active: true };
       index == 0 ? listState[index] = item : listState.push(item);
     });
-    return listState
+    return listState;
   }
+
+  /**
+   * Recupera informações detalhadas de uma tarefa específica.
+   * @function
+   * @async
+   * @returns {Promise<void>}
+   */
   async function getTaskInformations(): Promise<void> {
     try {
       setLoading(true);
       const getTaskItem: any = 
-      await fetchData({method: "GET", params: null, pathFile: "GTPP/Task.php", exception: ["no data"], urlComplement: `&id=${task.id}`})
+      await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", exception: ["no data"], urlComplement: `&id=${task.id}` });
       if (getTaskItem.error) throw new Error(getTaskItem.message);
       setTaskDetails(getTaskItem);
     } catch (error) {
@@ -172,6 +297,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  /**
+   * Adiciona ou remove um usuário de uma tarefa e notifica via WebSocket.
+   * @function
+   * @param {any} element - Dados do usuário e tarefa.
+   * @param {number} type - Tipo de notificação (5 para vincular, outro para remover).
+   */
   function addUserTask(element: any, type: number) {
     const info: {
       error: boolean;
@@ -183,35 +314,35 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         task_id?: number;
       };
       task_id: number;
-      type: number
+      type: number;
     } = {
-      "error": false,
-      "user_id": element.user_id,
-      "send_user_id": userLog.id,
-      "object": {
-        "description": type === 5 ? `${element.name} foi vinculado a tarefa` : `${element.name} foi removido da tarefa`
+      error: false,
+      user_id: element.user_id,
+      send_user_id: userLog.id,
+      object: {
+        description: type === 5 ? `${element.name} foi vinculado a tarefa` : `${element.name} foi removido da tarefa`
       },
-      "task_id": element.task_id,
-      "type": type
-    }
+      task_id: element.task_id,
+      type: type
+    };
     if (type === 5) info.object.changeUser = element.user_id;
     if (type === 5) info.object.task_id = element.task_id;
     ws.current.informSending(info);
   }
 
+  /**
+   * Manipula mensagens recebidas via WebSocket e atualiza o estado da aplicação.
+   * @function
+   * @async
+   * @param {any} event - Evento de mensagem do WebSocket.
+   */
   async function callbackOnMessage(event: any) {
     let response = JSON.parse(event.data);
-    // console.log(event.data,localStorage.getItem("tokenGIPP"));
     if (
       response.error &&
       response.message.includes("This user has been connected to another place")
     ) {
-      // handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
-      // setTimeout(() => {
-      //   navigate("/");
-      //   localStorage.removeItem("tokenGIPP");
-      //   localStorage.removeItem("codUserGIPP");
-      // }, 5000);
+      // Lógica de desconexão comentada
     }
 
     if (!response.error && response.send_user_id != localStorage.codUserGIPP) {
@@ -220,10 +351,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       if (response.type == -1 || response.type == 2 || response.type == 6) {
         if (response.type == 6) {
           if (task.id === response.task_id) {
-
-            console.log("[websocket response]", response);
-            console.log("[websocket task]", task);
-
             const updatedTask = {
               ...task,
               state_id: response.object?.state_id,
@@ -232,10 +359,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
             setTask(updatedTask);
           }
           await loadTasks();
-        }else if (response.object) {
+        } else if (response.object) {
           if (response.type == 2) {
-            // jonatas - fluxo de Compartilhamento de informações. 24/10/2025
-            if (response.object.isItemUp) { 
+            if (response.object.isItemUp) {
               itemUp(response.object);
             } else if (response.object.remove) {
               reloadPageDeleteItem(response);
@@ -261,6 +387,11 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  /**
+   * Solicita permissão para notificações do navegador.
+   * @function
+   * @async
+   */
   const requestNotificationPermission = async () => {
     if (!("Notification" in window)) {
       console.warn("Notificações não são suportadas neste navegador.");
@@ -277,11 +408,20 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  /**
+   * Efeito que solicita permissão para notificações ao carregar o componente.
+   * @function
+   */
   useEffect(() => {
     requestNotificationPermission();
   }, []);
 
-
+  /**
+   * Atualiza a lista de notificações com novos itens e reproduz som se ativado.
+   * @function
+   * @async
+   * @param {any[]} item - Lista de notificações a serem adicionadas.
+   */
   async function updateNotification(item: any[]) {
     try {
       setLoading(true);
@@ -305,6 +445,11 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  /**
+   * Atualiza a descrição completa da tarefa.
+   * @function
+   * @param {any} description - Objeto contendo a descrição completa.
+   */
   function getDescription(description: any) {
     if (taskDetails.data) {
       taskDetails.data.full_description = description.full_description;
@@ -312,32 +457,27 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
-  async function checkedItem(
-    id: number,
-    checked: boolean,
-    idTask: any,
-    taskLocal: any,
-    yes_no?: number
-  ) {
+  /**
+   * Marca ou desmarca um item da tarefa e atualiza o estado.
+   * @function
+   * @async
+   * @param {number} id - ID do item.
+   * @param {boolean} checked - Estado do item (marcado/desmarcado).
+   * @param {any} idTask - ID da tarefa.
+   * @param {any} taskLocal - Dados locais da tarefa.
+   * @param {number} [yes_no] - Indicador de resposta sim/não (opcional).
+   */
+  async function checkedItem(id: number, checked: boolean, idTask: any, taskLocal: any, yes_no?: number) {
     try {
       setLoading(true);
-
-      const item = yes_no ? { id: parseInt(id.toString()), task_id: idTask.toString(), yes_no: parseInt(yes_no.toString()) } : { check: checked, id: id, task_id: idTask }
-
+      const item = yes_no ? { id: parseInt(id.toString()), task_id: idTask.toString(), yes_no: parseInt(yes_no.toString()) } : { check: checked, id: id, task_id: idTask };
       let result: { error: boolean, data?: any, message?: string } = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" }) || { error: false };
-
       if (result.error) throw new Error(result.message);
       if (!yes_no) taskLocal.check = checked;
       if (yes_no) reloadPageChangeQuestion(yes_no, id);
-
-      // Atualiza o percentual da tarafa na tela principal. 
       reloadPagePercent(result.data, { task_id: idTask });
-
-      // Verifica se o checked realizado alterou o status da tarefa. Se sim ele envia um alerta!
       await verifyChangeState(result.data.state_id, task.state_id, taskLocal, result.data);
-
-      //Informa que um item foi marcado. 
-      infSenCheckItem(taskLocal, result.data); // jonatas - info 24/10/2025
+      infSenCheckItem(taskLocal, result.data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -345,6 +485,15 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  /**
+   * Verifica se houve mudança no estado da tarefa e atualiza se necessário.
+   * @function
+   * @async
+   * @param {number} newState - Novo estado da tarefa.
+   * @param {number} oldState - Estado anterior da tarefa.
+   * @param {any} taskLocal - Dados locais da tarefa.
+   * @param {any} result - Resultado da requisição.
+   */
   async function verifyChangeState(newState: number, oldState: number, taskLocal: any, result: any) {
     if (newState != oldState) {
       await loadTasks();
@@ -352,6 +501,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  /**
+   * Envia notificação de mudança de estado da tarefa via WebSocket.
+   * @function
+   * @param {any} taskLocal - Dados locais da tarefa.
+   * @param {any} result - Resultado da requisição.
+   */
   function infSenStates(taskLocal: any, result: any) {
     task.state_id = result.state_id;
     setTask({ ...task });
@@ -364,18 +519,27 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     })));
   }
 
+  /**
+   * Envia notificação de item marcado/desmarcado via WebSocket.
+   * @function
+   * @param {any} taskLocal - Dados locais da tarefa.
+   * @param {any} result - Resultado da requisição.
+   */
   function infSenCheckItem(taskLocal: any, result: any) {
     ws.current.informSending(classToJSON(new InformSending(false, userLog.id, taskLocal.task_id, 2, {
-      description: taskLocal.check
-        ? "Um item foi marcado"
-        : "Um item foi desmarcado",
+      description: taskLocal.check ? "Um item foi marcado" : "Um item foi desmarcado",
       percent: result.percent,
       itemUp: taskLocal,
       isItemUp: true,
     })));
   }
 
-  /* Jonatas - Envio da notificação! */
+  /**
+   * Envia notificação de vinculação de usuário a um item da tarefa.
+   * @function
+   * @param {any} taskLocal - Dados locais da tarefa.
+   * @param {any} result - Resultado da requisição.
+   */
   function infSenUserTaskItem(taskLocal: any, result: any) {
     ws.current.informSending(classToJSON(new InformSending(false, userLog.id, taskLocal.task_id, 2, {
       description: "usuário foi vinculado",
@@ -385,22 +549,31 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     })));
   }
 
-  async function checkTaskComShoDepSub(
-    task_id: number,
-    company_id: number,
-    shop_id: number,
-    depart_id: number,
-    taskLocal: any
-  ) {
+  /**
+   * Vincula uma tarefa a uma empresa, loja ou departamento.
+   * @function
+   * @async
+   * @param {number} task_id - ID da tarefa.
+   * @param {number} company_id - ID da empresa.
+   * @param {number} shop_id - ID da loja.
+   * @param {number} depart_id - ID do departamento.
+   * @param {any} taskLocal - Dados locais da tarefa.
+   */
+  async function checkTaskComShoDepSub(task_id: number, company_id: number, shop_id: number, depart_id: number, taskLocal: any) {
     setLoading(true);
     try {
-      await fetchData({method: "POST", urlComplement: "", pathFile: "GTPP/TaskComShoDepSub.php", exception: ["no data"], params: {
-        task_id: task_id,
-        company_id: company_id,
-        shop_id: shop_id,
-        depart_id: depart_id,
-      }});
-
+      await fetchData({
+        method: "POST",
+        urlComplement: "",
+        pathFile: "GTPP/TaskComShoDepSub.php",
+        exception: ["no data"],
+        params: {
+          task_id: task_id,
+          company_id: company_id,
+          shop_id: shop_id,
+          depart_id: depart_id,
+        }
+      });
       ws.current.informSending({
         error: false,
         user_id: userLog.id,
@@ -421,34 +594,40 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
-  async function handleAddTask(
-    description: string,
-    task_id: string,
-    yes_no: number,
-    file?: string
-  ) {
+  /**
+   * Adiciona um novo item à tarefa e atualiza o estado.
+   * @function
+   * @async
+   * @param {string} description - Descrição do item.
+   * @param {string} task_id - ID da tarefa.
+   * @param {number} yes_no - Indicador de resposta sim/não.
+   * @param {string} [file] - Arquivo associado (opcional).
+   */
+  async function handleAddTask(description: string, task_id: string, yes_no: number, file?: string) {
     setLoading(true);
     try {
       const response: any = await fetchData({
-        method: "POST", params: {
+        method: "POST",
+        params: {
           description: description,
           file: file ? file : '',
           task_id: task_id,
           yes_no
-        }, pathFile: "GTPP/TaskItem.php"
+        },
+        pathFile: "GTPP/TaskItem.php"
       });
       if (response.error) throw new Error(response.message);
 
       const item = {
-        "id": response.data.last_id,
-        "description": description,
-        "check": false,
-        "task_id": parseInt(task_id),
-        "order": response.data.order,
-        "created_by": response.data.created_by, // Modificação - Jonatas 17/10/2025
-        "yes_no": response.data.yes_no,
-        "file": file ? 1 : 0,
-        "note": null
+        id: response.data.last_id,
+        description: description,
+        check: false,
+        task_id: parseInt(task_id),
+        order: response.data.order,
+        created_by: response.data.created_by,
+        yes_no: response.data.yes_no,
+        file: file ? 1 : 0,
+        note: null
       };
 
       if (taskDetails.data) {
@@ -458,9 +637,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       ws.current.informSending({
         user_id: userLog,
         object: {
-          "description": "Novo item adicionado",
-          "percent": response.data.percent,
-          "itemUp": item,
+          description: "Novo item adicionado",
+          percent: response.data.percent,
+          itemUp: item,
         },
         task_id,
         type: 2
@@ -468,28 +647,33 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       setTaskDetails({ ...taskDetails });
       reloadPagePercent(response.data, { task_id: task_id });
 
-      // Verifica se o checked realizado alterou o status da tarefa. Se sim ele envia um alerta!
       if (task.state_id != response.data.state_id) {
         await verifyChangeState(response.data.state_id, task.state_id, { task_id: task.id }, response.data);
       }
-
     } catch (error: any) {
       console.error("Error adding task:" + error.message);
-
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  // Aqui podemos trabalhar de forma horizontal para atualizar a descrição da tarefa de ponta a ponta.
-  async function changeDescription(
-    description: string,
-    id: number,
-    descLocal: string
-  ) {
+  /**
+   * Atualiza a descrição completa de uma tarefa.
+   * @function
+   * @async
+   * @param {string} description - Nova descrição da tarefa.
+   * @param {number} id - ID da tarefa.
+   * @param {string} descLocal - Descrição local da tarefa.
+   */
+  async function changeDescription(description: string, id: number, descLocal: string) {
     setLoading(true);
     try {
-      await fetchData({method: "PUT", pathFile: "GTPP/Task.php", exception: ["no data"], params: { id: id, full_description: description }});
+      await fetchData({
+        method: "PUT",
+        pathFile: "GTPP/Task.php",
+        exception: ["no data"],
+        params: { id: id, full_description: description }
+      });
       ws.current.informSending({
         error: false,
         user_id: userLog.id,
@@ -507,15 +691,28 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       setLoading(false);
     }
   }
+
+  /**
+   * Atualiza o arquivo associado a um item da tarefa.
+   * @function
+   * @async
+   * @param {string} file - Arquivo a ser associado.
+   * @param {number} [item_id] - ID do item (opcional).
+   */
   async function updateItemTaskFile(file: string, item_id?: number) {
     try {
       if (item_id) {
-        const req: any = await fetchData({method: "PUT", pathFile: "GTPP/TaskItem.php", urlComplement: "", exception: ["no data"], params: {
-          "task_id": task.id,
-          "id": item_id,
-          "file": file
-        }});
-
+        const req: any = await fetchData({
+          method: "PUT",
+          pathFile: "GTPP/TaskItem.php",
+          urlComplement: "",
+          exception: ["no data"],
+          params: {
+            task_id: task.id,
+            id: item_id,
+            file: file
+          }
+        });
         if (req.error) throw new Error();
       }
     } catch (error: any) {
@@ -523,13 +720,16 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
-  // AQUI VOU PRECISAR MONTAR UMA CONDICIONAL PARA MUDAR A DESCRIÇÃO E COLOCAR UMA OBSERVAÇÃO.
-  async function changeObservedForm(
-    taskId: number,
-    subId: number,
-    value: string,
-    isObservation: boolean,
-  ) {
+  /**
+   * Atualiza uma observação ou descrição de um item da tarefa.
+   * @function
+   * @async
+   * @param {number} taskId - ID da tarefa.
+   * @param {number} subId - ID do subitem.
+   * @param {string} value - Novo valor da observação ou descrição.
+   * @param {boolean} isObservation - Indica se é uma observação.
+   */
+  async function changeObservedForm(taskId: number, subId: number, value: string, isObservation: boolean) {
     setLoading(true);
     try {
       const item: any = {
@@ -537,11 +737,8 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         task_id: taskId
       };
       item[isObservation ? 'note' : 'description'] = value;
-
       const response: any = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" });
-
       if (response.error) throw new Error(response.message);
-
       await getTaskInformations();
       ws.current.informSending({
         error: false,
@@ -550,14 +747,25 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         task_id: taskId,
         type: 2,
       });
-
     } catch (error) {
-      console.error("Ocorreu um erro ao salvar a tarefa. Tente novamente."); // Notificação amigável ao usuário
+      console.error("Ocorreu um erro ao salvar a tarefa. Tente novamente.");
     } finally {
-      setLoading(false); // Finaliza o carregamento
+      setLoading(false);
     }
   }
 
+  /**
+   * Envia notificação de atualização de tarefa via WebSocket.
+   * @function
+   * @async
+   * @param {number} taskId - ID da tarefa.
+   * @param {string | null} resource - Recurso associado (opcional).
+   * @param {string | null} date - Data associada (opcional).
+   * @param {any} taskList - Dados da tarefa.
+   * @param {string} message - Mensagem da notificação.
+   * @param {number} type - Tipo de notificação.
+   * @param {Object} [object] - Objeto adicional (opcional).
+   */
   async function upTask(taskId: number, resource: string | null, date: string | null, taskList: any, message: string, type: number, object?: {}) {
     setLoading(true);
     ws.current.informSending(
@@ -569,95 +777,116 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading(false);
   }
 
+  /**
+   * Atualiza o estado de uma tarefa via API.
+   * @function
+   * @async
+   * @param {number} taskId - ID da tarefa.
+   * @param {string | null} resource - Recurso associado (opcional).
+   * @param {string | null} date - Data associada (opcional).
+   * @returns {Promise<any>} ID do novo estado ou resposta da API.
+   */
   async function updateStateTask(taskId: number, resource: string | null, date: string | null) {
     setLoading(true);
     const req: any = await fetchData({ method: "PUT", params: { task_id: taskId, reason: resource, days: parseInt(date ? date : "0") }, pathFile: "GTPP/TaskState.php" }) || { error: false };
     setLoading(false);
-    // 
     const response = req.error ? {} : req.data instanceof Array ? req.data[0].id : req.data.id;
     return response;
   }
 
+  /**
+   * Adiciona dias à data atual e retorna no formato ISO.
+   * @function
+   * @param {number} daysToAdd - Número de dias a adicionar.
+   * @returns {string} Data no formato "YYYY-MM-DD".
+   */
   function addDays(daysToAdd: number) {
-    const date = new Date(); // Pega a data atual
-    date.setDate(date.getDate() + daysToAdd); // Adiciona os dias
-    return date.toISOString().split('T')[0]; // Retorna no formato "YYYY-MM-DD"
+    const date = new Date();
+    date.setDate(date.getDate() + daysToAdd);
+    return date.toISOString().split('T')[0];
   }
 
-  // estou resolvendo os botões aqui!
-  async function stopAndToBackTask(
-  taskId: number,
-  resource: string | null,
-  date: string | null,
-  taskList: any
-) {
+  /**
+   * Para ou retorna uma tarefa ao estado anterior.
+   * @function
+   * @async
+   * @param {number} taskId - ID da tarefa.
+   * @param {string | null} resource - Recurso associado (opcional).
+   * @param {string | null} date - Data associada (opcional).
+   * @param {any} taskList - Dados da tarefa.
+   */
+  async function stopAndToBackTask(taskId: number, resource: string | null, date: string | null, taskList: any) {
     try {
-    const taskState: any = await updateStateTask(taskId, resource, date);
-    if (!taskState || taskState.error) {
-      console.error("API Error - taskState:", taskState);
-      throw new Error(
-        taskState?.message || "Falha genérica ao atualizar o estado da tarefa."
-      );
-    }
-    if(!taskState.error) {
-      if (taskList.state_id == 5) {
-        upTask(
-          taskId,
-          resource,
-          date,
-          taskList,
-          `Tarefa que estava bloqueada está de volta!`,
-          6,
-          {
+      const taskState: any = await updateStateTask(taskId, resource, date);
+      if (!taskState || taskState.error) {
+        console.error("API Error - taskState:", taskState);
+        throw new Error(taskState?.message || "Falha genérica ao atualizar o estado da tarefa.");
+      }
+      if (!taskState.error) {
+        if (taskList.state_id == 5) {
+          upTask(
+            taskId,
+            resource,
+            date,
+            taskList,
+            `Tarefa que estava bloqueada está de volta!`,
+            6,
+            {
+              description: "send",
+              task_id: taskId,
+              state_id: taskState,
+              percent: task.percent || taskList.percent,
+              new_final_date: addDays(parseInt(date || "0")),
+            }
+          );
+        } else if (taskList.state_id == 4 || taskList.state_id == 6) {
+          upTask(
+            taskId,
+            resource,
+            date,
+            taskList,
+            taskList.state_id == 4 ? `send` : "send",
+            6,
+            { description: "send", task_id: taskId, state_id: taskState }
+          );
+        } else if (taskList.state_id == 1 || taskList.state_id == 2) {
+          upTask(taskId, resource, date, taskList, "A tarefa foi parada!", 6, {
+            description: "send",
+            task_id: taskId,
+            state_id: taskState,
+          });
+        } else if (taskList.state_id == 3) {
+          upTask(taskId, resource, date, taskList, "A tarefa finalizada!", 6, {
             description: "send",
             task_id: taskId,
             state_id: taskState,
             percent: task.percent || taskList.percent,
-            new_final_date: addDays(parseInt(date || "0")),
-          }
-        );
-      } else if (taskList.state_id == 4 || taskList.state_id == 6) {
-        upTask(
-          taskId,
-          resource,
-          date,
-          taskList,
-          taskList.state_id == 4 ? `send` : "send",
-          6,
-          { description: "send", task_id: taskId, state_id: taskState }
-        );
-      } else if (taskList.state_id == 1 || taskList.state_id == 2) {
-        upTask(taskId, resource, date, taskList, "A tarefa foi parada!", 6, {
-          description: "send",
-          task_id: taskId,
-          state_id: taskState,
-        });
-      } else if (taskList.state_id == 3) {
-        upTask(taskId, resource, date, taskList, "A tarefa finalizada!", 6, {
-          description: "send",
-          task_id: taskId,
-          state_id: taskState,
-          percent: task.percent || taskList.percent,
+          });
+        }
+      }
+      if (task.id && !isNaN(taskState)) {
+        setTask((prevTask: any) => {
+          const newState = {
+            ...prevTask,
+            state_id: taskState,
+            percent: task.percent || prevTask.percent,
+          };
+          return newState;
         });
       }
+      closeCardDefaultGlobally(taskId);
+    } catch (error: any) {
+      console.error(`[stopAndToBackTask] Caught error:`, error);
+      handleNotification("Atenção!", error.message, "danger");
     }
-    if (task.id && !isNaN(taskState)) {
-      setTask((prevTask: any) => {
-        const newState = {
-          ...prevTask,
-          state_id: taskState,
-          percent: task.percent || prevTask.percent,
-        };
-        return newState;
-      });
-    }
-    closeCardDefaultGlobally(taskId);
-  } catch (error: any) {
-    console.error(`[stopAndToBackTask] Caught error:`, error);
-    handleNotification("Atenção!", error.message, "danger");
-  }
   }
 
+  /**
+   * Atualiza um item de tarefa para questão ou item comum.
+   * @function
+   * @async
+   * @param {Object} item - Dados do item (task_id, id, yes_no).
+   */
   async function updatedForQuestion(item: { task_id: number; id: number; yes_no: number }) {
     try {
       setLoading(true);
@@ -669,11 +898,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log(newItem[0].yes_no = item.yes_no);
       itemUp({ itemUp: newItem[0], id: item.task_id, percent: task.percent });
       await upTask(item.task_id, null, null, null, "Agora é um item comum", 2, {
-        "description": item.yes_no == 0 ? "Alterado para um item comum" : "Alterado para questão ",
-        "percent": task.percent,
-        "itemUp": {
-          ...newItem[0]
-        },
+        description: item.yes_no == 0 ? "Alterado para um item comum" : "Alterado para questão ",
+        percent: task.percent,
+        itemUp: { ...newItem[0] },
         isItemUp: true
       });
     } catch (error) {
@@ -683,7 +910,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
-  // Manutenção 24/10/2025 - Jonatas 
+  /**
+   * Vincula um usuário a um item da tarefa.
+   * @function
+   * @async
+   * @param {Object} item - Dados do item (task_id, user_id, id).
+   * @param {Function} setUserState - Função para atualizar o estado do usuário.
+   */
   async function updatedAddUserTaskItem(item: { task_id: number, user_id: number, id: number }, setUserState: (item: any) => void) {
     const value = { task_id: item.task_id, id: item.id, assigned_to: item.user_id };
     const { error, message } = await fetchData({ method: "PUT", params: value, pathFile: "GTPP/TaskItem.php", urlComplement: "" });
@@ -699,7 +932,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
           })
         )
       );
-      
       setUserState((prev: any) => ({ ...prev, isListUser: false, loadingList: [] }));
       getTaskInformations();
       setTaskDetails({ ...taskDetails });
@@ -707,17 +939,26 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  /**
+   * Remove um item da tarefa e notifica via WebSocket.
+   * @function
+   * @param {any} object - Objeto contendo informações do item a ser removido.
+   */
   function deleteItemTaskWS(object: any) {
     ws.current.informSending({
-      "user_id": userLog.id,
+      user_id: userLog.id,
       object,
-      "task_id": task.id,
-      "type": 2
+      task_id: task.id,
+      type: 2
     });
   }
 
-  // FUNÇÕES PARA ATUALIZAR AS INFORMAÇÕES DA PÁGINA:
-  // Jonatas - Analise / 20-10-2025
+  /**
+   * Atualiza o percentual de progresso da tarefa na interface.
+   * @function
+   * @param {any} value - Dados do percentual.
+   * @param {any} taskLocal - Dados locais da tarefa.
+   */
   function reloadPagePercent(value: any, taskLocal: any) {
     if (task.id == taskLocal.task_id) {
       setTaskPercent(parseInt(value.percent));
@@ -728,12 +969,23 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  /**
+   * Atualiza a resposta sim/não de um item da tarefa.
+   * @function
+   * @param {number} yes_no - Valor da resposta sim/não.
+   * @param {number} item_id - ID do item.
+   */
   function reloadPageChangeQuestion(yes_no: number, item_id: number) {
     if (taskDetails.data?.task_item) {
       taskDetails.data.task_item[taskDetails.data?.task_item.findIndex(item => item.id == item_id)].yes_no = yes_no;
     }
   }
 
+  /**
+   * Remove um item da tarefa na interface.
+   * @function
+   * @param {any} value - Dados do item a ser removido.
+   */
   function reloadPageDeleteItem(value: any) {
     const indexDelete: number | undefined = taskDetails.data?.task_item.findIndex(item => item.id == value.object.itemUp);
     if (indexDelete != undefined && indexDelete >= 0) {
@@ -743,7 +995,11 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     reloadPagePercent(value.object, value);
   }
 
-  /* Reload */
+  /**
+   * Atualiza a interface com novos itens ou observações.
+   * @function
+   * @param {any} object - Objeto contendo informações do item.
+   */
   function reloadPageItem(object: any) {
     console.log(object);
     if (object.itemUp) {
@@ -753,38 +1009,59 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }
 
+  /**
+   * Adiciona um novo item à tarefa na interface.
+   * @function
+   * @param {any} object - Objeto contendo o item a ser adicionado.
+   */
   function reloadPageAddItem(object: any) {
     taskDetails.data?.task_item.push(object.itemUp);
     setTaskDetails({ ...taskDetails });
     reloadPagePercent(object, object.itemUp);
   }
 
+  /**
+   * Atualiza uma observação de um item na interface.
+   * @function
+   * @param {any} object - Objeto contendo a observação.
+   */
   function reloadPageUpNoteItem(object: any) {
     const index: number = taskDetails.data?.task_item.findIndex((item) => item.id === object.id) || 0;
     if (taskDetails.data) taskDetails.data.task_item[index].note = object.note;
     setTaskDetails({ ...taskDetails });
   }
 
-  function itemUp(value: any) { // Jonatas 24/10/2025
+  /**
+   * Atualiza um item da tarefa na interface.
+   * @function
+   * @param {any} value - Dados do item atualizado.
+   */
+  function itemUp(value: any) {
     taskDetails.data?.task_item.forEach((element, index) => {
       if (taskDetails.data && element.id == value.itemUp.id)
         taskDetails.data.task_item[index] = value.itemUp;
     });
-
     setTaskDetails({ ...taskDetails });
     reloadPagePercent(value, value.itemUp);
   }
 
-  // Jonatas - Compartilhando a lista de usuários 24/10/2025
-  function userTaskItem(value: any) { 
+  /**
+   * Atualiza a vinculação de um usuário a um item da tarefa na interface.
+   * @function
+   * @param {any} value - Dados do item e usuário.
+   */
+  function userTaskItem(value: any) {
     taskDetails.data?.task_item.forEach((element, index) => {
       if (taskDetails.data && element.id == value.itemUp.id)
         taskDetails.data.task_item[index] = value.itemUp;
     });
-
     setTaskDetails({ ...taskDetails });
   }
 
+  /**
+   * Limpa os estados do contexto WebSocket.
+   * @function
+   */
   function clearGtppWsContext() {
     setTask({});
     setTaskDetails({});
@@ -824,12 +1101,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
         checkedItem,
         checkTaskComShoDepSub,
         changeDescription,
-        stopAndToBackTask,        
+        stopAndToBackTask,
         changeObservedForm,
         setIsAdm,
-
-        /* JONATAS 24/10/2025 */
-        getUser, 
+        getUser,
         setGetUser,
         updatedAddUserTaskItem,
       }}
@@ -839,6 +1114,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+/**
+ * Hook personalizado para acessar o contexto do WebSocket.
+ * @function
+ * @returns {iGtppWsContextType} Contexto do WebSocket.
+ * @throws {Error} Se usado fora de um GtppWsProvider.
+ */
 export const useWebSocket = () => {
   const context = useContext(GtppWsContext);
   if (!context) {
