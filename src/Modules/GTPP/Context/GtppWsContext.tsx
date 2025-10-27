@@ -1,9 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
+import React, {createContext,useContext,useEffect,useRef,useState,
 } from "react";
 import { CustomNotification, iGtppWsContextType, iStates, iTaskReq } from "../../../Interface/iGIPP";
 import GtppWebSocket from "./GtppWebSocket";
@@ -83,30 +78,32 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Carrega lista de tarefas que você criou ou você foi vínculado.
   useEffect(() => {
-    (
-      async () => {
-        await loadTasks();
-      }
-    )();
-  }, []);
+    if (!userLog?.id) return; // evita chamada sem usuário
+    loadTasks();
+  }, [isAdm, userLog?.id]);
 
-  async function loadTasks(admin?: boolean) {
+   // Modificado - Jonatas 27/10/2025
+   const loadTasks = async () => {
     try {
-      setIsAdm(admin);
-      await reqTasks(admin);
+      await reqTasks();
     } catch (error) {
       console.error("Erro ao obter as informações da tarefa:", error);
     }
-  }
+  };
 
-  async function reqTasks(admin?: boolean) {
+  // Modificado - Jonatas 27/10/2025
+  async function reqTasks() {
     try {
-      setIsAdm(admin);
       setLoading(true);
-      const getTask: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", urlComplement: `${admin ? '&administrator=1' : ''}` });
+      const getTask: any = await fetchData({
+        method: "GET",
+        params: null,
+        pathFile: "GTPP/Task.php",
+        urlComplement: `${isAdm ? "&administrator=1" : ""}`,
+      });
       if (getTask.error) throw new Error(getTask.message);
       setGetTask(getTask.data);
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     } finally {
       setLoading(false);
@@ -595,60 +592,70 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({
   taskList: any
 ) {
     try {
-      const taskState: any = await updateStateTask(taskId, resource, date);
-
-      if (!taskState || taskState.error) {
-        console.error("API Error - taskState:", taskState);
-        throw new Error(taskState?.message || "Falha genérica ao atualizar o estado da tarefa.");
-      }
-
-      if (task.id === taskId) {
-        setTask((prevTask: any) => {
-          const newState = {
-            ...prevTask,
-            state_id: taskState,
-            percent: task.percent || prevTask.percent,
-          }
-          return newState;
-        });
-      }
-
-      if (taskList.state_id == 5) {
-        upTask(taskId, resource, date, taskList, `Tarefa que estava bloqueada está de volta!`, 6, {
-          "description": "send",
-          "task_id": taskId,
-          "state_id": taskState,
-          "percent": task.percent || taskList.percent,
-          "new_final_date": addDays(parseInt(date || "0"))
-        });
-      }
-      else if (taskList.state_id == 4 || taskList.state_id == 6) {
-        upTask(taskId, resource, date, taskList, taskList.state_id == 4 ? `send` : 'send', 6, {
-          "description": "send",
-          "task_id": taskId,
-          "state_id": taskState
-        });
-      }
-      else if (taskList.state_id == 1 || taskList.state_id == 2) {
-        upTask(taskId, resource, date, taskList, "A tarefa foi parada!", 6, {
-          "description": "send",
-          "task_id": taskId,
-          "state_id": taskState
-        });
-      }
-      else if (taskList.state_id == 3) {
-        upTask(taskId, resource, date, taskList, "A tarefa finalizada!", 6, {
-          "description": "send",
-          "task_id": taskId,
-          "state_id": taskState,
-          "percent": task.percent || taskList.percent,
-        });
-      }
-      closeCardDefaultGlobally(taskId);
-    } catch (error: any) {
-      console.error(`[stopAndToBackTask] Caught error:`, error);
-      handleNotification("Atenção!", error.message, "danger");
+    const taskState: any = await updateStateTask(taskId, resource, date);
+    if (!taskState || taskState.error) {
+      console.error("API Error - taskState:", taskState);
+      throw new Error(
+        taskState?.message || "Falha genérica ao atualizar o estado da tarefa."
+      );
     }
+    if(!taskState.error) {
+      if (taskList.state_id == 5) {
+        upTask(
+          taskId,
+          resource,
+          date,
+          taskList,
+          `Tarefa que estava bloqueada está de volta!`,
+          6,
+          {
+            description: "send",
+            task_id: taskId,
+            state_id: taskState,
+            percent: task.percent || taskList.percent,
+            new_final_date: addDays(parseInt(date || "0")),
+          }
+        );
+      } else if (taskList.state_id == 4 || taskList.state_id == 6) {
+        upTask(
+          taskId,
+          resource,
+          date,
+          taskList,
+          taskList.state_id == 4 ? `send` : "send",
+          6,
+          { description: "send", task_id: taskId, state_id: taskState }
+        );
+      } else if (taskList.state_id == 1 || taskList.state_id == 2) {
+        upTask(taskId, resource, date, taskList, "A tarefa foi parada!", 6, {
+          description: "send",
+          task_id: taskId,
+          state_id: taskState,
+        });
+      } else if (taskList.state_id == 3) {
+        upTask(taskId, resource, date, taskList, "A tarefa finalizada!", 6, {
+          description: "send",
+          task_id: taskId,
+          state_id: taskState,
+          percent: task.percent || taskList.percent,
+        });
+      }
+    }
+    if (task.id && !isNaN(taskState)) {
+      setTask((prevTask: any) => {
+        const newState = {
+          ...prevTask,
+          state_id: taskState,
+          percent: task.percent || prevTask.percent,
+        };
+        return newState;
+      });
+    }
+    closeCardDefaultGlobally(taskId);
+  } catch (error: any) {
+    console.error(`[stopAndToBackTask] Caught error:`, error);
+    handleNotification("Atenção!", error.message, "danger");
+  }
   }
 
   async function updatedForQuestion(item: { task_id: number; id: number; yes_no: number }) {
