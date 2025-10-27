@@ -10,110 +10,113 @@ import { useConnection } from "../../../Context/ConnContext";
 import { useNavigate } from "react-router-dom";
 
 /**
- * Contexto para gerenciamento do WebSocket e estado relacionado às tarefas no sistema GTPP.
+ * Contexto para gerenciar a conexão WebSocket e estados relacionados às tarefas no sistema GTPP.
+ * Fornece métodos e estados para manipulação de tarefas, notificações e vinculações de usuários em tempo real.
  * @constant {React.Context<iGtppWsContextType | undefined>} GtppWsContext
  */
 const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 
 /**
- * Provedor de contexto para WebSocket e gerenciamento de tarefas no sistema GTPP.
+ * Provedor de contexto para gerenciar a conexão WebSocket e estados das tarefas no sistema GTPP.
+ * Encapsula componentes filhos, fornecendo acesso a estados e métodos para interação com tarefas e notificações.
  * @param {Object} props - Propriedades do componente.
- * @param {React.ReactNode} props.children - Componentes filhos que serão encapsulados pelo provedor.
- * @returns {JSX.Element} Provedor do contexto WebSocket com os filhos.
+ * @param {React.ReactNode} props.children - Componentes filhos que terão acesso ao contexto.
+ * @returns {JSX.Element} Provedor do contexto com os componentes filhos.
  */
 export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   /**
-   * Estado que armazena o percentual de progresso da tarefa atual.
+   * Percentual de progresso da tarefa atual.
    * @type {[number, React.Dispatch<React.SetStateAction<number>>]}
    */
   const [taskPercent, setTaskPercent] = useState<number>(0);
 
   /**
-   * Estado que armazena os dados da tarefa atual.
+   * Dados da tarefa atual em exibição.
    * @type {[any, React.Dispatch<React.SetStateAction<any>>]}
    */
   const [task, setTask] = useState<any>({});
 
   /**
-   * Estado que armazena os detalhes da tarefa atual.
+   * Detalhes completos da tarefa atual, incluindo itens e metadados.
    * @type {[iTaskReq, React.Dispatch<React.SetStateAction<iTaskReq>>]}
    */
   const [taskDetails, setTaskDetails] = useState<iTaskReq>({});
 
   /**
-   * Estado que controla se as notificações sonoras estão ativadas.
+   * Indica se as notificações sonoras estão habilitadas.
    * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
    */
   const [onSounds, setOnSounds] = useState<boolean>(false);
 
   /**
-   * Estado que controla se o card padrão está aberto.
+   * Controla a visibilidade do card padrão na interface.
    * @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]}
    */
   const [openCardDefault, setOpenCardDefault] = useState<boolean>(false);
 
   /**
-   * Estado que armazena a lista de notificações do sistema.
+   * Lista de notificações exibidas na interface.
    * @type {[CustomNotification[], React.Dispatch<React.SetStateAction<CustomNotification[]>>]}
    */
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
 
   /**
-   * Estado que armazena a lista de tarefas recuperadas.
+   * Lista de tarefas recuperadas do servidor, associadas ao usuário ou administrador.
    * @type {[any[], React.Dispatch<React.SetStateAction<any[]>>]}
    */
   const [getTask, setGetTask] = useState<any[]>([]);
 
   /**
-   * Estado que armazena a lista de estados possíveis das tarefas.
+   * Lista de estados possíveis das tarefas (ex.: aberto, concluído, bloqueado).
    * @type {[iStates[], React.Dispatch<React.SetStateAction<iStates[]>>]}
    */
   const [states, setStates] = useState<iStates[]>([{ color: '', description: '', id: 0 }]);
 
   /**
-   * Estado que indica se o usuário é administrador.
+   * Indica se o usuário atual possui privilégios de administrador.
    * @type {[any, React.Dispatch<React.SetStateAction<any>>]}
    */
   const [isAdm, setIsAdm] = useState<any>(false);
 
   /**
-   * Estado que armazena informações do usuário atual.
+   * Dados do usuário atual logado.
    * @type {[any, React.Dispatch<React.SetStateAction<any>>]}
    */
   const [getUser, setGetUser] = useState<any>("");
 
   /**
-   * Estado que armazena a lista de vinculações de usuários às tarefas.
+   * Lista de vinculações de usuários às tarefas.
    * @type {[any[], React.Dispatch<React.SetStateAction<any[]>>]}
    */
   const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
 
   /**
-   * Contexto principal da aplicação, contendo informações do usuário logado e controle de loading.
+   * Contexto principal da aplicação, contendo informações do usuário logado e controle de carregamento.
    * @type {Object}
    */
   const { setLoading, userLog } = useMyContext();
 
   /**
-   * Hook para realizar navegação entre rotas.
+   * Hook para navegação entre rotas da aplicação.
    * @type {Function}
    */
   const navigate = useNavigate();
 
   /**
-   * Hook para realizar chamadas à API.
+   * Hook para realizar chamadas HTTP à API do sistema.
    * @type {Object}
    */
   const { fetchData } = useConnection();
 
   /**
-   * Referência ao objeto WebSocket para comunicação em tempo real.
+   * Referência à instância do WebSocket para comunicação em tempo real.
    * @type {React.MutableRefObject<GtppWebSocket>}
    */
   const ws = useRef(new GtppWebSocket());
 
   /**
-   * Efeito que inicializa a conexão WebSocket, carrega notificações e estados iniciais.
+   * Inicializa a conexão WebSocket, carrega notificações iniciais e estados das tarefas.
+   * Executado na montagem do componente e desconecta na desmontagem.
    * @function
    */
   useEffect(() => {
@@ -131,7 +134,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (getNotify.error) throw new Error(getNotify.message);
         updateNotification(getNotify.data);
       } catch (error: any) {
-        console.error(error.message);
+        console.error(`Erro ao carregar notificações: ${error.message}`);
       } finally {
         setLoading(false);
       }
@@ -146,7 +149,8 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   /**
-   * Efeito que atualiza o callback de mensagens do WebSocket.
+   * Atualiza o callback de mensagens do WebSocket sempre que as dependências mudam.
+   * Garante que as funções de manipulação de mensagens estejam atualizadas.
    * @function
    */
   useEffect(() => {
@@ -154,17 +158,19 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [task, taskDetails, notifications, onSounds, openCardDefault]);
 
   /**
-   * Efeito que carrega detalhes da tarefa quando a tarefa muda.
+   * Carrega os detalhes da tarefa atual quando o estado `task` muda.
+   * Evita chamadas desnecessárias se a tarefa não tiver um ID.
    * @function
    */
   useEffect(() => {
     (async () => {
-      task.id && await getTaskInformations();
+      if (task.id) await getTaskInformations();
     })();
   }, [task]);
 
   /**
-   * Efeito que carrega a lista de tarefas vinculadas ao usuário.
+   * Carrega a lista de tarefas associadas ao usuário ou administrador quando o estado `isAdm` ou `userLog.id` muda.
+   * Evita chamadas se o usuário não estiver logado.
    * @function
    */
   useEffect(() => {
@@ -173,7 +179,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [isAdm, userLog?.id]);
 
   /**
-   * Carrega a lista de tarefas do usuário ou administrador.
+   * Carrega a lista de tarefas do usuário ou administrador via API.
    * @function
    * @async
    */
@@ -181,12 +187,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       await reqTasks();
     } catch (error) {
-      console.error("Erro ao obter as informações da tarefa:", error);
+      console.error(`Erro ao carregar tarefas: ${error}`);
     }
   };
 
   /**
-   * Faz a requisição de tarefas via API.
+   * Realiza a requisição de tarefas via API, atualizando o estado `getTask`.
+   * Inclui parâmetro de administrador se aplicável.
    * @function
    * @async
    */
@@ -201,15 +208,16 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       });
       if (getTask.error) throw new Error(getTask.message);
       setGetTask(getTask.data);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error(`Erro ao requisitar tarefas: ${error}`);
     } finally {
       setLoading(false);
     }
   }
 
   /**
-   * Recupera os estados das tarefas do armazenamento local ou API.
+   * Recupera os estados das tarefas do armazenamento local ou via API.
+   * Armazena os estados no `localStorage` para acesso rápido.
    * @function
    * @async
    */
@@ -222,12 +230,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       } else {
         const getStatusTask: { error: boolean, message?: string, data?: [{ id: number, description: string, color: string }] } = 
         await fetchData({ method: "GET", pathFile: "GTPP/TaskState.php", params: null, exception: ["no data"], urlComplement: "" });
-        if (getStatusTask.error) throw new Error(getStatusTask.message || 'Error generic');
+        if (getStatusTask.error) throw new Error(getStatusTask.message || 'Erro ao obter estados');
         const list = createStorageState(getStatusTask.data || [{ id: 0, description: '', color: '' }]);
         listState = list;
       }
     } catch (error) {
-      console.error("Erro ao obter as informações da tarefa:", error);
+      console.error(`Erro ao obter estados das tarefas: ${error}`);
     } finally {
       updateStates(listState);
       setLoading(false);
@@ -235,9 +243,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Fecha o card padrão globalmente e notifica outros usuários.
+   * Fecha o card padrão globalmente e notifica outros usuários via WebSocket.
    * @function
-   * @param {number} [taskId] - ID da tarefa (opcional).
+   * @param {number} [taskId] - ID da tarefa associada (opcional).
    */
   const closeCardDefaultGlobally = (taskId?: number) => {
     ws.current.informSending({
@@ -253,9 +261,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   /**
-   * Atualiza os estados das tarefas no armazenamento local e no estado.
+   * Atualiza a lista de estados das tarefas no `localStorage` e no estado `states`.
    * @function
-   * @param {any[]} newList - Nova lista de estados.
+   * @param {any[]} newList - Nova lista de estados a ser armazenada.
    */
   function updateStates(newList: any[]) {
     localStorage.gtppStates = JSON.stringify(newList);
@@ -263,10 +271,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Cria uma lista de estados para armazenamento local.
+   * Formata a lista de estados para armazenamento no `localStorage`.
    * @function
-   * @param {iStates[]} list - Lista de estados.
-   * @returns {[{ id: number, description: string, color: string }]} Lista formatada.
+   * @param {iStates[]} list - Lista de estados recebida da API.
+   * @returns {[{ id: number, description: string, color: string }]} Lista formatada com propriedade `active`.
    */
   function createStorageState(list: iStates[]) {
     let listState: [{ id: number, description: string, color: string }] = [{ id: 0, description: '', color: '' }];
@@ -278,7 +286,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Recupera informações detalhadas de uma tarefa específica.
+   * Recupera detalhes de uma tarefa específica via API e atualiza o estado `taskDetails`.
    * @function
    * @async
    * @returns {Promise<void>}
@@ -291,16 +299,16 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (getTaskItem.error) throw new Error(getTaskItem.message);
       setTaskDetails(getTaskItem);
     } catch (error) {
-      console.error("Erro ao obter as informações da tarefa:", error);
+      console.error(`Erro ao obter detalhes da tarefa ${task.id}: ${error}`);
     } finally {
       setLoading(false);
     }
   }
 
   /**
-   * Adiciona ou remove um usuário de uma tarefa e notifica via WebSocket.
+   * Vincula ou remove um usuário de uma tarefa e notifica via WebSocket.
    * @function
-   * @param {any} element - Dados do usuário e tarefa.
+   * @param {any} element - Dados do usuário e tarefa (contendo `user_id`, `task_id`, `name`).
    * @param {number} type - Tipo de notificação (5 para vincular, outro para remover).
    */
   function addUserTask(element: any, type: number) {
@@ -331,10 +339,11 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Manipula mensagens recebidas via WebSocket e atualiza o estado da aplicação.
+   * Processa mensagens recebidas do WebSocket e atualiza o estado da aplicação conforme o tipo de mensagem.
+   * Lida com notificações, atualizações de tarefas e estados, e desconexão de usuários.
    * @function
    * @async
-   * @param {any} event - Evento de mensagem do WebSocket.
+   * @param {any} event - Evento de mensagem recebido do WebSocket.
    */
   async function callbackOnMessage(event: any) {
     let response = JSON.parse(event.data);
@@ -342,7 +351,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       response.error &&
       response.message.includes("This user has been connected to another place")
     ) {
-      // Lógica de desconexão comentada
+      // Lógica de desconexão comentada para evitar logout automático
     }
 
     if (!response.error && response.send_user_id != localStorage.codUserGIPP) {
@@ -388,13 +397,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Solicita permissão para notificações do navegador.
+   * Solicita permissão para exibir notificações no navegador e ativa sons se permitido.
    * @function
    * @async
    */
   const requestNotificationPermission = async () => {
     if (!("Notification" in window)) {
-      console.warn("Notificações não são suportadas neste navegador.");
+      console.warn("Notificações não suportadas pelo navegador.");
       return;
     }
 
@@ -409,7 +418,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   /**
-   * Efeito que solicita permissão para notificações ao carregar o componente.
+   * Solicita permissão de notificações na montagem do componente.
    * @function
    */
   useEffect(() => {
@@ -417,10 +426,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   /**
-   * Atualiza a lista de notificações com novos itens e reproduz som se ativado.
+   * Adiciona novas notificações à lista e reproduz som se habilitado.
    * @function
    * @async
-   * @param {any[]} item - Lista de notificações a serem adicionadas.
+   * @param {any[]} item - Lista de notificações recebidas.
    */
   async function updateNotification(item: any[]) {
     try {
@@ -428,25 +437,24 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (onSounds) {
         const audio = new Audio(soundFile);
         audio.play().catch((error) => {
-          console.error('Erro ao reproduzir o som:', error);
+          console.error(`Erro ao reproduzir som de notificação: ${error}`);
         });
       }
 
       const notify = new NotificationGTPP();
       await notify.loadNotify(item, states);
       notifications.push(...notify.list);
-      setNotifications([...notifications]);
-      setNotifications((prevNotifications) => [...prevNotifications, ...notify.list]);
+      setNotifications([...notifications, ...notify.list]);
       handleNotification(notify.list[0]["title"], notify.list[0]["message"], notify.list[0]["typeNotify"]);
     } catch (error) {
-      console.error(error);
+      console.error(`Erro ao atualizar notificações: ${error}`);
     } finally {
       setLoading(false);
     }
   }
 
   /**
-   * Atualiza a descrição completa da tarefa.
+   * Atualiza a descrição completa da tarefa no estado `taskDetails`.
    * @function
    * @param {any} description - Objeto contendo a descrição completa.
    */
@@ -458,7 +466,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Marca ou desmarca um item da tarefa e atualiza o estado.
+   * Marca ou desmarca um item da tarefa, atualizando o estado e notificando via WebSocket.
    * @function
    * @async
    * @param {number} id - ID do item.
@@ -479,14 +487,14 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       await verifyChangeState(result.data.state_id, task.state_id, taskLocal, result.data);
       infSenCheckItem(taskLocal, result.data);
     } catch (error) {
-      console.error(error);
+      console.error(`Erro ao marcar/desmarcar item ${id}: ${error}`);
     } finally {
       setLoading(false);
     }
   }
 
   /**
-   * Verifica se houve mudança no estado da tarefa e atualiza se necessário.
+   * Verifica se o estado da tarefa mudou e atualiza a lista de tarefas se necessário.
    * @function
    * @async
    * @param {number} newState - Novo estado da tarefa.
@@ -502,10 +510,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Envia notificação de mudança de estado da tarefa via WebSocket.
+   * Notifica via WebSocket sobre a mudança de estado de uma tarefa.
    * @function
    * @param {any} taskLocal - Dados locais da tarefa.
-   * @param {any} result - Resultado da requisição.
+   * @param {any} result - Resultado da requisição com o novo estado.
    */
   function infSenStates(taskLocal: any, result: any) {
     task.state_id = result.state_id;
@@ -520,10 +528,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Envia notificação de item marcado/desmarcado via WebSocket.
+   * Notifica via WebSocket que um item foi marcado ou desmarcado.
    * @function
    * @param {any} taskLocal - Dados locais da tarefa.
-   * @param {any} result - Resultado da requisição.
+   * @param {any} result - Resultado da requisição com o percentual atualizado.
    */
   function infSenCheckItem(taskLocal: any, result: any) {
     ws.current.informSending(classToJSON(new InformSending(false, userLog.id, taskLocal.task_id, 2, {
@@ -535,10 +543,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Envia notificação de vinculação de usuário a um item da tarefa.
+   * Notifica via WebSocket a vinculação de um usuário a um item da tarefa.
    * @function
    * @param {any} taskLocal - Dados locais da tarefa.
-   * @param {any} result - Resultado da requisição.
+   * @param {any} result - Resultado da requisição com o percentual.
    */
   function infSenUserTaskItem(taskLocal: any, result: any) {
     ws.current.informSending(classToJSON(new InformSending(false, userLog.id, taskLocal.task_id, 2, {
@@ -550,7 +558,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Vincula uma tarefa a uma empresa, loja ou departamento.
+   * Vincula uma tarefa a uma empresa, loja ou departamento e notifica via WebSocket.
    * @function
    * @async
    * @param {number} task_id - ID da tarefa.
@@ -588,20 +596,20 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         type: 2,
       });
     } catch (error) {
-      console.error(error);
+      console.error(`Erro ao vincular tarefa ${task_id} a empresa/loja/departamento: ${error}`);
     } finally {
       setLoading(false);
     }
   }
 
   /**
-   * Adiciona um novo item à tarefa e atualiza o estado.
+   * Adiciona um novo item a uma tarefa e atualiza a interface.
    * @function
    * @async
-   * @param {string} description - Descrição do item.
+   * @param {string} description - Descrição do novo item.
    * @param {string} task_id - ID da tarefa.
    * @param {number} yes_no - Indicador de resposta sim/não.
-   * @param {string} [file] - Arquivo associado (opcional).
+   * @param {string} [file] - Arquivo associado ao item (opcional).
    */
   async function handleAddTask(description: string, task_id: string, yes_no: number, file?: string) {
     setLoading(true);
@@ -651,19 +659,19 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         await verifyChangeState(response.data.state_id, task.state_id, { task_id: task.id }, response.data);
       }
     } catch (error: any) {
-      console.error("Error adding task:" + error.message);
+      console.error(`Erro ao adicionar item à tarefa ${task_id}: ${error.message}`);
     } finally {
       setLoading(false);
     }
   }
 
   /**
-   * Atualiza a descrição completa de uma tarefa.
+   * Atualiza a descrição completa de uma tarefa e notifica via WebSocket.
    * @function
    * @async
-   * @param {string} description - Nova descrição da tarefa.
+   * @param {string} description - Nova descrição completa.
    * @param {number} id - ID da tarefa.
-   * @param {string} descLocal - Descrição local da tarefa.
+   * @param {string} descLocal - Descrição local para notificação.
    */
   async function changeDescription(description: string, id: number, descLocal: string) {
     setLoading(true);
@@ -686,17 +694,17 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         type: 3,
       });
     } catch (error) {
-      console.error("erro ao fazer o PUT em Task.php");
+      console.error(`Erro ao atualizar descrição da tarefa ${id}: ${error}`);
     } finally {
       setLoading(false);
     }
   }
 
   /**
-   * Atualiza o arquivo associado a um item da tarefa.
+   * Associa um arquivo a um item da tarefa via API.
    * @function
    * @async
-   * @param {string} file - Arquivo a ser associado.
+   * @param {string} file - Caminho ou conteúdo do arquivo.
    * @param {number} [item_id] - ID do item (opcional).
    */
   async function updateItemTaskFile(file: string, item_id?: number) {
@@ -713,21 +721,21 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             file: file
           }
         });
-        if (req.error) throw new Error();
+        if (req.error) throw new Error(req.message);
       }
     } catch (error: any) {
-      console.error(error.message);
+      console.error(`Erro ao associar arquivo ao item ${item_id}: ${error.message}`);
     }
   }
 
   /**
-   * Atualiza uma observação ou descrição de um item da tarefa.
+   * Atualiza a observação ou descrição de um item da tarefa.
    * @function
    * @async
    * @param {number} taskId - ID da tarefa.
    * @param {number} subId - ID do subitem.
-   * @param {string} value - Novo valor da observação ou descrição.
-   * @param {boolean} isObservation - Indica se é uma observação.
+   * @param {string} value - Novo valor para observação ou descrição.
+   * @param {boolean} isObservation - Indica se o valor é uma observação.
    */
   async function changeObservedForm(taskId: number, subId: number, value: string, isObservation: boolean) {
     setLoading(true);
@@ -748,29 +756,30 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         type: 2,
       });
     } catch (error) {
-      console.error("Ocorreu um erro ao salvar a tarefa. Tente novamente.");
+      console.error(`Erro ao atualizar item ${subId} da tarefa ${taskId}: ${error}`);
+      handleNotification("Erro", "Ocorreu um erro ao salvar a tarefa. Tente novamente.", "danger");
     } finally {
       setLoading(false);
     }
   }
 
   /**
-   * Envia notificação de atualização de tarefa via WebSocket.
+   * Envia uma notificação de atualização de tarefa via WebSocket e recarrega a lista de tarefas.
    * @function
    * @async
    * @param {number} taskId - ID da tarefa.
-   * @param {string | null} resource - Recurso associado (opcional).
-   * @param {string | null} date - Data associada (opcional).
+   * @param {string | null} resource - Recurso associado (ex.: motivo da pausa).
+   * @param {string | null} date - Data associada (ex.: nova data final).
    * @param {any} taskList - Dados da tarefa.
    * @param {string} message - Mensagem da notificação.
    * @param {number} type - Tipo de notificação.
-   * @param {Object} [object] - Objeto adicional (opcional).
+   * @param {Object} [object] - Dados adicionais para a notificação (opcional).
    */
   async function upTask(taskId: number, resource: string | null, date: string | null, taskList: any, message: string, type: number, object?: {}) {
     setLoading(true);
     ws.current.informSending(
       classToJSON(
-        new InformSending(false, userLog.id, taskId, type, object || { description: message, task_id: taskId, reason: resource, days: date, taskState: taskList.state_id })
+        new InformSending(false, userLog.id, taskId, type, object || { description: message, task_id: taskId, reason: resource, days: date, taskState: taskList?.state_id })
       )
     );
     await loadTasks();
@@ -782,9 +791,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * @function
    * @async
    * @param {number} taskId - ID da tarefa.
-   * @param {string | null} resource - Recurso associado (opcional).
-   * @param {string | null} date - Data associada (opcional).
-   * @returns {Promise<any>} ID do novo estado ou resposta da API.
+   * @param {string | null} resource - Recurso associado (ex.: motivo).
+   * @param {string | null} date - Data associada (ex.: dias adicionais).
+   * @returns {Promise<any>} ID do novo estado ou objeto vazio em caso de erro.
    */
   async function updateStateTask(taskId: number, resource: string | null, date: string | null) {
     setLoading(true);
@@ -795,10 +804,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Adiciona dias à data atual e retorna no formato ISO.
+   * Adiciona dias à data atual e retorna no formato "YYYY-MM-DD".
    * @function
    * @param {number} daysToAdd - Número de dias a adicionar.
-   * @returns {string} Data no formato "YYYY-MM-DD".
+   * @returns {string} Data formatada.
    */
   function addDays(daysToAdd: number) {
     const date = new Date();
@@ -807,20 +816,20 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Para ou retorna uma tarefa ao estado anterior.
+   * Para ou retorna uma tarefa ao estado anterior, atualizando o estado e notificando via WebSocket.
    * @function
    * @async
    * @param {number} taskId - ID da tarefa.
-   * @param {string | null} resource - Recurso associado (opcional).
-   * @param {string | null} date - Data associada (opcional).
+   * @param {string | null} resource - Recurso associado (ex.: motivo da pausa).
+   * @param {string | null} date - Data associada (ex.: nova data final).
    * @param {any} taskList - Dados da tarefa.
    */
   async function stopAndToBackTask(taskId: number, resource: string | null, date: string | null, taskList: any) {
     try {
       const taskState: any = await updateStateTask(taskId, resource, date);
       if (!taskState || taskState.error) {
-        console.error("API Error - taskState:", taskState);
-        throw new Error(taskState?.message || "Falha genérica ao atualizar o estado da tarefa.");
+        console.error(`Erro na API ao atualizar estado da tarefa ${taskId}:`, taskState);
+        throw new Error(taskState?.message || "Falha ao atualizar o estado da tarefa.");
       }
       if (!taskState.error) {
         if (taskList.state_id == 5) {
@@ -876,13 +885,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
       closeCardDefaultGlobally(taskId);
     } catch (error: any) {
-      console.error(`[stopAndToBackTask] Caught error:`, error);
+      console.error(`Erro ao parar/retornar tarefa ${taskId}: ${error}`);
       handleNotification("Atenção!", error.message, "danger");
     }
   }
 
   /**
-   * Atualiza um item de tarefa para questão ou item comum.
+   * Atualiza um item de tarefa para ser uma questão ou item comum.
    * @function
    * @async
    * @param {Object} item - Dados do item (task_id, id, yes_no).
@@ -904,14 +913,14 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         isItemUp: true
       });
     } catch (error) {
-      console.error(error);
+      console.error(`Erro ao atualizar item ${item.id} para questão: ${error}`);
     } finally {
       setLoading(false);
     }
   }
 
   /**
-   * Vincula um usuário a um item da tarefa.
+   * Vincula um usuário a um item de tarefa e atualiza a interface.
    * @function
    * @async
    * @param {Object} item - Dados do item (task_id, user_id, id).
@@ -935,14 +944,16 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setUserState((prev: any) => ({ ...prev, isListUser: false, loadingList: [] }));
       getTaskInformations();
       setTaskDetails({ ...taskDetails });
-      handleNotification('Sucesso', 'usuário vinculado!', 'success');
+      handleNotification('Sucesso', 'Usuário vinculado com sucesso!', 'success');
+    } else {
+      console.error(`Erro ao vincular usuário ao item ${item.id}: ${message}`);
     }
   }
 
   /**
-   * Remove um item da tarefa e notifica via WebSocket.
+   * Remove um item de tarefa e notifica via WebSocket.
    * @function
-   * @param {any} object - Objeto contendo informações do item a ser removido.
+   * @param {any} object - Dados do item a ser removido.
    */
   function deleteItemTaskWS(object: any) {
     ws.current.informSending({
@@ -956,7 +967,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   /**
    * Atualiza o percentual de progresso da tarefa na interface.
    * @function
-   * @param {any} value - Dados do percentual.
+   * @param {any} value - Dados do percentual recebido.
    * @param {any} taskLocal - Dados locais da tarefa.
    */
   function reloadPagePercent(value: any, taskLocal: any) {
@@ -970,7 +981,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Atualiza a resposta sim/não de um item da tarefa.
+   * Atualiza a resposta sim/não de um item na interface.
    * @function
    * @param {number} yes_no - Valor da resposta sim/não.
    * @param {number} item_id - ID do item.
@@ -982,7 +993,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Remove um item da tarefa na interface.
+   * Remove um item da tarefa na interface e atualiza o percentual.
    * @function
    * @param {any} value - Dados do item a ser removido.
    */
@@ -996,9 +1007,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Atualiza a interface com novos itens ou observações.
+   * Atualiza a interface com novos itens ou observações recebidos.
    * @function
-   * @param {any} object - Objeto contendo informações do item.
+   * @param {any} object - Dados do item ou observação.
    */
   function reloadPageItem(object: any) {
     console.log(object);
@@ -1012,7 +1023,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   /**
    * Adiciona um novo item à tarefa na interface.
    * @function
-   * @param {any} object - Objeto contendo o item a ser adicionado.
+   * @param {any} object - Dados do item a ser adicionado.
    */
   function reloadPageAddItem(object: any) {
     taskDetails.data?.task_item.push(object.itemUp);
@@ -1023,7 +1034,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   /**
    * Atualiza uma observação de um item na interface.
    * @function
-   * @param {any} object - Objeto contendo a observação.
+   * @param {any} object - Dados da observação.
    */
   function reloadPageUpNoteItem(object: any) {
     const index: number = taskDetails.data?.task_item.findIndex((item) => item.id === object.id) || 0;
@@ -1032,7 +1043,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Atualiza um item da tarefa na interface.
+   * Atualiza um item da tarefa na interface com novos dados.
    * @function
    * @param {any} value - Dados do item atualizado.
    */
@@ -1048,7 +1059,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   /**
    * Atualiza a vinculação de um usuário a um item da tarefa na interface.
    * @function
-   * @param {any} value - Dados do item e usuário.
+   * @param {any} value - Dados do item e usuário vinculado.
    */
   function userTaskItem(value: any) {
     taskDetails.data?.task_item.forEach((element, index) => {
@@ -1059,7 +1070,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Limpa os estados do contexto WebSocket.
+   * Limpa os estados do contexto WebSocket, redefinindo `task` e `taskDetails`.
    * @function
    */
   function clearGtppWsContext() {
@@ -1115,15 +1126,15 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 };
 
 /**
- * Hook personalizado para acessar o contexto do WebSocket.
+ * Hook personalizado para acessar o contexto WebSocket.
  * @function
- * @returns {iGtppWsContextType} Contexto do WebSocket.
- * @throws {Error} Se usado fora de um GtppWsProvider.
+ * @returns {iGtppWsContextType} Dados e métodos do contexto WebSocket.
+ * @throws {Error} Se usado fora de um `GtppWsProvider`.
  */
 export const useWebSocket = () => {
   const context = useContext(GtppWsContext);
   if (!context) {
-    throw new Error("useWebSocket must be used within a WebSocketProvider");
+    throw new Error("useWebSocket deve ser usado dentro de um GtppWsProvider");
   }
   return context;
 };
