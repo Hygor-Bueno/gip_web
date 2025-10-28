@@ -6,12 +6,12 @@ import ListUserTask from "../ListUserTask/ListUserTask";
 import './Style.css';
 
 const LoadUserCheck = (props: any) => {
-  const [ userTaskBind, setUserTaskBind ] = useState([]);
+  const [ userTaskBind, setUserTaskBind ] = useState<any>([]);
   const { loading, setLoading } = useMyContext();
   const [ searchTerm, setSearchTerm ] = useState<string>("");
   const [ page, setPage ] = useState<number>(1);
   const [ limitPage, setLimitPage ] = useState<number>(1);
-  const [ list, setList ] = useState([]);
+  const [ list, setList ] = useState<any>([]);
 
   const { fetchData } = useConnection();
 
@@ -38,12 +38,21 @@ const LoadUserCheck = (props: any) => {
     }
   }
 
+  console.log(list.length > 1 ? true: false);
+
   async function loadUserTaskLis() {
     setLoading(true);
     try {
       const userList: any = [];
       const res: any = await fetchData({method: "GET", params: null, urlComplement: `&task_id=${props.list.data.datatask.id}&list_user=1`, pathFile: "GTPP/Task_User.php" });
-      for (let user of res.data) userList.push({ photo: null, check: user.check, name: user.name, user: user.user_id });
+      for (let user of res.data) {
+        if(list.length > 1) {
+          if(user.user_id == list[0].employee_id) {
+            userList.push({ photo: null, check: user.check, name: user.name, user: user.user_id });
+          }
+        }
+        userList.push({ photo: null, check: user.check, name: user.name, user: user.user_id });
+      };
       setUserTaskBind(userList);
     } catch (err) {
       console.log(err);
@@ -62,6 +71,7 @@ const LoadUserCheck = (props: any) => {
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === "Enter") {
               setSearchTerm(e.currentTarget.value);
+              loadUserTaskLis();
               setPage(1);
             }
           }}
@@ -69,13 +79,16 @@ const LoadUserCheck = (props: any) => {
       </div>
       <div className="overflow-auto h-100">
         {list.map((item: any) => {
+          const filterCheckList = props.list.data.user.some((user: any) => Number(item.employee_id) === Number(user.user_id));
           return (
             <ListUserTask
+              listTask={props.list.data.datatask}
               key={item.employee_id}
               item={item}
               taskid={props.list.data.datatask.id}
-              loadUserTaskLis={loadUserTaskLis}
               userId={item.employee_id}
+              loadUserTaskLis={loadUserTaskLis}
+              check={filterCheckList}
             />
           );
         })}
