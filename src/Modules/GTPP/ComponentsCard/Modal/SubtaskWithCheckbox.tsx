@@ -67,21 +67,25 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
 
   // Hygor Bueno 23/10/2025
   function includeAuthorInList(listUser: any) {
-    let list: any = [...listUser];
-    if (listUser && listUser?.length > 0) {
+    // Garante que listUser é um array; se não for, cria um array vazio
+    let list: any[] = Array.isArray(listUser) ? [...listUser] : [];
+
+    if (listUser && listUser.length > 0) {
       const exists = list.some((item: any) => item.user_id === getUser.id);
       if (!exists) {
         list.push({
-          "task_id": listUser[0].task_id,
-          "user_id": getUser.id,
-          "status": true,
-          "name": getUser.name || "",
-          "photo": getUser.photo
+          task_id: listUser[0].task_id,
+          user_id: getUser.id,
+          status: true,
+          name: getUser.name || "",
+          photo: getUser.photo
         });
       }
     }
+
     return list;
   }
+
 
   const ModalInformation = (props: any) => {
     return (

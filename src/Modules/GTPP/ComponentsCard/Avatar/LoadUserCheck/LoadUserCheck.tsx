@@ -79,7 +79,7 @@ const LoadUserCheck = (props: any) => {
       </div>
       <div className="overflow-auto h-100">
         {list.map((item: any) => {
-          const filterCheckList = props.list.data.user.some((user: any) => Number(item.employee_id) === Number(user.user_id));
+          const filterCheckList = Array.isArray(props.list.data.user) ? props.list.data.user.some((user: any) => Number(item.employee_id) === Number(user.user_id)) : false;
           return (
             <ListUserTask
               listTask={props.list.data.datatask}
