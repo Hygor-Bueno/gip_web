@@ -6,7 +6,7 @@ import { useConnection } from "../../../../../Context/ConnContext";
 import { convertImage } from "../../../../../Util/Util";
 import './Style.css';
 
-const ListUserTask = ({ item, taskid, loadUserTaskLis, check = false }: any) => {
+const ListUserTask = ({ item, taskid, check = false }: any) => {
   const [isChecked, setIsChecked] = useState(item.check || false);
   const { addUserTask, getTaskInformations } = useWebSocket();
   const { fetchData } = useConnection();
@@ -24,17 +24,15 @@ const ListUserTask = ({ item, taskid, loadUserTaskLis, check = false }: any) => 
         params: user,
         pathFile: "GTPP/Task_User.php",
       });
-      addUserTask(user, checkUser ? 5 : -3);
       if (response.error) throw new Error(response.message);
-      loadUserTaskLis();
+      addUserTask(user, checkUser ? 5 : -3);
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <div
-      className={`d-flex gap-4 rounded w-100 align-items-center p-1 mb-2 ${check ? 'bg-secondary' : 'bg-normal'}`}
+    <div className={`d-flex gap-4 rounded w-100 align-items-center p-1 mb-2 ${check ? 'bg-secondary' :  ''} `}
       onClick={async () => {
         setIsChecked(!isChecked);
         await handleActiveUser(!isChecked);

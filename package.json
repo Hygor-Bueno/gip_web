@@ -1,6 +1,9 @@
 {
   "name": "gipp_web",
   "version": "0.1.0",
+  "author": {
+    "name": "Hygor Bueno & Jonatas Silva"
+  },
   "private": true,
   "homepage": "./",
   "dependencies": {

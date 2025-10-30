@@ -11,7 +11,7 @@ const UserProfile = ({ detailsmodaluser, data }: any) => {
         <button className="btn btn-danger text-white" onClick={() => detailsmodaluser(true)}>X</button>
       </div>
       {data.user?.map((photo: any, index: any) => (
-        <div key={`photo_user_task_${index}`} className="d-flex gap-4 align-items-center mb-2">
+        <div key={`photo_user_task_${index}`} className="d-flex rounded p-1 gap-4 align-items-center mb-2">
           <div className={`avatar`}>
             <Image title={photo.name} src={String(photo.photo).length > 0 ? convertImage(photo.photo) : ImageUser} alt={`User ${index}`} />
           </div>
