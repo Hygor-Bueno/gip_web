@@ -38,8 +38,6 @@ const LoadUserCheck = (props: any) => {
     }
   }
 
-  console.log(list.length > 1 ? true: false);
-
   async function loadUserTaskLis() {
     setLoading(true);
     try {
