@@ -127,23 +127,21 @@ const ColumnTaskState: React.FC<ColumnPropsTaskState & ColumnPropsTaskStateFunct
                         )?.map((task:any, _: number) => {
                         return (
                             <CardTask
-                            key={`simple_card_task_${task.id}`}
-                            id={task.id}
-                            initial_date={task.initial_date}
-                            final_date={task.final_date}
-                            title_card={task.description}
-                            priority_card={task.priority}
-                            percent={task.percent}
-                            create_by={task.user_id}
-                            onClick={() => {
-                                setTask(task);
-                                setTaskPercent(task.percent);
-                                setOpenCardDefault(true);
-                                setNotifications(
-                                    notifications.filter((item) => item.task_id !== task.id)
-                                );
-                            }}
-                        />)
+                                key={`simple_card_task_${task.id}`}
+                                id={task.id}
+                                initial_date={task.initial_date}
+                                final_date={task.final_date}
+                                title_card={task.description}
+                                priority_card={task.priority}
+                                percent={task.percent}
+                                create_by={task.user_id}
+                                onClick={() => {
+                                    setTask(task);
+                                    setTaskPercent(task.percent);
+                                    setOpenCardDefault(true);
+                                    setNotifications(notifications.filter((item) => item.task_id !== task.id));
+                                }}
+                            />)
                         })}
                     </div>
                 </div>

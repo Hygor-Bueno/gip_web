@@ -1,5 +1,6 @@
 export const listPath = [
     { page: '/GIPP', children: 'Home', icon: 'fa fa-home', },
+    // { page: '/GIPP/GTPP/Category', children: 'Home', icon: 'fa fa-table-cells-large', },
     {
         page: '/', children: 'Sair', icon: 'fa fa-sign-out', actionAdd: () => {
             localStorage.removeItem("tokenGIPP");

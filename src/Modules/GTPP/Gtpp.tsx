@@ -28,18 +28,17 @@ export default function Gtpp(): JSX.Element {
   const [isHeader, setIsHeader] = useState<boolean>(false);
   const listButtonInputs: iPropsInputCheckButton[] = [
     {
-      inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: async (event: boolean) => {
-        setIsAdm(event);
-       }, labelIcon: "fa-solid fa-user-tie", highlight: true
+      inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: async (event: boolean) => { setIsAdm(event); }, labelIcon: "fa-solid fa-user-tie", highlight: true
     },
     { inputId: `gttp_exp_ret`, nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"] },
+    // {
+    //   inputId: `check_category`, nameButton: "Filtros da página", onAction: async (event: boolean) => { console.log('teste') }, labelIcon: "fa-solid fa-table-cells-large", highlight: true
+    // },
     {
       inputId: `check_filter`, nameButton: "Filtros da página", onAction: async (event: boolean) => { setOpenFilterGolbal(event) }, labelIcon: "fa-solid fa-filter", highlight: true
     },
     {
-      inputId: `reload_tasks`, nameButton: "Recarregar as tarefas", onAction: async (event: boolean) => {
-        await reqTasks();
-      }, labelIcon: "fa fa-refresh"
+      inputId: `reload_tasks`, nameButton: "Recarregar as tarefas", onAction: async (event: boolean) => { await reqTasks(); }, labelIcon: "fa fa-refresh"
     },
   ];
   // Modified by Hygor

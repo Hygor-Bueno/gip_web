@@ -10,6 +10,7 @@ import ModalEditTask from "./ModalEditTask";
 import { Image } from "react-bootstrap";
 import { convertImage, handleNotification } from "../../../../Util/Util";
 import imageUser from "../../../../Assets/Image/user.png";
+import ModalConfirm from "./ModalConfirm";
 require('animate.css');
 
 interface iSubTask {
@@ -42,6 +43,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   const [onScrollDown, setOnScrollDown] = useState<boolean>(true);
   const [onEditTask, setOnEditTask] = useState<boolean>(false);
   const containerTaskItemsRef = useRef<HTMLDivElement>(null);
+  const [isTrashDelete, setIsTrashDelete] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<any>(null);
+
 
   const [userState, setUserState] = useState({
     loadingList: { users: undefined, listTask: undefined } as { users?: any; listTask?: any },
@@ -132,6 +136,31 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     return result;
   }
 
+  async function handleTrashDelete(task: any) {
+    
+    try {
+      setLoading(true);
+      if (task.id && task.task_id) {
+        const result = await deleteTaskItem({
+          id: task.id,
+          task_id: task.task_id,
+        });
+        if (result.error) throw new Error(result.message);
+        removeItemOfList(task.id);
+        reloadPagePercent(result.data, task);
+        deleteItemTaskWS({
+          description: "Um item foi removido.",
+          itemUp: task.id,
+          percent: parseInt(result.data.percent),
+          remove: true,
+        });
+      }
+    } catch (error: any) {
+      console.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
 
   async function updatePositionTaskItem(item: { id: number, next_or_previous: "next" | "previous" }) {
@@ -176,7 +205,10 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       )}
       <div>
         <ModalEditTask onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
-
+        <ModalConfirm isOpen={isTrashDelete} onCancel={async () => setIsTrashDelete(false)} onSave={async () => {
+          await handleTrashDelete(taskToDelete);
+          setIsTrashDelete(false);
+        }} title="Atenção" children="Deseja apagar esse conteúdo?" cancelText="Voltar" saveText="Confirmar" />
         {(taskDetails.data?.task_item || []).map((task, index: number) => {
           const list = users?.find((item: { user_id: number }) => item?.user_id == task?.created_by);
           const creator = !isMissing(list?.name) ? list?.name : getUser.name;
@@ -291,29 +323,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                       color="danger"
                       icon="trash"
                       description=""
-                      onClick={async () => {
-                        try {
-                          setLoading(true);
-                          if (task.id && task.task_id) {
-                            const result = await deleteTaskItem({
-                              id: task.id,
-                              task_id: task.task_id,
-                            });
-                            if (result.error) throw new Error(result.message);
-                            removeItemOfList(task.id);
-                            reloadPagePercent(result.data, task);
-                            deleteItemTaskWS({
-                              description: "Um item foi removido.",
-                              itemUp: task.id,
-                              percent: parseInt(result.data.percent),
-                              remove: true,
-                            });
-                          }
-                        } catch (error: any) {
-                          console.error(error.message);
-                        } finally {
-                          setLoading(false);
-                        }
+                      onClick={() => {
+                        setTaskToDelete(task);
+                        setIsTrashDelete(true);
                       }}
                     />
 
