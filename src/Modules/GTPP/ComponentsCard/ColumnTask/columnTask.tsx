@@ -12,7 +12,10 @@ type ColumnPropsTaskState = HTMLAttributes<HTMLDivElement> & {
     bg_color: string;
     buttonIcon?: string;
     buttonHeader?: JSX.Element;
+    isTheme?: any;
     content_body?: any;
+    selectedTasks?: any;
+    setSelectedTasks?:any;
 };
 
 type ColumnPropsTaskStateBoolean = {
@@ -78,6 +81,8 @@ const ColumnTaskState: React.FC<ColumnPropsTaskState & ColumnPropsTaskStateFunct
         };
     }, []);
 
+    
+
     return (
         <div style={{ display:"flex",flexDirection:"column",height: '100%' }} {...rest}>
             <div className={`columnTaskState-title rounded-top d-flex ${props.buttonHeader ? 'justify-content-between' : 'justify-content-center'} align-items-center`} style={{ background: `#${props.bg_color}` }}>
@@ -126,22 +131,49 @@ const ColumnTaskState: React.FC<ColumnPropsTaskState & ColumnPropsTaskStateFunct
                             userLog
                         )?.map((task:any, _: number) => {
                         return (
-                            <CardTask
-                                key={`simple_card_task_${task.id}`}
-                                id={task.id}
-                                initial_date={task.initial_date}
-                                final_date={task.final_date}
-                                title_card={task.description}
-                                priority_card={task.priority}
-                                percent={task.percent}
-                                create_by={task.user_id}
-                                onClick={() => {
-                                    setTask(task);
-                                    setTaskPercent(task.percent);
-                                    setOpenCardDefault(true);
-                                    setNotifications(notifications.filter((item) => item.task_id !== task.id));
-                                }}
-                            />)
+                            <React.Fragment>
+                               <div onClick={() => {
+                                    props.setSelectedTasks((prev: any) => {
+                                        let result;
+                                        try {    
+                                            if (prev.includes(task.id) && props.isTheme) {
+                                                result = prev.filter((id: any) => id !== task.id);
+                                            } else if(props.isTheme) {
+                                                result = [...prev, task.id];
+                                            } else {
+                                                result = [...prev];
+                                            }
+                                        } catch (error) {
+                                            result = error;
+                                        } finally {
+                                            return result;
+                                        }
+                                    });
+                                }}>
+                                    <CardTask
+                                        selectedTasks={props.selectedTasks}
+                                        key={`simple_card_task_${task.id}`}
+                                        id={task.id}
+                                        initial_date={task.initial_date}
+                                        final_date={task.final_date}
+                                        title_card={task.description}
+                                        priority_card={task.priority}
+                                        percent={task.percent}
+                                        create_by={task.user_id}
+                                        isTheme={props.isTheme}
+                                        onClick={() => {
+                                            if (!props.isTheme) {
+                                                setTask(task);
+                                                setTaskPercent(task.percent);
+                                                setOpenCardDefault(true);
+                                                setNotifications(
+                                                notifications.filter((item) => item.task_id !== task.id)
+                                                );
+                                            }
+                                        }}/>
+                                </div>
+                            </React.Fragment>
+                            )
                         })}
                     </div>
                 </div>

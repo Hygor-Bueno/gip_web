@@ -9,8 +9,8 @@ import PrivateRoute from './PrivateRoute';
 import Gtpp from './Modules/GTPP/Gtpp';
 import RenderedModules from './Components/RenderedModules';
 import { GtppWsProvider } from './Modules/GTPP/Context/GtppWsContext';
-import 'react-notifications-component/dist/theme.css'; // Tema básico
-import 'animate.css/animate.min.css'; // Animações opcionais
+import 'react-notifications-component/dist/theme.css';
+import 'animate.css/animate.min.css';
 import { ConnectionProvider } from './Context/ConnContext';
 import Cfpp from './Modules/CFPP/Cfpp';
 import Infraction from './Modules/GAPP/Infraction/Infraction';

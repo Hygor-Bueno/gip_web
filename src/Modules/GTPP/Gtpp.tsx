@@ -5,7 +5,7 @@ import { Col } from "react-bootstrap";
 import NavBar from "../../Components/NavBar";
 import { listPath } from "./mock/configurationfile";
 import ColumnTaskState from "./ComponentsCard/ColumnTask/columnTask";
-import { PDFGenerator, generateAndDownloadCSV } from "../../Class/FileGenerator";
+import PDFGenerator, { generateAndDownloadCSV } from "../../Class/FileGenerator";
 import Cardregister from "./ComponentsCard/CardRegister/Cardregister";
 import ModalDefault from "./ComponentsCard/Modal/Modal";
 import { useWebSocket } from "./Context/GtppWsContext";
@@ -26,20 +26,16 @@ export default function Gtpp(): JSX.Element {
   const [openFilterGolbal, setOpenFilterGolbal] = useState<any>(false);
   const [openMenu, setOpenMenu] = useState<any>(true);
   const [isHeader, setIsHeader] = useState<boolean>(false);
+  const [isTheme, seIsTheme] = useState<boolean>(false);
+  const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+
   const listButtonInputs: iPropsInputCheckButton[] = [
-    {
-      inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: async (event: boolean) => { setIsAdm(event); }, labelIcon: "fa-solid fa-user-tie", highlight: true
-    },
-    { inputId: `gttp_exp_ret`, nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"] },
-    // {
-    //   inputId: `check_category`, nameButton: "Filtros da página", onAction: async (event: boolean) => { console.log('teste') }, labelIcon: "fa-solid fa-table-cells-large", highlight: true
-    // },
-    {
-      inputId: `check_filter`, nameButton: "Filtros da página", onAction: async (event: boolean) => { setOpenFilterGolbal(event) }, labelIcon: "fa-solid fa-filter", highlight: true
-    },
-    {
-      inputId: `reload_tasks`, nameButton: "Recarregar as tarefas", onAction: async (event: boolean) => { await reqTasks(); }, labelIcon: "fa fa-refresh"
-    },
+    {inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: async (event: boolean) => { setIsAdm(event); }, labelIcon: "fa-solid fa-user-tie", highlight: true},
+    {inputId: `gttp_exp_ret`, nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"], highlight: false },
+    {inputId: `check_category`, nameButton: "Filtros da página", onAction: async (event: boolean) => { seIsTheme((prev: boolean) => !prev) }, labelIcon: "fa-solid fa-table-cells-large", highlight: true },
+    {inputId: `check_filter`, nameButton: "Filtros da página", onAction: async (event: boolean) => { setOpenFilterGolbal(event) }, labelIcon: "fa-solid fa-filter", highlight: true},
+    {inputId: `reload_tasks`, nameButton: "Recarregar as tarefas", onAction: async (event: boolean) => { await reqTasks(); }, labelIcon: "fa fa-refresh"},
+    {inputId: `plust_theme`, nameButton: "Adiciona um novo tema", onAction: async (event: boolean) => { console.log('adiciona um tema novo'); }, labelIcon: "fa fa-plus"}
   ];
   // Modified by Hygor
   useEffect(() => {
@@ -66,10 +62,7 @@ export default function Gtpp(): JSX.Element {
       className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0"
     >
       {openMenu && <NavBar list={listPath} />}
-
-      {openFilterGolbal &&
-        <FilterPage />
-      }
+      {openFilterGolbal && <FilterPage />}
 
       <div className="h-100 d-flex overflow-hidden px-3 flex-grow-1">
         <div className="flex-grow-1 d-flex flex-column justify-content-between align-items-start h-100 overflow-hidden">
@@ -129,23 +122,19 @@ export default function Gtpp(): JSX.Element {
               </button>
             </div>
           </div>
-          <Col
-            xs={12}
-            className="d-flex flex-nowrap p-0 menu-expansivo flex-grow-1"
-            style={{ overflowX: "auto", height: "70%" }}
-          >
+          <Col xs={12} className="d-flex flex-nowrap p-0 menu-expansivo flex-grow-1" style={{ overflowX: "auto", height: "70%" }}>
             {states?.map((cardTaskStateValue: any, idxValueState: any) => {
               const filteredTasks = getTask.filter((task: any) => task.state_id === cardTaskStateValue.id);
               const isFirstColumnTaskState = idxValueState === 0;
 
               return (
                 cardTaskStateValue.active && (
-                  <div
-                    key={idxValueState}
-                    className="column-task-container p-2 align-items-start flex-shrink-0"
-                  >
+                  <div key={idxValueState} className="column-task-container p-2 align-items-start flex-shrink-0">
                     <ColumnTaskState
+                      selectedTasks={selectedTasks} 
+                      setSelectedTasks={setSelectedTasks}
                       title={cardTaskStateValue.description}
+                      isTheme={isTheme}
                       bg_color={cardTaskStateValue.color}
                       is_first_column={isFirstColumnTaskState}
                       addTask={() => {
@@ -159,11 +148,7 @@ export default function Gtpp(): JSX.Element {
                         setModalPage(true);
                       }}
                       exportCsv={() => {
-                        generateAndDownloadCSV(
-                          filteredTasks,
-                          "teste",
-                          "GTPP-documento"
-                        );
+                        generateAndDownloadCSV(filteredTasks, "GTPP-documento");
                       }}
                       exportPdf={() => {
                         setModalPageElement(

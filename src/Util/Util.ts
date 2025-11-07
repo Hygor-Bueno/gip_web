@@ -217,7 +217,7 @@ export async function fetchNodeDataFull(req: iReqConn, headers?: Record<string, 
     let result: { error: boolean, message?: string, data?: any } = { error: true, message: "Generic Error!" };
     try {
         const URL = `${baseURLSgpp}:${req.port}${req.pathFile}${req.urlComplement ? req.urlComplement : ""}`;
-        let objectReq: any = { method: req.method };
+        let objectReq: any = { method: req.method, credentials: 'include' };
         if (headers) objectReq.headers = headers;
         if (req.params) objectReq.body = JSON.stringify(req.params);
         const response = await fetch(URL, objectReq);

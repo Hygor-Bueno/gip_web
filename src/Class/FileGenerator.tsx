@@ -1,11 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { styleStringFunction } from '../stylecss/style';
 
-// Define as interfaces para as props e os tipos de dados
-interface PDFGeneratorProps {
-  data: Task[];
-}
-
+// === TIPOS ===
 interface Task {
   description: string;
   state_description: string;
@@ -16,254 +12,363 @@ interface Task {
   percent?: number;
 }
 
-interface Attribute {
-  key: keyof Task;
-  label: string;
-  transform?: (value: string | number | undefined) => string;
+interface TaskExporterProps {
+  data: Task[];
 }
 
-/**
- * Função para converter um array de objetos em uma string CSV.
- * @param data O array de objetos a ser convertido.
- * @returns A string CSV.
- */
-const convertToCSV = (data: object[]): string => {
-  if (!data.length) return '';
-
-  // Cria o cabeçalho do CSV a partir das chaves do primeiro objeto
-  const header = Object.keys(data[0]).join(',');
-  // Cria as linhas do CSV a partir dos valores de cada objeto
-  const rows = data.map(obj => Object.values(obj).join(','));
-
-  return `${header}\n${rows.join('\n')}`;
-};
-
-/**
- * Função para baixar uma string CSV como um arquivo.
- * @param csv A string CSV a ser baixada.
- * @param filename O nome do arquivo.
- */
-const downloadCSV = (csv: string, filename: string) => {
+// === UTILIDADES ===
+const formatDateBR = (dateStr: string): string => {
   try {
-    // Cria um Blob a partir da string CSV
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    // Cria uma URL para o Blob
-    const url = URL.createObjectURL(blob);
-
-    // Cria um elemento <a> para simular o download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.style.display = 'none'; // Esconde o elemento
-
-    // Adiciona o elemento ao corpo do documento, clica nele e remove
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // Libera a URL do Blob
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Erro ao baixar o CSV:", error);
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? 'Inválida' : date.toLocaleDateString('pt-BR');
+  } catch {
+    return 'Inválida';
   }
 };
 
-/**
- * Função para gerar e baixar um arquivo CSV.
- * @param getTasks A função ou o array de tarefas a ser usado.
- * @param configId Um ID de configuração (não usado diretamente nesta função, mas mantido para compatibilidade).
- * @param fileName O nome do arquivo CSV (padrão: 'documento.csv').
- */
-export const generateAndDownloadCSV = (getTasks: any, configId: string, fileName: string = 'documento.csv') => {
-  const tasks = getTasks; // Assume que getTasks já é o array de tarefas
-
-  try {
-    if (tasks.length > 0) {
-      // Mapeia os dados das tarefas para o formato desejado para o CSV
-      const jsonData = tasks.map((item: any) => ({
-        "Tarefas": item.description,
-        "Estado das Tarefas": item.state_description,
-        "Prioridade das Tarefas": item.priority === 0 ? 'baixa' : item.priority === 1 ? 'média' : item.priority === 2 ? 'alta' : 'N/A',
-        "Data de Início das Tarefas": item.initial_date,
-        "Data Final das Tarefas": item.final_date,
-      }));
-      const csvData = convertToCSV(jsonData);
-      downloadCSV(csvData, fileName);
-    } else {
-      // Lança um erro se não houver dados
-      throw new Error("Nenhum dado encontrado para criar o CSV.");
-    }
-  } catch (error) {
-    console.error("Erro ao gerar o CSV:", error);
-  }
+const getPriorityText = (p: number): string => {
+  return p === 0 ? 'Baixa' : p === 1 ? 'Média' : p === 2 ? 'Alta' : 'N/A';
 };
 
-/**
- * Componente React para gerar um PDF a partir de uma lista de tarefas.
- * Exibe um spinner de carregamento enquanto o PDF está sendo preparado.
- */
-export const PDFGenerator: React.FC<PDFGeneratorProps> = ({ data }) => {
-  // Ref para o elemento que contém o conteúdo a ser impresso
-  const contentRef = useRef<HTMLDivElement>(null);
-  // Estado para controlar a exibição do indicador de carregamento
-  const [isLoading, setIsLoading] = useState(false);
+const sanitize = (str: string): string => {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+};
 
-  // Define os cabeçalhos da tabela
-  const headers = ['Tarefas', 'Estado das Tarefas', 'Prioridade', 'Data Inicial', 'Data Final', 'Percentual'];
-  
-  // Define os atributos das tarefas a serem exibidos na tabela, incluindo transformações
-  const attributes: Attribute[] = [
-    { key: 'description', label: 'Descrição' },
-    { key: 'state_description', label: 'Estado' },
-    { key: 'priority', label: 'Prioridade', transform: (value) => getPriorityText(value as number) },
-    // Formata a data inicial para o padrão pt-BR (dd/mm/aaaa)
-    { key: 'initial_date', label: 'Data Inicial', transform: (value) => new Date(value as string).toLocaleDateString('pt-BR') },
-    // Formata a data final para o padrão pt-BR (dd/mm/aaaa)
-    { key: 'final_date', label: 'Data Final', transform: (value) => new Date(value as string).toLocaleDateString('pt-BR') },
-    { key: 'percent', label: 'Percentual', transform: (value) => (value !== undefined ? `${value}%` : 'N/A') }
+// === EXPORTAÇÃO CSV (EXCEL 100%) ===
+export const generateAndDownloadCSV = (
+  tasks: Task[],
+  baseFilename: string = 'documento'
+) => {
+  if (!tasks || tasks.length === 0) {
+    alert('Nenhuma tarefa para exportar.');
+    return;
+  }
+
+  const data = tasks.map(t => ({
+    'Tarefa': t.description,
+    'Estado': t.state_description,
+    'Prioridade': getPriorityText(t.priority),
+    'Início': formatDateBR(t.initial_date),
+    'Fim': formatDateBR(t.final_date),
+    'Progresso (%)': t.percent !== undefined ? `${t.percent}` : 'N/A',
+  }));
+
+  const headers = Object.keys(data[0]);
+  const rows: string[] = [
+    headers.map(h => `"${h}"`).join(';'),
+    ...data.map(row =>
+      headers
+        .map(h => `"${String((row as any)[h]).replace(/"/g, '""').replace(/\n/g, ' ')}"`)
+        .join(';')
+    ),
   ];
 
-  /**
-   * Retorna o texto correspondente à prioridade numérica.
-   * @param priority O número da prioridade (0: baixa, 1: média, 2: alta).
-   * @returns O texto da prioridade.
-   */
-  const getPriorityText = (priority: number): string => {
-    const priorityMap: { [key: number]: string } = { 0: 'baixa', 1: 'média', 2: 'alta' };
-    return priorityMap[priority] || 'Não especificado';
-  };
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10);
+  const timeStr = now.toTimeString().slice(0, 8).replace(/:/g, '-');
+  const filename = `${baseFilename}_${dateStr}_${timeStr}.csv`;
 
-  /**
-   * Função para gerar o PDF.
-   * Ativa um estado de carregamento e usa um setTimeout para garantir que o DOM esteja pronto
-   * antes de capturar o conteúdo para impressão.
-   */
+  const csv = '\uFEFF' + rows.join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), {
+    href: url,
+    download: filename,
+    style: { display: 'none' },
+  });
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+// === ATRIBUTOS TIPADOS (SEM any) ===
+type Attribute =
+  | { key: Exclude<keyof Task, 'priority'>; label: string; transform?: (v: any) => string }
+  | { key: 'priority'; label: string; transform: (v: number) => string };
+
+const headers = ['Tarefa', 'Estado', 'Prioridade', 'Início', 'Fim', 'Progresso'];
+const attrs: Attribute[] = [
+  { key: 'description', label: 'Tarefa' },
+  { key: 'state_description', label: 'Estado' },
+  { key: 'priority', label: 'Prioridade', transform: getPriorityText },
+  { key: 'initial_date', label: 'Início', transform: formatDateBR },
+  { key: 'final_date', label: 'Fim', transform: formatDateBR },
+  {
+    key: 'percent',
+    label: 'Progresso',
+    transform: (v?: number) => (v !== undefined ? `${v}%` : '—'),
+  },
+];
+
+// === COMPONENTE PRINCIPAL ===
+const TaskExporter: React.FC<TaskExporterProps> = ({ data }) => {
+  const printRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState<'pdf' | 'csv' | null>(null);
+
+  const tasks = data.filter(t => t.state_id);
+  const today = new Date().toLocaleDateString('pt-BR');
+  const now = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  // === GERAR PDF ===
   const generatePDF = () => {
-    setIsLoading(true); // Ativa o loading
+    if (!tasks.length) return alert('Nenhuma tarefa para gerar PDF.');
 
-    // Pequeno atraso para garantir que o DOM seja renderizado e o estado de loading seja visível
-    setTimeout(() => {
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        setIsLoading(false); // Desativa o loading se a janela não puder ser aberta
-        return;
-      }
+    setLoading('pdf');
+    const printWin = window.open('', '_blank', 'width=1200,height=900');
+    if (!printWin) {
+      alert('Permita pop-ups para gerar o PDF.');
+      setLoading(null);
+      return;
+    }
 
-      const printDocument = printWindow.document;
+    const tableHTML = `
+      <table style="width:100%; border-collapse:collapse; font-size:13px; margin-top:15px;">
+        <thead>
+          <tr style="background:#f8f9fa;">
+            ${headers.map(h => `<th style="border:1px solid #ddd; padding:10px; text-align:left;">${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${tasks
+            .map(
+              task => `
+            <tr>
+              ${attrs
+                .map(attr => {
+                  let display: string;
+                  if (attr.key === 'priority') {
+                    display = attr.transform!(task.priority);
+                  } else {
+                    const value = task[attr.key];
+                    display = attr.transform ? attr.transform(value) : sanitize(String(value ?? ''));
+                  }
+                  return `<td style="border:1px solid #ddd; padding:8px;">${display}</td>`;
+                })
+                .join('')}
+            </tr>`
+            )
+            .join('')}
+        </tbody>
+      </table>
+    `;
 
-      // Acessa o elemento table-responsive dentro do contentRef
-      const tableResponsiveDiv = contentRef.current?.querySelector('.table-responsive') as HTMLElement | null;
-
-      let originalMaxHeight = '';
-      let originalOverflowY = '';
-
-      // Salva os estilos originais e remove o overflow para garantir que todo o conteúdo seja impresso
-      if (tableResponsiveDiv) {
-        originalMaxHeight = tableResponsiveDiv.style.maxHeight;
-        originalOverflowY = tableResponsiveDiv.style.overflowY;
-        tableResponsiveDiv.style.maxHeight = 'none';
-        tableResponsiveDiv.style.overflowY = 'visible';
-      }
-
-      // Captura o HTML do conteúdo a ser impresso
-      const contentHtml = contentRef.current?.outerHTML || '';
-
-      // Restaura os estilos originais do elemento table-responsive
-      if (tableResponsiveDiv) {
-        tableResponsiveDiv.style.maxHeight = originalMaxHeight;
-        tableResponsiveDiv.style.overflowY = originalOverflowY;
-      }
-      
-      // Escreve o HTML na nova janela de impressão
-      printDocument.write(`
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>GTPP - Relatório de Tarefas</title>
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-          <style>${styleStringFunction()}</style>
-        </head>
-        <body>
-          <div class="report-container">
-            <header class="report-header">
-              <h1>Relatório de Tarefas</h1>
-              <p>Documento gerado pelo sistema GTPP</p>
-            </header>
-            <main class="table-content">
-              ${contentHtml}
-            </main>
+    printWin.document.write(`
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <title>GTPP - Relatório de Tarefas</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>
+          ${styleStringFunction()}
+          body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+          .page { padding: 40px 30px 60px; page-break-after: always; position: relative; background: white; }
+          .header { position: running(header); text-align: center; font-size: 12px; color: #555; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+          .footer { position: running(footer); text-align: center; font-size: 11px; color: #777; padding-top: 10px; border-top: 1px solid #eee; }
+          .content { margin-top: 20px; }
+          h1 { margin: 0 0 8px; font-size: 24px; color: #1a1a1a; }
+          p { margin: 0; color: #555; font-size: 14px; }
+          @page {
+            size: A4;
+            margin: 1cm;
+            @top-center { content: element(header); }
+            @bottom-center { content: element(footer); }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <strong>Relatório de Tarefas - GTPP</strong> | ${today} às ${now}
+        </div>
+        <div class="footer">
+          Página <span class="pageNumber"></span> de <span class="totalPages"></span> | Sistema GTPP
+        </div>
+        <div class="page">
+          <div style="margin-bottom:20px;">
+            <h1>Relatório de Tarefas</h1>
+            <p>Total: ${tasks.length} tarefa(s)</p>
           </div>
-        </body>
-        </html>
-      `);
-      printDocument.close(); // Fecha o documento após escrever o conteúdo
-      printWindow.print(); // Abre a caixa de diálogo de impressão
-      setIsLoading(false); // Desativa o loading após a impressão
-    }, 1000); // 100ms de atraso para permitir a renderização do DOM
+          <div class="content">${tableHTML}</div>
+        </div>
+      </body>
+      </html>
+    `);
+
+    printWin.document.close();
+    printWin.focus();
+
+    setTimeout(() => {
+      printWin.print();
+      setLoading(null);
+      printWin.onafterprint = () => printWin.close();
+    }, 800);
   };
 
+  // === GERAR CSV ===
+  const generateCSV = () => {
+    setLoading('csv');
+    setTimeout(() => {
+      generateAndDownloadCSV(tasks, 'GTPP-documento');
+      setLoading(null);
+    }, 300);
+  };
+
+  // === RENDER ===
   return (
-    <React.Fragment>
-      {/* Container com a tabela que será impressa */}
-      <div ref={contentRef} className="container">
-        <div className="table-responsive" style={{ maxHeight: '400px', overflowY: 'auto' }}>
-          <table className="table table-striped table-bordered">
+    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '20px' }}>
+      <h2 style={{ textAlign: 'center', color: '#1a1a1a', marginBottom: '10px' }}>
+        Pré-visualização do Relatório
+      </h2>
+      <p style={{ textAlign: 'center', color: '#555', marginBottom: '20px' }}>
+        {tasks.length} tarefa(s) com estado definido
+      </p>
+
+      {/* PRÉ-VISUALIZAÇÃO VISÍVEL */}
+      <div
+        ref={printRef}
+        style={{
+          background: 'white',
+          padding: '20px',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          overflowX: 'auto',
+          marginBottom: '20px',
+        }}
+      >
+        <div className="table-responsive">
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '14px',
+              minWidth: '800px',
+            }}
+            className="table table-striped table-bordered"
+          >
             <thead>
-              <tr>
-                {headers.map((header, index) => (
-                  <th key={index}>{header}</th>
+              <tr style={{ background: '#f8f9fa' }}>
+                {headers.map((h, i) => (
+                  <th key={i} style={{ padding: '12px', textAlign: 'left', border: '1px solid #ddd' }}>
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {/* Filtra as tarefas que possuem state_id e as mapeia para linhas da tabela */}
-              {data.filter(item => item.state_id).map((item, index) => {
-                return (
-                  <tr key={index}>
-                    {attributes.map((attr, i) => {
-                      const value = item[attr.key];
-                      // Aplica a transformação se houver, caso contrário, converte para string
-                      const displayValue = attr.transform ? attr.transform(value) : String(value);
-                      return (
-                        <td key={i}>
-                          {displayValue}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                )
-              })}
+              {tasks.map((t, i) => (
+                <tr key={i}>
+                  {attrs.map((a, j) => {
+                    let display: string;
+                    if (a.key === 'priority') {
+                      display = a.transform!(t.priority);
+                    } else {
+                      const value = t[a.key];
+                      display = a.transform ? a.transform(value) : String(value ?? '');
+                    }
+                    return (
+                      <td
+                        key={j}
+                        style={{ padding: '10px', border: '1px solid #ddd', whiteSpace: 'normal' }}
+                      >
+                        {display}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
-      {/* Botão para gerar o PDF, com indicador de carregamento */}
-      <div className="text-center">
-        <button 
-          title="gerar PDF" 
-          className="btn btn-success mt-3" 
+
+      {/* BOTÕES DE AÇÃO */}
+      <div style={{ textAlign: 'center' }}>
+        <button
           onClick={generatePDF}
-          disabled={isLoading} // Desabilita o botão enquanto estiver carregando
+          disabled={loading === 'pdf' || tasks.length === 0}
+          style={{
+            margin: '0 10px',
+            padding: '14px 28px',
+            fontSize: '16px',
+            fontWeight: 600,
+            border: 'none',
+            borderRadius: '10px',
+            cursor: tasks.length === 0 ? 'not-allowed' : 'pointer',
+            background: tasks.length === 0 ? '#ccc' : '#28a745',
+            color: 'white',
+            minWidth: '160px',
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 8px rgba(40,167,69,0.3)',
+          }}
+          aria-label="Gerar PDF"
         >
-          {isLoading ? (
-            // Exibe um spinner e texto de carregamento
+          {loading === 'pdf' ? (
             <>
-              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              <span className="ms-2">Gerando PDF...</span>
+              <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: '8px' }}>
+                Loading
+              </span>
+              Gerando PDF...
             </>
           ) : (
-            // Exibe o texto normal do botão
-            "Gerar PDF"
+            'Gerar PDF'
+          )}
+        </button>
+
+        <button
+          onClick={generateCSV}
+          disabled={loading === 'csv' || tasks.length === 0}
+          style={{
+            margin: '0 10px',
+            padding: '14px 28px',
+            fontSize: '16px',
+            fontWeight: 600,
+            border: 'none',
+            borderRadius: '10px',
+            cursor: tasks.length === 0 ? 'not-allowed' : 'pointer',
+            background: tasks.length === 0 ? '#ccc' : '#007bff',
+            color: 'white',
+            minWidth: '160px',
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 8px rgba(0,123,255,0.3)',
+          }}
+          aria-label="Exportar Excel"
+        >
+          {loading === 'csv' ? (
+            <>
+              <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: '8px' }}>
+                Loading
+              </span>
+              Gerando Excel...
+            </>
+          ) : (
+            'Exportar Excel'
           )}
         </button>
       </div>
-      
-    </React.Fragment>
+
+      {tasks.length === 0 && (
+        <p style={{ textAlign: 'center', color: '#888', marginTop: '20px', fontStyle: 'italic' }}>
+          Nenhuma tarefa com estado definido para exibir.
+        </p>
+      )}
+
+      {/* Spinner animado */}
+      <style>
+        {`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+    </div>
   );
 };
 
-// Exporta as funções auxiliares para uso externo, se necessário
-export default PDFGenerator;
+export default TaskExporter;
