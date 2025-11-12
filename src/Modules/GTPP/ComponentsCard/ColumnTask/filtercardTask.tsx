@@ -14,6 +14,9 @@ export const filterTasks = ( tasks: ITask[], searchTerm: String = "", rangeDateI
         return tasks;
     }
 };
+function filterTaskWithTheme(task: ITask[]) {
+    return task.filter(task => task.theme_id_fk);
+}
 function filterDate(task: ITask[], rangeDateInitial:String, rangeDateInitialFinal:String,dataRef:string){
     return task.filter((task:any) => task[dataRef]  >= rangeDateInitial && task[dataRef] <=rangeDateInitialFinal);
 }
@@ -23,6 +26,11 @@ function userIndentity (task:ITask[], IdentityDataUser: Number, user_id: {id: Nu
 function priorityTask (task: ITask[], priority: string) {
     return task.filter(task => priority === '3' || task.priority.toString() === priority); 
 }
-function searchTask (task: ITask[], searchTerm: String) {
-    return task.filter(task => !searchTerm || task.description.toUpperCase().includes(searchTerm.toUpperCase()));
+function searchTask(tasks: ITask[], searchTerm: any) {
+  if (!searchTerm) return tasks;
+  const upperSearch = searchTerm.toUpperCase();
+  return tasks.filter(task =>
+    task.description.toUpperCase().includes(upperSearch) ||
+    task.id.toString().toUpperCase().includes(upperSearch)
+  );
 }

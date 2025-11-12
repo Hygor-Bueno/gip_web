@@ -18,6 +18,7 @@ import CustomTable from "../../Components/CustomTable";
 import { useConnection } from "../../Context/ConnContext";
 import { maskUserSeach } from "../../Util/Util";
 import FiltersSearchUser from "../../Components/FiltersSearchUser";
+import ModalTheme from "./ComponentsCard/Theme/Theme";
 
 export default function Gtpp(): JSX.Element {
   const { setTitleHead, setModalPage, setModalPageElement, userLog, setLoading } = useMyContext();
@@ -27,15 +28,16 @@ export default function Gtpp(): JSX.Element {
   const [openMenu, setOpenMenu] = useState<any>(true);
   const [isHeader, setIsHeader] = useState<boolean>(false);
   const [isTheme, seIsTheme] = useState<boolean>(false);
+  const [checkTheme, setCheckTheme] = useState<boolean>(false);
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
 
   const listButtonInputs: iPropsInputCheckButton[] = [
     {inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: async (event: boolean) => { setIsAdm(event); }, labelIcon: "fa-solid fa-user-tie", highlight: true},
     {inputId: `gttp_exp_ret`, nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"], highlight: false },
-    {inputId: `check_category`, nameButton: "Filtros da página", onAction: async (event: boolean) => { seIsTheme((prev: boolean) => !prev) }, labelIcon: "fa-solid fa-table-cells-large", highlight: true },
+    {inputId: `check_category`, nameButton: "Filtros da página", onAction: async (event: boolean) => { setCheckTheme((x:boolean)=>!x) }, labelIcon: "fa-solid fa-table-cells-large", highlight: true },
     {inputId: `check_filter`, nameButton: "Filtros da página", onAction: async (event: boolean) => { setOpenFilterGolbal(event) }, labelIcon: "fa-solid fa-filter", highlight: true},
     {inputId: `reload_tasks`, nameButton: "Recarregar as tarefas", onAction: async (event: boolean) => { await reqTasks(); }, labelIcon: "fa fa-refresh"},
-    {inputId: `plust_theme`, nameButton: "Adiciona um novo tema", onAction: async (event: boolean) => { console.log('adiciona um tema novo'); }, labelIcon: "fa fa-plus"}
+    {inputId: `plust_theme`, nameButton: "Adiciona um novo tema", onAction: async (event: boolean) => { seIsTheme(true); }, labelIcon: "fa fa-plus"}
   ];
   // Modified by Hygor
   useEffect(() => {
@@ -63,6 +65,15 @@ export default function Gtpp(): JSX.Element {
     >
       {openMenu && <NavBar list={listPath} />}
       {openFilterGolbal && <FilterPage />}
+      {isTheme && 
+        <ModalTheme
+          selectedTasks={selectedTasks}
+          title="Cadastre o Tema" 
+          btnClose={(e:any) => seIsTheme(false)} 
+          btnSave={(e:any) => {
+            seIsTheme(false)
+          }} 
+        />}
 
       <div className="h-100 d-flex overflow-hidden px-3 flex-grow-1">
         <div className="flex-grow-1 d-flex flex-column justify-content-between align-items-start h-100 overflow-hidden">
@@ -134,7 +145,7 @@ export default function Gtpp(): JSX.Element {
                       selectedTasks={selectedTasks} 
                       setSelectedTasks={setSelectedTasks}
                       title={cardTaskStateValue.description}
-                      isTheme={isTheme}
+                      isTheme={checkTheme}
                       bg_color={cardTaskStateValue.color}
                       is_first_column={isFirstColumnTaskState}
                       addTask={() => {

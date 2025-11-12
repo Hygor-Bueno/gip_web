@@ -147,18 +147,6 @@ export function getCurrentDate() {
     return `${year}-${month}-${day}`;
 };
 
-
-
-// export function convertImage(src: any) {
-//     if (src != null) {
-//         var image = new Image();
-//         image.src = "data:image/jpeg;base64, " + src;
-//         return image.src;
-//     } else {
-//         return null;
-//     }
-// }
-
 export function convertImage(src: any): string {
     if (src != null) {
         return "data:image/jpeg;base64, " + src;
@@ -217,7 +205,7 @@ export async function fetchNodeDataFull(req: iReqConn, headers?: Record<string, 
     let result: { error: boolean, message?: string, data?: any } = { error: true, message: "Generic Error!" };
     try {
         const URL = `${baseURLSgpp}:${req.port}${req.pathFile}${req.urlComplement ? req.urlComplement : ""}`;
-        let objectReq: any = { method: req.method, credentials: 'include' };
+        let objectReq: any = { method: req.method };
         if (headers) objectReq.headers = headers;
         if (req.params) objectReq.body = JSON.stringify(req.params);
         const response = await fetch(URL, objectReq);

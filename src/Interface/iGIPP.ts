@@ -151,4 +151,5 @@ export interface ITask {
     user_id: number;
     initial_date: string;
     final_date: string;
+    theme_id_fk: number;
 }

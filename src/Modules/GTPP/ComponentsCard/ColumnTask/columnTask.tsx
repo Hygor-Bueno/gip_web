@@ -130,6 +130,7 @@ const ColumnTaskState: React.FC<ColumnPropsTaskState & ColumnPropsTaskStateFunct
                             filterData.filterHandlerDataUser,
                             userLog
                         )?.map((task:any, _: number) => {
+                            
                         return (
                             <React.Fragment>
                                <div onClick={() => {
