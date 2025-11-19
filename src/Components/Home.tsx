@@ -44,7 +44,8 @@ export default function Home(): JSX.Element {
             <section className='p-2 flex-grow-1'>
                 {accessList.length > 0 && accessList.map((item: any) => (
                     <RenderModule key={item.application_id} cod={item.application_id} />
-                ))}
+                )
+                )}
             </section>
         </div>
     );
@@ -70,10 +71,15 @@ function RenderModule({ cod }: { cod: string }) {
                 value.icon = iconGAPP;
                 value.path = '/GIPP/GAPP';
                 break;
+            case '16':
+                value.icon = iconGEPP;
+                value.path = '/GIPP/EPP';
+            break;
             case '20':
                 value.icon = iconGEPP;
                 value.path = '/GIPP/GEPP';
                 break;
+            
             default:
                 break;
         }

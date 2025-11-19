@@ -2,7 +2,6 @@
 import { Store } from "react-notifications-component";
 import { iReqConn } from "../Interface/iConnection"
 import Translator from "./Translate";
-import { dataAllProd } from "../Modules/EPP/Interfaces/InterfacesEPP";
 
 export const IMAGE_WEBP_QUALITY = 0.4; // controla a qualidade das imagens com extensões webp.
 const baseURLSgpp = process.env.REACT_APP_API_SGPP_BASE_URL;
@@ -17,8 +16,6 @@ export const convertdate = (date: string): string | null => {
 
     return parsedDate.toLocaleDateString('pt-BR');
 };
-
-export const getProductKey = (item: dataAllProd) => `${item.id_category}-${item.description}`;
 
 export function formatDateBR(date?: string | Date | null) {
     if (!date) return "--"; // fallback se não tiver data

@@ -73,6 +73,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [states, setStates] = useState<iStates[]>([{ color: '', description: '', id: 0 }]);
 
   /**
+   * Lista de Temas(categorias) que poderemos visualisar.
+   * Cada usuário vai ter seus temas separados por usuário.
+   */
+  const [themeList, setThemeList] = useState<any>();
+
+  /**
    * Indica se o usuário atual possui privilégios de administrador.
    * @type {[any, React.Dispatch<React.SetStateAction<any>>]}
    */
@@ -147,6 +153,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     };
   }, []);
+
+  /**
+   * Aqui vai carregar a lista de informações dos temas(categorias).
+   */
+  useEffect(() => {
+    getThemeListformations();
+  }, [])
 
   /**
    * Atualiza o callback de mensagens do WebSocket sempre que as dependências mudam.
@@ -243,6 +256,28 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
+   * Recuperando os temas(categorias) que registramos e armazendo eles em um localStorage para acesso rápido.
+   * @function
+   * @async
+   */
+    async function getThemeListformations() {
+    setLoading(true);
+    try {
+      const response: any = await fetchData({method: "GET",pathFile: "GTPP/Theme.php",params: null,urlComplement: "&all=1"});
+      if (response.error) throw new Error(response.message || "Erro ao carregar temas");
+      const themes = Array.isArray(response.data) ? response.data : [];
+      updateThemeList(themes);
+      localStorage.gtppThemeList = JSON.stringify(themes);
+    } catch (error: any) {
+      console.error("Erro ao carregar temas:", error.message);
+      handleNotification("Erro", "Não foi possível carregar os temas.", "danger");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+  /**
    * Fecha o card padrão globalmente e notifica outros usuários via WebSocket.
    * @function
    * @param {number} [taskId] - ID da tarefa associada (opcional).
@@ -268,6 +303,14 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   function updateStates(newList: any[]) {
     localStorage.gtppStates = JSON.stringify(newList);
     setStates([...newList]);
+  }
+
+  /**
+   * This updateTheme working with rendering data list theme.
+   */
+  function updateThemeList(newList: any[]) {
+    localStorage.gtppThemeList = JSON.stringify(newList);
+    setThemeList([...newList]);
   }
 
   /**
@@ -1091,6 +1134,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         getTask,
         isAdm,
         openCardDefault,
+        themeList,
         updateItemTaskFile,
         updatedForQuestion,
         reloadPagePercent,

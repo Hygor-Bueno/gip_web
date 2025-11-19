@@ -17,7 +17,7 @@ type CaptureValueTuple = [
   React.TextareaHTMLAttributes<HTMLTextAreaElement>
 ];
 
-type CustomFormProps = React.FormHTMLAttributes<HTMLFormElement> & {
+export type CustomFormProps = React.FormHTMLAttributes<HTMLFormElement> & {
   classRender?: string;
   notButton?: boolean;
   typeButton?: 'submit' | 'reset' | 'button' | undefined;
@@ -40,17 +40,47 @@ type CustomFormProps = React.FormHTMLAttributes<HTMLFormElement> & {
     };
     buttons?: [];
   }[] | any;
-  onAction?: () => void;
+  onAction?: (e?: any) => void;
   titleButton?: string;
   classButton?: string;
 };
 
-interface SelectOption {
+export interface SelectOption {
   value: string | number;
   label: string;
 };
 
 function CustomForm({ fieldsets, onAction, classRender, classButton, notButton = true, typeButton = 'submit', titleButton = "Login", ...formProps }: CustomFormProps) {
+  return (
+    <form {...formProps}>
+      {fieldsets.map((fieldset: any, fieldsetIndex: any) => (
+        <fieldset key={fieldsetIndex} {...fieldset.attributes}>
+          <legend className={fieldset.legend?.style}>{fieldset.legend?.text}</legend>
+          <label>
+            {fieldset.item.label}
+            <b className={fieldset.item.mandatory ? 'text-danger' : ''}>
+              {fieldset.item.mandatory ? ' *' : ''}
+            </b>
+          </label>
+          {renderField(fieldset.item.captureValue)}
+        </fieldset>
+      ))}
+      {notButton &&
+        <div>
+          <button
+            onClick={onAction}
+            type={typeButton}
+            title="Execultar ação"
+            className={classButton ? classButton : "btn my-2 "}>
+            {titleButton}
+          </button>
+        </div>
+      }
+    </form>
+  );
+}
+
+function CustomFormGender({ fieldsets, onAction, classRender, classButton, notButton = true, typeButton = 'submit', titleButton = "Login", ...formProps }: CustomFormProps) {
   return (
     <form {...formProps}>
       {fieldsets.map((fieldset: any, fieldsetIndex: any) => (

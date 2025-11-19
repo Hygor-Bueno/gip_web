@@ -16,6 +16,7 @@ type ColumnPropsTaskState = HTMLAttributes<HTMLDivElement> & {
     content_body?: any;
     selectedTasks?: any;
     setSelectedTasks?:any;
+    theme_id_fk: string;
 };
 
 type ColumnPropsTaskStateBoolean = {
@@ -36,6 +37,7 @@ type TaskFilter = {
     dateFinalSearch: string;
     dateFinalFinalSearch: string;
     filterHandlerDataUser: number;
+    theme_id_fk: number[];
 }
 
 const ColumnTaskState: React.FC<ColumnPropsTaskState & ColumnPropsTaskStateFunction & ColumnPropsTaskStateBoolean> = (props) => {
@@ -52,7 +54,8 @@ const ColumnTaskState: React.FC<ColumnPropsTaskState & ColumnPropsTaskStateFunct
         dateInitialFinalSearch: "",
         dateFinalSearch: "",
         dateFinalFinalSearch: "",
-        filterHandlerDataUser: 3
+        filterHandlerDataUser: 3,
+        theme_id_fk: []
     });
     
     // Função que alterna a visibilidade do modal
@@ -80,8 +83,6 @@ const ColumnTaskState: React.FC<ColumnPropsTaskState & ColumnPropsTaskStateFunct
             document.removeEventListener('click', handleClickOutWrapper);
         };
     }, []);
-
-    
 
     return (
         <div style={{ display:"flex",flexDirection:"column",height: '100%' }} {...rest}>
@@ -127,6 +128,7 @@ const ColumnTaskState: React.FC<ColumnPropsTaskState & ColumnPropsTaskStateFunct
                             filterData.dateFinalSearch,
                             filterData.dateFinalFinalSearch,
                             filterData.prioritySearch.toString(),
+                            props.theme_id_fk,
                             filterData.filterHandlerDataUser,
                             userLog
                         )?.map((task:any, _: number) => {

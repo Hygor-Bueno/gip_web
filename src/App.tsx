@@ -16,10 +16,10 @@ import Cfpp from './Modules/CFPP/Cfpp';
 import Infraction from './Modules/GAPP/Infraction/Infraction';
 import Stores from './Modules/GAPP/Business/Stores';
 import Gapp from './Modules/GAPP/Gapp';
-import Epp from './Modules/EPP/Epp';
-import SalesPage from './Modules/EPP/Pages/SalesPage';
 import ProfileGIPP from './Modules/ProfileGIPP/ProfileGIPP';
 import Gepp from './Modules/GEPP';
+import CreateTheme from './Modules/GTPP/CreateTheme/CreateTheme';
+import EPP from './Modules/EPP/Epp';
 function App() {
   function withProvider(component: JSX.Element) {
     return (
@@ -46,14 +46,14 @@ function App() {
           <Route path="/" element={withProvider(<Login />)} />
           <Route path="/GIPP" element={withPrivateProvider(<Home />)} />
           <Route path="/GIPP/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
+          <Route path="/GIPP/GTPP/create/theme" element={withPrivateProvider(<GtppWsProvider><CreateTheme /></GtppWsProvider>)} />
           <Route path="/GIPP/CFPP" element={withPrivateProvider(<Cfpp />)} />
           <Route path='/GIPP/configuration/profile' element={withPrivateProvider(<ProfileGIPP />)} />
           <Route path="/GIPP/GAPP" element={withPrivateProvider(<Gapp />)} />
           <Route path="/GIPP/GAPP/Stores" element={withPrivateProvider(<Stores />)} />
           <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
-          <Route path="/GIPP/EPP" element={withPrivateProvider(<Epp />)} />
-          <Route path="/GIPP/EPP/sales" element={withPrivateProvider(<SalesPage />)} />
           <Route path='/GIPP/GEPP' element={withPrivateProvider(<Gepp />)} />
+          <Route path="/GIPP/EPP" element={withProvider(<EPP />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>

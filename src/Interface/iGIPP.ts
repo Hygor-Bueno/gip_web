@@ -85,6 +85,7 @@ export interface iGtppWsContextType {
     
     getUser?: any; // FX 02 - TIPAGEM OBRIGATORIA. - Jonatas
     setGetUser?: any; //FX - TIPAGEM OBRIGATORIA. WEBSOCKET
+    themeList?: any; // FX  - TIPAGEM OBRIGATORIA.
 
     updatedAddUserTaskItem: (item: { task_id: number, user_id: number, id: number }, x: any) => void; // { task_id: number, user_id: number, id: number }
 }
@@ -151,5 +152,5 @@ export interface ITask {
     user_id: number;
     initial_date: string;
     final_date: string;
-    theme_id_fk: number;
+    theme_id_fk: string;
 }

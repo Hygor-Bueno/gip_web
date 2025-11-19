@@ -18,28 +18,44 @@ import CustomTable from "../../Components/CustomTable";
 import { useConnection } from "../../Context/ConnContext";
 import { maskUserSeach } from "../../Util/Util";
 import FiltersSearchUser from "../../Components/FiltersSearchUser";
-import ModalTheme from "./ComponentsCard/Theme/Theme";
 
 export default function Gtpp(): JSX.Element {
-  const { setTitleHead, setModalPage, setModalPageElement, userLog, setLoading } = useMyContext();
-  const { clearGtppWsContext, setOnSounds, updateStates, setOpenCardDefault, loadTasks, reqTasks, openCardDefault, taskDetails, states, onSounds, task, getTask, setIsAdm } = useWebSocket();
+  const { 
+    setTitleHead, 
+    setModalPage, 
+    setModalPageElement, 
+    userLog
+  } = useMyContext();
+  const { 
+    clearGtppWsContext, 
+    setOnSounds, 
+    updateStates, 
+    setOpenCardDefault, 
+    loadTasks, 
+    reqTasks, 
+    openCardDefault, 
+    taskDetails, 
+    states,
+    onSounds, 
+    themeList,
+    task, 
+    getTask, 
+    setIsAdm 
+  } = useWebSocket();
   const [openFilter, setOpenFilter] = useState<any>(false);
   const [openFilterGolbal, setOpenFilterGolbal] = useState<any>(false);
   const [openMenu, setOpenMenu] = useState<any>(true);
   const [isHeader, setIsHeader] = useState<boolean>(false);
-  const [isTheme, seIsTheme] = useState<boolean>(false);
-  const [checkTheme, setCheckTheme] = useState<boolean>(false);
   const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+  const [selectedThemeIds, setSelectedThemeIds] = useState<string>("");
 
   const listButtonInputs: iPropsInputCheckButton[] = [
     {inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: async (event: boolean) => { setIsAdm(event); }, labelIcon: "fa-solid fa-user-tie", highlight: true},
     {inputId: `gttp_exp_ret`, nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"], highlight: false },
-    {inputId: `check_category`, nameButton: "Filtros da página", onAction: async (event: boolean) => { setCheckTheme((x:boolean)=>!x) }, labelIcon: "fa-solid fa-table-cells-large", highlight: true },
     {inputId: `check_filter`, nameButton: "Filtros da página", onAction: async (event: boolean) => { setOpenFilterGolbal(event) }, labelIcon: "fa-solid fa-filter", highlight: true},
     {inputId: `reload_tasks`, nameButton: "Recarregar as tarefas", onAction: async (event: boolean) => { await reqTasks(); }, labelIcon: "fa fa-refresh"},
-    {inputId: `plust_theme`, nameButton: "Adiciona um novo tema", onAction: async (event: boolean) => { seIsTheme(true); }, labelIcon: "fa fa-plus"}
+    {inputId: `clear_filter`, nameButton: "Limpar campos de filtro", onAction: async (event: boolean) => await clearFiltersInput(), labelIcon: "fa fa-eraser"}
   ];
-  // Modified by Hygor
   useEffect(() => {
     setTitleHead({
       title: "Gerenciador de Tarefas Peg Pese - GTPP",
@@ -58,22 +74,14 @@ export default function Gtpp(): JSX.Element {
     setOpenFilter((prevOpen: any) => !prevOpen);
   };
 
+  const clearFiltersInput = async () => {
+    setSelectedThemeIds("");
+  }
+
   return (
-    <div
-      id="moduleGTPP"
-      className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0"
-    >
+    <div id="moduleGTPP" className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0">
       {openMenu && <NavBar list={listPath} />}
       {openFilterGolbal && <FilterPage />}
-      {isTheme && 
-        <ModalTheme
-          selectedTasks={selectedTasks}
-          title="Cadastre o Tema" 
-          btnClose={(e:any) => seIsTheme(false)} 
-          btnSave={(e:any) => {
-            seIsTheme(false)
-          }} 
-        />}
 
       <div className="h-100 d-flex overflow-hidden px-3 flex-grow-1">
         <div className="flex-grow-1 d-flex flex-column justify-content-between align-items-start h-100 overflow-hidden">
@@ -115,17 +123,30 @@ export default function Gtpp(): JSX.Element {
                 ) : null}
               </div>
             </div>
+            <div className="position-relative">
+              <div className="filter-modal">
+                <select className="form-select" onChange={(e) => setSelectedThemeIds(e.target.value)}>
+                  <option hidden defaultValue="" children="Selecione" />
+                  {themeList?.map(
+                    (cardTaskStateValue: any, idxValueState: any) => {
+                      return (
+                        <option 
+                          id={`filter_state_${cardTaskStateValue.id_theme}`} 
+                          className="form-check-input" 
+                          value={cardTaskStateValue.id_theme} 
+                          children={cardTaskStateValue.description_theme} 
+                        />
+                      )
+                    }
+                  )}
+                </select>
+              </div>
+            </div>
             <div className="d-flex flex-row w-50 justify-content-end gap-2">
               <button title={openMenu ? "Ocultar menu" : "Exibir Menu"} onClick={() => setOpenMenu(!openMenu)} className={`btn p-0 d-block d-md-none`} >
                 <i className={`fa-solid fa-eye${openMenu ? "-slash" : ''}`}></i>
               </button>
-              <button
-                className="btn p-0 mx-2 cursor-pointer"
-                title={`${onSounds ? "Com audio" : "Sem audio"}`}
-                onClick={() => {
-                  setOnSounds(!onSounds);
-                }}
-              >
+              <button className="btn p-0 mx-2 cursor-pointer" title={`${onSounds ? "Com audio" : "Sem audio"}`} onClick={() => setOnSounds(!onSounds)} >
                 <i className={`fa-solid fa-volume-${onSounds ? "high" : "xmark"}`}></i>
               </button>
               <button title="Exibir notificações" className="btn p-0">
@@ -142,10 +163,10 @@ export default function Gtpp(): JSX.Element {
                 cardTaskStateValue.active && (
                   <div key={idxValueState} className="column-task-container p-2 align-items-start flex-shrink-0">
                     <ColumnTaskState
+                      theme_id_fk={selectedThemeIds}
                       selectedTasks={selectedTasks} 
                       setSelectedTasks={setSelectedTasks}
                       title={cardTaskStateValue.description}
-                      isTheme={checkTheme}
                       bg_color={cardTaskStateValue.color}
                       is_first_column={isFirstColumnTaskState}
                       addTask={() => {
@@ -166,10 +187,7 @@ export default function Gtpp(): JSX.Element {
                           <div className="card w-75 position relative">
                             <div className="d-flex justify-content-end align-items-center">
                               <div className="">
-                                <button
-                                  className="btn fa fa-close m-4"
-                                  onClick={() => setModalPage(false)}
-                                ></button>
+                                <button className="btn fa fa-close m-4" onClick={() => setModalPage(false)} ></button>
                               </div>
                             </div>
                             <div className="overflow-auto h-75">
@@ -203,7 +221,6 @@ export default function Gtpp(): JSX.Element {
     </div>
   );
 }
-
 
 function FilterPage() {
   const [page, setPage] = useState<number>(1);
@@ -275,7 +292,6 @@ return (
         {`( ${page.toString().padStart(2, '0')} / ${limitPage.toString().padStart(2, '0')} )`}
         <button onClick={() => navPage(true)} className="btn btn-light fa-solid fa-forward" type="button"></button>
       </footer>
-
     </div>
   </div>
 );

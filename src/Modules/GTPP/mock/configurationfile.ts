@@ -1,6 +1,17 @@
 export const listPath = [
     { page: '/GIPP', children: 'Home', icon: 'fa fa-home', },
-    // { page: '/GIPP/GTPP/Category', children: 'Home', icon: 'fa fa-table-cells-large', },
+    { page: '/GIPP/GTPP', children: 'Tarefas', icon: 'fa fa-pencil', },
+    { page: '/GIPP/GTPP/create/theme', children: 'Temas', icon: 'fa fa-table-cells-large', },
+    {
+        page: '/', children: 'Sair', icon: 'fa fa-sign-out', actionAdd: () => {
+            localStorage.removeItem("tokenGIPP");
+            localStorage.removeItem("codUserGIPP");
+        }
+    }
+];
+
+export const listPathEPP = [
+    { page: '/GIPP', children: 'Home', icon: 'fa fa-home', },
     {
         page: '/', children: 'Sair', icon: 'fa fa-sign-out', actionAdd: () => {
             localStorage.removeItem("tokenGIPP");

@@ -1,20 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import NavBar from '../../Components/NavBar';
-import { listPathEPP } from './ConfigEPP';
+import { listPathEPP } from '../GTPP/mock/configurationfile';
+import ScreenClient from './ScreenClient/ScreenClient';
 
-type Props = {}
+const EPP: React.FC = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
 
-const Epp = (props: Props) => {
+  const toggleMenu = () => setIsMenuOpen(prev => !prev);
+
   return (
-    <div className='d-flex w-100 flex-grow-1 overflow-hidden'>
-        <NavBar list={listPathEPP} />
-        <div className="d-flex flex-column align-items-center justify-content-center overflow-auto text-white w-100" >
-            <h1 className="display-6">Bem vindo(a) ao EPP (Encomendas PegPese)</h1>
-            <i>Navegue pelo menu lateral.</i>
-        </div>
-    </div>
-  )
-}
+    <main className="d-flex w-100 flex-grow-1 overflow-hidden">
+      {isMenuOpen && <NavBar list={listPathEPP} />}
 
+      <section className="flex-grow-1">
+        <header id="header-title-project" className="d-flex align-items-center justify-content-between w-100 px-3">
+          <h2>Ecomendas PegPese°</h2>
+          <button
+            id="btn-eyes-themes"
+            className="btn btn-outline-secondary d-md-none"
+            onClick={toggleMenu}
+            aria-label={isMenuOpen ? 'Hide menu' : 'Show menu'}
+          >
+            <i className={`fa-solid text-dark ${isMenuOpen ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+          </button>
+        </header>
+        <section id="body-content-project" className="p-3">
+          <ScreenClient />
+        </section>
+      </section>
+    </main>
+  );
+};
 
-export default Epp;
+export default EPP;
