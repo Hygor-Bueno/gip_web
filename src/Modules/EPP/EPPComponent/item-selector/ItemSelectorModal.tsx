@@ -1,13 +1,11 @@
-// src/components/pedido-form/item-selector/ItemSelectorModal.tsx
-
 import React, { useState, useMemo } from "react";
 import { SearchAndFilter } from "./SearchAndFilter";
 import { ProductGrid } from "./ProductGrid";
 import { CartSidebar } from "./CartSidebar";
 import { MobileCartDrawer } from "./MobileCartDrawer";
 import { MobileCartButton } from "./MobileCartButton";
-import { mockResponseFromBackend } from "../mockTeste";
 import useWindowSize from "../../../GAPP/Infraction/hook/useWindowSize";
+import useEppFetch from "../../EPPFetch/useEppFetch";
 
 export type ItemType = {
   id: string | number;
@@ -23,7 +21,7 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (items: ItemType[]) => void;
-  currentItems: ItemType[]; // itens que já estavam no pedido
+  currentItems: ItemType[];
 };
 
 const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, currentItems }) => {
@@ -31,7 +29,6 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("Todas");
   const [mostrarCarrinhoMobile, setMostrarCarrinhoMobile] = useState(false);
 
-  // Carrinho: guarda apenas a quantidade por produto
   const [carrinho, setCarrinho] = useState<Map<string, number>>(() => {
     const map = new Map<string, number>();
     currentItems.forEach(item => {
@@ -40,52 +37,64 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
     return map;
   });
 
-  const produtosDoBanco = mockResponseFromBackend.data;
+  const {allProduct} = useEppFetch();
+  const produtosDoBanco = allProduct?.data ?? [];
 
   // Lista de categorias únicas
   const categorias = useMemo(() => {
-    const cats = produtosDoBanco.map(p => p.category || "Sem categoria");
-    return ["Todas", ...Array.from(new Set(cats)).sort()];
-  }, []);
+    const cats = produtosDoBanco.map((p: any) => p.category || "Sem categoria");
+    const unicas = Array.from(new Set(cats)).sort();
+    return ["Todas", ...unicas];
+  }, [produtosDoBanco]);
 
   // Produtos filtrados por busca e categoria
   const produtosFiltrados = useMemo(() => {
-    return produtosDoBanco.filter(p => {
+    return produtosDoBanco.filter((p: any) => {
       const busca = search.toLowerCase();
-      const matchesSearch = p.id_product.includes(busca) || p.description.toLowerCase().includes(busca);
-      const matchesCat = categoriaSelecionada === "Todas" || p.category === categoriaSelecionada;
+      const matchesSearch =
+        p.id_product.includes(busca) ||
+        p.description.toLowerCase().includes(busca);
+
+      const matchesCat =
+        categoriaSelecionada === "Todas" ||
+        p.category === categoriaSelecionada;
+
       return matchesSearch && matchesCat;
     });
-  }, [search, categoriaSelecionada]);
+  }, [search, categoriaSelecionada, produtosDoBanco]);
 
   // Itens que estão no carrinho (com todos os dados)
   const itensNoCarrinho = useMemo(() => {
-    return Array.from(carrinho.entries()).map(([id_product, quantidade]) => {
-      const prod = produtosDoBanco.find(p => p.id_product === id_product);
-      if (!prod) return null;
+    return Array.from(carrinho.entries())
+      .map(([id_product, quantidade]) => {
+        const prod = produtosDoBanco.find((p: any) => p.id_product === id_product);
+        if (!prod) return null;
 
-      return {
-        id: id_product,
-        codigo: id_product,
-        descricao: prod.description,
-        precoUnitario: prod.price,
-        quantidade,
-        subtotal: Number((prod.price * quantidade).toFixed(2)),
-        unidadeMedida: prod.measure,
-      };
-    }).filter(Boolean) as ItemType[];
-  }, [carrinho]);
+        const preco = Number(prod.price);
+
+        return {
+          id: id_product,
+          codigo: id_product,
+          descricao: prod.description,
+          precoUnitario: preco,
+          quantidade,
+          subtotal: Number((preco * quantidade).toFixed(2)),
+          unidadeMedida: prod.measure,
+        };
+      })
+      .filter(Boolean) as ItemType[];
+  }, [carrinho, produtosDoBanco]);
 
   const totalCarrinho = itensNoCarrinho.reduce((acc, item) => acc + item.subtotal, 0);
 
   // Altera quantidade (suporta kg e un)
   const mudarQuantidade = (id_product: string, novaQtd: number) => {
-    const prod = produtosDoBanco.find(p => p.id_product === id_product);
+    const prod = produtosDoBanco.find((p: any) => p.id_product === id_product);
     if (!prod) return;
 
     let qtdFinal = novaQtd;
 
-    if (prod.measure === "kg") {
+    if (prod.measure?.toLowerCase() === "kg") {
       qtdFinal = novaQtd <= 0 ? 0 : Math.max(0.1, Number(novaQtd.toFixed(2)));
     } else {
       qtdFinal = Math.max(0, Math.floor(novaQtd));
@@ -111,7 +120,7 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
     setCarrinho(new Map());
   };
 
-  const {width} = useWindowSize();
+  const { width } = useWindowSize();
 
   if (!isOpen) return null;
 
@@ -137,7 +146,7 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
           {/* Cabeçalho */}
           <div className="modal-header bg-success text-white d-flex justify-content-between align-items-center">
             <h5 className="modal-title fw-bold fs-4">
-              Adicionar Itens ao Pedido
+              <i className="fa fa-solid fa-carrot text-white"></i> Adicionar Itens ao Pedido
             </h5>
             <button type="button" className="btn-close btn-close-white" onClick={onClose} />
           </div>
@@ -162,11 +171,11 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
                 </div>
               ) : (
                 <ProductGrid
-                  products={produtosFiltrados.map(p => ({
+                  products={produtosFiltrados.map((p: any) => ({
                     id: p.id_product,
                     codigo: p.id_product,
                     descricao: p.description,
-                    precoUnitario: p.price,
+                    precoUnitario: Number(p.price),
                     unidadeMedida: p.measure,
                   }))}
                   selectedProducts={carrinho}
@@ -176,13 +185,15 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
             </div>
 
             {/* Carrinho lateral */}
-            {width > 920 && <CartSidebar
-              cartItems={itensNoCarrinho}
-              total={totalCarrinho}
-              onClearAll={limparCarrinho}
-              onRemoveItem={(id) => mudarQuantidade(String(id), 0)}
-              onConfirm={confirmarSelecao}
-            />}
+            {width > 920 && (
+              <CartSidebar
+                cartItems={itensNoCarrinho}
+                total={totalCarrinho}
+                onClearAll={limparCarrinho}
+                onRemoveItem={(id) => mudarQuantidade(String(id), 0)}
+                onConfirm={confirmarSelecao}
+              />
+            )}
 
           </div>
 

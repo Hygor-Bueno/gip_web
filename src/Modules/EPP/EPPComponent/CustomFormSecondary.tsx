@@ -13,7 +13,6 @@ type ItemType = {
 
 function CustomFormGender({
   fieldsets = [],
-  schema,
   onValidSubmit,
   onAction,
   classButton,
@@ -23,49 +22,52 @@ function CustomFormGender({
   ...formProps
 }: any) {
   const [formValues, setFormValues] = React.useState<Record<string, any>>({});
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
+  const [errors, setErrors] =  React.useState<Record<string, string | undefined>>({});
   const [isItemModalOpen, setIsItemModalOpen] = React.useState(false);
   const [selectedFieldName, setSelectedFieldName] = React.useState<string>("");
-  
 
-  // ===== USE-EFFECT ÚNICO E PERFEITO (responsável por TODOS os cálculos) =====
+  // ======= CÁLCULOS AUTOMÁTICOS =======
   React.useEffect(() => {
     const itens: ItemType[] = (formValues["pedidoItens"] as ItemType[]) || [];
-    const totalItens = itens.reduce((sum, item) => sum + item.subtotal, 0);
+    const totalItens = itens.reduce((sum, i) => sum + i.subtotal, 0);
 
-    const sinalStr = (formValues["pedidoSinal"] || "0").toString().replace(/[^\d,]/g, "").replace(",", ".");
-    const sinal = parseFloat(sinalStr) || 0;
+    const sinalRaw = (formValues["pedidoSinal"] || "0")
+      .toString()
+      .replace(/[^\d,]/g, "")
+      .replace(",", ".");
+    const sinal = parseFloat(sinalRaw) || 0;
     const pendente = Math.max(0, totalItens - sinal);
 
     setFormValues(prev => ({
       ...prev,
-      pedidoTotal: totalItens.toFixed(2).replace(".", ","),
-      pedidoPendente: pendente.toFixed(2).replace(".", ","),
+      pedidoTotal: totalItens.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      pedidoPendente: pendente.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     }));
   }, [formValues["pedidoItens"], formValues["pedidoSinal"]]);
 
   const handleFieldChange = (name: string, value: any) => {
-    let safeValue = value ?? "";
+    let newValue = value ?? "";
 
-    if (["pedidoSinal", "pedidoTotal", "pedidoPendente"].includes(name)) {
-      safeValue = safeValue.toString().replace(/[^\d,]/g, "");
-      if (safeValue === "" || safeValue === ",") safeValue = "0,00";
+    // Máscara de dinheiro BR apenas no campo sinal
+    if (name === "pedidoSinal") {
+      newValue = newValue.replace(/\D/g, "");
+      newValue = (Number(newValue) / 100).toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
     }
 
-    setFormValues(prev => ({ ...prev, [name]: safeValue }));
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors[name];
-      return newErrors;
-    });
+    setFormValues(prev => ({ ...prev, [name]: newValue }));
+    setErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
   const injectChangeHandler = (captureValue: any = {}, fieldName: string) => ({
     ...captureValue,
     name: fieldName,
+    value: formValues[fieldName] ?? captureValue.value ?? "",
     onChange: (e: any) => {
-      const value = e?.target?.value !== undefined ? e.target.value : e ?? "";
-      handleFieldChange(fieldName, value);
+      const val = e?.target?.value ?? e;
+      handleFieldChange(fieldName, val);
       captureValue.onChange?.(e);
     },
   });
@@ -75,33 +77,33 @@ function CustomFormGender({
     setIsItemModalOpen(true);
   };
 
-  const handleItemsSelected = (items: ItemType[]) => {
-    setFormValues(prev => ({ ...prev, [selectedFieldName]: items }));
+  const handleItemsSelected = (novosItens: ItemType[]) => {
+    const itensAtuais = (formValues[selectedFieldName] || []) as ItemType[];
+
+    // Remove duplicatas por ID
+    const itensUnicos = [...itensAtuais];
+    novosItens.forEach(novo => {
+      if (!itensUnicos.some(i => i.id === novo.id)) {
+        itensUnicos.push(novo);
+      }
+    });
+
+    setFormValues(prev => ({ ...prev, [selectedFieldName]: itensUnicos }));
     setIsItemModalOpen(false);
   };
 
-  const validateForm = () => {
-    const result = schema?.safeParse(formValues);
-    if (!result?.success) {
-      const formatted: Record<string, string> = {};
-      result?.error.issues.forEach((x:any) => {
-        const key = x.path.join(".");
-        if (!formatted[key]) formatted[key] = x.message;
-      });
-      setErrors(formatted);
-      return false;
-    }
-    setErrors({});
-    return result.data;
+  const removerItem = (index: number) => {
+    setFormValues(prev => ({
+      ...prev,
+      pedidoItens: (prev.pedidoItens || []).filter((_: any, i: number) => i !== index),
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const validData = validateForm();
-    if (validData) {
-      onValidSubmit?.(validData);
-      onAction?.(validData);
-    }
+    // Entrega direto os valores do form
+    onValidSubmit?.(formValues);
+    onAction?.(formValues);
   };
 
   return (
@@ -123,43 +125,55 @@ function CustomFormGender({
 
                     <div className="row g-3">
                       {items.map((item: any, itemIdx: number) => {
-                        const name = item.name || item.captureValue?.name || `field_${groupIdx}_${itemIdx}`;
-                        const captureProps = { type: "text" as const, ...(item.captureValue || {}), name };
+                        const name = item.name || `field_${groupIdx}_${itemIdx}`;
+                        const captureProps = { ...(item.captureValue || {}), name };
 
+                        // ITEM SELECTOR ESPECIAL
                         if (captureProps.type === "item-selector") {
                           const currentItems: ItemType[] = formValues[name] || [];
+                          const totalItens = currentItems.reduce((s, i) => s + i.subtotal, 0);
 
                           return (
                             <div key={name} className={item.width || "col-12"}>
                               {item.label && (
-                                <label className={item.labelClass || "form-label"}>
+                                <label className="form-label fw-semibold">
                                   {item.label}
                                   {item.mandatory && <span className="text-danger ms-1">*</span>}
                                 </label>
                               )}
 
-                              <div className="border rounded p-3 bg-light min-vh-50">
+                              <div className="border rounded p-3 bg-light position-relative">
+                                {totalItens > 0 && (
+                                  <div className="position-absolute top-0 end-0 bg-success text-white px-3 py-1 rounded-bottom-start shadow">
+                                    Total: R$ {totalItens.toFixed(2)}
+                                  </div>
+                                )}
+
                                 {currentItems.length === 0 ? (
                                   <p className="text-muted mb-3">Nenhum item adicionado</p>
                                 ) : (
                                   <ul className="list-unstyled mb-3">
                                     {currentItems.map((i, idx) => (
-                                      <li key={i.id || idx} className="mb-2 p-3 bg-white rounded shadow-sm d-flex justify-content-between align-items-center">
-                                        <div className="flex-grow-1">
+                                      <li
+                                        key={i.id}
+                                        className="mb-2 p-3 bg-white rounded shadow-sm d-flex justify-content-between align-items-center"
+                                      >
+                                        <div>
                                           <strong>{i.codigo}</strong> - {i.descricao}
                                           <br />
-                                          <small className="text-muted">{i.quantidade} × R$ {i.precoUnitario.toFixed(2)}</small>
-                                          <strong className="ms-3 text-success">R$ {i.subtotal.toFixed(2)}</strong>
+                                          <small className="text-muted">
+                                            {i.quantidade} × R$ {i.precoUnitario.toFixed(2)} ={" "}
+                                            <strong className="text-success">
+                                              R$ {i.subtotal.toFixed(2)}
+                                            </strong>
+                                          </small>
                                         </div>
                                         <button
                                           type="button"
                                           className="btn btn-sm btn-danger"
-                                          onClick={() => {
-                                            const updated = currentItems.filter((_, index) => index !== idx);
-                                            handleItemsSelected(updated);
-                                          }}
+                                          onClick={() => removerItem(idx)}
                                         >
-                                          <i className="fa-solid text-white fa-trash"></i>
+                                          <i className="fa-solid fa-trash"></i>
                                         </button>
                                       </li>
                                     ))}
@@ -168,17 +182,23 @@ function CustomFormGender({
 
                                 <button
                                   type="button"
-                                  className="btn btn-primary"
+                                  className="btn btn-primary w-100"
                                   onClick={() => openItemModal(name)}
                                 >
-                                  <i className="fa-solid fa-plus me-2 text-white"></i>
-                                  Adicionar Itens
+                                  <i className="fa-solid fa-plus me-2"></i>
+                                  {currentItems.length > 0 ? "Adicionar mais itens" : "Adicionar Itens"}
                                 </button>
                               </div>
 
-                              {errors[name] && <p className="text-danger small mt-1 mb-0">{errors[name]}</p>}
+                              {errors[name] && <div className="text-danger small mt-1">{errors[name]}</div>}
                             </div>
                           );
+                        }
+
+                        // Campos calculados → somente leitura
+                        if (["pedidoTotal", "pedidoPendente"].includes(name)) {
+                          captureProps.readOnly = true;
+                          captureProps.className = (captureProps.className || "") + " bg-light";
                         }
 
                         const updatedCapture = injectChangeHandler(captureProps, name);
@@ -192,7 +212,7 @@ function CustomFormGender({
                               </label>
                             )}
                             {renderField(updatedCapture)}
-                            {errors[name] && <p className="text-danger small mt-1 mb-0">{errors[name]}</p>}
+                            {errors[name] && <div className="text-danger small mt-1">{errors[name]}</div>}
                           </div>
                         );
                       })}

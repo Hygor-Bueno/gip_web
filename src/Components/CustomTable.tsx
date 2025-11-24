@@ -14,6 +14,7 @@ interface CustomTableProps {
   selectionList?: tItemTable[];
   selectionKey?: string;
   hiddenButton?: boolean;
+  onRowClick?: any;
 }
 
 export default function CustomTable(props: CustomTableProps) {
@@ -200,7 +201,10 @@ export default function CustomTable(props: CustomTableProps) {
             {filteredItemsTable.map((item, index) => {
               const isSelected = selectedRows.includes(item);
               return (
-                <tr key={index} className={isSelected ? "table-success" : ""} onClick={() => toggleRowSelection(item)}>
+                <tr key={index} className={isSelected ? "table-success" : ""} onClick={() => {
+                    toggleRowSelection(item);
+                    props.onRowClick?.(item); // Edição jonatas 21/11/2025
+                  }}>
                   {columnKeys.map((key) => !item[key].ocultColumn && (
                     <td key={key} className="py-2">
                       <RenderCell isImage={item[key].isImage} value={item[key]?.value || ""} />

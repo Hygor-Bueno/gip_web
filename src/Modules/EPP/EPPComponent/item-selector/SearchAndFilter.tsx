@@ -5,7 +5,7 @@ type Props = {
   onSearchChange: (value: string) => void;
   selectedCategoria: string;
   onCategoriaChange: (value: string) => void;
-  categorias: string[];
+  categorias: any[];
 };
 
 export const SearchAndFilter: React.FC<Props> = ({

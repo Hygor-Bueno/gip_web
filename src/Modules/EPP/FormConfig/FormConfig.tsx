@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { SelectOption } from "../../../Components/CustomForm";
 
 const statusOptions: SelectOption[] = [
@@ -21,25 +20,26 @@ export const fieldsets = [
     items: [
       {
         label: "Código",
-        name: "clienteCodigo",
-        mandatory: true,
+        name: "idOrder",
+        mandatory: false,
         width: "col-md-3 mb-3",
         captureValue: {
           type: "text",
-          name: "clienteCodigo",
-          placeholder: "Código do cliente",
+          disabled: true,
+          name: "idOrder",
+          placeholder: "Código do pedido",
           className: "form-control",
         },
         labelClass: "form-label",
       },
       {
         label: "Cliente",
-        name: "clienteNome",
+        name: "nameClient",
         mandatory: true,
         width: "col-md-5 mb-3",
         captureValue: {
           type: "text",
-          name: "clienteNome",
+          name: "nameClient",
           placeholder: "Nome do cliente",
           className: "form-control",
         },
@@ -47,11 +47,12 @@ export const fieldsets = [
       },
       {
         label: "Telefone",
-        name: "clienteTelefone",
+        name: "fone",
         width: "col-md-4 mb-3",
+        mandatory: true,
         captureValue: {
           type: "text",
-          name: "clienteTelefone",
+          name: "fone",
           placeholder: "(00) 00000-0000",
           className: "form-control",
         },
@@ -59,12 +60,12 @@ export const fieldsets = [
       },
       {
         label: "Email",
-        name: "clienteEmail",
+        name: "email",
         width: "col-md-6 mb-3",
         captureValue: {
-          type: "text",               
-          inputMode: "email",         
-          name: "clienteEmail",
+          type: "text",
+          inputMode: "email",
+          name: "email",
           placeholder: "email@exemplo.com",
           className: "form-control",
         },
@@ -72,11 +73,11 @@ export const fieldsets = [
       },
       {
         label: "Data",
-        name: "clienteData",
+        name: "deliveryDate",
         width: "col-md-3 mb-3",
         captureValue: {
           type: "date",
-          name: "clienteData",
+          name: "deliveryDate",
           className: "form-control",
         },
         labelClass: "form-label",
@@ -102,11 +103,11 @@ export const fieldsets = [
     items: [
       {
         label: "Itens",
-        name: "pedidoItens",
+        name: "description",
         width: "col-md-6 mb-3",
         captureValue: {
           type: "item-selector",
-          name: "pedidoItens",
+          name: "description",
           placeholder: "Itens do pedido",
           className: "form-control",
         },
@@ -114,11 +115,11 @@ export const fieldsets = [
       },
       {
         label: "Observação",
-        name: "pedidoObservacao",
+        name: "obs",
         width: "col-md-6 mb-3",
         captureValue: {
           type: "textarea",
-          name: "pedidoObservacao",
+          name: "obs",
           placeholder: "Observações adicionais",
           className: "form-control",
           rows: 3,
@@ -127,12 +128,12 @@ export const fieldsets = [
       },
       {
         label: "Sinal",
-        name: "pedidoSinal",
+        name: "signalValue",
         width: "col-md-3 mb-3",
         captureValue: {
-          type: "text",               
-          inputMode: "decimal", 
-          name: "pedidoSinal",
+          type: "text",
+          inputMode: "decimal",
+          name: "signalValue",
           placeholder: "0,00",
           className: "form-control",
         },
@@ -140,12 +141,12 @@ export const fieldsets = [
       },
       {
         label: "Pendente",
-        name: "pedidoPendente",
+        name: "pendingValue",
         width: "col-md-3 mb-3",
         captureValue: {
           type: "text",
           inputMode: "decimal",
-          name: "pedidoPendente",
+          name: "pendingValue",
           placeholder: "0,00",
           className: "form-control",
         },
@@ -153,12 +154,12 @@ export const fieldsets = [
       },
       {
         label: "Total",
-        name: "pedidoTotal",
+        name: "total",
         width: "col-md-3 mb-3",
         captureValue: {
           type: "text",
           inputMode: "decimal",
-          name: "pedidoTotal",
+          name: "total",
           placeholder: "0,00",
           className: "form-control",
         },
@@ -173,33 +174,33 @@ export const fieldsets = [
     items: [
       {
         label: "Data",
-        name: "entregaData",
+        name: "deliveryDate",
         width: "col-md-3 mb-3",
         captureValue: {
           type: "date",
-          name: "entregaData",
+          name: "deliveryDate",
           className: "form-control",
         },
         labelClass: "form-label",
       },
       {
         label: "Hora",
-        name: "entregaHora",
+        name: "deliveryHour",
         width: "col-md-3 mb-3",
         captureValue: {
           type: "time",
-          name: "entregaHora",
+          name: "deliveryHour",
           className: "form-control",
         },
         labelClass: "form-label",
       },
       {
         label: "Local de Entrega",
-        name: "entregaLocal",
+        name: "deliveryStore",
         width: "col-md-6 mb-3",
         captureValue: {
           type: "select",
-          name: "entregaLocal",
+          name: "deliveryStore",
           options: deliveryLocations,
           className: "form-select",
         },
