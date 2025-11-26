@@ -37,7 +37,7 @@ const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
     }
 
     let { color, title } = colorPriorityCard(props.priority_card);
-    let animationTask = props.selectedTasks?.includes(props.id) && props.isTheme ? 'border border-primary vibrate-selected' : '';
+    let animationTask = props.selectedTasks?.includes(props.id) && props.isTheme ? 'vibrate-selected' : '';
 
     return (
         <div title={`Tarefa: ${props.title_card}`} {...props} className={`card-task-container modal-container ${animationTask} modal-Xsmall cursor-pointer p-2`}>

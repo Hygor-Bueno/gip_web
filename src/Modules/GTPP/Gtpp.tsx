@@ -56,28 +56,28 @@ export default function Gtpp(): JSX.Element {
     <React.Fragment>
       <GtppMain
         openMenu={openMenu}
-        setOpenMenu={setOpenMenu}
         openFilterGolbal={openFilterGolbal}
         isHeader={isHeader}
         userLog={userLog}
         listButtonInputs={listButtonInputs}
         openFilter={openFilter}
-        handleOpenFilter={handleOpenFilter}
         states={states}
-        handleCheckboxChange={handleCheckboxChange}
         onSounds={onSounds}
-        setOnSounds={setOnSounds}
         selectedThemeIds={selectedThemeIds}
-        setSelectedThemeIds={setSelectedThemeIds}
         themeList={themeList}
         idTheme={idTheme}
-        getIdTheme={getIdTheme}
         getTask={getTask}
         selectedTasks={selectedTasks}
-        setSelectedTasks={setSelectedTasks}
         task={task}
         taskDetails={taskDetails}
         openCardDefault={openCardDefault}
+        setOpenMenu={setOpenMenu}
+        handleOpenFilter={handleOpenFilter}
+        handleCheckboxChange={handleCheckboxChange}
+        setOnSounds={setOnSounds}
+        setSelectedThemeIds={setSelectedThemeIds}
+        getIdTheme={getIdTheme}
+        setSelectedTasks={setSelectedTasks}
         setOpenCardDefault={setOpenCardDefault}
         setModalPage={setModalPage}
         setModalPageElement={setModalPageElement}

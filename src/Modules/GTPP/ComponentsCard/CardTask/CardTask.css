@@ -132,9 +132,17 @@
   90% { transform: translateX(-1px); }
 }
 
+@keyframes twist-shake {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-4deg); }
+  40% { transform: rotate(4deg); }
+  60% { transform: rotate(-3deg); }
+  80% { transform: rotate(3deg); }
+}
+
 .vibrate-selected {
-  animation: vibrate-light 1.7s ease-in-out infinite;
-  box-shadow: 0 0 15px rgba(0, 123, 255, 0.5) !important;
-  border-color: #007bff !important;
-  transform: translateZ(0); /* ajuda na suavidade */
+  animation: twist-shake 1.7s ease-in-out infinite;
+  box-shadow: 0 0 15px #6a657c !important;
+  border-color: #3700ff !important;
+  transform: translateZ(0);
 }
