@@ -71,14 +71,14 @@ function RenderModule({ cod }: { cod: string }) {
                 value.icon = iconGAPP;
                 value.path = '/GIPP/GAPP';
                 break;
-            case '16':
-                value.icon = iconGEPP;
-                value.path = '/GIPP/EPP';
-            break;
-            case '20':
-                value.icon = iconGEPP;
-                value.path = '/GIPP/GEPP';
-                break;
+            // case '16':
+            //     value.icon = iconGEPP;
+            //     value.path = '/GIPP/EPP';
+            // break;
+            // case '20':
+            //     value.icon = iconGEPP;
+            //     value.path = '/GIPP/GEPP';
+            //     break;
             
             default:
                 break;

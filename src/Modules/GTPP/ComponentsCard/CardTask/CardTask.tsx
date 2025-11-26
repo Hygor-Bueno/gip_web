@@ -37,9 +37,10 @@ const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
     }
 
     let { color, title } = colorPriorityCard(props.priority_card);
+    let animationTask = props.selectedTasks?.includes(props.id) && props.isTheme ? 'border border-primary vibrate-selected' : '';
 
     return (
-        <div title={`Tarefa: ${props.title_card}`} {...props} className={`card-task-container modal-container ${props.selectedTasks.includes(props.id) && props.isTheme ? 'border-dark' : ''} modal-Xsmall cursor-pointer p-2`}>
+        <div title={`Tarefa: ${props.title_card}`} {...props} className={`card-task-container modal-container ${animationTask} modal-Xsmall cursor-pointer p-2`}>
             <React.Fragment>
                 <div className="card-task-header d-flex justify-content-between col-12 gap-3">
                     <div className="d-flex justify-content-between col-12 mb-2">

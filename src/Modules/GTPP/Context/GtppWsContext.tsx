@@ -263,7 +263,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     async function getThemeListformations() {
     setLoading(true);
     try {
-      const response: any = await fetchData({method: "GET",pathFile: "GTPP/Theme.php",params: null,urlComplement: "&all=1"});
+      const response: any = await fetchData({method: "GET",pathFile: "GTPP/Theme.php",params: null,urlComplement: "&user_theme=1"});
       if (response.error) throw new Error(response.message || "Erro ao carregar temas");
       const themes = Array.isArray(response.data) ? response.data : [];
       updateThemeList(themes);
@@ -1162,6 +1162,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         getUser,
         setGetUser,
         updatedAddUserTaskItem,
+        getThemeListformations,
       }}
     >
       {children}

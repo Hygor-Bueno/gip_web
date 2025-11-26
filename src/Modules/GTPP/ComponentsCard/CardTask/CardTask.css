@@ -119,3 +119,22 @@
     flex-wrap: wrap;
   }
   
+@keyframes vibrate-light {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-3px); }
+  20% { transform: translateX(3px); }
+  30% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  50% { transform: translateX(-2px); }
+  60% { transform: translateX(2px); }
+  70% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+  90% { transform: translateX(-1px); }
+}
+
+.vibrate-selected {
+  animation: vibrate-light 1.7s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(0, 123, 255, 0.5) !important;
+  border-color: #007bff !important;
+  transform: translateZ(0); /* ajuda na suavidade */
+}

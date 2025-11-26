@@ -135,7 +135,7 @@ const ColumnTaskState: React.FC<ColumnPropsTaskState & ColumnPropsTaskStateFunct
                             
                         return (
                             <React.Fragment>
-                               <div onClick={() => {
+                               <div key={`cards_with_${task.id}`} onClick={() => {
                                     props.setSelectedTasks((prev: any) => {
                                         let result;
                                         try {    

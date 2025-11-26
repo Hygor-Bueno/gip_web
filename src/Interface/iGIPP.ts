@@ -87,6 +87,8 @@ export interface iGtppWsContextType {
     setGetUser?: any; //FX - TIPAGEM OBRIGATORIA. WEBSOCKET
     themeList?: any; // FX  - TIPAGEM OBRIGATORIA.
 
+    getThemeListformations?: any;
+
     updatedAddUserTaskItem: (item: { task_id: number, user_id: number, id: number }, x: any) => void; // { task_id: number, user_id: number, id: number }
 }
 export interface iStates {

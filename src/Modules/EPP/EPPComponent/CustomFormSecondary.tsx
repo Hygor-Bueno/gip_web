@@ -47,8 +47,6 @@ function CustomFormGender({
 
   const handleFieldChange = (name: string, value: any) => {
     let newValue = value ?? "";
-
-    // Máscara de dinheiro BR apenas no campo sinal
     if (name === "pedidoSinal") {
       newValue = newValue.replace(/\D/g, "");
       newValue = (Number(newValue) / 100).toLocaleString("pt-BR", {
@@ -101,7 +99,6 @@ function CustomFormGender({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Entrega direto os valores do form
     onValidSubmit?.(formValues);
     onAction?.(formValues);
   };
