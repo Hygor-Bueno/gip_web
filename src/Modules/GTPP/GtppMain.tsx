@@ -77,7 +77,7 @@ export default function GtppMain(props: GtppMainProps) {
                   setSelectedTasks={props.setSelectedTasks}
                   title={state.description}
                   bg_color={state.color}
-                  isTheme={false}
+                  isTheme={true}
                   is_first_column={isFirstColumn}
                   addTask={() => {
                     props.setModalPageElement(<Cardregister reloadtask={props.loadTasks} assistenceFunction={() => props.setModalPage(false)} onClose={() => props.setModalPage(false)} />);
