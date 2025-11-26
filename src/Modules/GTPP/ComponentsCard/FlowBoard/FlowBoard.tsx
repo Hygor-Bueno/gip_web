@@ -1,16 +1,16 @@
 import React from "react";
 import { Col } from "react-bootstrap";
-import NavBar from "../../Components/NavBar";
-import { listPath } from "./mock/configurationfile";
-import ColumnTaskState from "./ComponentsCard/ColumnTask/columnTask";
-import CardUser from "../CLPP/Components/CardUser";
-import NotificationBell from "../../Components/NotificationBell";
-import Cardregister from "./ComponentsCard/CardRegister/Cardregister";
-import ModalDefault from "./ComponentsCard/Modal/Modal";
-import PDFGenerator, { generateAndDownloadCSV } from "../../Class/FileGenerator";
-import { FilterPage } from "./ComponentsCard/Filter/FilterPage";
-import { InputCheckButton } from "../../Components/CustomButton";
-import GtppMainProps from "./Interfaces/IGtppMainProps";
+import NavBar from "../../../../Components/NavBar";
+import { listPath } from "../../mock/configurationfile";
+import ColumnTaskState from "../ColumnTask/columnTask";
+import CardUser from "../../../CLPP/Components/CardUser";
+import NotificationBell from "../../../../Components/NotificationBell";
+import Cardregister from "../CardRegister/Cardregister";
+import ModalDefault from "../Modal/Modal";
+import PDFGenerator, { generateAndDownloadCSV } from "../../../../Class/FileGenerator";
+import { FilterPage } from "../Filter/FilterPage";
+import { InputCheckButton } from "../../../../Components/CustomButton";
+import GtppMainProps from "../../Interfaces/IGtppMainProps";
 
 export default function GtppMain(props: GtppMainProps) {
   function HeaderFilters() {
@@ -77,7 +77,7 @@ export default function GtppMain(props: GtppMainProps) {
                   setSelectedTasks={props.setSelectedTasks}
                   title={state.description}
                   bg_color={state.color}
-                  isTheme={true}
+                  isTheme={false}
                   is_first_column={isFirstColumn}
                   addTask={() => {
                     props.setModalPageElement(<Cardregister reloadtask={props.loadTasks} assistenceFunction={() => props.setModalPage(false)} onClose={() => props.setModalPage(false)} />);

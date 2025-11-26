@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useMyContext } from "../../Context/MainContext";
 import { useWebSocket } from "./Context/GtppWsContext";
 import { iPropsInputCheckButton } from "../../Interface/iGTPP";
-import GtppMain from "./GtppMain";
+import FlowBoard from "./ComponentsCard/FlowBoard/FlowBoard";
 
 export default function Gtpp(): JSX.Element {
   const { setTitleHead, setModalPage, setModalPageElement, userLog } = useMyContext();
@@ -54,7 +54,7 @@ export default function Gtpp(): JSX.Element {
 
   return (
     <React.Fragment>
-      <GtppMain
+      <FlowBoard
         openMenu={openMenu}
         openFilterGolbal={openFilterGolbal}
         isHeader={isHeader}
