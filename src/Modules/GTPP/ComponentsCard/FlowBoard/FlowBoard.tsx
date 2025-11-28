@@ -11,6 +11,7 @@ import PDFGenerator, { generateAndDownloadCSV } from "../../../../Class/FileGene
 import { FilterPage } from "../Filter/FilterPage";
 import { InputCheckButton } from "../../../../Components/CustomButton";
 import GtppMainProps from "../../Interfaces/IGtppMainProps";
+import "./FlowBoard.css";
 
 export default function GtppMain(props: GtppMainProps) {
   function HeaderFilters() {
@@ -107,8 +108,33 @@ export default function GtppMain(props: GtppMainProps) {
     )
   }
 
+  function ModalThemeRegisterTask() {
+    return (
+      <div className="bg-dark">
+        <div className="position-absolute flowboard-head">
+          <div className="flowboard-body w-100 p-2">
+            <div className="d-flex justify-content-between">
+              <h2>Qual tema deseja vincular as tarefas?</h2>
+              <button onClick={() => props.setOpenThemeModal(false)} className="fa fa-solid fa-x btn btn-danger"></button>
+            </div>
+            <hr />
+            <div>
+              <select className="w-100 form-select" onChange={(e) => console.log(false)}>
+                <option value="" hidden>Selecione</option>
+              </select>
+            </div>
+            <div className="pt-2">
+              <button onClick={() => props.setOpenThemeModal(false)} className="btn btn-primary">Enviar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div id="moduleGTPP" className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0">
+      {props.openThemeModal && <ModalThemeRegisterTask />}      
       {props.openMenu && <NavBar list={listPath} />}
       {props.openFilterGolbal && <FilterPage />}
       <div className="h-100 d-flex overflow-hidden px-3 flex-grow-1">

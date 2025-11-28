@@ -32,9 +32,11 @@ export default interface GtppMainProps {
   task: any;
   taskDetails: any;
   openCardDefault: boolean;
+  openThemeModal: boolean;
   setOpenCardDefault: any;
   setModalPage: (value: boolean) => void;
   setModalPageElement: any;
   loadTasks: () => void;
   clearGtppWsContext: () => void;
+  setOpenThemeModal: any;
 }

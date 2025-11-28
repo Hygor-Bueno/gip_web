@@ -159,7 +159,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    */
   useEffect(() => {
     getThemeListformations();
-  }, [])
+  }, []);
 
   /**
    * Atualiza o callback de mensagens do WebSocket sempre que as dependências mudam.
@@ -330,6 +330,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   /**
    * Recupera detalhes de uma tarefa específica via API e atualiza o estado `taskDetails`.
+   * PODE SER AQUI 3
    * @function
    * @async
    * @returns {Promise<void>}

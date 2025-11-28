@@ -204,8 +204,6 @@ export function InputCheckbox(props: {
   onPosition: () => void, 
   isQuestion?: boolean 
 }) {
-  const [localChecked, setLocalChecked] = React.useState(props.yesNo);
-
 
   return (
     <div className='d-flex align-items-center col-12'>
