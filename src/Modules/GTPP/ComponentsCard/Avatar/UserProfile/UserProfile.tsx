@@ -5,7 +5,7 @@ import './Style.css';
 
 const UserProfile = ({ detailsmodaluser, data }: any) => {
   return (
-    <div>
+    <div className="p-2">
       <div className="d-flex align-items-center justify-content-between mb-3">
         <strong>Colaboradores</strong>
         <button className="btn btn-danger text-white" onClick={() => detailsmodaluser(true)}>X</button>

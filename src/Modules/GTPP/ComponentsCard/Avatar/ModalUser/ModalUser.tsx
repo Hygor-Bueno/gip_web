@@ -6,7 +6,7 @@ const ModalUser = (props: any) => {
   const [loadUserTask, setLoadUserTask] = useState(true);
 
   return (
-    <div className="border-dark bg-dark text-white rounded portrait d-flex flex-column justify-content-between">
+    <div className="border-dark bg-dark text-white rounded portrait d-flex flex-column justify-content-between p-2">
       {loadUserTask ? (
         <React.Fragment>
           {props.children}
