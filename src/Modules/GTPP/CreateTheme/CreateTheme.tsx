@@ -28,18 +28,22 @@ const CONFIG = {
 };
 
 function CreateTheme() {
-  const { themeList, getThemeListformations, getTask } = useWebSocket();
+  const { themeList, getThemeListformations, getTask, setGetTask } = useWebSocket();
   const { fetchData } = useConnection();
 
   const [openMenu, setOpenMenu] = useState(true);
+  const [showListTask, setShowListTask] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
   const [description, setDescription] = useState("");
   const [themeId, setThemeId] = useState(0);
-  const [numberTask, setNumberTask] = useState("");
   const [themeIdFk, setThemeIdFk] = useState("");
-  const [showListTask, setShowListTask] = useState(false);
+  const [descTheme, setDescTheme] = useState("");
+
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [selectedType, setSelectedType] = useState<"theme" | "task">("theme");
-  const [showModal, setShowModal] = useState(false);
+
+  const [selectedTasks, setSelectedTasks] = useState<any[]>([]);
 
   useEffect(() => {
     if (themeList && themeList.length > 0 && !themeIdFk) {
@@ -56,24 +60,29 @@ function CreateTheme() {
   }, [themeList]);
 
   const formattedTaskList = useMemo(() => {
-    return getTask?.map((item: any) => ({
+    return getTask?.map((item: any) => {
+      return ({
       id: { value: item.id, tag: "Número" },
       description: { value: item.description, tag: "Nome da Tarefa" },
       initial_date: { value: item.initial_date, tag: "Início" },
       final_date: { value: item.final_date, tag: "Fim" },
       state_id: { value: item.state_id, tag: "Estado" },
-      theme_id_fk: {value: item.theme_id_fk, tag: "Tema"}
-    })) || [];
+      theme_id_fk: {value: item.theme_id_fk, tag: "Tema", ocultColumn: true},
+      description_theme: {value: item.description_theme, tag: "Tema"}
+    })}) || [];
   }, [getTask]);
 
   const currentList = showListTask ? formattedTaskList : formattedThemeList;
-  const config = showListTask ? CONFIG.task : CONFIG.theme;
 
   const handleConfirmList = (selected: any[]) => {
-    if (!selected[0]) return;
-    setSelectedItem(selected[0]);
-    setSelectedType(showListTask ? "task" : "theme");
-    setShowModal(true);
+      if (!selected[0]) {
+        setThemeId(0);
+        setDescription("");
+        return;
+      };
+      setSelectedItem(selected[0]);
+      setSelectedType(showListTask ? "task" : "theme");
+      setShowModal(true);
   };
 
   const handleDelete = async () => {
@@ -87,26 +96,13 @@ function CreateTheme() {
 
     if (!response.error) {
       handleNotification("Sucesso!", "Tema excluído com sucesso", "success");
+      setShowModal(false);
       getThemeListformations();
       closeModal();
     }
   };
 
-  const handleEdit = () => {
-    if (!selectedItem) return;
-    if (selectedType === "theme") {
-      setThemeId(selectedItem.id_theme.value);
-      setDescription(selectedItem.description_theme.value);
-    } else if (selectedType === "task") {
-      setNumberTask(selectedItem.id.value);
-      setThemeIdFk(themeList?.[0]?.id || "");
-    }
-
-    closeModal();
-  };
-
   const closeModal = () => {
-    setShowModal(false);
     setSelectedItem(null);
     setSelectedType("theme");
   };
@@ -128,63 +124,113 @@ function CreateTheme() {
     if (response && !response.error) {
       handleNotification("Sucesso!", themeId > 0 ? "Tema atualizado" : "Tema criado", "success");
       setThemeId(0);
+      setShowModal(false);
       setDescription("");
       getThemeListformations();
     }
   };
 
-  const onHandleSubmitTask = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (!numberTask || !themeIdFk) return;
-
-    const response = await fetchData({
-      method: "PUT",
-      params: { id: numberTask, theme_id_fk: themeIdFk },
-      pathFile: "GTPP/Task.php",
-    });
-
-    if (response && !response.error) {
-      handleNotification("Sucesso!", "Tarefa vinculada com sucesso!", "success");
-      setNumberTask("");
+  const handleEdit = () => {
+    if (!selectedItem) return;
+    if (selectedType === "theme") {
+      setThemeId(selectedItem.id_theme.value);
+      setDescription(selectedItem.description_theme.value);
     }
+
+    setShowModal(false);
+  };
+
+  const onHandleSubmitTask = async (e:any) => {
+    e.preventDefault();
+    
+    if (selectedTasks.length === 0) return;
+
+     // selectedTasks:  capturando os dados da tabela
+     // setGetTask: estou sobrecarregando o frontend para trocar os dados localmente.
+    
+    for (const value of selectedTasks) {
+      const response = await fetchData({
+        method: "PUT",
+        params: { task_id: value.id.value, theme_id_fk: themeIdFk },
+        pathFile: "GTPP/Task.php",
+      });
+
+      if (!response.error) {
+        // === ATUALIZA LOCALMENTE ===
+        setGetTask((prev:any) =>
+          prev.map((task: any) =>
+            task.id === value.id.value
+              ? { ...task, theme_id_fk: themeIdFk, description_theme: descTheme}
+              : task
+          )
+        );
+      }
+    }
+
+    setSelectedTasks([]);
+    handleNotification("Sucesso!", "Tarefas atualizadas", "success");
+  };
+
+  const handleRemoveTheme = async (e:any) => {
+    e.preventDefault();
+    
+    if (selectedTasks.length === 0) return;
+    for (const value of selectedTasks) {
+      const response = await fetchData({
+        method: "PUT",
+        params: { task_id: value.id.value, theme_id_fk: null },
+        pathFile: "GTPP/Task.php",
+      });
+
+      if (!response.error) {
+        // === ATUALIZA LOCALMENTE ===
+        setGetTask((prev:any) =>
+          prev.map((task: any) =>
+            task.id === value.id.value
+              ? { ...task, theme_id_fk: null, description_theme: null }
+              : task
+          )
+        );
+      }
+    }
+
+    setSelectedTasks([]);
+    handleNotification("Sucesso!", "Tarefas desvinculadas", "success");
   };
 
   const getButtonTitle = () => (themeId === 0 ? "Criar Tema" : "Atualizar Tema");
 
   return (
-    <>
+    <React.Fragment>
       {openMenu && <NavBar list={listPath} />}
-
+      <ActionModal 
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        itemName={selectedItem?.description_theme?.value}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
       <ContentDefault
         openMenu={openMenu}
-        setOpenMenu={setOpenMenu}
         themeId={themeId}
-        setThemeId={setThemeId}
-        description={description}
-        setDescription={setDescription}
+        formattedList={currentList}
         fieldset={[
           fieldsetFormTheme(themeId, description, setDescription),
-          fieldsetFormThemeUpdate(numberTask, setNumberTask, themeIdFk, setThemeIdFk, themeList),
+          fieldsetFormThemeUpdate(themeIdFk, setThemeIdFk, setDescTheme, themeList),
         ]}
-        onHandleSubmitForm={[onHandleSubmitForm, onHandleSubmitTask]}
-        getButtonTitle={getButtonTitle}
-        formattedList={currentList}
         showListTask={showListTask}
+        setSelectedTasks={setSelectedTasks}
+        setOpenMenu={setOpenMenu}
+        setThemeId={setThemeId}
+        setDescription={setDescription}
+        getButtonTitle={getButtonTitle}
         setShowListTask={setShowListTask}
+        onHandleSubmitForm={[onHandleSubmitForm, onHandleSubmitTask]}
         handleConfirmList={handleConfirmList}
+        handleRemoveTheme={handleRemoveTheme}
+        getDescTheme={setDescTheme}
       />
-
-      <ActionModal
-        isOpen={showModal}
-        onClose={closeModal}
-        itemName={selectedItem ? config.modalTitle(selectedItem) : ""}
-        message={config.deleteMessage}
-        onDelete={config.deleteEnabled ? handleDelete : undefined}
-        onEdit={handleEdit}
-        editText={selectedType === "task" ? "Editar" : "Editar"}
-        deleteText={selectedType === "theme" ? "Excluir" : undefined}
-      />
-    </>
+    </React.Fragment>
   );
 }
 

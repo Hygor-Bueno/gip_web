@@ -203,7 +203,7 @@ export default function CustomTable(props: CustomTableProps) {
               return (
                 <tr key={index} className={isSelected ? "table-success" : ""} onClick={() => {
                     toggleRowSelection(item);
-                    props.onRowClick?.(item); // Edição jonatas 21/11/2025
+                    props.onRowClick?.(item); // chat de vez pegar um por um quero fazer um push e eviar o proximo dado para minha lista
                   }}>
                   {columnKeys.map((key) => !item[key].ocultColumn && (
                     <td key={key} className="py-2">

@@ -67,7 +67,7 @@ export interface iGtppWsContextType {
     setOpenCardDefault: (value: boolean) => void;
     loadTasks: (admin?: boolean) => void;
     reqTasks: () => Promise<void>;
-    setGetTask: (array: any[]) => void;
+    setGetTask: any;
     updateStates: (array: any[]) => void;
     setOnSounds: (value: boolean) => void;
     setNotifications: (value: CustomNotification[]) => void;

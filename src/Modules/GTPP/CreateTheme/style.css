@@ -1,0 +1,93 @@
+.action-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.action-modal-container {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 380px;
+  max-width: 90%;
+  position: relative;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s ease-out;
+}
+
+.action-modal-title {
+  margin: 0 0 10px 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.action-modal-message {
+  text-align: center;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.action-modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.action-modal-btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.action-modal-btn.edit {
+  background: #007bff;
+  color: white;
+}
+
+.action-modal-btn.edit:hover {
+  background: #0063cc;
+}
+
+.action-modal-btn.delete {
+  background: #dc3545;
+  color: white;
+}
+
+.action-modal-btn.delete:hover {
+  background: #b52a37;
+}
+
+.action-modal-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.action-modal-close:hover {
+  color: #000;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

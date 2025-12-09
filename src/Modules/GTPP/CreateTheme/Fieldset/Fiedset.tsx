@@ -35,14 +35,12 @@ export function fieldsetFormTheme(themeId: any, description: string, setDescript
 }
 
 export function fieldsetFormThemeUpdate(
-  numberTask: string | number,
-  setNumberTask: React.Dispatch<React.SetStateAction<any>>,
   themeIdFk: string | number,
   setThemeIdFk: React.Dispatch<React.SetStateAction<any>>,
+  setDescTheme: React.Dispatch<React.SetStateAction<any>>,
   themeList: { id_theme: string | number; description_theme: string }[] | undefined
 ) {
   const optionsTheme = themeList?.map((theme) => {
-    console.log(theme);
     return ({
     value: theme.id_theme,
     label: theme.description_theme,
@@ -52,30 +50,21 @@ export function fieldsetFormThemeUpdate(
     {
       attributes: { className: "mb-3" },
       item: {
-        label: "Numero da tarefa",
-        mandatory: true,
-        captureValue: {
-          type: "text" as const,
-          value: numberTask,
-          onChange: (e: React.ChangeEvent<HTMLInputElement>) => setNumberTask(e.target.value),
-          placeholder: "Ex: 001, 002...",
-          className: "form-control",
-        },
-      },
-    },
-    {
-      attributes: { className: "mb-3" },
-      item: {
         label: "Qual tema deseja vincular?",
         mandatory: true,
         captureValue: {
           type: "select" as const,                    
           name: "theme_id",                           
           value: themeIdFk,
-          onChange: (e: React.ChangeEvent<HTMLSelectElement>) => setThemeIdFk(e.target.value),             
+          onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {
+            const id = e.target.value;
+            setThemeIdFk(id);
+            const theme = themeList?.find(t => t.id_theme == id);
+            setDescTheme(theme?.description_theme || "");
+          },
           required: true,
           className: "form-select",                   
-          options: optionsTheme,                      
+          options: optionsTheme,
         },
       },
     },

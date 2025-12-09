@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import CustomForm from "../../../Components/CustomForm";
 import CustomTable from "../../../Components/CustomTable";
 
@@ -8,7 +8,6 @@ interface ContentDefaultProps {
 
   themeId: number;
   setThemeId: React.Dispatch<React.SetStateAction<number>>;
-  description: string;
   setDescription: React.Dispatch<React.SetStateAction<string>>;
 
   numberTask?: string | number;
@@ -27,6 +26,12 @@ interface ContentDefaultProps {
   showListTask: boolean;          // ← Qual lista está visível
   setShowListTask: React.Dispatch<React.SetStateAction<boolean>>;
 
+  setSelectedTasks: React.Dispatch<React.SetStateAction<any>>;
+  
+  handleRemoveTheme: (selected: any) => void;
+
+  getDescTheme: React.Dispatch<React.SetStateAction<any>>;
+
   handleConfirmList: (selected: any[]) => void;
 }
 
@@ -36,7 +41,6 @@ export const ContentDefault = React.memo(
     setOpenMenu,
     themeId,
     setThemeId,
-    description,
     setDescription,
 
     fieldset,
@@ -47,10 +51,14 @@ export const ContentDefault = React.memo(
     showListTask,
     setShowListTask,
     handleConfirmList,
+    setSelectedTasks,
+
+    getDescTheme,
+
+    handleRemoveTheme
   }: ContentDefaultProps) => {
     const [fieldsetCreate, fieldsetLink] = fieldset;
     const [onSubmitTheme, onSubmitTask] = onHandleSubmitForm;
-
     const isEditingTheme = themeId > 0;
 
     const clearForm = () => {
@@ -64,16 +72,21 @@ export const ContentDefault = React.memo(
           <h2>{showListTask ? "Vincular Tarefa ao Tema" : "Gerenciar Temas"}</h2>
 
           <div className="d-flex gap-2">
-            {/* Botão de alternar entre lista de temas e tarefas */}
+            {showListTask && 
             <button
+              className="btn btn-danger"
+              title={"desvincular"}
+              onClick={handleRemoveTheme}
+            >
+              <i className={`fa fa-solid fa-delete-left text-white`}></i>
+            </button>}
+             <button
               className="btn btn-secondary"
               title={showListTask ? "Ver temas" : "Vincular tarefa"}
               onClick={() => setShowListTask((prev) => !prev)}
             >
               <i className={`fa fa-solid ${showListTask ? "fa-palette" : "fa-tasks"} text-white`}></i>
             </button>
-
-            {/* Botão mobile menu */}
             <button
               id="btn-eyes-themes"
               className="btn btn-outline-secondary d-md-none"
@@ -81,31 +94,29 @@ export const ContentDefault = React.memo(
             >
               <i className={`fa-solid text-dark ${openMenu ? "fa-eye" : "fa-eye-slash"}`}></i>
             </button>
-
-            {/* Limpar formulário */}
-            <button onClick={clearForm} className="btn btn-secondary" title="Limpar formulário">
-              <i className="fa-solid fa-eraser text-white"></i>
-            </button>
           </div>
         </header>
 
         <section id="create-and-show-theme" className="d-md-flex gap-4">
-          {/* Formulário */}
           <div id="create-your-theme" style={{ maxWidth: "400px" }}>
             {showListTask ? (
-              <CustomForm
-                fieldsets={fieldsetLink}
-                onAction={onSubmitTask}
-                titleButton="Vincular Tarefa"
-                classButton="btn btn-success w-100"
-              />
+              <React.Fragment>
+                <CustomForm
+                  fieldsets={fieldsetLink}
+                  onAction={onSubmitTask}
+                  titleButton="Vincular Tarefa"
+                  classButton="btn btn-success w-100"
+                />
+              </React.Fragment>
             ) : (
-              <CustomForm
-                fieldsets={fieldsetCreate}
-                onAction={onSubmitTheme}
-                titleButton={getButtonTitle()}
-                classButton={isEditingTheme ? "btn btn-warning w-100" : "btn btn-primary w-100"}
-              />
+              <React.Fragment>
+                <CustomForm
+                  fieldsets={fieldsetCreate}
+                  onAction={onSubmitTheme}
+                  titleButton={getButtonTitle()}
+                  classButton={isEditingTheme ? "btn btn-warning w-100" : "btn btn-primary w-100"}
+                />
+              </React.Fragment>
             )}
           </div>
 
@@ -115,7 +126,20 @@ export const ContentDefault = React.memo(
               <CustomTable
                 list={formattedList}
                 onConfirmList={handleConfirmList}
-                maxSelection={1}
+                {...(!showListTask && { maxSelection: 1 })}
+                {...(showListTask && { hiddenButton: true })}
+                onRowClick={showListTask ? (item: any) => {
+                  if (item.description_theme) {
+                    getDescTheme(item.description_theme.value);
+                  }
+
+                  setSelectedTasks((prev:any) => {
+                    if (prev.some((t:{id: {value: any}}) => t.id.value === item.id.value)) {
+                      return prev.filter((t:{id :{value: any}}) => t.id.value !== item.id.value);
+                    }
+                    return [...prev, item];
+                  });
+                } : null}
               />
             ) : (
               <div className="text-center text-muted mt-5">

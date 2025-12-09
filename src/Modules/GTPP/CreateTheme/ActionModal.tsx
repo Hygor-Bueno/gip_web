@@ -1,20 +1,22 @@
-// ActionModal.tsx
+import React from 'react';
+import './style.css';
+
 interface ActionModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  itemName: string;
+  isOpen?: boolean;
+  onClose?: () => void;
+  itemName?: string;
   message?: string;
   onDelete?: () => void;
-  onEdit?: () => void;
+  onEdit?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   editText?: string;
   deleteText?: string;
 }
 
 export const ActionModal: React.FC<ActionModalProps> = ({
-  isOpen,
+  isOpen = false,
   onClose,
-  itemName,
-  message = "Tem certeza que deseja continuar?",
+  itemName = "Item X",
+  message = "Quais operações deseja execultar?",
   onDelete,
   onEdit,
   editText = "Editar",
@@ -23,34 +25,37 @@ export const ActionModal: React.FC<ActionModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop" style={{ display: "block" }}>
-      <div className="modal fade show d-block" tabIndex={-1}>
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Confirmação</h5>
-              <button className="btn-close" onClick={onClose}></button>
+    <div className="action-modal-overlay" onClick={onClose}>
+      <div 
+        className="action-modal-container"
+        onClick={(e) => e.stopPropagation()} // impede clicar dentro e fechar
+      >
+        {/* Título */}
+        {itemName && (
+          <React.Fragment>
+            <div className='text-center'>
+              <b className='text-primary'>Categoria</b>
+              <h2 className="action-modal-title mt-3">{itemName}</h2>
             </div>
-            <div className="modal-body">
-              <p>{message}</p>
-              <p className="fw-bold text-primary">"{itemName}"</p>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={onClose}>
-                Cancelar
-              </button>
-              {onEdit && (
-                <button className="btn btn-warning" onClick={onEdit}>
-                  {editText}
-                </button>
-              )}
-              {onDelete && (
-                <button className="btn btn-danger" onClick={onDelete}>
-                  {deleteText}
-                </button>
-              )}
-            </div>
-          </div>
+          </React.Fragment>
+        )}
+
+        {/* Mensagem */}
+        <p className="action-modal-message">{message}</p>
+
+        {/* Ações */}
+        <div className="action-modal-buttons">
+          {onEdit && (
+            <button className="action-modal-btn edit" onClick={onEdit}>
+              {editText}
+            </button>
+          )}
+
+          {onDelete && (
+            <button className="action-modal-btn delete" onClick={onDelete}>
+              {deleteText}
+            </button>
+          )}
         </div>
       </div>
     </div>
