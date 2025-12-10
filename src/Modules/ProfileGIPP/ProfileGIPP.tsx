@@ -134,7 +134,7 @@ const ProfileGIPP = () => {
         .profileGipp > li { font-size: 1rem; }
         .btn-close-menu { top: 1rem; right: 1rem; }
         .image-background-peg-pese {
-          background-image: url("${process.env.REACT_APP_API_GIPP_BASE_URL}:${process.env.REACT_APP_API_GIPP_PORT_SERVER_INTRA}/View/CLPP/static/media/bg_interlagos.b58bb3c23877f2ddf775.jpg");
+          background-image: url("http://gigpp.com.br:72/GLOBAL/View/EPP_XXIII/static/media/pegpese_bolonha.bc54fd2a07e8fce715b5.jpg");
         }
 
         button-photo {

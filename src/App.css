@@ -325,7 +325,7 @@ label, h1 {
 }
 
 .image-background-peg-pese {
-  background-image: url("http://192.168.0.99:71/GLOBAL/View/CLPP/static/media/bg_interlagos.b58bb3c23877f2ddf775.jpg");
+  background-image: url("../src/Assets/Image/pegpese_mercado.jpg");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
