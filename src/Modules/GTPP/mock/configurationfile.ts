@@ -21,6 +21,17 @@ export const listPathEPP = [
 ];
 
 
+export const listPathCFPP = [
+    { page: '/GIPP', children: 'Home', icon: 'fa fa-home', },
+    {
+        page: '/', children: 'Sair', icon: 'fa fa-sign-out', actionAdd: () => {
+            localStorage.removeItem("tokenGIPP");
+            localStorage.removeItem("codUserGIPP");
+        }
+    }
+];
+
+
 
 export const fieldsetsRegister = (
     optionsCompay: [{ value: string, label: string }],

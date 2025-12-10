@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { listPath } from '../GTPP/mock/configurationfile';
+import { useEffect, useState } from 'react';
+import { listPathCFPP } from '../GTPP/mock/configurationfile';
 import NavBar from '../../Components/NavBar';
 import CustomNavbar from './Components/CustomNavbar';
 import { navItems } from './Data/configs';
@@ -24,7 +24,7 @@ export default function Cfpp() {
     return (
         <CfppProvider>
             <div className='d-flex flex-row w-100 h-100 container-fluid p-0 m-0'>
-                <NavBar list={listPath} />
+                <NavBar list={listPathCFPP} />
                 <section className='d-none d-sm-flex flex-column overflow-hidden h-100 w-100 p-2'>
                     <CustomNavbar items={navItems(setRefNav)} />
                     {refNav.includes('register') && <TimeRecords />}
