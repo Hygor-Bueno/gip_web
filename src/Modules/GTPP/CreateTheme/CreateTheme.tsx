@@ -7,28 +7,10 @@ import { handleNotification } from "../../../Util/Util";
 import { ContentDefault } from "./ContentDefault";
 import { ActionModal } from "./ActionModal";
 import { fieldsetFormTheme, fieldsetFormThemeUpdate } from "./Fieldset/Fiedset";
-
-const CONFIG = {
-  theme: {
-    type: "theme" as const,
-    modalTitle: (item: any) => item?.description_theme?.value || "Tema",
-    getId: (item: any) => item?.id_theme?.value,
-    deleteEnabled: true,
-    deleteMessage: "Este tema será excluído permanentemente.",
-    editButtonText: "Editar Tema",
-  },
-  task: {
-    type: "task" as const,
-    modalTitle: (item: any) => item?.description?.value || "Tarefa",
-    getId: (item: any) => item?.id?.value,
-    deleteEnabled: false, // ainda não tem delete de tarefa
-    deleteMessage: "Esta tarefa será desvinculada.",
-    editButtonText: "Vincular ao Tema",
-  },
-};
+import { DateConverter } from "../Class/DataConvert";
 
 function CreateTheme() {
-  const { themeList, getThemeListformations, getTask, setGetTask } = useWebSocket();
+  const { themeList, setThemeList, getTask, setGetTask } = useWebSocket();
   const { fetchData } = useConnection();
 
   const [openMenu, setOpenMenu] = useState(true);
@@ -64,9 +46,9 @@ function CreateTheme() {
       return ({
       id: { value: item.id, tag: "Número" },
       description: { value: item.description, tag: "Nome da Tarefa" },
-      initial_date: { value: item.initial_date, tag: "Início" },
-      final_date: { value: item.final_date, tag: "Fim" },
-      state_id: { value: item.state_id, tag: "Estado" },
+      initial_date: { value: DateConverter.formatDate(item.initial_date), tag: "Início" },
+      final_date: { value: DateConverter.formatDate(item.final_date), tag: "Fim" },
+      state_id: { value: item.state_description, tag: "Estado" },
       theme_id_fk: {value: item.theme_id_fk, tag: "Tema", ocultColumn: true},
       description_theme: {value: item.description_theme, tag: "Tema"}
     })}) || [];
@@ -95,21 +77,20 @@ function CreateTheme() {
     });
 
     if (!response.error) {
-      handleNotification("Sucesso!", "Tema excluído com sucesso", "success");
+      handleNotification("Sucesso!", response.message, "success");
+      setThemeList((prev: any[]) =>
+        prev.filter((theme) => theme.id_theme !== selectedItem.id_theme.value)
+      );
       setShowModal(false);
-      getThemeListformations();
-      closeModal();
     }
-  };
-
-  const closeModal = () => {
-    setSelectedItem(null);
-    setSelectedType("theme");
   };
 
   const onHandleSubmitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!description.trim()) return;
+    if (!description.trim()) {
+      handleNotification( "Atenção!", "O campo de descrição é obrigatório.", "danger");
+      return;
+    }
 
     const params: any = { description_theme: description };
     const method: "POST" | "PUT" = themeId > 0 ? "PUT" : "POST";
@@ -122,11 +103,30 @@ function CreateTheme() {
     });
 
     if (response && !response.error) {
-      handleNotification("Sucesso!", themeId > 0 ? "Tema atualizado" : "Tema criado", "success");
+      handleNotification(
+        "Sucesso!",
+        themeId > 0 ? "Tema atualizado" : "Tema criado",
+        "success"
+      );
+
+      const newItem = {
+        id_theme: response.data.last_id || themeId,
+        description_theme: description,
+      };
+
+      setThemeList((prev: any) => {
+        if (themeId > 0) {
+          return prev?.map((theme: any) =>
+            theme?.id_theme === themeId ? { ...theme, ...newItem } : theme
+          );
+        } else {
+          return [...prev, newItem];
+        }
+      });
+
       setThemeId(0);
       setShowModal(false);
       setDescription("");
-      getThemeListformations();
     }
   };
 
@@ -145,15 +145,18 @@ function CreateTheme() {
     
     if (selectedTasks.length === 0) return;
 
-     // selectedTasks:  capturando os dados da tabela
+    let captureError:any = []; 
+
+     // selectedTasks:  capturando os dados da tabela.
      // setGetTask: estou sobrecarregando o frontend para trocar os dados localmente.
-    
     for (const value of selectedTasks) {
       const response = await fetchData({
         method: "PUT",
         params: { task_id: value.id.value, theme_id_fk: themeIdFk },
-        pathFile: "GTPP/Task.php",
+        pathFile: "GTPP/Task.php"
       });
+
+      captureError.push(response)
 
       if (!response.error) {
         // === ATUALIZA LOCALMENTE ===
@@ -168,7 +171,6 @@ function CreateTheme() {
     }
 
     setSelectedTasks([]);
-    handleNotification("Sucesso!", "Tarefas atualizadas", "success");
   };
 
   const handleRemoveTheme = async (e:any) => {
@@ -214,15 +216,10 @@ function CreateTheme() {
         openMenu={openMenu}
         themeId={themeId}
         formattedList={currentList}
-        fieldset={[
-          fieldsetFormTheme(themeId, description, setDescription),
-          fieldsetFormThemeUpdate(themeIdFk, setThemeIdFk, setDescTheme, themeList),
-        ]}
         showListTask={showListTask}
+        fieldset={[fieldsetFormTheme(themeId, description, setDescription),fieldsetFormThemeUpdate(themeIdFk, setThemeIdFk, setDescTheme, themeList)]}
         setSelectedTasks={setSelectedTasks}
         setOpenMenu={setOpenMenu}
-        setThemeId={setThemeId}
-        setDescription={setDescription}
         getButtonTitle={getButtonTitle}
         setShowListTask={setShowListTask}
         onHandleSubmitForm={[onHandleSubmitForm, onHandleSubmitTask]}

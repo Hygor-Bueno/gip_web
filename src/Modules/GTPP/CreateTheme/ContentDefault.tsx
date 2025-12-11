@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import CustomForm from "../../../Components/CustomForm";
 import CustomTable from "../../../Components/CustomTable";
 
@@ -7,8 +7,6 @@ interface ContentDefaultProps {
   setOpenMenu: React.Dispatch<React.SetStateAction<boolean>>;
 
   themeId: number;
-  setThemeId: React.Dispatch<React.SetStateAction<number>>;
-  setDescription: React.Dispatch<React.SetStateAction<string>>;
 
   numberTask?: string | number;
   setNumberTask?: React.Dispatch<React.SetStateAction<any>>;
@@ -16,14 +14,15 @@ interface ContentDefaultProps {
   setThemeIdFk?: React.Dispatch<React.SetStateAction<any>>;
 
   fieldset: [createFieldset: any[], linkFieldset: any[]];
+
   onHandleSubmitForm: [
     onSubmitTheme: (e: React.MouseEvent<HTMLButtonElement>) => void,
     onSubmitTask: (e: React.MouseEvent<HTMLButtonElement>) => void
   ];
   getButtonTitle: () => string;
 
-  formattedList: any[];           // ← Lista já formatada (temas ou tarefas)
-  showListTask: boolean;          // ← Qual lista está visível
+  formattedList: any[];
+  showListTask: boolean;
   setShowListTask: React.Dispatch<React.SetStateAction<boolean>>;
 
   setSelectedTasks: React.Dispatch<React.SetStateAction<any>>;
@@ -40,8 +39,6 @@ export const ContentDefault = React.memo(
     openMenu,
     setOpenMenu,
     themeId,
-    setThemeId,
-    setDescription,
 
     fieldset,
     onHandleSubmitForm,
@@ -60,11 +57,6 @@ export const ContentDefault = React.memo(
     const [fieldsetCreate, fieldsetLink] = fieldset;
     const [onSubmitTheme, onSubmitTask] = onHandleSubmitForm;
     const isEditingTheme = themeId > 0;
-
-    const clearForm = () => {
-      setThemeId(0);
-      setDescription("");
-    };
 
     return (
       <main id="creating-theme-section" className="px-3 w-100">
@@ -120,7 +112,6 @@ export const ContentDefault = React.memo(
             )}
           </div>
 
-          {/* Tabela */}
           <div id="view-your-theme" className="flex-fill overflow-auto" style={{ height: "75vh" }}>
             {formattedList.length > 0 ? (
               <CustomTable
@@ -145,9 +136,7 @@ export const ContentDefault = React.memo(
               <div className="text-center text-muted mt-5">
                 <i className="fa fa-inbox fa-3x mb-3"></i>
                 <p>
-                  {showListTask
-                    ? "Nenhuma tarefa disponível para vincular."
-                    : "Nenhum tema criado ainda."}
+                  {showListTask ? "Nenhuma tarefa disponível para vincular." : "Nenhum tema criado ainda."}
                 </p>
               </div>
             )}

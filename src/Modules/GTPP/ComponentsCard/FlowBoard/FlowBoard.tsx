@@ -28,7 +28,7 @@ export default function GtppMain(props: GtppMainProps) {
               <option value="" hidden>
                 Selecione
               </option>
-              {props.themeList?.map((theme) => (
+              {props?.themeList?.map((theme) => (
                 <option key={theme.id_theme} value={theme.id_theme}>
                   {theme.description_theme}
                 </option>

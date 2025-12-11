@@ -86,6 +86,7 @@ export interface iGtppWsContextType {
     getUser?: any; // FX 02 - TIPAGEM OBRIGATORIA. - Jonatas
     setGetUser?: any; //FX - TIPAGEM OBRIGATORIA. WEBSOCKET
     themeList?: any; // FX  - TIPAGEM OBRIGATORIA.
+    setThemeList: any; // FX - TIPAGEM OBRIGATORIA.
 
     getThemeListformations?: any;
 

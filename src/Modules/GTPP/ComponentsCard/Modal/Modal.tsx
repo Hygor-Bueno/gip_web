@@ -258,16 +258,10 @@ const ModalDefault: React.FC<TaskItem> = (props) => {
   });
 
   const { task, taskPercent } = useWebSocket();
-
+  
   return (
     <div className="zIndex99 row">
-      <div className="col-11 col-sm-10 col-md-8 col-lg-8 col-xl-6 h-100 position-relative" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: 'white',
-        borderRadius: "calc((1vh + 1vw) / 2)"
-      }}>
-
+      <div className="col-11 col-sm-10 col-md-8 col-lg-8 col-xl-6 h-100 position-relative modal-flex">
         <section className="header-modal-default my-2">
           <HeaderModal color="danger" description={task.description} taskParam={task} onClick={props.close_modal} />
           <ProgressBar progressValue={taskPercent} colorBar="#006645" />

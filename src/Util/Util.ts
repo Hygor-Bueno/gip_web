@@ -226,7 +226,7 @@ export async function fetchDataFull(req: iReqConn) {
         if (req.params) objectReq.body = JSON.stringify(req.params);
         const response = await fetch(URL, objectReq);
         const body = await response.json();
-        result = body;
+        result = body;        
         if (body.error) throw new Error(body.message);
     } catch (messageErr: any) {
         const translate = new Translator(messageErr.message);

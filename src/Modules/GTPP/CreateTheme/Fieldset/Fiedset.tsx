@@ -24,8 +24,7 @@ export function fieldsetFormTheme(themeId: any, description: string, setDescript
         captureValue: {
           type: "text",
           value: description,
-          onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-            setDescription(e.target.value),
+          onChange: (e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value),
           placeholder: "Ex: Tema Escuro, Tema Natal, etc...",
           className: "form-control",
         },

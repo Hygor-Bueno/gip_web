@@ -76,7 +76,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * Lista de Temas(categorias) que poderemos visualisar.
    * Cada usuário vai ter seus temas separados por usuário.
    */
-  const [themeList, setThemeList] = useState<any>();
+  const [themeList, setThemeList] = useState<any>([]);
 
   /**
    * Indica se o usuário atual possui privilégios de administrador.
@@ -263,14 +263,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     async function getThemeListformations() {
     setLoading(true);
     try {
-      const response: any = await fetchData({method: "GET",pathFile: "GTPP/Theme.php",params: null,urlComplement: "&user_theme=1"});
+      const response: any = await fetchData({method: "GET",pathFile: "GTPP/Theme.php",params: null,urlComplement: "&user_theme=1", exception: ["No data"]});
       if (response.error) throw new Error(response.message || "Erro ao carregar temas");
       const themes = Array.isArray(response.data) ? response.data : [];
       updateThemeList(themes);
       localStorage.gtppThemeList = JSON.stringify(themes);
     } catch (error: any) {
       console.error("Erro ao carregar temas:", error.message);
-      handleNotification("Erro", "Não foi possível carregar os temas.", "danger");
     } finally {
       setLoading(false);
     }
@@ -1136,6 +1135,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         isAdm,
         openCardDefault,
         themeList,
+        setThemeList,
         updateItemTaskFile,
         updatedForQuestion,
         reloadPagePercent,

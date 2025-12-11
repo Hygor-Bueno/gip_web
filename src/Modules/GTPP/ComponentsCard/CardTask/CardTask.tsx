@@ -42,9 +42,10 @@ const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
     return (
         <div title={`Tarefa: ${props.title_card}`} {...props} className={`card-task-container modal-container ${animationTask} modal-Xsmall cursor-pointer p-2`}>
             <React.Fragment>
+                <h1 className="fw-bold card-text">#{props.id}</h1>
                 <div className="card-task-header d-flex justify-content-between col-12 gap-3">
                     <div className="d-flex justify-content-between col-12 mb-2">
-                        <h1 className="fw-bold card-text">#{props.id} {props.title_card || "Tarefa sem nome"}</h1>
+                        <h1 className="fw-bold card-text">{props.title_card || "Tarefa sem nome"}</h1>
                         <NotificationBell idTask={parseInt(props.id || '0')} />
                     </div>
                 </div>
