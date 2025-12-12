@@ -208,9 +208,12 @@ function CreateTheme() {
       <ActionModal 
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        itemName={selectedItem?.description_theme?.value}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        itemName={selectedItem?.description_theme?.value || null}
+        message={!showListTask ? "Quais operações deseja execultar?" : "Deseja realmente desvincular esse tema a essa tarefa?"}
+        deleteText={!showListTask ? "Excluir" : "Desvincular"}
+        editText={!showListTask ? "Editar" : "Cancelar"}
+        onEdit={() => !showListTask ? handleEdit() : setShowModal(false)}
+        onDelete={(e) => {!showListTask ?  handleDelete() : (<>{handleRemoveTheme(e)}{setShowModal(false)}</>)}}
       />
       <ContentDefault
         openMenu={openMenu}
@@ -224,7 +227,7 @@ function CreateTheme() {
         setShowListTask={setShowListTask}
         onHandleSubmitForm={[onHandleSubmitForm, onHandleSubmitTask]}
         handleConfirmList={handleConfirmList}
-        handleRemoveTheme={handleRemoveTheme}
+        handleRemoveTheme={() => selectedTasks.length > 0 && setShowModal(true)}
         getDescTheme={setDescTheme}
       />
     </React.Fragment>
