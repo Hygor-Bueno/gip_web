@@ -4,9 +4,9 @@ import useEppFetchOrder from "../EPPFetch/useEppFetchOrder";
 import { tItemTable } from "../../../types/types"; // ajuste o caminho se precisar
 
 function TableClient() {
-    const { allOrders } = useEppFetchOrder(); // já vem os dados da API aqui
+    const { allOrders } = useEppFetchOrder();
     const [listaPedidos, setListaPedidos] = useState<tItemTable[]>([]);
-    const [selectedPedido, setSelectedPedido] = useState<tItemTable | null>(null);
+    const [selectedPedido, setSelectedPedido] = useState<[]>([]);
 
     // Função que transforma o JSON da API no formato que o CustomTable AMA
     const convertApiToTable = (apiData: any[]): tItemTable[] => {
@@ -15,7 +15,7 @@ function TableClient() {
             nameClient: { value: item.nameClient || "-", tag: "Cliente", ocultColumn: false, minWidth: "200px" },
             fone: { 
                 value: item.fone ? `(${item.fone.slice(0,2)}) ${item.fone.slice(2,7)}-${item.fone.slice(7)}` : "-", 
-                tag: "Telefone", ocultColumn: false 
+                tag: "Telefone", ocultColumn: false, minWidth: "150px"
             },
             deliveryDate: { 
                 value: new Date(item.deliveryDate).toLocaleDateString('pt-BR'), 
@@ -38,13 +38,8 @@ function TableClient() {
                     .replace(/ - \d+ Un\..*?\nSubtotal:.*?\n\n?/g, " • ")
                     .replace(/\n/g, " ")
                     .trim() || "Sem itens",
-                tag: "Itens", ocultColumn: false, minWidth: "400px" 
-            },
-            obs: { 
-                value: (item.obs || "").trim(), 
-                tag: "Obs", 
-                ocultColumn: !(item.obs?.trim()) 
-            },
+                tag: "Descrição", ocultColumn: false, minWidth: "400px" 
+            }
         }));
     };
 
@@ -60,24 +55,18 @@ function TableClient() {
     if (!allOrders?.data) {
         return <div>Carregando pedidos...</div>;
     }
-
-    const handleRowClick = (row: tItemTable) => {
-        console.log("Linha clicada:", row); // aqui você vê o item
-        setSelectedPedido(row); // conecta com estado externo
-    };
     
     return (
         <div className="w-100 overflow-auto">
-            <div style={{height: '90vh'}}>
+            <div style={{ width: "calc(100% - 50px)", height: 'calc(100vh - 100px)' }}>
                 {listaPedidos.length > 0 && (<CustomTable
                     list={listaPedidos}                    // ← AQUI USA OS DADOS CONVERTIDOS
-                    onConfirmList={(selecionados) => {
-                        console.log("Selecionados:", selecionados);
-                        console.log(selectedPedido);
+                    onConfirmList={(row: any) => {
+                        setSelectedPedido(row);
                     }}
                     selectionKey="idOrder"                 // ← OBRIGATÓRIO PRA SELEÇÃO NÃO QUEBRAR
                     hiddenButton={false}
-                    onRowClick={(item:any) => handleRowClick(item)} // ou true se não quiser os botões
+                    maxSelection={1}
                 />)}
             </div>
         </div>
