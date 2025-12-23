@@ -81,7 +81,7 @@ export interface iGtppWsContextType {
     changeDescription: (description: string, id: number, descLocal: string) => void;
     stopAndToBackTask: (taskId: number, resource: string | null, date: string | null, taskList: any) => void;
     changeObservedForm: (taskId: number, subId: number, value: string, isObservetion: boolean) => void;
-    setIsAdm: (value: boolean) => void;
+    setIsAdm: (value: any) => void;
     
     getUser?: any; // FX 02 - TIPAGEM OBRIGATORIA. - Jonatas
     setGetUser?: any; //FX - TIPAGEM OBRIGATORIA. WEBSOCKET

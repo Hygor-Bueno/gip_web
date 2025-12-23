@@ -2,43 +2,66 @@ import { ITask } from "../../../../Interface/iGIPP";
 
 export const filterTasks = (
     tasks: ITask[], 
-    searchTerm: String = "", 
-    rangeDateInitial: String = "", 
-    rangeDateInitialFinal: String = "", 
-    rangeDateFinal: String = "", 
-    rangeDateFinalFinal: String = "", 
-    priority: string,
-    id_themes: string,
-    IdentityDataUser: Number, 
-    user_id: any) => {
+    searchTerm: string = "", 
+    rangeDateInitial: string = "", 
+    rangeDateInitialFinal: string = "", 
+    rangeDateFinal: string = "", 
+    rangeDateFinalFinal: string = "", 
+    priority: string = "",
+    id_themes: string = "",
+    IdentityDataUser: number, 
+    user_id: {id: number}
+) => {
     try {
-        let filtred: any = tasks;
-        if(searchTerm !== "") filtred = searchTask(filtred, searchTerm);
-        if(priority !== "") filtred = priorityTask(filtred, priority);
-        if(IdentityDataUser) filtred = userIndentity(filtred, IdentityDataUser, user_id);
-        if(id_themes && id_themes.length > 0) filtred = filterTaskWithTheme(filtred, id_themes);
-        if(rangeDateInitial !== "" && rangeDateInitialFinal !== "") filtred = filterDate(filtred, rangeDateInitial, rangeDateInitialFinal,"initial_date");
-        if(rangeDateFinal !== "" && rangeDateFinalFinal !== "") filtred = filterDate(filtred, rangeDateFinal, rangeDateFinalFinal,"final_date");
-        return filtred;
+        let filtered = tasks;
+
+        if (id_themes) filtered = filterTaskWithTheme(filtered, id_themes);
+        if (searchTerm) filtered = searchTask(filtered, searchTerm);
+        if (priority) filtered = priorityTask(filtered, priority);
+        if (IdentityDataUser) filtered = userIdentity(filtered, IdentityDataUser, user_id);
+        if (rangeDateInitial && rangeDateInitialFinal) filtered = filterDate(filtered, rangeDateInitial, rangeDateInitialFinal, "initial_date");
+        if (rangeDateFinal && rangeDateFinalFinal) filtered = filterDate(filtered, rangeDateFinal, rangeDateFinalFinal, "final_date");
+
+        return filtered;
     } catch (error: any) {
-        console.error(error.message);
+        console.error(error.message);   
         return tasks;
     }
 };
-function filterTaskWithTheme(task: ITask[], id_themes: string) {
-  return task.filter(task => task.theme_id_fk == id_themes);
+
+function filterTaskWithTheme(tasks: any,id_themes: string | string[] | null | undefined) {
+  if (id_themes == null) return tasks;
+  const themeIds = Array.isArray(id_themes) ? id_themes.map(String) : [String(id_themes)];
+  const filtered = tasks.filter((task:any) => themeIds.includes(String(task.theme_id_fk)));
+  return filtered;  
 }
-function filterDate(task: ITask[], rangeDateInitial:String, rangeDateInitialFinal:String,dataRef:string){
-    return task.filter((task:any) => task[dataRef] >= rangeDateInitial && task[dataRef] <= rangeDateInitialFinal);
+
+function filterDate(tasks: ITask[], start: string, end: string, dataRef: keyof ITask) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    return tasks.filter(task => {
+        const taskDate = new Date(task[dataRef] as string);
+        return taskDate >= startDate && taskDate <= endDate;
+    });
 }
-function userIndentity (task:ITask[], IdentityDataUser: Number, user_id: {id: Number}) {
-    return task.filter(task => IdentityDataUser === 3 ? task : IdentityDataUser === 2 ? task.user_id !== user_id.id : task.user_id === user_id.id);
+
+function userIdentity(tasks: ITask[], IdentityDataUser: number, user_id: {id: number}) {
+    return tasks.filter(task => {
+        if (IdentityDataUser === 3) return true;
+        if (IdentityDataUser === 2) return task.user_id !== user_id.id;
+        return task.user_id === user_id.id;
+    });
 }
-function priorityTask (task: ITask[], priority: string) {
-    return task.filter(task => priority === '3' || task.priority.toString() === priority); 
+
+function priorityTask(tasks: ITask[], priority: string) {
+    if (priority === String(3)) return tasks;
+    return tasks.filter(task => task.priority.toString() === priority);
 }
-function searchTask(tasks: ITask[], searchTerm: any) {
-  if (!searchTerm) return tasks;
-  const upperSearch = searchTerm.toUpperCase();
-  return tasks.filter(task => task.description.toUpperCase().includes(upperSearch) || task.id.toString().toUpperCase().includes(upperSearch));
+
+function searchTask(tasks: ITask[], searchTerm: string) {
+    const upperSearch = searchTerm.toUpperCase();
+    return tasks.filter(task => 
+        task.description.toUpperCase().includes(upperSearch) || 
+        task.id.toString().includes(upperSearch)
+    );
 }

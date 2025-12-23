@@ -20,14 +20,8 @@ export default function GtppMain(props: GtppMainProps) {
         <div className="d-flex gap-4 mb-3 flex-wrap">
           <div>
             <label className="form-label mb-1">Filtrar pelo tema:</label>
-            <select
-              className="form-select"
-              value={props.selectedThemeIds}
-              onChange={(e) => props.setSelectedThemeIds(e.target.value)}
-            >
-              <option value="" hidden>
-                Selecione
-              </option>
+            <select className="form-select" value={props.selectedThemeIds} onChange={(e) => props.setSelectedThemeIds(e.target.value)}>
+              <option value="" hidden>Selecione</option>
               {props?.themeList?.map((theme) => (
                 <option key={theme.id_theme} value={theme.id_theme}>
                   {theme.description_theme}
@@ -67,8 +61,10 @@ export default function GtppMain(props: GtppMainProps) {
     return (
       <Col xs={12} className="d-flex flex-nowrap p-0 menu-expansivo flex-grow-1" style={{ overflowX: "auto", height: "70%" }}>
         {props.states?.map((state: any, idx: any) => {
-          const filteredTasks = props.getTask.filter((t: any) => t.state_id === state.id);
+          const x = props.getTask;
+          const filteredTasks = x.filter((t: any) => t.state_id === state.id);
           const isFirstColumn = idx === 0;
+
           return (
             state.active && (
               <div key={state.id} className="column-task-container p-2 flex-shrink-0">
@@ -101,8 +97,7 @@ export default function GtppMain(props: GtppMainProps) {
                   content_body={filteredTasks}
                 />
               </div>
-            )
-          );
+            ));
         })}
       </Col>
     )
