@@ -52,7 +52,7 @@ export function fieldsetFormThemeUpdate(
         label: "Qual tema deseja vincular?",
         mandatory: true,
         captureValue: {
-          type: "select" as const,                    
+          type: "select",                    
           name: "theme_id",                           
           value: themeIdFk,
           onChange: (e: React.ChangeEvent<HTMLSelectElement>) => {

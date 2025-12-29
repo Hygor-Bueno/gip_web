@@ -1,13 +1,13 @@
 import React from "react";
 
 function MessageModal(props: {
-  title: string | null;
-  onClick?: any;
-  openClock?: any;
-  onChange?: any;
-  onClose?: any;
-  typeInput: any;
-  isInput:boolean;
+  title?: string | null;
+  openClock?: {description?: string} | any;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onClose?: React.MouseEventHandler<HTMLButtonElement>;
+  typeInput?: "text" | "number" | "password" | "email" | "tel" | string;
+  isInput?:boolean;
 }) {
   return (
     <div className="bg-dark p-2 rounded position-absolute box-dialog d-flex flex-column gap-2 align-items-center">

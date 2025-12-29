@@ -76,7 +76,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
         </div>
         <div className="">
           {ListTask.openModalQuastionTask ? (
-            <MessageModal typeInput={typeInput} title={title || ""} onChange={(e: any) => {
+            <MessageModal typeInput={typeInput ?? undefined} title={title || ""} onChange={(e: any) => {
                 setListTask((prev) => { return ({...prev, description: e.target.value })});
               }}
               onClose={() =>

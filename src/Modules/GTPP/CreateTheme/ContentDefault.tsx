@@ -1,38 +1,31 @@
-import React from "react";
+import React, { Dispatch, MouseEvent, SetStateAction } from "react";
 import CustomForm from "../../../Components/CustomForm";
 import CustomTable from "../../../Components/CustomTable";
-import { useWebSocket } from "../Context/GtppWsContext";
+import { CustomButton } from "../../../Components/CustomButton";
 
 interface ContentDefaultProps {
-  openMenu: boolean;
-  setOpenMenu: React.Dispatch<React.SetStateAction<boolean>>;
-
-  themeId: number;
-
-  numberTask?: string | number;
-  setNumberTask?: React.Dispatch<React.SetStateAction<any>>;
-  themeIdFk?: string | number;
-  setThemeIdFk?: React.Dispatch<React.SetStateAction<any>>;
-
-  fieldset: [createFieldset: any[], linkFieldset: any[]];
-
-  onHandleSubmitForm: [
-    onSubmitTheme: (e: React.MouseEvent<HTMLButtonElement>) => void,
-    onSubmitTask: (e: React.MouseEvent<HTMLButtonElement>) => void
-  ];
   getButtonTitle: () => string;
-
-  formattedList: any[];
+  openMenu: boolean;
+  themeId: number;
+  numberTask?: string | number;
+  themeIdFk?: string | number;
   showListTask: boolean;
-  setShowListTask: React.Dispatch<React.SetStateAction<boolean>>;
-
-  setSelectedTasks: React.Dispatch<React.SetStateAction<any>>;
   
-  handleRemoveTheme: (selected: any) => void;
-
-  getDescTheme: React.Dispatch<React.SetStateAction<any>>;
-
-  handleConfirmList: (selected: any[]) => void;
+  formattedList: [];
+  fieldset: [createFieldset: unknown[], linkFieldset: unknown[]];
+  onHandleSubmitForm: [
+    onSubmitTheme: (e: MouseEvent<HTMLButtonElement>) => void,
+    onSubmitTask: (e: MouseEvent<HTMLButtonElement>) => void
+  ];
+  
+  setOpenMenu: Dispatch<SetStateAction<boolean>>;
+  setNumberTask?: Dispatch<SetStateAction<Number>>;
+  setThemeIdFk?: Dispatch<SetStateAction<Number>>;
+  setShowListTask: Dispatch<SetStateAction<boolean>>;
+  setSelectedTasks: Dispatch<SetStateAction<any[]>>;
+  getDescTheme: Dispatch<SetStateAction<String>>;
+  handleRemoveTheme: (selected: unknown) => void;
+  handleConfirmList: (selected: unknown[]) => void;
 }
 
 export const ContentDefault = React.memo(
@@ -56,8 +49,6 @@ export const ContentDefault = React.memo(
     handleRemoveTheme
   }: ContentDefaultProps) => {
 
-    const {setIsAdm} = useWebSocket();
-
     const [fieldsetCreate, fieldsetLink] = fieldset;
     const [onSubmitTheme, onSubmitTask] = onHandleSubmitForm;
     const isEditingTheme = themeId > 0;
@@ -69,37 +60,27 @@ export const ContentDefault = React.memo(
             {showListTask ? "Vincular Tarefa ao Tema" : "Gerenciar Temas"}
           </h5>
 
-          <div className="d-flex gap-2 align-items-center">
+          <div className="d-flex gap-2 align-items-center d-flexr">
             {showListTask && (
-              <button
+              <CustomButton
                 className="btn btn-danger btn-sm"
                 title="Desvincular"
                 onClick={handleRemoveTheme}
               >
                 <i className=" text-white fa fa-delete-left"></i>
-              </button>
+              </CustomButton>
             )}
 
-            {showListTask && (
-              <button
-                className="btn btn-primary btn-sm"
-                title="ADM"
-                onClick={() => setIsAdm((prev: any) => !prev)}
-              >
-                <i className=" text-white fa fa-user"></i>
-              </button>
-            )}
-
-            <button
-              className="btn btn-secondary text-white btn-sm"
+            <CustomButton
+              className="btn btn-secondary align-items-center d-flex"
               title={showListTask ? "Ver temas" : "Vincular tarefa"}
               onClick={() => setShowListTask((prev) => !prev)}
             >
               <i className={`text-white fa ${showListTask ? "fa-palette" : "fa-tasks"}`}></i>
-            </button>
-            <button className="btn btn-outline-secondary text-white btn-sm d-md-none" onClick={() => setOpenMenu(!openMenu)}>
+            </CustomButton>
+            <CustomButton className="btn btn-outline-secondary text-white btn-sm d-md-none align-items-center d-flex" onClick={() => setOpenMenu(!openMenu)}>
               <i className={`fa ${openMenu ? "fa-eye" : "fa-eye-slash"}`}></i>
-            </button>
+            </CustomButton>
           </div>
         </header>
         <section className="row g-3">
@@ -129,7 +110,7 @@ export const ContentDefault = React.memo(
             </div>
           </div>
           <div className="col-12 col-md-8 col-lg-9">
-            <div className={`card shadow-sm ${!showListTask ? 'h-100' : 'h-75'}`}>
+            <div className={`card shadow-sm  h-100`}>
               <div
                 className="card-body overflow-auto"
                 style={{ maxHeight: "75vh" }}
@@ -142,22 +123,13 @@ export const ContentDefault = React.memo(
                     {...(showListTask && { hiddenButton: true })}
                     onRowClick={
                       showListTask
-                        ? (item: any) => {
+                        ? (item: {description_theme: {value: string}, id: {value: string}}) => {
                             if (item.description_theme) {
                               getDescTheme(item.description_theme.value);
                             }
-
-                            setSelectedTasks((prev: any) => {
-                              if (
-                                prev.some(
-                                  (t: { id: { value: any } }) =>
-                                    t.id.value === item.id.value
-                                )
-                              ) {
-                                return prev.filter(
-                                  (t: { id: { value: any } }) =>
-                                    t.id.value !== item.id.value
-                                );
+                            setSelectedTasks((prev) => {
+                              if (prev.some(t => t.id.value === item.id.value)) {
+                                return prev.filter(t => t.id.value !== item.id.value);
                               }
                               return [...prev, item];
                             });

@@ -64,7 +64,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * Lista de tarefas recuperadas do servidor, associadas ao usuário ou administrador.
    * @type {[any[], React.Dispatch<React.SetStateAction<any[]>>]}
    */
-  const [getTask, setGetTask] = useState<any[]>([]);
+  const [getTask, setGetTask] = useState<{
+    id?: number;
+    theme_id_fk?: number;
+    description_theme?: string;
+    percent?: number;
+  }[]>([]);
 
   /**
    * Lista de estados possíveis das tarefas (ex.: aberto, concluído, bloqueado).

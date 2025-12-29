@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, Dispatch } from "react";
 import NavBar from "../../../Components/NavBar";
 import { useWebSocket } from "../Context/GtppWsContext";
 import { useConnection } from "../../../Context/ConnContext";
@@ -20,7 +20,7 @@ function CreateTheme() {
   const [description, setDescription] = useState("");
   const [themeId, setThemeId] = useState(0);
   const [themeIdFk, setThemeIdFk] = useState("");
-  const [descTheme, setDescTheme] = useState("");
+  const [descTheme, setDescTheme] = useState<String>("");
 
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [selectedType, setSelectedType] = useState<"theme" | "task">("theme");
@@ -35,7 +35,7 @@ function CreateTheme() {
 
   const formattedThemeList = useMemo(() => {
     return themeList?.map((item: any) => ({
-      id_theme: { value: item.id_theme, tag: "ID" },
+      id_theme: { value: String(item.id_theme), tag: "ID" },
       description_theme: { value: item.description_theme, tag: "Descrição" },
       user_id_fk: { value: item.user_id_fk, tag: "Usuário", ocultColumn: true },
     })) || [];
@@ -44,7 +44,7 @@ function CreateTheme() {
   const formattedTaskList = useMemo(() => {
     return getTask?.map((item: any) => {
       return ({
-      id: { value: item.id, tag: "Número" },
+      id: { value: String(item.id), tag: "Numero" },
       description: { value: item.description, tag: "Nome da Tarefa" },
       initial_date: { value: DateConverter.formatDate(item.initial_date), tag: "Início" },
       final_date: { value: DateConverter.formatDate(item.final_date), tag: "Fim" },
@@ -92,7 +92,7 @@ function CreateTheme() {
       return;
     }
 
-    const params: any = { description_theme: description };
+    const params: {description_theme?: string, id_theme?: number}  = { description_theme: description };
     const method: "POST" | "PUT" = themeId > 0 ? "PUT" : "POST";
     if (themeId > 0) params.id_theme = themeId;
 
@@ -142,13 +142,8 @@ function CreateTheme() {
 
   const onHandleSubmitTask = async (e:any) => {
     e.preventDefault();
-    
     if (selectedTasks.length === 0) return;
-
     let captureError:any = []; 
-
-     // selectedTasks:  capturando os dados da tabela.
-     // setGetTask: estou sobrecarregando o frontend para trocar os dados localmente.
     for (const value of selectedTasks) {
       const response = await fetchData({
         method: "PUT",
@@ -159,13 +154,21 @@ function CreateTheme() {
       captureError.push(response)
 
       if (!response.error) {
-        // === ATUALIZA LOCALMENTE ===
-        setGetTask((prev:any) =>
-          prev.map((task: any) =>
-            task.id === value.id.value
-              ? { ...task, theme_id_fk: themeIdFk, description_theme: descTheme}
-              : task
-          )
+        setGetTask(
+          (prev: {
+            id: number;
+            theme_id_fk?: number;
+            description_theme?: string;
+          }[]) =>
+            prev.map(task =>
+              task.id === value.id.value
+                ? {
+                    ...task,
+                    theme_id_fk: themeIdFk,
+                    description_theme: descTheme
+                  }
+                : task
+            )
         );
       }
     }
@@ -185,13 +188,21 @@ function CreateTheme() {
       });
 
       if (!response.error) {
-        // === ATUALIZA LOCALMENTE ===
-        setGetTask((prev:any) =>
-          prev.map((task: any) =>
-            task.id === value.id.value
-              ? { ...task, theme_id_fk: null, description_theme: null }
-              : task
-          )
+        setGetTask(
+          (prev: {
+            id: number;
+            theme_id_fk?: number;
+            description_theme?: string;
+          }[]) =>
+            prev.map(task =>
+              task.id === value.id.value
+                ? {
+                    ...task,
+                    theme_id_fk: null,
+                    description_theme: null
+                  }
+                : task
+            )
         );
       }
     }

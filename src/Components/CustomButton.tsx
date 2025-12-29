@@ -16,6 +16,7 @@ export function CustomButton({ value, customStyle, children, ...props }: CustomB
 export function InputCheckButton(props: iPropsInputCheckButton) {
     const [icon, setIcon] = useState<string>("");
     const [isChecked, setIsChecked] = useState<boolean>(false);
+    
     useEffect(() => {
         renderIcon(isChecked);
     }, [isChecked]);
@@ -24,7 +25,7 @@ export function InputCheckButton(props: iPropsInputCheckButton) {
         <button type="button" title={props.nameButton} className={`${props.containerClass ? props.containerClass : `btn btn-${(props.highlight && isChecked) ? 'success' : 'light'} p-0`}`}>
             <input hidden checked={isChecked} onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
                 try {
-                    const newChecked = e.currentTarget.checked;
+                    const newChecked = e.currentTarget.checked; 
                     await props.onAction(newChecked); // Aguarda a ação sem bloquear
                     setIsChecked(newChecked); // Atualiza o estado imediatamente
                 } catch (error) {

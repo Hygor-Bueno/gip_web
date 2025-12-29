@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { styleStringFunction } from '../stylecss/style';
 
 // === TIPOS ===
-interface Task {
+export interface Task {
   description: string;
   state_description: string;
   priority: number;

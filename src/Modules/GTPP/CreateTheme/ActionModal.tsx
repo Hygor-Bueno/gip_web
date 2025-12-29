@@ -1,5 +1,6 @@
 import React from 'react';
 import './style.css';
+import { CustomButton } from '../../../Components/CustomButton';
 
 interface ActionModalProps {
   isOpen?: boolean;
@@ -36,11 +37,7 @@ export const ActionModal: React.FC<ActionModalProps> = ({
 
   return (
     <div className="action-modal-overlay" onClick={onClose}>
-      <div 
-        className="action-modal-container"
-        onClick={(e) => e.stopPropagation()} // impede clicar dentro e fechar
-      >
-        {/* Título */}
+      <div className="action-modal-container" onClick={(e) => e.stopPropagation()}>
         {itemName && (
           <React.Fragment>
             <div className='text-center'>
@@ -49,37 +46,33 @@ export const ActionModal: React.FC<ActionModalProps> = ({
             </div>
           </React.Fragment>
         )}
-
-        {/* Mensagem */}
         <p className="action-modal-message">{message}</p>
-
-        {/* Ações */}
         <div className="action-modal-buttons">
           {mode === "actions" && (
             <React.Fragment>
               {onEdit && (
-                <button className="action-modal-btn edit" onClick={onEdit}>
+                <CustomButton className="action-modal-btn edit" onClick={onEdit}>
                   {editText}
-                </button>
+                </CustomButton>
               )}
 
               {onDelete && (
-                <button className="action-modal-btn delete" onClick={onDelete}>
+                <CustomButton className="action-modal-btn delete" onClick={onDelete}>
                   {deleteText}
-                </button>
+                </CustomButton>
               )}
             </React.Fragment>
           )}
 
           {mode === "confrim-delete" && (
             <React.Fragment>
-              <button className="action-modal-btn delete" onClick={onDelete}>
+              <CustomButton className="action-modal-btn delete" onClick={onDelete}>
                 Confirmar
-              </button>
+              </CustomButton>
 
-              <button className="action-modal-btn cancel" onClick={onClose}>
+              <CustomButton className="action-modal-btn cancel" onClick={onClose}>
                 Cancelar
-              </button>
+              </CustomButton>
             </React.Fragment>
           )}
         </div>

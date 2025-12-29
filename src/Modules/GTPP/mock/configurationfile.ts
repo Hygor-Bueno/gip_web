@@ -1,3 +1,5 @@
+import { HTMLAttributes, HtmlHTMLAttributes } from "react";
+
 export const listPath = [
     { page: '/GIPP', children: 'Home', icon: 'fa fa-home', },
     { page: '/GIPP/GTPP', children: 'Tarefas', icon: 'fa fa-pencil', },
@@ -109,7 +111,7 @@ export const fieldsetsRegister = (
                 mandatory: true,
                 captureValue: {
                     type: 'select',
-                    onChange: (e: any) => { onCompany(parseInt(e.target.value)) },
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => { onCompany(parseInt(e.target.value)) },
                     placeholder: '',
                     name: 'company_id',
                     className: 'form-control',
@@ -125,7 +127,7 @@ export const fieldsetsRegister = (
                 mandatory: true,
                 captureValue: {
                     type: 'select',
-                    onChange: (e: any) => { onDepartament(parseInt(e.target.value)) },
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => { onDepartament(parseInt(e.target.value)) },
                     placeholder: '',
                     name: 'shop_id',
                     className: 'form-control',

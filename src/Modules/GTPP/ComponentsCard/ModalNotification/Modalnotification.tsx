@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface ModalNotifiation extends React.HTMLAttributes<HTMLDivElement> {
-  title: any, 
+  title: string, 
   message: string, 
   user: string,
   whichType?: string, // Example of the type I want, "alert" or "info" is what I want.
