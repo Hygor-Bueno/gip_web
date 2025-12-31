@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { SearchAndFilter } from "./SearchAndFilter";
-import { ProductGrid } from "./ProductGrid";
+import { ProductTable } from "./ProductGrid";
 import { CartSidebar } from "./CartSidebar";
 import { MobileCartDrawer } from "./MobileCartDrawer";
 import { MobileCartButton } from "./MobileCartButton";
 import useWindowSize from "../../../GAPP/Infraction/hook/useWindowSize";
 import useEppFetch from "../../EPPFetch/useEppFetch";
+import useEppFetchGetOrder from "../../EPPFetch/useEppFetchGetOrder";
 
 export type ItemType = {
   id: string | number;
@@ -22,12 +23,16 @@ type Props = {
   onClose: () => void;
   onConfirm: (items: ItemType[]) => void;
   currentItems: ItemType[];
+  onRemoveItem?: (id: string | number) => void;
 };
 
-const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, currentItems }) => {
+const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, currentItems, onRemoveItem }) => {
   const [search, setSearch] = useState("");
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("Todas");
   const [mostrarCarrinhoMobile, setMostrarCarrinhoMobile] = useState(false);
+  const [precoCache, setPrecoCache] = useState<Record<string, number>>({});
+
+  const { getOrder } = useEppFetchGetOrder();
 
   const [carrinho, setCarrinho] = useState<Map<string, number>>(() => {
     const map = new Map<string, number>();
@@ -63,14 +68,13 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
     });
   }, [search, categoriaSelecionada, produtosDoBanco]);
 
-  // Itens que estão no carrinho (com todos os dados)
   const itensNoCarrinho = useMemo(() => {
     return Array.from(carrinho.entries())
       .map(([id_product, quantidade]) => {
-        const prod = produtosDoBanco.find((p: any) => p.id_product === id_product);
+        const prod = produtosDoBanco.find((p:any) => p.id_product === id_product);
         if (!prod) return null;
 
-        const preco = Number(prod.price);
+        const preco = precoCache[id_product] ?? Number(prod.price);
 
         return {
           id: id_product,
@@ -83,23 +87,42 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
         };
       })
       .filter(Boolean) as ItemType[];
-  }, [carrinho, produtosDoBanco]);
+}, [carrinho, produtosDoBanco, precoCache]);
+
 
   const totalCarrinho = itensNoCarrinho.reduce((acc, item) => acc + item.subtotal, 0);
 
   // Altera quantidade (suporta kg e un)
-  const mudarQuantidade = (id_product: string, novaQtd: number) => {
-    const prod = produtosDoBanco.find((p: any) => p.id_product === id_product);
+  const mudarQuantidade = async (id_product: string, novaQtd: number) => {
+    const prod = produtosDoBanco.find((p:any) => p.id_product === id_product);
     if (!prod) return;
 
-    let qtdFinal = novaQtd;
+    // 🔹 Busca preço atualizado apenas se não estiver no cache
+    let precoAtualizado = precoCache[id_product];
+    if (!precoAtualizado) {
+      try {
+        const response = await getOrder(Number(id_product));
+        console.log(response[0].PRECO)
+        precoAtualizado = Number(response[0]?.PRECO);
 
+        console.log(precoAtualizado);
+
+        setPrecoCache(prev => ({ ...prev, [id_product]: precoAtualizado }));
+      } catch (error) {
+        console.error("Erro ao buscar preço:", error);
+        precoAtualizado = Number(prod.price);
+      }
+    }
+
+    // 🔹 Ajuste de quantidade por unidade ou kg
+    let qtdFinal = novaQtd;
     if (prod.measure?.toLowerCase() === "kg") {
       qtdFinal = novaQtd <= 0 ? 0 : Math.max(0.1, Number(novaQtd.toFixed(2)));
     } else {
       qtdFinal = Math.max(0, Math.floor(novaQtd));
     }
 
+    // 🔹 Atualiza carrinho
     setCarrinho(prev => {
       const novo = new Map(prev);
       if (qtdFinal <= 0) {
@@ -144,11 +167,11 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
         <div className="modal-content h-100">
 
           {/* Cabeçalho */}
-          <div className="modal-header bg-success text-white d-flex justify-content-between align-items-center">
-            <h5 className="modal-title fw-bold fs-4">
-              <i className="fa fa-solid fa-carrot text-white"></i> Adicionar Itens ao Pedido
+          <div className="modal-header text-white d-flex justify-content-between align-items-center" style={{background: 'var(--vPrimaryColor)'}}>
+            <h5 className="modal-title fw-bold fs-4" style={{color: 'var(--vTitleColor)'}}>
+              <i className="fa fa-solid fa-carrot text-white" style={{color: 'var(--vTitleColor) !important'}}></i> Adicionar Itens ao Pedido
             </h5>
-            <button type="button" className="btn-close btn-close-white" onClick={onClose} />
+            <button type="button" className="btn-close btn-close-dark" onClick={onClose} />
           </div>
 
           {/* Corpo */}
@@ -170,7 +193,7 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
                   <p>Nenhum produto encontrado</p>
                 </div>
               ) : (
-                <ProductGrid
+                <ProductTable
                   products={produtosFiltrados.map((p: any) => ({
                     id: p.id_product,
                     codigo: p.id_product,

@@ -22,7 +22,6 @@ function TableClient() {
                 tag: "Data Entrega", ocultColumn: false, minWidth: "120px" 
             },
             deliveryHour: { value: item.deliveryHour, tag: "Horário", ocultColumn: false, minWidth: "90px" },
-            deliveryStore: { value: item.deliveryStore, tag: "Loja", ocultColumn: false },
             total: { 
                 value: `R$ ${parseFloat(item.total || 0).toFixed(2).replace('.', ',')}`, 
                 tag: "Total", ocultColumn: false 
@@ -32,14 +31,14 @@ function TableClient() {
                 tag: "Sinal", ocultColumn: false 
             },
             pendingValue: {value: `R$ ${(item.total - item.signalValue || 0).toFixed(2).replace('.', ',')}`, tag: "Pendente", ocultColumn: false},
-            description: { 
-                value: item.description
-                    ?.replace(/Cód\.: \d+\.\nDescrição: /g, "")
-                    .replace(/ - \d+ Un\..*?\nSubtotal:.*?\n\n?/g, " • ")
-                    .replace(/\n/g, " ")
-                    .trim() || "Sem itens",
-                tag: "Descrição", ocultColumn: false, minWidth: "400px" 
-            }
+            // description: { 
+            //     value: item.description
+            //         ?.replace(/Cód\.: \d+\.\nDescrição: /g, "")
+            //         .replace(/ - \d+ Un\..*?\nSubtotal:.*?\n\n?/g, " • ")
+            //         .replace(/\n/g, " ")
+            //         .trim() || "Sem itens",
+            //     tag: "Descrição", ocultColumn: false, minWidth: "400px" 
+            // }
         }));
     };
 

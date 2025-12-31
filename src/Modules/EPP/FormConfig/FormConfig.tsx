@@ -22,7 +22,7 @@ export const fieldsets = [
         label: "Código",
         name: "idOrder",
         mandatory: false,
-        width: "col-md-3 mb-3",
+        width: "col-md-5 mb-3",
         captureValue: {
           type: "text",
           disabled: true,
@@ -48,7 +48,7 @@ export const fieldsets = [
       {
         label: "Telefone",
         name: "fone",
-        width: "col-md-4 mb-3",
+        width: "col-md-5 mb-3",
         mandatory: true,
         captureValue: {
           type: "text",
@@ -74,7 +74,7 @@ export const fieldsets = [
       {
         label: "Data",
         name: "deliveryDate",
-        width: "col-md-3 mb-3",
+        width: "col-md-5 mb-3",
         captureValue: {
           type: "date",
           name: "deliveryDate",
@@ -83,14 +83,16 @@ export const fieldsets = [
         labelClass: "form-label",
       },
       {
-        label: "Status do Pedido",
+        label: "Status Pedido",
         name: "statusPedido",
-        width: "col-md-3 mb-3",
+        width: "col-md-5 mb-3",
         captureValue: {
-          type: "select",
+          type: "",
           name: "statusPedido",
+          value: "aprovado",
           options: statusOptions,
           className: "form-select",
+          disabled: true,
         },
         labelClass: "form-label",
       },
@@ -104,7 +106,7 @@ export const fieldsets = [
       {
         label: "Itens",
         name: "description",
-        width: "col-md-6 mb-3",
+        width: "col-md-12 mb-3",
         captureValue: {
           type: "item-selector",
           name: "description",
@@ -116,7 +118,7 @@ export const fieldsets = [
       {
         label: "Observação",
         name: "obs",
-        width: "col-md-6 mb-3",
+        width: "col-md-12 mb-3",
         captureValue: {
           type: "textarea",
           name: "obs",

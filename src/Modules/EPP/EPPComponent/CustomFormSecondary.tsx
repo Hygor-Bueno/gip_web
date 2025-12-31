@@ -80,20 +80,23 @@ function CustomFormGender({
 
     // Remove duplicatas por ID
     const itensUnicos = [...itensAtuais];
+
     novosItens.forEach(novo => {
       if (!itensUnicos.some(i => i.id === novo.id)) {
         itensUnicos.push(novo);
       }
     });
 
+    // Aqui preciso fazer um filtro para apagar o item da minha lista.
+
     setFormValues(prev => ({ ...prev, [selectedFieldName]: itensUnicos }));
     setIsItemModalOpen(false);
   };
 
-  const removerItem = (index: number) => {
+  const removerItem = (fieldName: string, index: number) => {
     setFormValues(prev => ({
       ...prev,
-      pedidoItens: (prev.pedidoItens || []).filter((_: any, i: number) => i !== index),
+      [fieldName]: (prev[fieldName] || []).filter((_: any, i: number) => i !== index),
     }));
   };
 
@@ -149,12 +152,9 @@ function CustomFormGender({
                                 {currentItems.length === 0 ? (
                                   <p className="text-muted mb-3">Nenhum item adicionado</p>
                                 ) : (
-                                  <ul className="list-unstyled mb-3">
+                                  <ul className="list-unstyled mb-3" style={{height: '200px', overflow: 'auto'}}>
                                     {currentItems.map((i, idx) => (
-                                      <li
-                                        key={i.id}
-                                        className="mb-2 p-3 bg-white rounded shadow-sm d-flex justify-content-between align-items-center"
-                                      >
+                                      <li key={i.id} className="mb-2 p-3 bg-white rounded shadow-sm d-flex justify-content-between align-items-center">
                                         <div>
                                           <strong>{i.codigo}</strong> - {i.descricao}
                                           <br />
@@ -165,12 +165,8 @@ function CustomFormGender({
                                             </strong>
                                           </small>
                                         </div>
-                                        <button
-                                          type="button"
-                                          className="btn btn-sm btn-danger"
-                                          onClick={() => removerItem(idx)}
-                                        >
-                                          <i className="fa-solid fa-trash"></i>
+                                        <button type="button" className="btn btn-sm btn-danger" onClick={() => removerItem(name, idx)}>
+                                          <i className="fa-solid fa-trash text-white"></i>
                                         </button>
                                       </li>
                                     ))}
@@ -182,7 +178,7 @@ function CustomFormGender({
                                   className="btn btn-primary w-100"
                                   onClick={() => openItemModal(name)}
                                 >
-                                  <i className="fa-solid fa-plus me-2"></i>
+                                  <i className="fa-solid fa-plus text-white me-2"></i>
                                   {currentItems.length > 0 ? "Adicionar mais itens" : "Adicionar Itens"}
                                 </button>
                               </div>
@@ -237,6 +233,13 @@ function CustomFormGender({
         onClose={() => setIsItemModalOpen(false)}
         onConfirm={handleItemsSelected}
         currentItems={formValues[selectedFieldName] || []}
+        onRemoveItem={(id: string | number) => {
+          // Remove do campo do form
+          setFormValues(prev => ({
+            ...prev,
+            [selectedFieldName]: (prev[selectedFieldName] || []).filter((item: any) => item.id !== id)
+          }));
+        }}
       />
     </>
   );
