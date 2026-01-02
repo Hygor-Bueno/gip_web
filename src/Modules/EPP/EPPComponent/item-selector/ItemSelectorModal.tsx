@@ -13,7 +13,7 @@ export type ItemType = {
   codigo: string;
   descricao: string;
   precoUnitario: number;
-  quantidade: number;
+  quantity: number;
   subtotal: number;
   unidadeMedida?: string;
 };
@@ -28,72 +28,72 @@ type Props = {
 
 const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, currentItems }) => {
   const [search, setSearch] = useState("");
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState("Todas");
+  const [selectCategory, setSelectCategory] = useState("Todas");
   const [mostrarCarrinhoMobile, setMostrarCarrinhoMobile] = useState(false);
   const [precoCache, setPrecoCache] = useState<Record<string, number>>({});
 
   const { getOrder } = useEppFetchGetOrder();
 
-  const [carrinho, setCarrinho] = useState<Map<string, number>>(() => {
+  const [cart, setCart] = useState<Map<string, number>>(() => {
     const map = new Map<string, number>();
     currentItems.forEach(item => {
-      map.set(String(item.id), item.quantidade);
+      map.set(String(item.id), item.quantity);
     });
     return map;
   });
 
   const {allProduct} = useEppFetch();
-  const produtosDoBanco = allProduct?.data ?? [];
+  const PRODUCT_DB = allProduct?.data ?? [];
 
-  // Lista de categorias únicas
-  const categorias = useMemo(() => {
-    const categoria = produtosDoBanco.map((p: any) => p.category || "Sem categoria");
-    const unicas = Array.from(new Set(categoria)).sort();
-    return ["Todas", ...unicas];
-  }, [produtosDoBanco]);
+  // Lista de categorys únicas
+  const categorys = useMemo(() => {
+    const category = PRODUCT_DB.map((p: any) => p.category || "Sem categoria");
+    const uniqueCategory = Array.from(new Set(category)).sort();
+    return ["Todas", ...uniqueCategory];
+  }, [PRODUCT_DB]);
 
   // Produtos filtrados por busca e categoria
   const produtosFiltrados = useMemo(() => {
-    return produtosDoBanco.filter((p: any) => {
-      const busca = search.toLowerCase();
+    return PRODUCT_DB.filter((p: any) => {
+      const search_list_product = search.toLowerCase();
       const matchesSearch =
-        p.id_product.includes(busca) ||
-        p.description.toLowerCase().includes(busca);
+        p.id_product.includes(search_list_product) ||
+        p.description.toLowerCase().includes(search_list_product);
 
-      const matchesCat =
-        categoriaSelecionada === "Todas" ||
-        p.category === categoriaSelecionada;
+      const matchesCategory =
+        selectCategory === "Todas" ||
+        p.category === selectCategory;
 
-      return matchesSearch && matchesCat;
+      return matchesSearch && matchesCategory;
     });
-  }, [search, categoriaSelecionada, produtosDoBanco]);
+  }, [search, selectCategory, PRODUCT_DB]);
 
-  const itensNoCarrinho = useMemo(() => {
-    return Array.from(carrinho.entries())
-      .map(([id_product, quantidade]) => {
-        const prod = produtosDoBanco.find((p:any) => p.id_product === id_product);
+  // Carrinho de compras
+  const ShoppingCartItems = useMemo(() => {
+    return Array.from(cart.entries())
+      .map(([id_product, quantity]) => {
+        const prod = PRODUCT_DB.find((p:any) => p.id_product === id_product);
         if (!prod) return null;
 
         const preco = precoCache[id_product] ?? Number(prod.price);
 
         return {
           id: id_product,
-          codigo: id_product,
-          descricao: prod.description,
-          precoUnitario: preco,
-          quantidade,
-          subtotal: Number((preco * quantidade).toFixed(2)),
-          unidadeMedida: prod.measure,
+          description: prod.description,
+          price: preco,
+          quantity,
+          subtotal: Number((preco * quantity).toFixed(2)),
+          measureMedium: prod.measure,
         };
       })
-      .filter(Boolean) as ItemType[];
-}, [carrinho, produtosDoBanco, precoCache]);
+      .filter(Boolean) as any[];
+}, [cart, PRODUCT_DB, precoCache]);
 
 
-  const totalCarrinho = itensNoCarrinho.reduce((acc, item) => acc + item.subtotal, 0);
+  const totalCarrinho = ShoppingCartItems.reduce((acc, item) => acc + item.subtotal, 0);
 
   const mudarQuantidade = async (id_product: string, novaQtd: number) => {
-    const prod = produtosDoBanco.find((p:any) => p.id_product === id_product);
+    const prod = PRODUCT_DB.find((p:any) => p.id_product === id_product);
     if (!prod) return;
     let precoAtualizado = precoCache[id_product];
     if (!precoAtualizado) {
@@ -114,7 +114,7 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
       qtdFinal = Math.max(0, Math.floor(novaQtd));
     }
 
-    setCarrinho(prev => {
+    setCart(prev => {
       const novo = new Map(prev);
       if (qtdFinal <= 0) {
         novo.delete(id_product);
@@ -126,12 +126,12 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
   };
 
   const confirmarSelecao = () => {
-    onConfirm(itensNoCarrinho);
+    onConfirm(ShoppingCartItems);
     onClose();
   };
 
   const limparCarrinho = () => {
-    setCarrinho(new Map());
+    setCart(new Map());
   };
 
   const { width } = useWindowSize();
@@ -139,18 +139,18 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
   if (!isOpen) return null;
 
   // Mobile: tela cheia do carrinho
-  if (mostrarCarrinhoMobile) {
-    return (
-      <MobileCartDrawer
-        cartItems={itensNoCarrinho}
-        total={totalCarrinho}
-        onBack={() => setMostrarCarrinhoMobile(false)}
-        onClearAll={limparCarrinho}
-        onConfirm={confirmarSelecao}
-        onRemoveItem={(id) => mudarQuantidade(String(id), 0)}
-      />
-    );
-  }
+  // if (mostrarCarrinhoMobile) {
+  //   return (
+  //     <MobileCartDrawer
+  //       cartItems={ShoppingCartItems}
+  //       total={totalCarrinho}
+  //       onBack={() => setMostrarCarrinhoMobile(false)}
+  //       onClearAll={limparCarrinho}
+  //       onConfirm={confirmarSelecao}
+  //       onRemoveItem={(id) => mudarQuantidade(String(id), 0)}
+  //     />
+  //   );
+  // }
 
   return (
     <div className="modal d-block bg-dark bg-opacity-75" tabIndex={-1} style={{ zIndex: 1055 }}>
@@ -173,9 +173,9 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
               <SearchAndFilter
                 search={search}
                 onSearchChange={setSearch}
-                selectedCategoria={categoriaSelecionada}
-                onCategoriaChange={setCategoriaSelecionada}
-                categorias={categorias}
+                selectedCategoria={selectCategory}
+                onCategoriaChange={setSelectCategory}
+                categorias={categorys}
               />
 
               {produtosFiltrados.length === 0 ? (
@@ -192,7 +192,7 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
                     precoUnitario: Number(p.price),
                     unidadeMedida: p.measure,
                   }))}
-                  selectedProducts={carrinho}
+                  selectedProducts={cart}
                   onQuantityChange={mudarQuantidade}
                 />
               )}
@@ -201,7 +201,7 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
             {/* Carrinho lateral */}
             {width > 920 && (
               <CartSidebar
-                cartItems={itensNoCarrinho}
+                cartItems={ShoppingCartItems}
                 total={totalCarrinho}
                 onClearAll={limparCarrinho}
                 onRemoveItem={(id) => mudarQuantidade(String(id), 0)}
@@ -212,11 +212,11 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
           </div>
 
           {/* Botão flutuante no mobile */}
-          <MobileCartButton
-            itemCount={itensNoCarrinho.length}
+          {/* <MobileCartButton
+            itemCount={ShoppingCartItems.length}
             total={totalCarrinho}
             onClick={() => setMostrarCarrinhoMobile(true)}
-          />
+          /> */}
 
         </div>
       </div>

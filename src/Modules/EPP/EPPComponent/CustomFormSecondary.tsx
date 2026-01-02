@@ -7,7 +7,7 @@ type ItemType = {
   codigo: string;
   descricao: string;
   precoUnitario: number;
-  quantidade: number;
+  quantity: number;
   subtotal: number;
 };
 
@@ -75,29 +75,23 @@ function CustomFormGender({
     setIsItemModalOpen(true);
   };
 
-  const handleItemsSelected = (novosItens: ItemType[]) => {
-    const itensAtuais = (formValues[selectedFieldName] || []) as ItemType[];
+  const handleItemsSelected = (novosItens: any) => {
+    const itensAtuais = (formValues[selectedFieldName] || []) as any[];
 
     // Remove duplicatas por ID
     const itensUnicos = [...itensAtuais];
 
-    novosItens.forEach(novo => {
+    console.log(itensUnicos);
+
+    novosItens.forEach((novo:any)=> {
       if (!itensUnicos.some(i => i.id === novo.id)) {
         itensUnicos.push(novo);
       }
     });
 
     // Aqui preciso fazer um filtro para apagar o item da minha lista.
-
     setFormValues(prev => ({ ...prev, [selectedFieldName]: itensUnicos }));
     setIsItemModalOpen(false);
-  };
-
-  const removerItem = (fieldName: string, index: number) => {
-    setFormValues(prev => ({
-      ...prev,
-      [fieldName]: (prev[fieldName] || []).filter((_: any, i: number) => i !== index),
-    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -132,7 +126,7 @@ function CustomFormGender({
                         // Aqui é onde fica os detalhes do pedido, quando clicamos no botão de adicionar
                         // uma CEIA DE NATAL, um perniu ou algo do tipo..
                         if (captureProps.type === "item-selector") {
-                          const currentItems: ItemType[] = formValues[name] || [];
+                          const currentItems: any[] = formValues[name] || [];
                           const totalItens = currentItems.reduce((s, i) => s + i.subtotal, 0);
 
                           return (
@@ -158,10 +152,10 @@ function CustomFormGender({
                                     {currentItems.map((i, idx) => (
                                       <li key={i.id} className="mb-2 p-3 bg-white rounded shadow-sm d-flex justify-content-between align-items-center">
                                         <div>
-                                          <strong>{i.codigo}</strong> - {i.descricao}
+                                          <strong>{i.id}</strong> - {i.description}
                                           <br />
                                           <small className="text-muted">
-                                            {i.quantidade} × R$ {i.precoUnitario.toFixed(2)} ={" "}
+                                            {i.quantity} × R$ {i.price.toFixed(2)} ={" "}
                                             <strong className="text-success">
                                               R$ {i.subtotal.toFixed(2)}
                                             </strong>

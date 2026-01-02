@@ -31,10 +31,10 @@ export const CartSidebar: React.FC<Props> = ({cartItems, total, onClearAll, onRe
               <div key={item.id} className="bg-white rounded shadow-sm p-3 mb-3">
                 <div className="d-flex justify-content-between align-items-start">
                   <div className="flex-grow-1">
-                    <strong>{item.codigo}</strong>
-                    <p className="mb-1 small text-muted">{item.descricao}</p>
+                    <strong>{item.id}</strong>
+                    <p className="mb-1 small text-muted">{item.description}</p>
                     <small>
-                      {item.quantidade} × R$ {item.precoUnitario.toFixed(2)}
+                      {item.quantity} × R$ {item.price.toFixed(2)}
                     </small>
                   </div>
                   <button className="btn btn-sm btn-outline-danger ms-2" onClick={() => onRemoveItem(item.id)}>
