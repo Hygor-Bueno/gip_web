@@ -25,7 +25,7 @@ const EPP: React.FC = () => {
         </header>
         <section id="body-content-project" className="p-3 d-flex">
           <ScreenClient />
-          {/* <TableClient /> */}
+          <TableClient />
         </section>
       </section>
     </main>

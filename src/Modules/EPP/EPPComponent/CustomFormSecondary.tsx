@@ -1,6 +1,6 @@
 import React from "react";
 import { renderField } from "../../../Components/CustomForm";
-import ItemSelectorModal from "./item-selector/ItemSelectorModal";
+import ItemSelectorModal, { ItemSendForm } from "./item-selector/ItemSelectorModal";
 
 type ItemType = {
   id: string | number;
@@ -75,15 +75,15 @@ function CustomFormGender({
     setIsItemModalOpen(true);
   };
 
-  const handleItemsSelected = (novosItens: any) => {
-    const itensAtuais = (formValues[selectedFieldName] || []) as any[];
+  const handleItemsSelected = (novosItens: ItemSendForm[]) => {
+    const itensAtuais = (formValues[selectedFieldName] || []) as ItemSendForm[];
 
     // Remove duplicatas por ID
     const itensUnicos = [...itensAtuais];
 
     console.log(itensUnicos);
 
-    novosItens.forEach((novo:any)=> {
+    novosItens.forEach((novo)=> {
       if (!itensUnicos.some(i => i.id === novo.id)) {
         itensUnicos.push(novo);
       }
@@ -126,7 +126,7 @@ function CustomFormGender({
                         // Aqui é onde fica os detalhes do pedido, quando clicamos no botão de adicionar
                         // uma CEIA DE NATAL, um perniu ou algo do tipo..
                         if (captureProps.type === "item-selector") {
-                          const currentItems: any[] = formValues[name] || [];
+                          const currentItems: ItemSendForm[] = formValues[name] || [];
                           const totalItens = currentItems.reduce((s, i) => s + i.subtotal, 0);
 
                           return (
@@ -155,7 +155,7 @@ function CustomFormGender({
                                           <strong>{i.id}</strong> - {i.description}
                                           <br />
                                           <small className="text-muted">
-                                            {i.quantity} × R$ {i.price.toFixed(2)} ={" "}
+                                            {i.quantity} × R$ { Number(i.price).toFixed(2) } = {" "}
                                             <strong className="text-success">
                                               R$ {i.subtotal.toFixed(2)}
                                             </strong>

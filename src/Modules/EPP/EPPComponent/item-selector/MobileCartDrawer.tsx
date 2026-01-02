@@ -49,10 +49,10 @@ export const MobileCartDrawer: React.FC<Props> = ({
                   <div className="card-body py-3">
                     <div className="d-flex justify-content-between align-items-start">
                       <div className="flex-grow-1 pe-3">
-                        <strong>{item.codigo}</strong> - {item.descricao}
+                        <strong>{item.id}</strong> - {item.description}
                         <br />
                         <small className="text-muted">
-                          {item.quantidade} {item.unidadeMedida === "kg" ? "kg" : "un"} × R$ {item.precoUnitario.toFixed(2)}
+                          {item.quantity} {item.measure === "kg" ? "kg" : "un"} × R$ {item.price.toFixed(2)}
                         </small>
                       </div>
                       <button

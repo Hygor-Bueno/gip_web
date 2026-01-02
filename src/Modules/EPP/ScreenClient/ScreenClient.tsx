@@ -4,7 +4,7 @@ import { fieldsets } from "../FormConfig/FormConfig";
 
 function ScreenClient() {
   return (
-    <div id="screen-client-order" className="w-50">
+    <div id="screen-client-order" className="w-100">
       <CustomFormGender
         fieldsets={fieldsets}
         onValidSubmit={(data: any) => console.log("Dados válidos:", data)}

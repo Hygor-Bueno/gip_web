@@ -18,10 +18,21 @@ export type ItemType = {
   unidadeMedida?: string;
 };
 
+export type ItemSendForm = {
+  id: string | number;
+  description: string;
+  price: string | number;
+  quantity: number;
+  subtotal: number;
+  measure?: string;
+}
+
+type ProductItemDB = {category: string, id_product: string, description: string, price: number, subtotal: number, measure: string  }[]
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (items: ItemType[]) => void;
+  onConfirm: (items: ItemSendForm[]) => void;
   currentItems: ItemType[];
   onRemoveItem?: (id: string | number) => void;
 };
@@ -29,8 +40,8 @@ type Props = {
 const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, currentItems }) => {
   const [search, setSearch] = useState("");
   const [selectCategory, setSelectCategory] = useState("Todas");
-  const [mostrarCarrinhoMobile, setMostrarCarrinhoMobile] = useState(false);
-  const [precoCache, setPrecoCache] = useState<Record<string, number>>({});
+  const [showCartMobile, setShowCartMobile] = useState(false);
+  const [priceCache, setPriceCache] = useState<Record<string, number>>({});
 
   const { getOrder } = useEppFetchGetOrder();
 
@@ -43,18 +54,18 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
   });
 
   const {allProduct} = useEppFetch();
-  const PRODUCT_DB = allProduct?.data ?? [];
+  const PRODUCT_DB: ProductItemDB = allProduct?.data ?? [];
 
   // Lista de categorys únicas
   const categorys = useMemo(() => {
-    const category = PRODUCT_DB.map((p: any) => p.category || "Sem categoria");
+    const category = PRODUCT_DB.map((p) => p.category || "Sem categoria");
     const uniqueCategory = Array.from(new Set(category)).sort();
     return ["Todas", ...uniqueCategory];
   }, [PRODUCT_DB]);
 
   // Produtos filtrados por busca e categoria
   const produtosFiltrados = useMemo(() => {
-    return PRODUCT_DB.filter((p: any) => {
+    return PRODUCT_DB.filter((p) => {
       const search_list_product = search.toLowerCase();
       const matchesSearch =
         p.id_product.includes(search_list_product) ||
@@ -72,10 +83,10 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
   const ShoppingCartItems = useMemo(() => {
     return Array.from(cart.entries())
       .map(([id_product, quantity]) => {
-        const prod = PRODUCT_DB.find((p:any) => p.id_product === id_product);
+        const prod = PRODUCT_DB.find((p) => p.id_product === id_product);
         if (!prod) return null;
 
-        const preco = precoCache[id_product] ?? Number(prod.price);
+        const preco = priceCache[id_product] ?? Number(prod.price);
 
         return {
           id: id_product,
@@ -83,24 +94,24 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
           price: preco,
           quantity,
           subtotal: Number((preco * quantity).toFixed(2)),
-          measureMedium: prod.measure,
+          measure: prod.measure,
         };
       })
-      .filter(Boolean) as any[];
-}, [cart, PRODUCT_DB, precoCache]);
+      .filter(Boolean) as ItemSendForm[];
+}, [cart, PRODUCT_DB, priceCache]);
 
 
   const totalCarrinho = ShoppingCartItems.reduce((acc, item) => acc + item.subtotal, 0);
 
-  const mudarQuantidade = async (id_product: string, novaQtd: number) => {
-    const prod = PRODUCT_DB.find((p:any) => p.id_product === id_product);
+  const changeQuantity = async (id_product: string, novaQtd: number) => {
+    const prod = PRODUCT_DB.find((p) => p.id_product === id_product);
     if (!prod) return;
-    let precoAtualizado = precoCache[id_product];
+    let precoAtualizado = priceCache[id_product];
     if (!precoAtualizado) {
       try {
         const response = await getOrder(Number(id_product));
         precoAtualizado = Number(response[0]?.PRECO);
-        setPrecoCache(prev => ({ ...prev, [id_product]: precoAtualizado }));
+        setPriceCache(prev => ({ ...prev, [id_product]: precoAtualizado }));
       } catch (error) {
         console.error("Erro ao buscar preço:", error);
         precoAtualizado = Number(prod.price);
@@ -125,12 +136,12 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
     });
   };
 
-  const confirmarSelecao = () => {
+  const selectConfirm = () => {
     onConfirm(ShoppingCartItems);
     onClose();
   };
 
-  const limparCarrinho = () => {
+  const cartClear = () => {
     setCart(new Map());
   };
 
@@ -139,18 +150,18 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
   if (!isOpen) return null;
 
   // Mobile: tela cheia do carrinho
-  // if (mostrarCarrinhoMobile) {
-  //   return (
-  //     <MobileCartDrawer
-  //       cartItems={ShoppingCartItems}
-  //       total={totalCarrinho}
-  //       onBack={() => setMostrarCarrinhoMobile(false)}
-  //       onClearAll={limparCarrinho}
-  //       onConfirm={confirmarSelecao}
-  //       onRemoveItem={(id) => mudarQuantidade(String(id), 0)}
-  //     />
-  //   );
-  // }
+  if (showCartMobile) {
+    return (
+      <MobileCartDrawer
+        cartItems={ShoppingCartItems}
+        total={totalCarrinho}
+        onBack={() => setShowCartMobile(false)}
+        onClearAll={cartClear}
+        onConfirm={selectConfirm}
+        onRemoveItem={(id) => changeQuantity(String(id), 0)}
+      />
+    );
+  }
 
   return (
     <div className="modal d-block bg-dark bg-opacity-75" tabIndex={-1} style={{ zIndex: 1055 }}>
@@ -193,7 +204,7 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
                     unidadeMedida: p.measure,
                   }))}
                   selectedProducts={cart}
-                  onQuantityChange={mudarQuantidade}
+                  onQuantityChange={changeQuantity}
                 />
               )}
             </div>
@@ -203,20 +214,20 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
               <CartSidebar
                 cartItems={ShoppingCartItems}
                 total={totalCarrinho}
-                onClearAll={limparCarrinho}
-                onRemoveItem={(id) => mudarQuantidade(String(id), 0)}
-                onConfirm={confirmarSelecao}
+                onClearAll={cartClear}
+                onRemoveItem={(id) => changeQuantity(String(id), 0)}
+                onConfirm={selectConfirm}
               />
             )}
 
           </div>
 
           {/* Botão flutuante no mobile */}
-          {/* <MobileCartButton
+          <MobileCartButton
             itemCount={ShoppingCartItems.length}
             total={totalCarrinho}
-            onClick={() => setMostrarCarrinhoMobile(true)}
-          /> */}
+            onClick={() => setShowCartMobile(true)}
+          />
 
         </div>
       </div>
