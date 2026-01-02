@@ -28,10 +28,10 @@ function CustomFormGender({
 
   // ======= CÁLCULOS AUTOMÁTICOS =======
   React.useEffect(() => {
-    const itens: ItemType[] = (formValues["pedidoItens"] as ItemType[]) || [];
-    const totalItens = itens.reduce((sum, i) => sum + i.subtotal, 0);
+    const itens: ItemType[] = (formValues["description"] as ItemType[]) || [];
+    const totalItens = itens.reduce((sum, i) => sum + i.subtotal, 0); // reduce faz um calculo em tempo real. 
 
-    const sinalRaw = (formValues["pedidoSinal"] || "0")
+    const sinalRaw = (formValues["signalValue"] || "0")
       .toString()
       .replace(/[^\d,]/g, "")
       .replace(",", ".");
@@ -40,14 +40,14 @@ function CustomFormGender({
 
     setFormValues(prev => ({
       ...prev,
-      pedidoTotal: totalItens.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-      pedidoPendente: pendente.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      total: totalItens.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      pendingValue: pendente.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     }));
-  }, [formValues["pedidoItens"], formValues["pedidoSinal"]]);
+  }, [formValues["signalValue"], formValues["description"]]);
 
   const handleFieldChange = (name: string, value: any) => {
     let newValue = value ?? "";
-    if (name === "pedidoSinal") {
+    if (name === "signalValue") {
       newValue = newValue.replace(/\D/g, "");
       newValue = (Number(newValue) / 100).toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
@@ -126,9 +126,11 @@ function CustomFormGender({
                     <div className="row g-3">
                       {items.map((item: any, itemIdx: number) => {
                         const name = item.name || `field_${groupIdx}_${itemIdx}`;
+
                         const captureProps = { ...(item.captureValue || {}), name };
 
-                        // ITEM SELECTOR ESPECIAL
+                        // Aqui é onde fica os detalhes do pedido, quando clicamos no botão de adicionar
+                        // uma CEIA DE NATAL, um perniu ou algo do tipo..
                         if (captureProps.type === "item-selector") {
                           const currentItems: ItemType[] = formValues[name] || [];
                           const totalItens = currentItems.reduce((s, i) => s + i.subtotal, 0);
@@ -165,9 +167,7 @@ function CustomFormGender({
                                             </strong>
                                           </small>
                                         </div>
-                                        <button type="button" className="btn btn-sm btn-danger" onClick={() => removerItem(name, idx)}>
-                                          <i className="fa-solid fa-trash text-white"></i>
-                                        </button>
+                                        
                                       </li>
                                     ))}
                                   </ul>
@@ -189,7 +189,7 @@ function CustomFormGender({
                         }
 
                         // Campos calculados → somente leitura
-                        if (["pedidoTotal", "pedidoPendente"].includes(name)) {
+                        if (["total", "pendingValue"].includes(name)) {
                           captureProps.readOnly = true;
                           captureProps.className = (captureProps.className || "") + " bg-light";
                         }
@@ -234,7 +234,6 @@ function CustomFormGender({
         onConfirm={handleItemsSelected}
         currentItems={formValues[selectedFieldName] || []}
         onRemoveItem={(id: string | number) => {
-          // Remove do campo do form
           setFormValues(prev => ({
             ...prev,
             [selectedFieldName]: (prev[selectedFieldName] || []).filter((item: any) => item.id !== id)

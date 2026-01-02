@@ -33,10 +33,7 @@ export const SearchAndFilter: React.FC<Props> = ({
           value={selectedCategoria}
           onChange={(e) => onCategoriaChange(e.target.value)}
         >
-          <option value="Todas">Todas as Categorias</option>
-          {categorias.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
+          {categorias.map((cat) => <option key={cat} value={cat}>{cat}</option> )}
         </select>
       </div>
     </div>

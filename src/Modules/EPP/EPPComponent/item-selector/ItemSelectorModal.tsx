@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { SearchAndFilter } from "./SearchAndFilter";
-import { ProductTable } from "./ProductGrid";
 import { CartSidebar } from "./CartSidebar";
 import { MobileCartDrawer } from "./MobileCartDrawer";
 import { MobileCartButton } from "./MobileCartButton";
 import useWindowSize from "../../../GAPP/Infraction/hook/useWindowSize";
 import useEppFetch from "../../EPPFetch/useEppFetch";
 import useEppFetchGetOrder from "../../EPPFetch/useEppFetchGetOrder";
+import { ProductTable } from "./ProductTable";
 
 export type ItemType = {
   id: string | number;
@@ -26,7 +26,7 @@ type Props = {
   onRemoveItem?: (id: string | number) => void;
 };
 
-const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, currentItems, onRemoveItem }) => {
+const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, currentItems }) => {
   const [search, setSearch] = useState("");
   const [categoriaSelecionada, setCategoriaSelecionada] = useState("Todas");
   const [mostrarCarrinhoMobile, setMostrarCarrinhoMobile] = useState(false);
@@ -47,8 +47,8 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
 
   // Lista de categorias únicas
   const categorias = useMemo(() => {
-    const cats = produtosDoBanco.map((p: any) => p.category || "Sem categoria");
-    const unicas = Array.from(new Set(cats)).sort();
+    const categoria = produtosDoBanco.map((p: any) => p.category || "Sem categoria");
+    const unicas = Array.from(new Set(categoria)).sort();
     return ["Todas", ...unicas];
   }, [produtosDoBanco]);
 
@@ -92,29 +92,21 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
 
   const totalCarrinho = itensNoCarrinho.reduce((acc, item) => acc + item.subtotal, 0);
 
-  // Altera quantidade (suporta kg e un)
   const mudarQuantidade = async (id_product: string, novaQtd: number) => {
     const prod = produtosDoBanco.find((p:any) => p.id_product === id_product);
     if (!prod) return;
-
-    // 🔹 Busca preço atualizado apenas se não estiver no cache
     let precoAtualizado = precoCache[id_product];
     if (!precoAtualizado) {
       try {
         const response = await getOrder(Number(id_product));
-        console.log(response[0].PRECO)
         precoAtualizado = Number(response[0]?.PRECO);
-
-        console.log(precoAtualizado);
-
         setPrecoCache(prev => ({ ...prev, [id_product]: precoAtualizado }));
       } catch (error) {
         console.error("Erro ao buscar preço:", error);
         precoAtualizado = Number(prod.price);
       }
     }
-
-    // 🔹 Ajuste de quantidade por unidade ou kg
+    
     let qtdFinal = novaQtd;
     if (prod.measure?.toLowerCase() === "kg") {
       qtdFinal = novaQtd <= 0 ? 0 : Math.max(0.1, Number(novaQtd.toFixed(2)));
@@ -122,7 +114,6 @@ const ItemSelectorModal: React.FC<Props> = ({ isOpen, onClose, onConfirm, curren
       qtdFinal = Math.max(0, Math.floor(novaQtd));
     }
 
-    // 🔹 Atualiza carrinho
     setCarrinho(prev => {
       const novo = new Map(prev);
       if (qtdFinal <= 0) {

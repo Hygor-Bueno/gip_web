@@ -30,15 +30,7 @@ function TableClient() {
                 value: `R$ ${parseFloat(item.signalValue || 0).toFixed(2).replace('.', ',')}`, 
                 tag: "Sinal", ocultColumn: false 
             },
-            pendingValue: {value: `R$ ${(item.total - item.signalValue || 0).toFixed(2).replace('.', ',')}`, tag: "Pendente", ocultColumn: false},
-            // description: { 
-            //     value: item.description
-            //         ?.replace(/Cód\.: \d+\.\nDescrição: /g, "")
-            //         .replace(/ - \d+ Un\..*?\nSubtotal:.*?\n\n?/g, " • ")
-            //         .replace(/\n/g, " ")
-            //         .trim() || "Sem itens",
-            //     tag: "Descrição", ocultColumn: false, minWidth: "400px" 
-            // }
+            pendingValue: {value: `R$ ${(item.total - item.signalValue || 0).toFixed(2).replace('.', ',')}`, tag: "Pendente", ocultColumn: false}
         }));
     };
 

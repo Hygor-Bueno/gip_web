@@ -56,7 +56,7 @@ export const CartSidebar: React.FC<Props> = ({cartItems, total, onClearAll, onRe
             <span style={{fontSize:"1.2rem"}}>Total:</span>
             <i style={{fontSize:"1.6rem"}} className="text-danger">R$ {total.toFixed(2)}</i>
           </div>
-          <button className="btn btn-success btn-lg w-100" onClick={onConfirm} disabled={cartItems.length === 0}>
+          <button className="btn btn-success btn-lg w-100" onClick={onConfirm} disabled={cartItems.length === 0} >
             Adicionar ao Pedido
           </button>
         </div>
