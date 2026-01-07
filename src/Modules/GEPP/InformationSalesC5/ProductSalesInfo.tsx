@@ -7,7 +7,6 @@ import { cardsConfig } from "../ManagerCard/Json/Card";
 import { useConnection } from "../../../Context/ConnContext";
 import { ObservationModal } from "../Components/Modal";
 import { handleNotification } from "../../../Util/Util";
-import { Button } from "react-bootstrap";
 import CustomForm from "../../../Components/CustomForm";
 import { formFieldsData, getProductParams, putProductParams } from "./ProductSalesInfo.Config";
 
@@ -110,7 +109,6 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
       <HeaderC5 data={data} product={product} />
       <InformationText product={product} />
 
-
       {/* Cards */}
       <div className="row mb-4 gx-3 gy-3">
         {cardsConfig(product).map((cardProps, index) => (
@@ -118,13 +116,13 @@ function ProductSalesInfo({ data, product, children, loadData, setProduct }: ISa
         ))}
       </div>
       <hr />
-      {children}
       {/* Formulário simplificado */}
       <div className="d-flex align-items-start">
         <CustomForm fieldsets={formFieldsData(selectedStepId, handleSelectChange, filteredOptions, product, valueSellout, setValueSellout)} className="container row gap-2 my-2" titleButton="Enviar" classButton="btn btn-primary" onSubmit={handleSubmit} />
         <button title="Excluir item" onClick={handleStatusTrash} className="btn btn-danger fa fa-trash" />
       </div>
-
+      <hr />      
+      {children}
     </main>
   );
 }
