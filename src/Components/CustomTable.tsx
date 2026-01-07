@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { tItemTable } from "../types/types";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable'; // Importe o autoTable diretamente
+import { convertDate, convertTime } from "../Util/Util";
 
 const defaultImage = require('../Assets/Image/groupCLPP.png');
 
@@ -22,6 +23,19 @@ export default function CustomTable(props: CustomTableProps) {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<tItemTable[]>(props.selectedItems || []);
 
+  function isValidDateString(dateString: string): boolean {
+    // Regex para formato YYYY-MM-DD
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regex.test(dateString)) return false;
+
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+
+    // Verifica se a data criada bate com os números originais
+    return date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day;
+  }
   // Função para verificar se uma linha deve ser selecionada
   const isRowSelected = (row: tItemTable): boolean => {
     if (!props.selectionList || !props.selectionKey || !row[props.selectionKey]) return false;
@@ -156,7 +170,7 @@ export default function CustomTable(props: CustomTableProps) {
     return props.isImage ? (
       <img className="photoCircle rounded-circle" src={props.value ? `data:image/png;base64,${props.value}` : defaultImage} />
     ) : (
-      <span>{props.value}</span>
+      <span>{isValidDateString(props.value) ? convertDate(props.value,true) : props.value}</span>
     );
   };
 

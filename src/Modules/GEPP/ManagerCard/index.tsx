@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import InformationSalesC5 from "../InformationSalesC5";
 import useWindowSize from "../../GAPP/Infraction/hook/useWindowSize";
 import { formatDateBR } from "../../../Util/Util";
 import useFormattedProduct from "./Hooks/useFormattedProduct";
-require("./CardProd.css");
+import ProductSalesInfo from "../InformationSalesC5/ProductSalesInfo";
+import "./CardProd.css";
 
-function CardProd({ product, setProduct, reloadFunction }: { product: any[][], setProduct: any, setDataList?: any; reloadFunction: any; }) {
+function CardProd({ product, setProduct, reloadFunction, setCardProd }: { product: any[][], setProduct: any, setDataList?: any; reloadFunction: any; setCardProd:(value:boolean)=>void;}) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevProductsRef = useRef<any[][]>([]);
@@ -72,7 +72,7 @@ function CardProd({ product, setProduct, reloadFunction }: { product: any[][], s
 
   return (
     <div
-      className="carousel-container w-100"
+      className="d-flex flex-column carousel-container w-100"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -83,7 +83,8 @@ function CardProd({ product, setProduct, reloadFunction }: { product: any[][], s
           <button onClick={() => {setProduct(null)}}className="fa fa-trash btn btn-danger"></button>
         </div>
       )}
-      <InformationSalesC5
+      <button title="Fechar detalhes do produto" type="button" onClick={()=>setCardProd(false)} className="btn btn-danger my-2 ms-auto">X</button>
+      <ProductSalesInfo
         setProduct={setProduct}
         loadData={reloadFunction}
         key={`product_${mySqlData?.id_products}_${oracleData?.code_category}`}
