@@ -26,8 +26,8 @@ export function InputCheckButton(props: iPropsInputCheckButton) {
             <input hidden checked={isChecked} onChange={async (e: React.ChangeEvent<HTMLInputElement>) => {
                 try {
                     const newChecked = e.currentTarget.checked; 
-                    await props.onAction(newChecked); // Aguarda a ação sem bloquear
-                    setIsChecked(newChecked); // Atualiza o estado imediatamente
+                    await props.onAction(newChecked);
+                    setIsChecked(newChecked);
                 } catch (error) {
                     console.error(error);
                 }
