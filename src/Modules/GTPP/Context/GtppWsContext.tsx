@@ -392,53 +392,57 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * @function
    * @async
    * @param {any} event - Evento de mensagem recebido do WebSocket.
+   * 
+  */
+
+  /**
+   * Processa mensagens recebidas do WebSocket com travas de segurança por ID.
+   * Garante que um usuário não veja dados de uma tarefa na qual não está focado.
    */
   async function callbackOnMessage(event: any) {
-    let response = JSON.parse(event.data);
-    if (
-      response.error &&
-      response.message.includes("This user has been connected to another place")
-    ) {
-      // Lógica de desconexão comentada para evitar logout automático
+    const response = JSON.parse(event.data);
+    if (response.error || response.send_user_id == localStorage.codUserGIPP) {
+      return;
     }
 
-    if (!response.error && response.send_user_id != localStorage.codUserGIPP) {
-      updateNotification([response]);
+    updateNotification([response]);
 
-      if (response.type == -1 || response.type == 2 || response.type == 6) {
-        if (response.type == 6) {
-          if (task.id === response.task_id) {
-            const updatedTask = {
-              ...task,
-              state_id: response.object?.state_id,
-              percent: response.object?.percent,
-            };
-            setTask(updatedTask);
-          }
-          await loadTasks();
-        } else if (response.object) {
-          if (response.type == 2) {
-            if (response.object.isItemUp) {
-              itemUp(response.object);
-            } else if (response.object.remove) {
-              reloadPageDeleteItem(response);
-            } else if (response.object.isUserTask) {
-              userTaskItem(response.object);
-            } else {
-              reloadPageItem(response.object);
-            }
-          }
-        }
-      } else if (response.type == -3 || response.type == 5) {
-        if (task.id == response.task_id && response.type == -3) {
-          setOpenCardDefault(false);
-        }
-        await loadTasks();
+    const isTargetingCurrentTask = task && task.id === response.task_id;
+    if (response.type == 6) {
+      if (isTargetingCurrentTask) {
+        const updatedTask = {
+          ...task,
+          state_id: response.object?.state_id,
+          percent: response.object?.percent,
+        };
+        setTask(updatedTask);
       }
-    }
+      await loadTasks();
+    } 
 
-    if (!response.error && response.type == 3) {
-      if (response.object) {
+    else if (response.type == 2) {
+      if (isTargetingCurrentTask && response.object) {
+        if (response.object.isItemUp) {
+          itemUp(response.object);
+        } else if (response.object.remove) {
+          reloadPageDeleteItem(response);
+        } else if (response.object.isUserTask) {
+          userTaskItem(response.object);
+        } else {
+          reloadPageItem(response.object);
+        }
+      }
+    } 
+
+    else if (response.type == -3 || response.type == 5) {
+      if (isTargetingCurrentTask && response.type == -3) {
+        setOpenCardDefault(false);
+        clearGtppWsContext(); 
+      }
+      await loadTasks();
+    }
+    else if (response.type == 3) {
+      if (isTargetingCurrentTask && response.object) {
         getDescription(response.object);
       }
     }
