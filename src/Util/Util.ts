@@ -277,34 +277,51 @@ export function maskUserSeach(
 
 // Função genérica para converter um array de objetos em uma estrutura de tabela
 export function convertForTable<T extends Record<string, any>>(
-    array: T[], // Array de objetos genéricos
+    array: T[], 
     options?: {
-        isImageKeys?: string[]; // Chaves que devem ser tratadas como imagens
-        ocultColumns?: string[]; // Chaves que devem ser ocultadas
-        minWidths?: Record<string, string>; // Larguras mínimas personalizadas para colunas
-        customTags?: Record<string, string>; // Mapeamento de chaves para tags personalizadas
+        isImageKeys?: string[];
+        ocultColumns?: string[];
+        minWidths?: Record<string, string>;
+        customTags?: Record<string, string>;
         customValue?: Record<string, (value: any, row?: T) => string>;
     }
 ): TableItem[] {
     return array.map((item) => {
         const tableItem: TableItem = {};
-        // Itera sobre as chaves do objeto
-        for (const key in item) {
-            if (Object.prototype.hasOwnProperty.call(item, key)) {
-                const rawValue = item[key];
-                const formatter = options?.customValue?.[key];
-                const formattedValue = formatter ? formatter(rawValue, item) : rawValue?.toString() || "";
-                const isImage = options?.isImageKeys?.includes(key);
-                const ocultColumn = options?.ocultColumns?.includes(key);
-                const minWidth = options?.minWidths?.[key] || "150px";
-                const tag = options?.customTags?.[key] || key;
 
-                tableItem[key] = maskUserSeach(formattedValue, tag, isImage, ocultColumn, minWidth);
-            }
-        }
+        // Define as chaves a processar:
+        // - Se customTags existir, segue a ordem delas
+        // - Se não, segue as chaves originais
+        const keysToProcess = options?.customTags
+            ? Object.keys(options.customTags)
+            : Object.keys(item);
+
+        // Inclui também qualquer coluna de ocultColumns que não esteja no customTags
+        const allKeys = new Set([
+            ...keysToProcess,
+            ...(options?.ocultColumns || [])
+        ]);
+
+        allKeys.forEach((key) => {
+            // Ignora se a chave não existir no item e não estiver em ocultColumns
+            if (!(key in item) && !(options?.ocultColumns?.includes(key))) return;
+
+            const rawValue = item[key];
+            const formatter = options?.customValue?.[key];
+            const formattedValue = formatter ? formatter(rawValue, item) : rawValue?.toString() || "";
+            const isImage = options?.isImageKeys?.includes(key);
+            const ocultColumn = options?.ocultColumns?.includes(key);
+            const minWidth = options?.minWidths?.[key] || "150px";
+            const tag = options?.customTags?.[key] || key;
+
+            tableItem[key] = maskUserSeach(formattedValue, tag, isImage, ocultColumn, minWidth);
+        });
+
         return tableItem;
     });
 }
+
+
 
 /**
  * Essa função recebe um objeto e converte ele para uma string no seguinte formato "@key=value ".

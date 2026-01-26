@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import './ObservationModal.module.css';
+
+import './ObservationModal.Style.css'
 
 interface IObservationModal {
   onClose?: () => void;
@@ -21,7 +22,7 @@ export const ObservationModal: React.FC<IObservationModal> = ({ onClose, onSave 
 
   return (
     <div className="modal-overlay">
-      <div className="modal-container">
+      <div className="modal-container-gepp">
         <div className="d-flex justify-content-between align-items-center observation">
           <strong className="d-block modal-title">Observação</strong>
           <button className="d-block btn-exit" onClick={handleExit}>Sair</button>
@@ -56,7 +57,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 }) => {
   return (
     <div className="modal-overlay">
-      <div className="modal-container">
+      <div className="modal-container-gepp">
         <div className="d-flex justify-content-between align-items-center observation">
           <strong className="d-block modal-title text-white">{title}</strong>
         </div>
@@ -113,7 +114,7 @@ export function EditModalConfirm({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-container">
+      <div className="modal-container-gepp">
         <strong className="d-block modal-title">{title}</strong>
 
         <select
