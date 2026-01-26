@@ -387,15 +387,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Processa mensagens recebidas do WebSocket e atualiza o estado da aplicação conforme o tipo de mensagem.
-   * Lida com notificações, atualizações de tarefas e estados, e desconexão de usuários.
-   * @function
-   * @async
-   * @param {any} event - Evento de mensagem recebido do WebSocket.
-   * 
-  */
-
-  /**
    * Processa mensagens recebidas do WebSocket com travas de segurança por ID.
    * Garante que um usuário não veja dados de uma tarefa na qual não está focado.
    */
