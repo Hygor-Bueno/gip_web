@@ -1,7 +1,4 @@
-export const formExpense = (
-    unitList:{label:string,value:string}[],
-    values:{ date_start: string, date_end: string, license_plates: string, unit_id: string, exp_type_id_fk: string },
-    expensesTypeList:{label:string,value:string}[],
+export const formExpense = (unitList:{label:string,value:string}[],values:{ date_start: string, date_end: string, license_plates: string, unit_id: string, exp_type_id_fk: string },expensesTypeList:{label:string,value:string}[],
         onAction: (element: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
 ) => [
     {
