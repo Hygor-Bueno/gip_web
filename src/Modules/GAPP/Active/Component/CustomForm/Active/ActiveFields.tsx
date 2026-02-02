@@ -17,7 +17,7 @@ export const ActiveFields: React.FC<any> = ({
   });
 
   return (
-    <div className="card p-3 shadow-sm">
+    <div className="card p-3 shadow-sm animate__animated animate__fadeInUp">
       <h2>Ativos</h2>
       <hr />
 

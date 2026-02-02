@@ -4,7 +4,7 @@ import React, { useState } from "react";
 
 export function ConfigFormActive({ initialData, data }: ConfigFormActiveProps) {
   const makeSelect = (label: string, name: string, col = "col-md-4", options: any[], valueKey = "id", labelKey: any = "name") => ({ label, name, type: "select", col, options, optionValue: valueKey, optionLabel: labelKey});
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<any>({
     is_vehicle: false,
     ...initialData,
   });
@@ -25,7 +25,7 @@ export function ConfigFormActive({ initialData, data }: ConfigFormActiveProps) {
       renderCustom: () => (
         <button className={`border p-2 mt-4 rounded ${formData.is_vehicle ? "btn-color-gipp" : "bg-light"}`} onClick={(e) => {
             e.preventDefault();
-            setFormData((prev) => ({ ...prev, is_vehicle: !prev.is_vehicle })); }} 
+            setFormData((prev:any) => ({ ...prev, is_vehicle: !prev.is_vehicle })); }} 
             style={{width: '50px'}}>
               <i className={`fa-solid fa-car ${formData.is_vehicle ? "text-white" : "text-dark"}`}></i>
         </button>

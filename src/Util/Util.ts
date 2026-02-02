@@ -27,6 +27,17 @@ export function formatDateBR(date?: string | Date | null) {
     });
   }
 
+export const updateNested =
+  <T, K extends keyof T>(key: K) =>
+  <F extends keyof T[K]>(field: F, value: T[K][F]) =>
+  (prev: T): T => ({
+    ...prev,
+    [key]: {
+      ...prev[key],
+      [field]: value
+    }
+  });
+
 export const fetchCEPData = async (cep: string, loading: any) => {
     try {
         loading(true);

@@ -1,224 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import {
-  ActiveDepartamentData,
-  ActiveDriverData,
-  ActiveTypeFuelData,
-  ActiveUnitsData
-} from '../../Hooks/ActiveHook';
+import React, { useEffect, useState } from 'react';
+import { FormData, SelectedItem } from '../../Interfaces/Interfaces';
+import { useActiveAuxData } from '../../Hooks/useActiveAuxData';
+import { createEmptyFormData } from '../../domain/active.factory';
+import { mapFormDataToPayload, mapSelectedItemToFormData } from '../../domain/active.adapters';
 import { ActiveFields } from './Active/ActiveFields';
 import VehicleFields from './Vehicle/VehicleFields';
-import { removeStringSpecialChars } from '../../../../../Util/Util';
+import { updateNested } from '../../../../../Util/Util';
 
-interface ActiveFormSimpleProps {
-  selectedItem: any;
-  vehicleData: any;
+interface Props {
+  selectedItem?: SelectedItem;
+  vehicleData: unknown;
   onClose: () => void;
   onSaveSuccess?: () => void;
 }
 
-const ActiveFormSimple: React.FC<ActiveFormSimpleProps> = ({
-  selectedItem,
-  vehicleData,
-  onClose
-}) => {
+const ActiveFormSimple: React.FC<Props> = ({ selectedItem, onClose }) => {
+  const { units, departments } = useActiveAuxData();
 
-  const [units, setUnits] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [typeFuel, setTypeFuel] = useState<any[]>([]);
-  const [driver, setDriver] = useState<any[]>([]);
-
+  const [formData, setFormData] = useState<FormData>(createEmptyFormData());
   const [listItems, setListItems] = useState<string[]>([]);
-
-  const [formData, setFormData] = useState<any>({
-    active: {
-      active_id: '',
-      brand: '',
-      model: '',
-      number_nf: '',
-      status_active: '',
-      date_purchase: '',
-      value_purchase: '',
-      change_date: '',
-      used_in: 0,
-      is_vehicle: 1,
-      units_id_fk: 0,
-      id_active_class_fk: 0,
-      user_id_fk: 0,
-      work_group_fk: 0,
-      photo: null,
-      place_purchase: {
-        city: '',
-        state: '',
-        store: '',
-        number: '',
-        zip_code: '',
-        complement: '',
-        neighborhood: '',
-        public_place: ''
-      },
-      list_items: {
-        list: []
-      }
-    },
-    vehicle: {
-      license_plates: '',
-      year: new Date().getFullYear(),
-      year_model: new Date().getFullYear(),
-      chassi: '',
-      color: '',
-      renavam: '',
-      fuel_type: '',
-      power: 0,
-      capacity: 0,
-      shielding: 0,
-      fuel_type_id_fk: 0
-    }
-  });
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [unitsReq, depReq, driverReq, fuelReq] = await Promise.all([
-          ActiveUnitsData(),
-          ActiveDepartamentData(),
-          ActiveDriverData(),
-          ActiveTypeFuelData()
-        ]);
-
-        setUnits(unitsReq.data || unitsReq);
-        setDepartments(depReq.data || depReq);
-        setDriver(driverReq.data || driverReq);
-        setTypeFuel(fuelReq.data || fuelReq);
-      } catch (error) {
-        console.error('Erro ao carregar dados', error);
-      }
-    }
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    setFormData((prev: any) => ({
-      ...prev,
-      active: {
-        ...prev.active,
-        list_items: { list: listItems }
-      }
-    }));
-  }, [listItems]);
 
   useEffect(() => {
     if (!selectedItem) return;
-
-    const parsedListItems =
-      selectedItem.list_items?.value?.list?.map(
-        (item: any) => item.description ?? String(item)
-      ) || [];
-
-    setListItems(parsedListItems);
-
-    setFormData({
-      active: {
-        active_id: selectedItem.active_id?.value ?? '',
-        brand: selectedItem.brand?.value ?? '',
-        model: selectedItem.model?.value ?? '',
-        number_nf: selectedItem.number_nf?.value ?? '',
-        status_active: selectedItem.status_active?.value ?? '',
-        date_purchase: selectedItem.date_purchase?.value ?? '',
-        value_purchase: selectedItem.value_purchase?.value ?? '',
-        change_date: selectedItem.change_date?.value ?? '',
-        used_in: selectedItem.used_in?.value ?? 0,
-        is_vehicle: selectedItem.is_vehicle?.value ?? 1,
-        units_id_fk: selectedItem.units_id_fk?.value ?? 0,
-        id_active_class_fk: selectedItem.id_active_class_fk?.value ?? 0,
-        user_id_fk: selectedItem.user_id_fk?.value ?? 0,
-        work_group_fk: selectedItem.work_group_fk?.value ?? 0,
-        photo: null,
-        place_purchase: selectedItem.place_purchase?.value ?? {
-          city: '',
-          state: '',
-          store: '',
-          number: '',
-          zip_code: '',
-          complement: '',
-          neighborhood: '',
-          public_place: ''
-        },
-        list_items: selectedItem.list_items?.value || { list: [] },
-      },
-      vehicle: {
-        license_plates: selectedItem.vehicle?.license_plates ?? '',
-        year: selectedItem.vehicle?.year ?? new Date().getFullYear(),
-        year_model: selectedItem.vehicle?.year_model ?? new Date().getFullYear(),
-        chassi: selectedItem.vehicle?.chassi ?? '',
-        color: selectedItem.vehicle?.color ?? '',
-        renavam: selectedItem.vehicle?.renavam ?? '',
-        fuel_type: selectedItem.vehicle?.fuel_type ?? '',
-        power: selectedItem.vehicle?.power ?? 0,
-        capacity: selectedItem.vehicle?.capacity ?? 0,
-        shielding: selectedItem.vehicle?.shielding ?? 0,
-        fuel_type_id_fk: selectedItem.vehicle?.fuel_type_id_fk ?? 0
-      }
-    });
+    const mapped = mapSelectedItemToFormData(selectedItem);
+    setFormData(mapped);
+    setListItems(mapped.active.list_items.list);
   }, [selectedItem]);
 
-  // 🔄 Handle changes Active
-  const handleActiveChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev: any) => ({
-      ...prev,
-      active: {
-        ...prev.active,
-        [name]: value
-      }
-    }));
-  };
+  useEffect(() => {
+    setFormData(prev =>
 
-  // 🔄 Handle changes Vehicle
-  const handleVehicleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev: any) => ({
-      ...prev,
-      vehicle: {
-        ...prev.vehicle,
-        [name]: value
-      }
-    }));
-  };
+      updateNested<FormData, 'active'>('active')('list_items', { list: listItems })(
+        prev
+      )
+    );
+  }, [listItems]);
 
-  // 🔄 Handle place purchase
-  const handlePlaceChange = (field: string, value: string) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      active: {
-        ...prev.active,
-        place_purchase: {
-          ...prev.active.place_purchase,
-          [field]: value
-        }
-      }
-    }));
-  };
+  const handleChange =
+    <K extends keyof FormData>(section: K) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = e.target;
+      setFormData(prev =>
+        updateNested<FormData, K>(section)(name as keyof FormData[K], value as any)(
+          prev
+        )
+      );
+    };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const payload = {
-      ...formData,
-      active: {
-        ...formData.active,
-        number_nf: removeStringSpecialChars(formData.active.number_nf),
-        value_purchase: removeStringSpecialChars(formData.active.value_purchase),
-      },
-      vehicle: {
-        ...formData.vehicle,
-        renavam: removeStringSpecialChars(formData.vehicle.renavam)
-      }
-    };
-
+    const payload = mapFormDataToPayload(formData);
     console.log('Payload correto 👉', payload);
   };
 
@@ -226,41 +57,29 @@ const ActiveFormSimple: React.FC<ActiveFormSimpleProps> = ({
     <div className="card shadow-lg border-0">
       <div className="card-body">
         <form onSubmit={handleSubmit}>
-          <div
-            className="d-flex flex-column gap-3 overflow-auto"
-            style={{ maxHeight: '83vh' }}
-          >
+          <div className="d-flex flex-column gap-3 overflow-auto" style={{ maxHeight: '83vh' }}>
             <ActiveFields
               formData={formData.active}
-              handleChange={handleActiveChange}
+              handleChange={handleChange('active')}
               units={units}
               departments={departments}
               listItems={listItems}
               setListItems={setListItems}
-              handlePlaceChange={handlePlaceChange}
             />
 
             {formData.active.is_vehicle === 1 && (
               <VehicleFields
                 formData={formData.vehicle}
-                handleChange={handleVehicleChange}
+                handleChange={handleChange('vehicle')}
               />
             )}
           </div>
 
           <div className="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
-            <button
-              type="button"
-              className="btn btn-secondary px-4"
-              onClick={onClose}
-            >
+            <button type="button" className="btn btn-secondary px-4" onClick={onClose}>
               Cancelar
             </button>
-
-            <button
-              type="submit"
-              className="btn btn-color-gipp text-white px-5 fw-bold"
-            >
+            <button type="submit" className="btn btn-color-gipp text-white px-5 fw-bold">
               Salvar Alterações
             </button>
           </div>
