@@ -19,7 +19,7 @@ import Gapp from './Modules/GAPP/Gapp';
 import ProfileGIPP from './Modules/ProfileGIPP/ProfileGIPP';
 import Gepp from './Modules/GEPP/Gepp';
 import CreateTheme from './Modules/GTPP/CreateTheme/CreateTheme';
-import Active from './Modules/GAPP/Active/Acive';
+import Active from './Modules/GAPP/Active/Active';
 
 function App() {
   function withProvider(component: JSX.Element) {

@@ -6,11 +6,10 @@ export interface FieldConfig {
   col?: string;
   type?: 'text' | 'number' | 'date' | 'select' | 'custom';
   placeholder?: string;
-  // Para Selects e APIs
   options?: any[];
   optionValue?: string;
-  optionLabel?: string | ((item: any) => string); // Aceita string ou função para labels complexos
-  renderCustom?: () => React.ReactNode; // Para botões ou campos especiais
+  optionLabel?: string | ((item: any) => string);
+  renderCustom?: () => React.ReactNode;
 }
 
 interface DynamicFormProps {
@@ -44,9 +43,10 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({ fields, data, onChange
                 </option>
               ))}
             </select>
-          ) : field.type === 'custom' ? (
-            field.renderCustom?.()
-          ) : (
+          ) : field.type === 'custom' 
+            ? 
+              field.renderCustom?.() 
+            : 
             <input
               type={field.type || 'text'}
               name={field.name}
@@ -55,7 +55,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({ fields, data, onChange
               value={data[field.name] || ''}
               onChange={onChange}
             />
-          )}
+          }
         </div>
       ))}
     </div>

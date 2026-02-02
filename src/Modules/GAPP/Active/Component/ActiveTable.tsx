@@ -2,11 +2,7 @@ import React, { useEffect, useState } from "react";
 import CustomTable from "../../../../Components/CustomTable";
 import { ActiveData, ActiveVehicleData } from "../Hooks/ActiveHook";
 import { convertForTable } from "../../../../Util/Util";
-import { 
-    customTagsActive, 
-    customValueActive,
-    listColumnsOcult 
-} from "../ConfigurationTable/ConfigurationTable";
+import {  customTagsActive,  customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
 import ActiveFormSimple from "./CustomForm/CustomForm";
 
 const ActiveTable: React.FC = () => {
@@ -42,7 +38,6 @@ const ActiveTable: React.FC = () => {
         const loadVehicleData = async () => {
             try {
                 const req = await ActiveVehicleData(selected[0].active_id.value);
-                console.log(req);
                 setVehicleData(req.data || []);
             } catch (error) {
                 console.error("Erro ao buscar dados do veículo", error);
@@ -78,14 +73,12 @@ const ActiveTable: React.FC = () => {
 
             {openModal && selected && (
                 <div className="modal-backdrop bg-light p-3">
-                    <div className="p-3 bg-light rounded shadow">
-                        <ActiveFormSimple 
-                            selectedItem={selected[0]} 
-                            vehicleData={vehicleData}
-                            onClose={() => setOpenModal(false)} 
-                            onSaveSuccess={handleReload} 
-                        />
-                    </div>
+                    <ActiveFormSimple 
+                        selectedItem={selected[0]} 
+                        vehicleData={vehicleData}
+                        onClose={() => setOpenModal(false)} 
+                        onSaveSuccess={handleReload} 
+                    />
                 </div>
             )}
         </div>
