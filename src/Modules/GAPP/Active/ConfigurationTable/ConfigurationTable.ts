@@ -76,16 +76,20 @@ export const customValueActive = {
             return "";
         }
     },
-    /*
-        status_active: (value: any) => {
-            try {
-                return value == 1
-                        ? "Ativo"
-                        : "Inativo";
-            } catch {
-                return ""
-            }
-        },
-    */
+
+    place_purchase: (value: any) => {
+        try {
+            return {...value};
+        } catch {
+            return "";
+        }
+    },
+    list_item: (value: any) => {
+        try {
+            return {...value};
+        } catch {
+            return "";
+        }
+    }
 }
  

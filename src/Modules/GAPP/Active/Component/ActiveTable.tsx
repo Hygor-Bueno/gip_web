@@ -74,9 +74,9 @@ const ActiveTable: React.FC = () => {
             {openModal && selected && (
                 <div className="modal-backdrop bg-light p-3">
                     <ActiveFormSimple 
-                        selectedItem={selected[0]} 
-                        vehicleData={vehicleData}
+                        selectedItem={selected[0]}
                         onClose={() => setOpenModal(false)} 
+                        vehicleData={vehicleData}
                         onSaveSuccess={handleReload} 
                     />
                 </div>
