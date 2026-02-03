@@ -47,7 +47,6 @@ const ActiveTable: React.FC = () => {
             }
         };
         const loadActiveData = async () => {
-            console.log(data.filter((item: any) => item.active_id === selected[0].active_id.value)[0]);
             setActiveData(data.filter((item: any) => item.active_id === selected[0].active_id.value)[0]);
         };
         loadVehicleData();

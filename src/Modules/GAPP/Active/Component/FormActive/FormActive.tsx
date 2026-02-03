@@ -67,7 +67,7 @@ export default function FormActive(props?: any): JSX.Element {
                     fieldsets={formActive(
                         activeValues,
                         [],
-                        [],
+                        [{ label: "Carro", value: "1" }],
                         [],
                         onChange
                     )}
