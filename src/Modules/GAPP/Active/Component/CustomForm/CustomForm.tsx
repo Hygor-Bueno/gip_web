@@ -109,6 +109,7 @@ const ActiveFormSimple: React.FC<ActiveFormSimpleProps> = ({
   useEffect(() => {
     if (!selectedItem) return;
 
+    // teste
     const parsedListItems =
       selectedItem.list_items?.value?.list?.map(
         (item: any) => item.description ?? String(item)
