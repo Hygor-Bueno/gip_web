@@ -2,20 +2,23 @@ import React, { useEffect, useState } from "react";
 import CustomTable from "../../../../Components/CustomTable";
 import { ActiveData, ActiveVehicleData } from "../Hooks/ActiveHook";
 import { convertForTable } from "../../../../Util/Util";
-import {  customTagsActive,  customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
-import ActiveFormSimple from "./CustomForm/CustomForm";
+import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
+import FormActive from "./FormActive/FormActive";
+
 
 const ActiveTable: React.FC = () => {
-    const [data, setData] = useState<any[]>([]);
+    const [data, setData] = useState<[]>([]);
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<any>(null);
-    const [vehicleData, setVehicleData] = useState<any>(null);
+    const [vehicleData, setVehicleData] = useState<any>({});
+    const [activeData, setActiveData] = useState<any>({});
     const [openModal, setOpenModal] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 const req = await ActiveData();
+                if (req["error"]) throw new Error(req.message);
                 setData(req.data || []);
             } catch (error) {
                 console.error("Erro ao buscar dados", error);
@@ -34,31 +37,25 @@ const ActiveTable: React.FC = () => {
 
     useEffect(() => {
         if (!selected) return;
-
         const loadVehicleData = async () => {
             try {
                 const req = await ActiveVehicleData(selected[0].active_id.value);
-                setVehicleData(req.data || []);
+                if (req["error"]) throw new Error(req.message);
+                setVehicleData(req.data[0]);
             } catch (error) {
                 console.error("Erro ao buscar dados do veículo", error);
             }
         };
-
+        const loadActiveData = async () => {
+            console.log(data.filter((item: any) => item.active_id === selected[0].active_id.value)[0]);
+            setActiveData(data.filter((item: any) => item.active_id === selected[0].active_id.value)[0]);
+        };
         loadVehicleData();
+        loadActiveData();
     }, [selected]);
-
-    const handleReload = () => {
-        setLoading(true);
-
-        ActiveData().then(req => {
-            setData(req.data || []);
-            setLoading(false);
-        });
-    };
 
     if (loading) return <div>Carregando...</div>;
     if (!data || data.length === 0) return <div>Nenhum dado encontrado</div>;
-
     return (
         <div className="p-2">
             <CustomTable
@@ -72,18 +69,10 @@ const ActiveTable: React.FC = () => {
             />
 
             {openModal && selected && (
-                <div className="modal-backdrop bg-light p-3">
-                    <ActiveFormSimple 
-                        selectedItem={selected[0]}
-                        onClose={() => setOpenModal(false)} 
-                        vehicleData={vehicleData}
-                        onSaveSuccess={handleReload} 
-                    />
-                </div>
+                <FormActive apiData={{ active: activeData, vehicle: vehicleData }} />
             )}
         </div>
     );
 };
-
 
 export default ActiveTable;
