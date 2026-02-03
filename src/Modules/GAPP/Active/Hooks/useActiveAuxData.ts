@@ -1,28 +1,48 @@
-import { useEffect, useState } from 'react';
-import { Department, Driver, FuelType, Unit } from '../Interfaces/Interfaces';
-import { ActiveDepartamentData, ActiveDriverData, ActiveTypeFuelData, ActiveUnitsData } from './ActiveHook';
+import { useEffect, useState, useCallback } from 'react';
+import { ActiveType, Company, Department, Driver, FuelType, Unit } from '../Interfaces/Interfaces';
+import {
+  ActiveCompanyData,
+  ActiveDepartamentData,
+  ActiveDriverData,
+  ActiveTypeData,
+  ActiveTypeFuelData,
+  ActiveUnitsData
+} from './ActiveHook';
 
 export const useActiveAuxData = () => {
   const [units, setUnits] = useState<Unit[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [fuelTypes, setFuelTypes] = useState<FuelType[]>([]);
+  const [company, setCompany] = useState<Company[]>([]);
+  const [activeType, setActiveType] = useState<ActiveType[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const [u, d, dr, f] = await Promise.all([
-        ActiveUnitsData(),
-        ActiveDepartamentData(),
-        ActiveDriverData(),
-        ActiveTypeFuelData()
-      ]);
+  const normalizeResponse = <T,>(res: any): T[] => {
+    return res?.data || res || [];
+  };
 
-      setUnits(u.data || u);
-      setDepartments(d.data || d);
-      setDrivers(dr.data || dr);
-      setFuelTypes(f.data || f);
-    })();
+  const loadAuxData = useCallback(async () => {
+    const [u, d, dr, f, c, at] = await Promise.all([
+      ActiveUnitsData(),
+      ActiveDepartamentData(),
+      ActiveDriverData(),
+      ActiveTypeFuelData(),
+      ActiveCompanyData(),
+      ActiveTypeData(),
+    ]);
+
+    setUnits(normalizeResponse<Unit>(u));
+    setDepartments(normalizeResponse<Department>(d));
+    setDrivers(normalizeResponse<Driver>(dr));
+    setFuelTypes(normalizeResponse<FuelType>(f));
+    setCompany(normalizeResponse<Company>(c));
+    setActiveType(normalizeResponse<ActiveType>(at));
+
   }, []);
 
-  return { units, departments, drivers, fuelTypes };
+  useEffect(() => {
+    loadAuxData();
+  }, [loadAuxData]);
+
+  return { units, departments, drivers, fuelTypes, company, activeType };
 };

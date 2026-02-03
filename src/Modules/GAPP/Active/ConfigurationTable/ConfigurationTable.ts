@@ -1,5 +1,3 @@
-
-// colunas que ficarão escondidas
 export const listColumnsOcult = [
     "number_nf",
     "photo", 
@@ -34,7 +32,6 @@ export const listColumnsOcult = [
 
 ];
 
-// colunas que vai ser renomeadas.
 export const customTagsActive = {
     active_id: "Cód",
     brand: "Marca",
@@ -48,7 +45,6 @@ export const customTagsActive = {
     status_active: "Status do Ativo",
 }
 
-// adaptando o retorno do valor para a tela.
 export const customValueActive = {
     address: (_: any, row: any) => {
         try {

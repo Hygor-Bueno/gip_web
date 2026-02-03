@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import CustomTable from '../../../../Components/CustomTable';
 import { ActiveData, ActiveVehicleData } from '../Hooks/ActiveHook';
 import { convertForTable } from '../../../../Util/Util';
@@ -17,42 +17,58 @@ interface TableItem {
 const ActiveTable: React.FC = () => {
   const [data, setData] = useState<TableItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<SelectedItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
   const [vehicleData, setVehicleData] = useState<unknown>(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const req = await ActiveData();
-        setData(req.data || []);
-      } finally {
-        setLoading(false);
-      }
-    })();
+  const loadTableData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const req = await ActiveData();
+      setData(req.data || []);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const handleSelect = (items: TableItem[]) => {
+  useEffect(() => {
+    loadTableData();
+  }, [loadTableData]);
+
+  const handleSelect = useCallback((items: TableItem[]) => {
+    if (!items.length) return;
+
     const item = items[0] as unknown as SelectedItem;
-    setSelected(item);
-    setOpenModal(true);
-  };
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  }, []);
+
+  const activeId = selectedItem?.active_id?.value;
 
   useEffect(() => {
-    if (!selected?.active_id?.value) return;
-    (async () => {
-      // @ts-ignore
-      const req = await ActiveVehicleData(selected.active_id.value);
-      setVehicleData(req.data || null);
-    })();
-  }, [selected]);
+    if (!activeId) return;
 
-  const handleReload = async () => {
-    setLoading(true);
-    const req = await ActiveData();
-    setData(req.data || []);
-    setLoading(false);
-  };
+    const loadVehicleData = async () => {
+      const req = await ActiveVehicleData(activeId);
+      setVehicleData(req.data || null);
+    };
+
+    loadVehicleData();
+  }, [activeId]);
+
+  
+
+  const handleReload = useCallback(async () => {
+    await loadTableData();
+  }, [loadTableData]);
+
+  const tableList = useMemo(() => {
+    return convertForTable(data, {
+      ocultColumns: listColumnsOcult,
+      customTags: customTagsActive,
+      customValue: customValueActive
+    });
+  }, [data]);
 
   if (loading) return <div>Carregando...</div>;
   if (!data.length) return <div>Nenhum dado encontrado</div>;
@@ -60,21 +76,17 @@ const ActiveTable: React.FC = () => {
   return (
     <div className="p-2">
       <CustomTable
-        list={convertForTable(data, {
-          ocultColumns: listColumnsOcult,
-          customTags: customTagsActive,
-          customValue: customValueActive
-        })}
+        list={tableList}
         onConfirmList={handleSelect}
         maxSelection={1}
       />
 
-      {openModal && selected && (
+      {isModalOpen && selectedItem && (
         <div className="modal-backdrop bg-light p-3">
           <ActiveFormSimple
-            selectedItem={selected}
+            selectedItem={selectedItem}
             vehicleData={vehicleData}
-            onClose={() => setOpenModal(false)}
+            onClose={() => setIsModalOpen(false)}
             onSaveSuccess={handleReload}
           />
         </div>

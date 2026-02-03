@@ -1,64 +1,65 @@
 import { fetchDataFull } from "../../../../Util/Util";
 
-export async function ActiveData () {
-    return await fetchDataFull({
-        method: "GET",
-        params: null,
-        pathFile: "GAPP/Active.php",
-        urlComplement: "&all=1",
-    });
+interface FetchConfig {
+  pathFile: string;
+  urlComplement?: string;
 }
 
-export async function ActiveVehicleData(active_id: string) {
-    return await fetchDataFull({
-        method: "GET",
-        params: null,
-        pathFile: "GAPP/Vehicle.php",
-        urlComplement: `&active_id_fk=${active_id}`
-    });
+function fetchGet({ pathFile, urlComplement = "" }: FetchConfig) {
+  return fetchDataFull({
+    method: "GET",
+    params: null,
+    pathFile,
+    urlComplement
+  });
 }
 
-export async function ActiveUnitsData() {
-    return await fetchDataFull({
-        method: "GET",
-        params: null,
-        pathFile: "GAPP/Units.php",
-        urlComplement: `&all=1`
-    });
+function getAll(pathFile: string) {
+  return fetchGet({
+    pathFile,
+    urlComplement: "&all=1"
+  });
 }
 
-export async function ActiveDepartamentData() {
-    return await fetchDataFull({
-        method: "GET",
-        params: null,
-        pathFile: "GAPP/Departament.php",
-        urlComplement: `&all=1`
-    });
+function getByParam(pathFile: string, param: string, value: string) {
+  return fetchGet({
+    pathFile,
+    urlComplement: `&${param}=${value}`
+  });
 }
 
-export async function ActiveDriverData() {
-    return await fetchDataFull({
-        method: "GET",
-        params: null,
-        pathFile: "GAPP/Driver.php",
-        urlComplement: `&all=1`
-    });
+export function ActiveData() {
+  return getAll("GAPP/Active.php");
 }
 
-export async function ActiveFuelData() {
-    return await fetchDataFull({
-        method: "GET",
-        params: null,
-        pathFile: "GAPP/Fuel.php",
-        urlComplement: `&all=1`
-    });
+export function ActiveCompanyData() {
+  return getAll("GAPP/Company.php");
 }
 
-export async function ActiveTypeFuelData() {
-    return await fetchDataFull({
-        method: "GET",
-        params: null,
-        pathFile: "GAPP/TypeFuel.php",
-        urlComplement: `&all=1`
-    });
+export function ActiveTypeData() {
+  return getAll("GAPP/ActiveType.php");
+}
+
+export function ActiveVehicleData(active_id: string) {
+  return getByParam("GAPP/Vehicle.php", "active_id_fk", active_id);
+}
+
+export function ActiveUnitsData() {
+  return getAll("GAPP/Units.php");
+}
+
+export function ActiveDepartamentData() {
+  return getAll("GAPP/Departament.php");
+}
+
+export function ActiveDriverData() {
+  return getAll("GAPP/Driver.php");
+}
+
+export function ActiveFuelData() {
+  return getAll("GAPP/Fuel.php");
+}
+
+export function ActiveTypeFuelData() {
+  return getAll("GAPP/TypeFuel.php");
 }

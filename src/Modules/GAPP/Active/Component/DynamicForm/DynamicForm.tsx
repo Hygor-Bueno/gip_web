@@ -25,45 +25,60 @@ export function DynamicForm<T extends Record<string, unknown>>({
 }: DynamicFormProps<T>) {
   return (
     <div className="row g-3">
-      {fields.map((field, idx) => (
-        <div key={`${field.name}-${idx}`} className={field.col || 'col-md-3'}>
-          {field.type !== 'custom' && (
-            <label className="form-label fw-bold small">{field.label}</label>
-          )}
+      {fields.map(field => {
+        const valueAsString = String(data[field.name] ?? '');
+        const colClass = field.col || 'col-md-3';
 
-          {field.type === 'select' ? (
-            <select
-              className="form-select form-select-sm"
-              name={field.name}
-              value={String(data[field.name] ?? '')}
-              onChange={onChange}
-            >
-              <option value="">Selecione...</option>
-              {field.options?.map((item, i) => (
-                <option
-                  key={i}
-                  value={(item as any)[field.optionValue || 'id']}
-                >
-                  {typeof field.optionLabel === 'function'
-                    ? field.optionLabel(item)
-                    : (item as any)[field.optionLabel || 'name']}
-                </option>
-              ))}
-            </select>
-          ) : field.type === 'custom' ? (
-            field.renderCustom?.()
-          ) : (
-            <input
-              type={field.type || 'text'}
-              name={field.name}
-              placeholder={field.placeholder}
-              className="form-control form-control-sm"
-              value={String(data[field.name] ?? '')}
-              onChange={onChange}
-            />
-          )}
-        </div>
-      ))}
+        return (
+          <div key={field.name} className={colClass}>
+            {field.type !== 'custom' && (
+              <label className="form-label fw-bold small">{field.label}</label>
+            )}
+
+            {field.type === 'select' && (
+              <select
+                className="form-select form-select-sm"
+                name={field.name}
+                value={valueAsString}
+                onChange={onChange}
+              >
+                <option value="">Selecione...</option>
+                {field.options?.map((item, index) => {
+                  const valueKey = field.optionValue || 'id';
+
+                  const optionValue = (item as any)[valueKey];
+                  const optionLabel =
+                    typeof field.optionLabel === 'function'
+                      ? field.optionLabel(item)
+                      : (item as any)[field.optionLabel || 'name'];
+
+                  return (
+                    <option key={index} value={optionValue}>
+                      {optionLabel}
+                    </option>
+                  );
+                })}
+              </select>
+            )}
+
+            {field.type === 'custom' && field.renderCustom?.()}
+
+            {(!field.type ||
+              field.type === 'text' ||
+              field.type === 'number' ||
+              field.type === 'date') && (
+              <input
+                type={field.type || 'text'}
+                name={field.name}
+                placeholder={field.placeholder}
+                className="form-control form-control-sm"
+                value={valueAsString}
+                onChange={onChange}
+              />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -1,8 +1,3 @@
-export interface Unit {
-  unit_number: string;
-  unit_name: string;
-}
-
 export interface Department {
   dep_id: string;
   fantasy_name: string;
@@ -17,7 +12,7 @@ export interface FormConfigOption {
 
 export interface ConfigFormActiveProps {
   initialData?: FormData;
-  data: { units: Unit[]; departments: Department[] };
+  data: { units: Unit[]; departments: Department[], company: Company[], activeType: ActiveType[] };
 }
 
 export interface ValueWrapper<T> {
@@ -97,10 +92,27 @@ export interface SelectedItem {
   vehicle?: Partial<Vehicle>;
 }
 
-/** Tipos mínimos de dados auxiliares (sem mudar API) */
 export interface Unit {
-  id: number;
-  name: string;
+  unit_id: number,
+  unit_number: number,
+  unit_name: string,
+  address: {
+    city: string,
+    state: string,
+    store: string,
+    number: string,
+    zip_code: string,
+    complement: string,
+    neighborhood: string,
+    public_place: string
+  },
+  cnpj: string,
+  status_unit: string,
+  comp_id_fk: number,
+  comp_id: number,
+  corporate_name: string,
+  fantasy_name: string,
+  status_comp: number
 }
 
 export interface Department {
@@ -116,4 +128,30 @@ export interface Driver {
 export interface FuelType {
   id: number;
   name: string;
+}
+
+export interface ActiveFieldsProps {
+  units: Unit[];
+  departments: Department[];
+  activeType: ActiveType[];
+  company: Company[];
+  formData: any;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  listItems: string[];
+  setListItems: React.Dispatch<React.SetStateAction<string[]>>;
+} 
+
+export interface Company {
+  comp_id: number;
+  corporate_name: string;
+  fantasy_name: string;
+  status_comp: number;
+}
+
+export interface ActiveType {
+  active_type_id: number;
+  desc_active_type: string;
+  date_active_type: string;
+  status_active_type: number;
+  group_id_fk: string;
 }

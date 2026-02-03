@@ -1,20 +1,25 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { DynamicForm } from '../../DynamicForm/DynamicForm';
 import AddItemsFields from './AddItem/AddItem';
 import { ConfigFormActive } from '../../../ConfigurationTable/ConfigurationForm';
+import { ActiveFieldsProps } from '../../../Interfaces/Interfaces';
 
-export const ActiveFields: React.FC<any> = ({
+export const ActiveFields: React.FC<ActiveFieldsProps> = ({
   units,
   departments,
+  activeType,
+  company,
   formData,
   handleChange,
   listItems,
   setListItems
 }) => {
-  const formConfiguration = ConfigFormActive({
-    initialData: formData,
-    data: { units, departments }
-  });
+  const formConfiguration = useMemo(() => {
+    return ConfigFormActive({
+      initialData: formData,
+      data: { units, departments, company, activeType }
+    });
+  }, [formData, units, departments, company, activeType]);
 
   return (
     <div className="card p-3 shadow-sm animate__animated animate__fadeInUp">

@@ -1,22 +1,28 @@
 import { useState } from 'react';
 
-const AddItemsFields = ({ listItems, setListItems }: any) => {
+interface AddItemsFieldsProps {
+  listItems: string[];
+  setListItems: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+const AddItemsFields: React.FC<AddItemsFieldsProps> = ({
+  listItems,
+  setListItems
+}) => {
   const [item, setItem] = useState('');
 
-  function handleAddItem(e: any) {
+  const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!item.trim()) return;
 
-    setListItems((prev: string[]) => [...prev, item]);
+    setListItems(prev => [...prev, item]);
     setItem('');
-  }
+  };
 
-  function handleRemoveItem(index: number) {
-    setListItems((prev: string[]) =>
-      prev.filter((_, i) => i !== index)
-    );
-  }
+  const handleRemoveItem = (index: number) => {
+    setListItems(prev => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <div className="pt-3">
@@ -26,16 +32,28 @@ const AddItemsFields = ({ listItems, setListItems }: any) => {
         <input
           className="form-control form-control-sm"
           value={item}
-          onChange={(e) => setItem(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setItem(e.target.value)
+          }
         />
-        <button className="btn btn-color-gipp" onClick={handleAddItem}>+</button>
+        <button className="btn btn-color-gipp" onClick={handleAddItem}>
+          <i className='fa fa-solid fa-plus text-white'></i>
+        </button>
       </div>
 
       <ul className="list-unstyled mt-2">
-        {listItems.map((item: string, index: number) => (
-          <li key={index} className="d-flex justify-content-between align-items-center mb-1"> 
-            {item} 
-            <button className="btn btn-danger btn-sm" onClick={() => handleRemoveItem(index)}>🗑</button>
+        {listItems.map((currentItem, index) => (
+          <li
+            key={index}
+            className="d-flex justify-content-between align-items-center mb-1"
+          >
+            <b className='px-1'>{currentItem}</b>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => handleRemoveItem(index)}
+            >
+              <i className='fa fa-solid fa-trash text-white'></i>
+            </button>
           </li>
         ))}
       </ul>
