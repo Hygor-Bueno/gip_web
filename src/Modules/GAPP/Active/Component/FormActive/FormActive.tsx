@@ -1,157 +1,196 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
-import { ActiveFormValues, VehicleFormValues } from "./FormActiveInterface";
-import { formActive, formVehicle } from "./FormActiveSchema";
 import { useConnection } from "../../../../../Context/ConnContext";
+import { 
+  ActiveType, Company, Driver, FuelType, Unit 
+} from "../../Interfaces/Interfaces";
+import { formActive, formAddress, formVehicle } from "./FormActiveSchema";
+import { ActiveFormValues, VehicleFormValues } from "./FormActiveInterface";
 
-
-export default function FormActive(props?: any): JSX.Element {
-    const [activeValues, setActiveValues] = useState<ActiveFormValues>({
-        brand: '',
-        model: '',
-        is_vehicle: true,
-    });
-    const [vehicleValues, setVehicleValues] = useState<VehicleFormValues>({
-        license_plates: '',
-    });
-
-    const { fetchData } = useConnection();
-
-    useEffect(() => {
-        if (!props?.apiData) return;
-        const { active, vehicle } = props.apiData;
-        setActiveValues(active);
-        setVehicleValues(vehicle);
-    }, [props?.apiData]);
-
-    async function sendActive() {
-        try {
-            const req: any = await fetchData({ method: "POST", params: mapFormToApi(activeValues, vehicleValues), pathFile: 'GAPP_V2/Active.php', urlComplement: `&v2=1&smart=ON` })
-            if (req.error) throw new Error(req.message);
-            console.log(req);
-        } catch (error: any) {
-            console.error(error.message);
-        }
-        console.log(mapFormToApi(activeValues, vehicleValues));
-    }
-
-    function onChange(
-        e: React.ChangeEvent<
-            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-        >
-    ) {
-        const { name, type, value, checked, files } = e.target as any;
-
-        const fieldValue =
-            type === 'checkbox'
-                ? checked
-                : type === 'file'
-                    ? files?.[0] ?? null
-                    : value;
-
-        if (name in activeValues) {
-            setActiveValues(prev => ({ ...prev, [name]: fieldValue }));
-        }
-
-        if (name in vehicleValues) {
-            setVehicleValues(prev => ({ ...prev, [name]: fieldValue }));
-        }
-    }
-
-
-    return (
-        <div className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center">
-            <div className="bg-white container h-75 w-75 overflow-auto p-2">
-                <h1 className="w-100 bg-secondary text-white p-2">Formulário de Ativo:</h1>
-                <CustomForm
-                    fieldsets={formActive(
-                        activeValues,
-                        [],
-                        [{ label: "Carro", value: "1" }],
-                        [],
-                        onChange
-                    )}
-                    notButton={false}
-                    className="row overflow-auto col-12 "
-                />
-                {activeValues.is_vehicle && (
-                    <React.Fragment>
-                        <h1 className="w-100 bg-secondary text-white mt-4 p-2">Formulário de Veículo:</h1>
-                        <CustomForm
-                            fieldsets={formVehicle(
-                                vehicleValues,
-                                [],
-                                onChange
-                            )}
-                            notButton={false}
-                            className="row overflow-auto col-12 "
-                        />
-                    </React.Fragment>
-                )}
-            </div>
-            <button type="button" title="Alterar ativo" className="btn btn-success m-2" onClick={sendActive}>Enviar</button>
-        </div>
-    )
+interface FormActiveProps {
+  apiData?: {
+    active?: ActiveFormValues;
+    vehicle?: VehicleFormValues;
+    driver?: Driver[];
+    company?: Company[];
+    unit?: Unit[];
+    activeType?: ActiveType[];
+    fuelType?: FuelType[];
+  };
 }
 
+export default function FormActive({ apiData }: FormActiveProps) {
+  const { fetchData } = useConnection();
 
-// mapper para enviar ao backend (garante tipos corretos)
-export function mapFormToApi(active: ActiveFormValues, vehicle: VehicleFormValues) {
-    // photo: se File, envie como multipart/form-data separadamente; aqui colocamos null ou nome
-    const activePayload: any = {
-        active_id: active.active_id ? Number(active.active_id) : null,
-        brand: active.brand || null,
-        model: active.model || null,
-        number_nf: active.number_nf ? Number(active.number_nf) : null,
-        date_purchase: active.date_purchase || null,
-        place_purchase: active.place_purchase ? tryParseJson(active.place_purchase) : null,
-        value_purchase: active.value_purchase !== undefined && active.value_purchase !== '' ? Number(active.value_purchase) : null,
-        photo: typeof active.photo === 'string' ? active.photo : null, // se File, trate à parte
-        change_date: active.change_date || null,
-        list_items: active.list_items ? tryParseJson(active.list_items) : null,
-        used_in: active.used_in ? Number(active.used_in) : null,
-        is_vehicle: active.is_vehicle ? 1 : 0,
-        status_active: active.status_active !== undefined && active.status_active !== '' ? Number(active.status_active) : null,
-        units_id_fk: active.units_id_fk ? Number(active.units_id_fk) : null,
-        id_active_class_fk: active.id_active_class_fk ? Number(active.id_active_class_fk) : null,
-        user_id_fk: active.user_id_fk ? Number(active.user_id_fk) : null,
-        work_group_fk: active.work_group_fk ? Number(active.work_group_fk) : null,
-    };
+  const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
+    brand: "",
+    model: "",
+    is_vehicle: true,
+    list_items: { list: [] }
+  });
 
-    const vehiclePayload: any = {
-        license_plates: vehicle.license_plates || null,
-        year: vehicle.year ? Number(vehicle.year) : null,
-        year_model: vehicle.year_model ? Number(vehicle.year_model) : null,
-        chassi: vehicle.chassi || null,
-        color: vehicle.color || null,
-        renavam: vehicle.renavam || null,
-        fuel_type: vehicle.fuel_type || null,
-        power: vehicle.power !== undefined && vehicle.power !== '' ? Number(vehicle.power) : null,
-        cylinder: vehicle.cylinder !== undefined && vehicle.cylinder !== '' ? Number(vehicle.cylinder) : null,
-        capacity: vehicle.capacity ? Number(vehicle.capacity) : null,
-        fipe_table: vehicle.fipe_table !== undefined && vehicle.fipe_table !== '' ? Number(vehicle.fipe_table) : null,
-        last_revision_date: vehicle.last_revision_date || null,
-        last_revision_km: vehicle.last_revision_km ? Number(vehicle.last_revision_km) : null,
-        next_revision_date: vehicle.next_revision_date || null,
-        next_revision_km: vehicle.next_revision_km ? Number(vehicle.next_revision_km) : null,
-        directed_by: vehicle.directed_by ? Number(vehicle.directed_by) : null,
-        shielding: vehicle.shielding ? 1 : 0,
-        fuel_type_id_fk: vehicle.fuel_type_id_fk ? Number(vehicle.fuel_type_id_fk) : null,
-    };
+  const [vehicleValues, setVehicleValues] = useState<Partial<VehicleFormValues>>({
+    license_plates: "",
+  });
 
-    return {
-        active: activePayload,
-        vehicle: vehiclePayload
-    };
-}
+  const [newItemText, setNewItemText] = useState("");
 
-function tryParseJson(str: any) {
-    if (!str) return null;
-    if (typeof str === 'object') return str;
+  useEffect(() => {
+    if (apiData) {
+      if (apiData.active) setActiveValues(apiData.active);
+      if (apiData.vehicle) setVehicleValues(apiData.vehicle);
+    }
+  }, [apiData]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+
+    if (name.startsWith('place_purchase.')) {
+      const field = name.split('.')[1];
+      setActiveValues(prev => ({
+        ...prev,
+        place_purchase: { ...(prev.place_purchase || {}), [field]: fieldValue }
+      }));
+    } else if (name in (activeValues || {})) {
+      setActiveValues(prev => ({ ...prev, [name]: fieldValue }));
+    } else {
+      setVehicleValues(prev => ({ ...prev, [name]: fieldValue }));
+    }
+  }, [activeValues]);
+
+  const addItem = () => {
+    if (!newItemText.trim()) return;
+    
+    setActiveValues((prev: any) => ({
+      ...prev,
+      list_items: {
+        list: [...(prev.list_items?.list || []), newItemText]
+      }
+    }));
+    setNewItemText("");
+  };
+
+  const removeItem = (indexToRemove: number) => {
+    setActiveValues((prev: any) => ({
+      ...prev,
+      list_items: {
+        list: (prev.list_items?.list || []).filter((
+            i: any
+            , index: number) => index !== indexToRemove)
+      }
+    }));
+  };
+
+  const options = useMemo(() => ({
+    company: apiData?.company?.map(c => ({ label: c.corporate_name, value: String(c.comp_id) })) || [],
+    unit: apiData?.unit?.map(u => ({ label: u.unit_name, value: String(u.unit_id) })) || [],
+    driver: apiData?.driver?.map(d => ({ label: d.name, value: String(d.driver_id) })) || [],
+    fuel: apiData?.fuelType?.map(f => ({ label: f.description, value: String(f.id_fuel_type) })) || [],
+  }), [apiData]);
+
+  const handleSubmit = async () => {
     try {
-        return JSON.parse(str);
-    } catch {
-        // se o usuário não forneceu JSON, podemos retornar string bruta
-        return str;
+      const payload = mapFormToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues);
+      const res = await fetchData({
+        method: "POST",
+        params: payload,
+        pathFile: "GAPP_V2/Active.php",
+        urlComplement: "&v2=1&smart=ON",
+      });
+      if (res.error) throw new Error(res.message);
+      alert("Ativo salvo com sucesso!");
+    } catch (error: any) {
+      console.error("Erro no envio:", error.message);
     }
+  };
+
+  return (
+    <div className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center">
+      <div className="bg-white container h-75 w-75 overflow-auto p-4 rounded shadow">
+        <h2 className="bg-secondary text-white p-2 rounded-top mb-2">Formulário de Ativo</h2>
+        
+        <CustomForm 
+          notButton={false}
+          fieldsets={
+            // @ts-ignore
+            formActive(activeValues, options.unit, options.company, options.driver, handleChange)}
+          className="row g-3 mb-4"
+        />
+
+        <div className="mb-4 p-3 border rounded bg-light">
+          <label className="form-label fw-bold">Itens Adicionais</label>
+          <div className="d-flex gap-2 mb-3">
+            <input 
+              className="form-control" 
+              value={newItemText}
+              onChange={(e) => setNewItemText(e.target.value)}
+              placeholder="Ex: Extintor, Estepe..."
+            />
+            <button type="button" className="btn btn-secondary" onClick={addItem}>
+              <i className="fa fa-plus text-white"></i>
+            </button>
+          </div>
+          
+          <ul className="list-group">
+            {activeValues.list_items?.list?.map((item, index) => (
+              <li key={`${item}-${index}`} className="list-group-item d-flex justify-content-between align-items-center">
+                {item}
+                <button 
+                  className="btn btn-sm btn-danger" 
+                  onClick={() => removeItem(index)}
+                >
+                  <i className="fa fa-trash text-white"></i>
+                </button>
+              </li>
+            ))}
+            {(!activeValues.list_items?.list?.length) && (
+              <span className="text-muted small">Nenhum item adicionado.</span>
+            )}
+          </ul>
+        </div>
+
+        <h2 className="bg-secondary text-white p-2 rounded-top mb-2">Local da Compra</h2>
+        <CustomForm
+          fieldsets={formAddress(
+            // @ts-ignore
+            activeValues, handleChange)}
+          className="row g-3 mb-4"
+          notButton={false}
+        />
+
+        {activeValues.is_vehicle && (
+          <>
+            <h2 className="bg-secondary text-white p-2 rounded-top mb-2">Dados do Veículo</h2>
+            <CustomForm
+              notButton={false}
+              fieldsets={formVehicle(vehicleValues, options.fuel, handleChange)}
+              className="row g-3 mb-4"
+            />
+          </>
+        )}
+      </div>
+
+      <div className="mt-3">
+        <button className="btn btn-success btn-lg px-5" onClick={handleSubmit}>
+          Salvar Ativo
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function mapFormToApi(active: ActiveFormValues, vehicle: VehicleFormValues) {
+  return {
+    active: {
+      ...active,
+      is_vehicle: active.is_vehicle ? 1 : 0,
+      list_items: JSON.stringify(active.list_items || { list: [] }),
+      place_purchase: JSON.stringify(active.place_purchase || {})
+    },
+    vehicle: {
+      ...vehicle,
+      shielding: vehicle.shielding ? 1 : 0
+    }
+  };
 }

@@ -1,4 +1,4 @@
-import { ActiveFormValues, VehicleFormValues } from "./FormActiveInterface";
+import { ActiveFormValues, PlaceAddress, VehicleFormValues } from "./FormActiveInterface";
 import { ActiveFormData } from "./FormActiveTypes";
 
 export const buildActiveFieldsets = (data?: ActiveFormData, isVehicle: boolean = false) => {
@@ -567,17 +567,28 @@ export const formActive = (
         { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'NF', captureValue: { type: 'number', name: 'number_nf', className: 'form-control', value: values.number_nf ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Data Compra', captureValue: { type: 'date', name: 'date_purchase', className: 'form-control', value: values.date_purchase ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-2' }, item: { label: 'Valor', captureValue: { type: 'number', step: '0.01', name: 'value_purchase', className: 'form-control', value: values.value_purchase ?? '', onChange } } },
-
-        // place_purchase (json) -> textarea to paste JSON or you can build subfields
-        { attributes: { className: 'my-2 col-6' }, item: { label: 'Local da Compra (JSON)', captureValue: { type: 'textarea', name: 'place_purchase', className: 'form-control', value: values.place_purchase ?? '', onChange, placeholder: '{"city":"São Paulo","state":"SP","store":"Loja X"}' } } },
-
         // photo (file or URL)
         { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Foto (arquivo ou URL)', captureValue: { type: 'file', name: 'photo', className: 'form-control', onChange } } },
 
         { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Data alteração', captureValue: { type: 'date', name: 'change_date', className: 'form-control', value: values.change_date ?? '', onChange } } },
 
         // list_items (JSON) -> textarea
-        { attributes: { className: 'my-2 col-12' }, item: { label: 'Lista de itens (JSON)', captureValue: { type: 'textarea', name: 'list_items', className: 'form-control', value: values.list_items ?? '', onChange, placeholder: '[{"name":"Cabo","qty":1}]' } } },
+        //{ attributes: { className: 'my-2 col-12' }, item: { label: 'Lista de itens (JSON)', captureValue: { type: 'textarea', name: 'list_items', className: 'form-control', value: values.list_items ?? '', onChange, placeholder: '[{"name":"Cabo","qty":1}]' } } },
+        // { 
+        //     attributes: { className: 'my-2 col-12' }, 
+        //     item: { 
+        //         label: 'itens Adicionais', 
+        //         captureValue: { 
+        //         type: 'textarea', 
+        //         name: 'list_items', 
+        //         className: 'form-control', 
+        //         // @ts-ignore
+        //         value: JSON.stringify(values.list_items?.list[0] ?? [], null, 2), // stringify bonito
+        //         onChange,
+        //         placeholder: '[{"name":"Cabo","qty":1}]'
+        //         } 
+        //     } 
+        // },
 
         { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Usado em (id)', captureValue: { type: 'number', name: 'used_in', className: 'form-control', value: values.used_in ?? '', onChange } } },
 
@@ -593,6 +604,20 @@ export const formActive = (
         { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Responsável (usuário)', captureValue: { type: 'select', name: 'user_id_fk', className: 'form-control', options: userList, value: values.user_id_fk ?? '', onChange } } },
         { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Grupo de trabalho', captureValue: { type: 'number', name: 'work_group_fk', className: 'form-control', value: values.work_group_fk ?? '', onChange } } },
     ];
+
+export const formAddress = (
+    values: PlaceAddress,
+    onChange: (e: React.ChangeEvent<any>) => void
+) => [
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Cidade', captureValue:{ type: 'text', name: "place_purchase.city", className: "form-control", value: values.place_purchase?.city ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Complemento', captureValue:{ type: 'text', name: "place_purchase.complement", className: "form-control", value: values.place_purchase?.complement ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Bairro', captureValue:{ type: 'text', name: "place_purchase.neighborhood", className: "form-control", value: values.place_purchase?.neighborhood ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Numero', captureValue:{ type: 'text', name: "place_purchase.number", className: "form-control", value: values.place_purchase?.number ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Loja', captureValue:{ type: 'text', name: "place_purchase.store", className: "form-control", value: values.place_purchase?.store ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Lougradouro', captureValue:{ type: 'text', name: "place_purchase.public_place", className: "form-control", value: values.place_purchase?.public_place ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Estado', captureValue:{ type: 'text', name: "place_purchase.state", className: "form-control", value: values.place_purchase?.state ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'CEP', captureValue:{ type: 'text', name: "place_purchase.zip_code", className: "form-control", value: values.place_purchase?.zip_code ?? '', onChange } } },
+];
 
 export const formVehicle = (
     values: VehicleFormValues,

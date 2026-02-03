@@ -1,3 +1,17 @@
+export interface PlaceAddress {
+  place_purchase?: {
+    city?: string;
+    state?: string;
+    store?: string;
+    number?: string;
+    zip_code?: string;
+    complement?: string;
+    neighborhood?: string;
+    public_place?: string;
+  };  
+}
+
+
 // types & initial values
 export interface ActiveFormValues {
   active_id?: number | null;         // p_active_id
@@ -5,11 +19,13 @@ export interface ActiveFormValues {
   model: string;                     // p_model
   number_nf?: number | string;       // p_number_nf
   date_purchase?: string;            // p_date_purchase (YYYY-MM-DD)
-  place_purchase?: string;           // p_place_purchase (JSON string or free text)
+  place_purchase?: PlaceAddress;       // p_place_purchase (JSON string or free text)
   value_purchase?: number | string;  // p_value_purchase
   photo?: File | string | null;      // p_photo (File to upload or string URL/name)
   change_date?: string | null;       // p_change_date
-  list_items?: string;               // p_list_items (JSON string)
+  list_items?: {
+    list: []
+  };               // p_list_items (JSON string)
   used_in?: number | string | null;  // p_used_in
   is_vehicle?: boolean;              // p_is_vehicle (true => 1)
   status_active?: number | string;   // p_status_active (tinyint)
