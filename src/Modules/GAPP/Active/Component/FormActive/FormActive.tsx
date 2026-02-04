@@ -1,11 +1,8 @@
 import React, { useEffect, useState, useMemo, useCallback, SetStateAction, Dispatch } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
 import { useConnection } from "../../../../../Context/ConnContext";
-import { 
-  ActiveType, Company, Driver, FuelType, Unit 
-} from "../../Interfaces/Interfaces";
 import { formActive, formAddress, formVehicle } from "./FormActiveSchema";
-import { ActiveFormValues, Departament, VehicleFormValues } from "./FormActiveInterface";
+import { ActiveFormValues, ActiveType, Company, Departament, Driver, FuelType, Unit, VehicleFormValues } from "./FormActiveInterface";
 import { mapFormToApi } from "../DataMapper/DataMapper";
 import ListAdd from "../ListAddItem/ListAdd";
 

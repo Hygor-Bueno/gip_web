@@ -1,3 +1,16 @@
+import { PlaceAddress } from "../Component/FormActive/FormActiveInterface";
+
+interface AddressUnit {
+  city: string;
+  state: string;
+  store: string;
+  number: string;
+  zip_code: string;
+  complement:string;
+  neighborhood: string;
+  public_place: string;
+}
+
 export interface Department {
   dep_id: string;
   fantasy_name: string;
@@ -28,16 +41,7 @@ export interface FuelType {
 export interface Unit {
   unit_id: number,
   unit_number: number,
-  address: {
-      city: string;
-      state: string;
-      store: string;
-      number: string;
-      zip_code: string;
-      complement:string;
-      neighborhood: string;
-      public_place: string;
-  },
+  address: AddressUnit,
   unit_name: string;
   cnpj: string;
   status_unit: number;
@@ -83,20 +87,11 @@ export interface Active {
   photo?: null;
   change_date: string;
   list_items: {
-      list:[]
+      list: string[];
   };
   used_in: string;
   date_purchase: string;
-  place_purchase: {
-      city: string;
-      state: string;
-      store:  string;
-      number:  string;
-      zip_code:  string;
-      complement:  string;
-      neighborhood:  string;
-      public_place: string;
-  };
+  place_purchase: PlaceAddress;
   value_purchase: string;
   is_vehicle: number;
   units_id_fk: string;
@@ -125,30 +120,4 @@ export interface Active {
   group_name: string;
   status_work_group: number;
   dep_id_fk: number;
-}
-
-export interface FormData {
-  brand?: string;
-  model?: string;
-  number_nf?: string;
-  value_purchase?: number;
-  date_purchase?: string;
-  company_number?: string;
-  unit?: string;
-  unit_number?: string;
-  dep_id?: string;
-  status_active?: string;
-  class_id?: string;
-  is_vehicle: boolean;
-  [key: string]: any;
-}
-
-export interface FormConfigOption {
-  id?: string;
-  name?: string;
-}
-
-export interface ConfigFormActiveProps {
-  initialData?: FormData;
-  data: { units: Unit[]; departments: Department[] };
 }

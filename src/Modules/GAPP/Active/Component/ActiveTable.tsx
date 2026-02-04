@@ -15,8 +15,7 @@ import {
 
 import { convertForTable } from "../../../../Util/Util";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
-import { ActiveFormValues, Departament, VehicleFormValues } from "./FormActive/FormActiveInterface";
-import { ActiveType, Company, Driver, FuelType, Unit } from "../Interfaces/Interfaces";
+import { ActiveFormValues, ActiveType, Company, Departament, Driver, FuelType, Unit, VehicleFormValues } from "./FormActive/FormActiveInterface";
 
 // Tipagem simplificada e mais específica
 interface ActiveTableData {
