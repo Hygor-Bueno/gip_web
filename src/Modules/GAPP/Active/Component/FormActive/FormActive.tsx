@@ -6,6 +6,8 @@ import {
 } from "../../Interfaces/Interfaces";
 import { formActive, formAddress, formVehicle } from "./FormActiveSchema";
 import { ActiveFormValues, Departament, VehicleFormValues } from "./FormActiveInterface";
+import { mapFormToApi } from "../DataMapper/DataMapper";
+import ListAdd from "../ListAddItem/ListAdd";
 
 interface FormActiveProps {
   apiData?: {
@@ -134,37 +136,13 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
           className="row g-3 mb-4"
         />
 
-        <div className="mb-4 p-3 border rounded bg-light">
-          <label className="form-label fw-bold">Itens Adicionais</label>
-          <div className="d-flex gap-2 mb-3">
-            <input 
-              className="form-control" 
-              value={newItemText}
-              onChange={(e) => setNewItemText(e.target.value)}
-              placeholder="Ex: Extintor, Estepe..."
-            />
-            <button type="button" className="btn color-gipp" onClick={addItem}>
-              <i className="fa fa-plus text-white"></i>
-            </button>
-          </div>
-          
-          <ul className="list-group">
-            {activeValues.list_items?.list?.map((item, index) => (
-              <li key={`${item}-${index}`} className="list-group-item d-flex justify-content-between align-items-center">
-                <p>{item}</p>
-                <button 
-                  className="btn btn-sm btn-danger" 
-                  onClick={() => removeItem(index)}
-                >
-                  <i className="fa fa-trash text-white"></i>
-                </button>
-              </li>
-            ))}
-            {(!activeValues.list_items?.list?.length) && (
-              <span className="text-muted small">Nenhum item adicionado.</span>
-            )}
-          </ul>
-        </div>
+        <ListAdd 
+          activeValues={activeValues}
+          addItem={addItem}
+          newItemText={newItemText}
+          setNewItemText={setNewItemText}
+          removeItem={removeItem}
+        />
 
         <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Local da Compra</h2>
         <CustomForm
@@ -192,19 +170,4 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
       </div>
     </div>
   );
-}
-
-export function mapFormToApi(active: ActiveFormValues, vehicle: VehicleFormValues) {
-  return {
-    active: {
-      ...active,
-      is_vehicle: active.is_vehicle ? 1 : 0,
-      list_items: JSON.stringify(active.list_items || { list: [] }),
-      place_purchase: JSON.stringify(active.place_purchase || {})
-    },
-    vehicle: {
-      ...vehicle,
-      shielding: vehicle.shielding ? 1 : 0
-    }
-  };
 }

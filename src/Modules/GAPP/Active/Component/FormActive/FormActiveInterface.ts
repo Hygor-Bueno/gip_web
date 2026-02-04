@@ -27,6 +27,13 @@ export interface Departament {
   status_comp: number;
 }
 
+export interface IListAdd {
+    newItemText: string,
+    setNewItemText: React.Dispatch<React.SetStateAction<string>>,
+    addItem: () => void,
+    activeValues: ActiveFormValues,
+    removeItem: (indexToRemove: number) => void
+}
 
 // types & initial values
 export interface ActiveFormValues {
