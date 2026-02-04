@@ -4,9 +4,9 @@ import { useConnection } from "../../../../../Context/ConnContext";
 import { ActiveFormValues, FormActiveProps, VehicleFormValues } from "./FormInterfaces/FormActiveInterface";
 import { mapFormToApi } from "../DataMapper/DataMapper";
 import ListAdd from "../ListAddItem/ListAdd";
-import { formVehicle } from "./FormSchema/FormVehicle";
-import { formAddress } from "./FormSchema/FormAddress";
-import { formActive } from "./FormSchema/FormActive";
+import { formVehicle } from "./FormSchema/FormVehicle.schema";
+import { formAddress } from "./FormSchema/FormAddress.schema";
+import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions } from "../BuildFunction/BuildFunction";
 
 export default function FormActive({ apiData, openModal }: FormActiveProps) {
