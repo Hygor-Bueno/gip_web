@@ -145,7 +145,7 @@ export interface Driver {
   level_id: string;
   level_name: string;
   level_pages: {
-      level: []
+      level: string[]
   };
   status_level: string;
   group_id_fk: string
