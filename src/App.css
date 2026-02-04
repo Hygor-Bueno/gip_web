@@ -173,14 +173,30 @@ label, h1 {
   font-size: clamp(12px, calc(0.12rem + 0.5vw + 0.5vh), 26px) !important;
 }
 
-.btn-color-gipp {
+.btn:focus, .btn:active {
+  outline: 0;      /* remove a borda de foco */
+  box-shadow: none; /* remove sombra */
+}
+
+.color-gipp-head {
   background-color: #bed989;
 }
 
-.btn-color-gipp:hover {
-  background-color: #83965db9;
+.color-gipp:hover {
+  background-color: #83965d;
+}
+.color-gipp {
+  background-color: #bed989;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
+.color-gipp:active {
+  background-color: #6e7c4f;
+}
 
 #loginCustomForm {
   background-color: rgba(255, 255, 255, 1);

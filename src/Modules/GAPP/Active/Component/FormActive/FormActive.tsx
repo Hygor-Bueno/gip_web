@@ -5,11 +5,12 @@ import {
   ActiveType, Company, Driver, FuelType, Unit 
 } from "../../Interfaces/Interfaces";
 import { formActive, formAddress, formVehicle } from "./FormActiveSchema";
-import { ActiveFormValues, VehicleFormValues } from "./FormActiveInterface";
+import { ActiveFormValues, Departament, VehicleFormValues } from "./FormActiveInterface";
 
 interface FormActiveProps {
   apiData?: {
     active?: ActiveFormValues;
+    departament?: Departament[];
     vehicle?: VehicleFormValues;
     driver?: Driver[];
     company?: Company[];
@@ -17,9 +18,10 @@ interface FormActiveProps {
     activeType?: ActiveType[];
     fuelType?: FuelType[];
   };
+  openModal?: any;
 }
 
-export default function FormActive({ apiData }: FormActiveProps) {
+export default function FormActive({ apiData, openModal }: FormActiveProps) {
   const { fetchData } = useConnection();
 
   const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
@@ -31,6 +33,7 @@ export default function FormActive({ apiData }: FormActiveProps) {
 
   const [vehicleValues, setVehicleValues] = useState<Partial<VehicleFormValues>>({
     license_plates: "",
+    shielding: false,
   });
 
   const [newItemText, setNewItemText] = useState("");
@@ -44,7 +47,18 @@ export default function FormActive({ apiData }: FormActiveProps) {
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+    // const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+
+    let fieldValue: any =
+    type === "checkbox"
+      ? (e.target as HTMLInputElement).checked
+      : value;
+
+    if (name === 'is_vehicle') {
+      fieldValue = value === '1';
+    } else if (name === 'shielding') {
+      fieldValue = value === '1';
+    }
 
     if (name.startsWith('place_purchase.')) {
       const field = name.split('.')[1];
@@ -84,6 +98,7 @@ export default function FormActive({ apiData }: FormActiveProps) {
 
   const options = useMemo(() => ({
     company: apiData?.company?.map(c => ({ label: c.corporate_name, value: String(c.comp_id) })) || [],
+    departament: apiData?.departament?.map(d => ({label: d.dep_name, value: d.dep_id})) || [],
     unit: apiData?.unit?.map(u => ({ label: u.unit_name, value: String(u.unit_id) })) || [],
     driver: apiData?.driver?.map(d => ({ label: d.name, value: String(d.driver_id) })) || [],
     fuel: apiData?.fuelType?.map(f => ({ label: f.description, value: String(f.id_fuel_type) })) || [],
@@ -106,15 +121,15 @@ export default function FormActive({ apiData }: FormActiveProps) {
   };
 
   return (
-    <div className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center">
-      <div className="bg-white container h-75 w-75 overflow-auto p-4 rounded shadow">
-        <h2 className="bg-secondary text-white p-2 rounded-top mb-2">Formulário de Ativo</h2>
+    <div onClick={() => openModal(false)} className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center" >
+      <div onClick={(e) => e.stopPropagation()} className="bg-white container h-75 w-75 overflow-auto p-4 rounded shadow">
+        <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Formulário de Ativo</h2>
         
         <CustomForm 
           notButton={false}
           fieldsets={
             // @ts-ignore
-            formActive(activeValues, options.unit, options.company, options.driver, handleChange)}
+            formActive(activeValues, options.unit, options.departament, options.company, options.driver, handleChange)}
           className="row g-3 mb-4"
         />
 
@@ -127,7 +142,7 @@ export default function FormActive({ apiData }: FormActiveProps) {
               onChange={(e) => setNewItemText(e.target.value)}
               placeholder="Ex: Extintor, Estepe..."
             />
-            <button type="button" className="btn btn-secondary" onClick={addItem}>
+            <button type="button" className="btn color-gipp" onClick={addItem}>
               <i className="fa fa-plus text-white"></i>
             </button>
           </div>
@@ -135,7 +150,7 @@ export default function FormActive({ apiData }: FormActiveProps) {
           <ul className="list-group">
             {activeValues.list_items?.list?.map((item, index) => (
               <li key={`${item}-${index}`} className="list-group-item d-flex justify-content-between align-items-center">
-                {item}
+                <p>{item}</p>
                 <button 
                   className="btn btn-sm btn-danger" 
                   onClick={() => removeItem(index)}
@@ -150,7 +165,7 @@ export default function FormActive({ apiData }: FormActiveProps) {
           </ul>
         </div>
 
-        <h2 className="bg-secondary text-white p-2 rounded-top mb-2">Local da Compra</h2>
+        <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Local da Compra</h2>
         <CustomForm
           fieldsets={formAddress(
             // @ts-ignore
@@ -158,22 +173,22 @@ export default function FormActive({ apiData }: FormActiveProps) {
           className="row g-3 mb-4"
           notButton={false}
         />
-
+        
         {activeValues.is_vehicle && (
-          <>
-            <h2 className="bg-secondary text-white p-2 rounded-top mb-2">Dados do Veículo</h2>
+          <React.Fragment>
+            <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Dados do Veículo</h2>
             <CustomForm
               notButton={false}
               fieldsets={formVehicle(vehicleValues, options.fuel, handleChange)}
               className="row g-3 mb-4"
             />
-          </>
+          </React.Fragment>
         )}
       </div>
 
       <div className="mt-3">
-        <button className="btn btn-success btn-lg px-5" onClick={handleSubmit}>
-          Salvar Ativo
+        <button className="btn color-gipp btn-lg px-5" onClick={handleSubmit}>
+          <i className="fa fa-solid fa-save text-white"></i>
         </button>
       </div>
     </div>

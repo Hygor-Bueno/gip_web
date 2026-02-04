@@ -11,6 +11,24 @@ export interface PlaceAddress {
   };  
 }
 
+export interface Departament {
+  dep_id: number;
+  dep_name: string;
+  status_dep: number;
+  unit_id_fk: number;
+  unit_id: number;
+  unit_number: number;
+  address: string;
+  unit_name: string;
+  cnpj: string;
+  status_unit: number;
+  comp_id_fk: number;
+  comp_id: number;
+  corporate_name: string;
+  fantasy_name: string;
+  status_comp: number;
+}
+
 
 // types & initial values
 export interface ActiveFormValues {

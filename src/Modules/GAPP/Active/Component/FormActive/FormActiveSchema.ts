@@ -543,6 +543,7 @@ export const buildActiveFieldsets = (data?: ActiveFormData, isVehicle: boolean =
 export const formActive = (
     values: ActiveFormValues,
     unitList: { label: string; value: string }[] = [],
+    depList: { label: string, value: string }[] = [],
     classList: { label: string; value: string }[] = [],
     userList: { label: string; value: string }[] = [],
     onChange: (e: React.ChangeEvent<any>) => void
@@ -562,61 +563,45 @@ export const formActive = (
                 }
             }
         },
+        // photo (file or URL)
         { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Marca', captureValue: { type: 'text', name: 'brand', className: 'form-control', value: values.brand || '', onChange } } },
         { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Modelo', captureValue: { type: 'text', name: 'model', className: 'form-control', value: values.model || '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'NF', captureValue: { type: 'number', name: 'number_nf', className: 'form-control', value: values.number_nf ?? '', onChange } } },
+        { attributes: { className: 'my-2 col-6 col-md-2' }, item: { label: 'Valor do ativo', captureValue: { type: 'number', step: '0.01', name: 'value_purchase', className: 'form-control', value: values.value_purchase ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Data Compra', captureValue: { type: 'date', name: 'date_purchase', className: 'form-control', value: values.date_purchase ?? '', onChange } } },
-        { attributes: { className: 'my-2 col-6 col-md-2' }, item: { label: 'Valor', captureValue: { type: 'number', step: '0.01', name: 'value_purchase', className: 'form-control', value: values.value_purchase ?? '', onChange } } },
-        // photo (file or URL)
+        
         { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Foto (arquivo ou URL)', captureValue: { type: 'file', name: 'photo', className: 'form-control', onChange } } },
-
-        { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Data alteração', captureValue: { type: 'date', name: 'change_date', className: 'form-control', value: values.change_date ?? '', onChange } } },
-
-        // list_items (JSON) -> textarea
-        //{ attributes: { className: 'my-2 col-12' }, item: { label: 'Lista de itens (JSON)', captureValue: { type: 'textarea', name: 'list_items', className: 'form-control', value: values.list_items ?? '', onChange, placeholder: '[{"name":"Cabo","qty":1}]' } } },
-        // { 
-        //     attributes: { className: 'my-2 col-12' }, 
-        //     item: { 
-        //         label: 'itens Adicionais', 
-        //         captureValue: { 
-        //         type: 'textarea', 
-        //         name: 'list_items', 
-        //         className: 'form-control', 
-        //         // @ts-ignore
-        //         value: JSON.stringify(values.list_items?.list[0] ?? [], null, 2), // stringify bonito
-        //         onChange,
-        //         placeholder: '[{"name":"Cabo","qty":1}]'
-        //         } 
-        //     } 
-        // },
-
-        { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Usado em (id)', captureValue: { type: 'number', name: 'used_in', className: 'form-control', value: values.used_in ?? '', onChange } } },
-
-        // is_vehicle checkbox
-        { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'É veículo?', captureValue: { type: 'checkbox', name: 'is_vehicle', className: 'form-check-input', checked: !!values.is_vehicle, onChange } } },
-
-        // status_active as select
+        { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Comprado por:', captureValue: { type: 'select', name: 'units_id_fk', className: 'form-control', options: unitList, value: values.units_id_fk ?? '', onChange } } },
+        { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Disponibilizado para:', captureValue: { type: 'select', name: 'used_in', className: 'form-control', options: depList, value: values.used_in ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Status', captureValue: { type: 'select', name: 'status_active', className: 'form-control', options: [{ label: 'Ativo', value: '1' }, { label: 'Inativo', value: '0' }], value: values.status_active ?? '', onChange } } },
-
-        // units, class, user, workgroup selects (lists passed from API)
-        { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Unidade', captureValue: { type: 'select', name: 'units_id_fk', className: 'form-control', options: unitList, value: values.units_id_fk ?? '', onChange } } },
         { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Classe do ativo', captureValue: { type: 'select', name: 'id_active_class_fk', className: 'form-control', options: classList, value: values.id_active_class_fk ?? '', onChange } } },
-        { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Responsável (usuário)', captureValue: { type: 'select', name: 'user_id_fk', className: 'form-control', options: userList, value: values.user_id_fk ?? '', onChange } } },
-        { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Grupo de trabalho', captureValue: { type: 'number', name: 'work_group_fk', className: 'form-control', value: values.work_group_fk ?? '', onChange } } },
+        
+
+        { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'É um veículo?', captureValue: { type: 'select', name: 'is_vehicle', className: 'form-control', options: [{ label: 'Sim', value: '1' }, { label: 'Não', value: '0' }], value: values.is_vehicle ? '1' : '0', onChange } } },
+        
+        // Apagar depois do commit.
+        // { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Data alteração', captureValue: { type: 'date', name: 'change_date', className: 'form-control', value: values.change_date ?? '', onChange } } },
+        // { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Usado em (id)', captureValue: { type: 'number', name: 'used_in', className: 'form-control', value: values.used_in ?? '', onChange } } },
+        // is_vehicle checkbox
+        // { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'É veículo?', captureValue: { type: 'checkbox', name: 'is_vehicle', className: 'form-check-input', checked: !!values.is_vehicle, onChange } } },
+        // status_active as select
+        // units, class, user, workgroup selects (lists passed from API)
+        // { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Responsável (usuário)', captureValue: { type: 'select', name: 'user_id_fk', className: 'form-control', options: userList, value: values.user_id_fk ?? '', onChange } } },
+        // { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Grupo de trabalho', captureValue: { type: 'number', name: 'work_group_fk', className: 'form-control', value: values.work_group_fk ?? '', onChange } } },
     ];
 
 export const formAddress = (
     values: PlaceAddress,
     onChange: (e: React.ChangeEvent<any>) => void
 ) => [
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Cidade', captureValue:{ type: 'text', name: "place_purchase.city", className: "form-control", value: values.place_purchase?.city ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Complemento', captureValue:{ type: 'text', name: "place_purchase.complement", className: "form-control", value: values.place_purchase?.complement ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Bairro', captureValue:{ type: 'text', name: "place_purchase.neighborhood", className: "form-control", value: values.place_purchase?.neighborhood ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Numero', captureValue:{ type: 'text', name: "place_purchase.number", className: "form-control", value: values.place_purchase?.number ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Loja', captureValue:{ type: 'text', name: "place_purchase.store", className: "form-control", value: values.place_purchase?.store ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Lougradouro', captureValue:{ type: 'text', name: "place_purchase.public_place", className: "form-control", value: values.place_purchase?.public_place ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Bairro', captureValue:{ type: 'text', name: "place_purchase.neighborhood", className: "form-control", value: values.place_purchase?.neighborhood ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Cidade', captureValue:{ type: 'text', name: "place_purchase.city", className: "form-control", value: values.place_purchase?.city ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Estado', captureValue:{ type: 'text', name: "place_purchase.state", className: "form-control", value: values.place_purchase?.state ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'CEP', captureValue:{ type: 'text', name: "place_purchase.zip_code", className: "form-control", value: values.place_purchase?.zip_code ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Numero', captureValue:{ type: 'text', name: "place_purchase.number", className: "form-control", value: values.place_purchase?.number ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Complemento', captureValue:{ type: 'text', name: "place_purchase.complement", className: "form-control", value: values.place_purchase?.complement ?? '', onChange } } },
 ];
 
 export const formVehicle = (
@@ -630,21 +615,25 @@ export const formVehicle = (
         { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Chassi', captureValue: { type: 'text', name: 'chassi', className: 'form-control', value: values.chassi ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Cor', captureValue: { type: 'text', name: 'color', className: 'form-control', value: values.color ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Renavam', captureValue: { type: 'text', name: 'renavam', className: 'form-control', value: values.renavam ?? '', onChange } } },
-        { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Combustível (texto)', captureValue: { type: 'text', name: 'fuel_type', className: 'form-control', value: values.fuel_type ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Potência', captureValue: { type: 'number', step: '0.01', name: 'power', className: 'form-control', value: values.power ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Cilindrada', captureValue: { type: 'number', step: '0.01', name: 'cylinder', className: 'form-control', value: values.cylinder ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Capacidade', captureValue: { type: 'number', name: 'capacity', className: 'form-control', value: values.capacity ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Tabela FIPE', captureValue: { type: 'number', step: '0.01', name: 'fipe_table', className: 'form-control', value: values.fipe_table ?? '', onChange } } },
-
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Última revisão (data)', captureValue: { type: 'date', name: 'last_revision_date', className: 'form-control', value: values.last_revision_date ?? '', onChange } } },
-        { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Última revisão (km)', captureValue: { type: 'number', name: 'last_revision_km', className: 'form-control', value: values.last_revision_km ?? '', onChange } } },
-
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Próxima revisão (data)', captureValue: { type: 'date', name: 'next_revision_date', className: 'form-control', value: values.next_revision_date ?? '', onChange } } },
+        
+        { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Última revisão (km)', captureValue: { type: 'number', name: 'last_revision_km', className: 'form-control', value: values.last_revision_km ?? '', onChange } } },
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Próxima revisão (km)', captureValue: { type: 'number', name: 'next_revision_km', className: 'form-control', value: values.next_revision_km ?? '', onChange } } },
-
+        
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Direcionado por (id)', captureValue: { type: 'number', name: 'directed_by', className: 'form-control', value: values.directed_by ?? '', onChange } } },
+        { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Combustível (texto)', captureValue: { type: 'text', name: 'fuel_type', className: 'form-control', value: values.fuel_type ?? '', onChange } } },
 
-        // shielding checkbox and fuel type id select
-        { attributes: { className: 'my-2 col-3' }, item: { label: 'Blindagem?', captureValue: { type: 'checkbox', name: 'shielding', checked: !!values.shielding, className: 'form-check-input', onChange } } },
+
+        { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Tem Blindagem?', captureValue: { type: 'select', name: 'shielding', className: 'form-control', options: [{ label: 'Sim', value: 1 }, { label: 'Não', value: 0 }], value: values.shielding ? '1' : '0', onChange } } },
+        
         { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Combustível (id)', captureValue: { type: 'select', name: 'fuel_type_id_fk', className: 'form-control', options: fuelTypeList, value: values.fuel_type_id_fk ?? '', onChange } } },
+
+        // deletar quando 
+        // shielding checkbox and fuel type id select
+        // { attributes: { className: 'my-2 col-3' }, item: { label: 'Blindagem?', captureValue: { type: 'checkbox', name: 'shielding', checked: !!values.shielding, className: 'form-check-input', onChange } } },
     ];

@@ -5,6 +5,7 @@ import FormActive from "./FormActive/FormActive";
 import {
   ActiveCompanyData,
   ActiveData,
+  ActiveDepartamentData,
   ActiveDriverData,
   ActiveFuelData,
   ActiveTypeData,
@@ -25,6 +26,7 @@ interface ActiveTableData {
   unit: any[];
   activeType: any[];
   fuelType: any[];
+  departament: any[];
 }
 
 const ActiveTable: React.FC = () => {
@@ -45,14 +47,16 @@ const ActiveTable: React.FC = () => {
           unitRes,
           companyRes,
           typeRes,
-          fuelRes
+          fuelRes,
+          depRes
         ] = await Promise.all([
           ActiveData(),
           ActiveDriverData(),
           ActiveUnitsData(),
           ActiveCompanyData(),
           ActiveTypeData(),
-          ActiveTypeFuelData()
+          ActiveTypeFuelData(),
+          ActiveDepartamentData(),
         ]);
 
         if (activeRes.error) throw new Error(activeRes.message);
@@ -61,6 +65,7 @@ const ActiveTable: React.FC = () => {
         if (companyRes.error) throw new Error(companyRes.message);
         if (typeRes.error) throw new Error(typeRes.message);
         if (fuelRes.error) throw new Error(fuelRes.message);
+        if (depRes.error) throw new Error(depRes.message);
 
         setData(activeRes.data || []);
         setModalData({
@@ -70,7 +75,8 @@ const ActiveTable: React.FC = () => {
           company: companyRes.data || [],
           unit: unitRes.data || [],
           activeType: typeRes.data || [],
-          fuelType: fuelRes.data || []
+          fuelType: fuelRes.data || [],
+          departament: depRes.data || []
         });
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
@@ -117,7 +123,7 @@ const ActiveTable: React.FC = () => {
       />
 
       {openModal && selected && modalData && (
-        <FormActive apiData={modalData} />
+        <FormActive apiData={modalData} openModal={setOpenModal} />
       )}
     </div>
   );
