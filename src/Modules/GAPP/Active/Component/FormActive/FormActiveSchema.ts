@@ -578,30 +578,20 @@ export const formActive = (
         
 
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'É um veículo?', captureValue: { type: 'select', name: 'is_vehicle', className: 'form-control', options: [{ label: 'Sim', value: '1' }, { label: 'Não', value: '0' }], value: values.is_vehicle ? '1' : '0', onChange } } },
-        
-        // Apagar depois do commit.
-        // { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Data alteração', captureValue: { type: 'date', name: 'change_date', className: 'form-control', value: values.change_date ?? '', onChange } } },
-        // { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Usado em (id)', captureValue: { type: 'number', name: 'used_in', className: 'form-control', value: values.used_in ?? '', onChange } } },
-        // is_vehicle checkbox
-        // { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'É veículo?', captureValue: { type: 'checkbox', name: 'is_vehicle', className: 'form-check-input', checked: !!values.is_vehicle, onChange } } },
-        // status_active as select
-        // units, class, user, workgroup selects (lists passed from API)
-        // { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Responsável (usuário)', captureValue: { type: 'select', name: 'user_id_fk', className: 'form-control', options: userList, value: values.user_id_fk ?? '', onChange } } },
-        // { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Grupo de trabalho', captureValue: { type: 'number', name: 'work_group_fk', className: 'form-control', value: values.work_group_fk ?? '', onChange } } },
     ];
 
 export const formAddress = (
-    values: PlaceAddress,
+    values: PlaceAddress = {},
     onChange: (e: React.ChangeEvent<any>) => void
 ) => [
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Loja', captureValue:{ type: 'text', name: "place_purchase.store", className: "form-control", value: values.place_purchase?.store ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Lougradouro', captureValue:{ type: 'text', name: "place_purchase.public_place", className: "form-control", value: values.place_purchase?.public_place ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Bairro', captureValue:{ type: 'text', name: "place_purchase.neighborhood", className: "form-control", value: values.place_purchase?.neighborhood ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Cidade', captureValue:{ type: 'text', name: "place_purchase.city", className: "form-control", value: values.place_purchase?.city ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Estado', captureValue:{ type: 'text', name: "place_purchase.state", className: "form-control", value: values.place_purchase?.state ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'CEP', captureValue:{ type: 'text', name: "place_purchase.zip_code", className: "form-control", value: values.place_purchase?.zip_code ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Numero', captureValue:{ type: 'text', name: "place_purchase.number", className: "form-control", value: values.place_purchase?.number ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Complemento', captureValue:{ type: 'text', name: "place_purchase.complement", className: "form-control", value: values.place_purchase?.complement ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Loja', captureValue:{ type: 'text', name: "place_purchase.store", className: "form-control", value: values.store ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Lougradouro', captureValue:{ type: 'text', name: "place_purchase.public_place", className: "form-control", value: values.public_place ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Bairro', captureValue:{ type: 'text', name: "place_purchase.neighborhood", className: "form-control", value: values.neighborhood ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Cidade', captureValue:{ type: 'text', name: "place_purchase.city", className: "form-control", value: values.city ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Estado', captureValue:{ type: 'text', name: "place_purchase.state", className: "form-control", value: values.state ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'CEP', captureValue:{ type: 'text', name: "place_purchase.zip_code", className: "form-control", value: values.zip_code ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Numero', captureValue:{ type: 'text', name: "place_purchase.number", className: "form-control", value: values.number ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Complemento', captureValue:{ type: 'text', name: "place_purchase.complement", className: "form-control", value: values.complement ?? '', onChange } } },
 ];
 
 export const formVehicle = (
@@ -632,8 +622,4 @@ export const formVehicle = (
         { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Tem Blindagem?', captureValue: { type: 'select', name: 'shielding', className: 'form-control', options: [{ label: 'Sim', value: 1 }, { label: 'Não', value: 0 }], value: values.shielding ? '1' : '0', onChange } } },
         
         { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Combustível (id)', captureValue: { type: 'select', name: 'fuel_type_id_fk', className: 'form-control', options: fuelTypeList, value: values.fuel_type_id_fk ?? '', onChange } } },
-
-        // deletar quando 
-        // shielding checkbox and fuel type id select
-        // { attributes: { className: 'my-2 col-3' }, item: { label: 'Blindagem?', captureValue: { type: 'checkbox', name: 'shielding', checked: !!values.shielding, className: 'form-check-input', onChange } } },
     ];

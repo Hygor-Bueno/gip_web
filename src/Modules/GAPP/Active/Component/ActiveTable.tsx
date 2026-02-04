@@ -7,7 +7,6 @@ import {
   ActiveData,
   ActiveDepartamentData,
   ActiveDriverData,
-  ActiveFuelData,
   ActiveTypeData,
   ActiveTypeFuelData,
   ActiveUnitsData,
@@ -16,17 +15,19 @@ import {
 
 import { convertForTable } from "../../../../Util/Util";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
+import { ActiveFormValues, Departament, VehicleFormValues } from "./FormActive/FormActiveInterface";
+import { ActiveType, Company, Driver, FuelType, Unit } from "../Interfaces/Interfaces";
 
 // Tipagem simplificada e mais específica
 interface ActiveTableData {
-  active: any;
-  vehicle: any;
-  driver: any[];
-  company: any[];
-  unit: any[];
-  activeType: any[];
-  fuelType: any[];
-  departament: any[];
+  active: ActiveFormValues;
+  vehicle: VehicleFormValues;
+  driver: Driver[];
+  company: Company[];
+  unit: Unit[];
+  activeType: ActiveType[];
+  fuelType: FuelType[];
+  departament: Departament[];
 }
 
 const ActiveTable: React.FC = () => {
@@ -34,7 +35,7 @@ const ActiveTable: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any>(null);
   const [modalData, setModalData] = useState<ActiveTableData | null>(null);
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   // Carregamento inicial de dados
   useEffect(() => {
@@ -88,7 +89,6 @@ const ActiveTable: React.FC = () => {
     loadAllData();
   }, []);
 
-  // Seleção de item da tabela
   const handleSelect = useCallback(async (item: any) => {
     setSelected(item);
     setOpenModal(true);

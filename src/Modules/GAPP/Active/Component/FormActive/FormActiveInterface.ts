@@ -1,14 +1,12 @@
 export interface PlaceAddress {
-  place_purchase?: {
-    city?: string;
-    state?: string;
-    store?: string;
-    number?: string;
-    zip_code?: string;
-    complement?: string;
-    neighborhood?: string;
-    public_place?: string;
-  };  
+  city?: string;
+  state?: string;
+  store?: string;
+  number?: string;
+  zip_code?: string;
+  complement?: string;
+  neighborhood?: string;
+  public_place?: string;  
 }
 
 export interface Departament {
@@ -33,8 +31,8 @@ export interface Departament {
 // types & initial values
 export interface ActiveFormValues {
   active_id?: number | null;         // p_active_id
-  brand: string;                     // p_brand
-  model: string;                     // p_model
+  brand?: string;                     // p_brand
+  model?: string;                     // p_model
   number_nf?: number | string;       // p_number_nf
   date_purchase?: string;            // p_date_purchase (YYYY-MM-DD)
   place_purchase?: PlaceAddress;       // p_place_purchase (JSON string or free text)
@@ -42,7 +40,7 @@ export interface ActiveFormValues {
   photo?: File | string | null;      // p_photo (File to upload or string URL/name)
   change_date?: string | null;       // p_change_date
   list_items?: {
-    list: []
+    list: string[]
   };               // p_list_items (JSON string)
   used_in?: number | string | null;  // p_used_in
   is_vehicle?: boolean;              // p_is_vehicle (true => 1)

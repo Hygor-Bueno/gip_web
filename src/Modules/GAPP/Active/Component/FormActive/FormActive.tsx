@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, SetStateAction, Dispatch } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
 import { useConnection } from "../../../../../Context/ConnContext";
 import { 
@@ -18,7 +18,7 @@ interface FormActiveProps {
     activeType?: ActiveType[];
     fuelType?: FuelType[];
   };
-  openModal?: any;
+  openModal?: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function FormActive({ apiData, openModal }: FormActiveProps) {
@@ -28,7 +28,8 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
     brand: "",
     model: "",
     is_vehicle: true,
-    list_items: { list: [] }
+    list_items: { list: [] },
+    place_purchase: {}
   });
 
   const [vehicleValues, setVehicleValues] = useState<Partial<VehicleFormValues>>({
@@ -47,9 +48,7 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    // const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
-
-    let fieldValue: any =
+    let fieldValue =
     type === "checkbox"
       ? (e.target as HTMLInputElement).checked
       : value;
@@ -76,21 +75,21 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
   const addItem = () => {
     if (!newItemText.trim()) return;
     
-    setActiveValues((prev: any) => ({
+    setActiveValues((prev) => ({
       ...prev,
       list_items: {
-        list: [...(prev.list_items?.list || []), newItemText]
-      }
+        list: [...(prev.list_items?.list || []), newItemText],
+      },
     }));
     setNewItemText("");
   };
 
   const removeItem = (indexToRemove: number) => {
-    setActiveValues((prev: any) => ({
+    setActiveValues((prev) => ({
       ...prev,
       list_items: {
         list: (prev.list_items?.list || []).filter((
-            i: any
+            i
             , index: number) => index !== indexToRemove)
       }
     }));
@@ -98,7 +97,7 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
 
   const options = useMemo(() => ({
     company: apiData?.company?.map(c => ({ label: c.corporate_name, value: String(c.comp_id) })) || [],
-    departament: apiData?.departament?.map(d => ({label: d.dep_name, value: d.dep_id})) || [],
+    departament: apiData?.departament?.map(d => ({label: `${d.fantasy_name} > ${d.unit_name} > ${d.dep_name}`, value: String(d.dep_id)})) || [],
     unit: apiData?.unit?.map(u => ({ label: u.unit_name, value: String(u.unit_id) })) || [],
     driver: apiData?.driver?.map(d => ({ label: d.name, value: String(d.driver_id) })) || [],
     fuel: apiData?.fuelType?.map(f => ({ label: f.description, value: String(f.id_fuel_type) })) || [],
@@ -115,21 +114,23 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
       });
       if (res.error) throw new Error(res.message);
       alert("Ativo salvo com sucesso!");
-    } catch (error: any) {
-      console.error("Erro no envio:", error.message);
+    } catch (error) {
+      if(error instanceof Error) {
+        console.error("Erro no envio:", error.message);
+      } else {
+        console.error("Erro no envio:", error);
+      }
     }
   };
 
   return (
-    <div onClick={() => openModal(false)} className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center" >
+    <div onClick={() => openModal?.(false)} className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center" >
       <div onClick={(e) => e.stopPropagation()} className="bg-white container h-75 w-75 overflow-auto p-4 rounded shadow">
         <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Formulário de Ativo</h2>
         
         <CustomForm 
           notButton={false}
-          fieldsets={
-            // @ts-ignore
-            formActive(activeValues, options.unit, options.departament, options.company, options.driver, handleChange)}
+          fieldsets={formActive(activeValues, options.unit, options.departament, options.company, options.driver, handleChange)}
           className="row g-3 mb-4"
         />
 
@@ -167,9 +168,7 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
 
         <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Local da Compra</h2>
         <CustomForm
-          fieldsets={formAddress(
-            // @ts-ignore
-            activeValues, handleChange)}
+          fieldsets={formAddress(activeValues.place_purchase, handleChange)}
           className="row g-3 mb-4"
           notButton={false}
         />
