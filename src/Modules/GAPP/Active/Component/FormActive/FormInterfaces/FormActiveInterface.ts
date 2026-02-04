@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface PlaceAddress {
   city?: string;
   state?: string;
@@ -191,4 +193,18 @@ export interface Active {
   group_name: string;
   status_work_group: number;
   dep_id_fk: number;
+}
+
+export interface FormActiveProps {
+  apiData?: {
+    active?: ActiveFormValues;
+    departament?: Departament[];
+    vehicle?: VehicleFormValues;
+    driver?: Driver[];
+    company?: Company[];
+    unit?: Unit[];
+    activeType?: ActiveType[];
+    fuelType?: FuelType[];
+  };
+  openModal?: Dispatch<SetStateAction<boolean>>;
 }

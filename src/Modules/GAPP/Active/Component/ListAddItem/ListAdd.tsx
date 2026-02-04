@@ -1,4 +1,4 @@
-import { IListAdd } from "../FormActive/FormActiveInterface"
+import { IListAdd } from "../FormActive/FormInterfaces/FormActiveInterface"
 
 export default function ListAdd ({newItemText, setNewItemText, addItem, activeValues, removeItem}: IListAdd) {
     return (

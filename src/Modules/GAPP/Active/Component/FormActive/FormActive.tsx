@@ -1,24 +1,12 @@
-import React, { useEffect, useState, useMemo, useCallback, SetStateAction, Dispatch } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
 import { useConnection } from "../../../../../Context/ConnContext";
-import { formActive, formAddress, formVehicle } from "./FormActiveSchema";
-import { ActiveFormValues, ActiveType, Company, Departament, Driver, FuelType, Unit, VehicleFormValues } from "./FormActiveInterface";
-import { mapFormToApi } from "../DataMapper/DataMapper";
+import { ActiveFormValues, FormActiveProps, VehicleFormValues } from "./FormInterfaces/FormActiveInterface";
+import { buildOptions, mapFormToApi } from "../DataMapper/DataMapper";
 import ListAdd from "../ListAddItem/ListAdd";
-
-interface FormActiveProps {
-  apiData?: {
-    active?: ActiveFormValues;
-    departament?: Departament[];
-    vehicle?: VehicleFormValues;
-    driver?: Driver[];
-    company?: Company[];
-    unit?: Unit[];
-    activeType?: ActiveType[];
-    fuelType?: FuelType[];
-  };
-  openModal?: Dispatch<SetStateAction<boolean>>;
-}
+import { formVehicle } from "./FormSchema/FormVehicle";
+import { formAddress } from "./FormSchema/FormAddress";
+import { formActive } from "./FormSchema/FormActive";
 
 export default function FormActive({ apiData, openModal }: FormActiveProps) {
   const { fetchData } = useConnection();
@@ -94,13 +82,7 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
     }));
   };
 
-  const options = useMemo(() => ({
-    company: apiData?.company?.map(c => ({ label: c.corporate_name, value: String(c.comp_id) })) || [],
-    departament: apiData?.departament?.map(d => ({label: `${d.fantasy_name} > ${d.unit_name} > ${d.dep_name}`, value: String(d.dep_id)})) || [],
-    unit: apiData?.unit?.map(u => ({ label: u.unit_name, value: String(u.unit_id) })) || [],
-    driver: apiData?.driver?.map(d => ({ label: d.name, value: String(d.driver_id) })) || [],
-    fuel: apiData?.fuelType?.map(f => ({ label: f.description, value: String(f.id_fuel_type) })) || [],
-  }), [apiData]);
+  const options = useMemo(() => buildOptions(apiData), [apiData])
 
   const handleSubmit = async () => {
     try {
@@ -129,7 +111,7 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
         
         <CustomForm 
           notButton={false}
-          fieldsets={formActive(activeValues, options.unit, options.departament, options.company, options.driver, handleChange)}
+          fieldsets={formActive(activeValues, options.unit, options.departament, options.company, handleChange)}
           className="row g-3 mb-4"
         />
 
