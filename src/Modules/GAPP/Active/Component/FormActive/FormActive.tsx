@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
-import { useConnection } from "../../../../../Context/ConnContext";
 import { ActiveFormValues, FormActiveProps, VehicleFormValues } from "./FormInterfaces/FormActiveInterface";
 import { mapFormToApi } from "../DataMapper/DataMapper";
 import ListAdd from "../ListAddItem/ListAdd";
@@ -8,15 +7,13 @@ import { formVehicle } from "./FormSchema/FormVehicle.schema";
 import { formAddress } from "./FormSchema/FormAddress.schema";
 import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions } from "../BuildFunction/BuildFunction";
-import { ActivePostData } from "../../Hooks/ActiveHook";
+import { ActivePostData } from "../../Adapters/Adapters";
 
 /** 
   Esse Componente de formulario tem como obtivo de registrar/editar os ativos, endereço e se for um 
   Veiculo ele registra todas as informações de um veiculo também.
 */
 export default function FormActive({ apiData, openModal }: FormActiveProps) {
-  const { fetchData } = useConnection();
-
   const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
     brand: "",
     model: "",
@@ -66,25 +63,22 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
   }, [activeValues]);
 
   const addItem = () => {
-    if (!newItemText.trim()) return;
-    
-    setActiveValues((prev) => ({
-      ...prev,
-      list_items: {
-        list: [...(prev.list_items?.list || []), newItemText],
-      },
-    }));
-    setNewItemText("");
+    const canAdd = !!newItemText.trim();
+    if (canAdd) {
+      setActiveValues((prev) => ({
+        ...prev,
+        list_items: {
+          list: [...(prev.list_items?.list || []), newItemText],
+        },
+      }));
+      setNewItemText("");
+    }
   };
 
   const removeItem = (indexToRemove: number) => {
     setActiveValues((prev) => ({
       ...prev,
-      list_items: {
-        list: (prev.list_items?.list || []).filter((
-            i
-            , index: number) => index !== indexToRemove)
-      }
+      list_items: { list: (prev.list_items?.list || []).filter((_, index: number) => index !== indexToRemove)}
     }));
   };
 
@@ -94,16 +88,11 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
 
   const handleSubmit = async () => {
     try {
-      // usando o mapFormToApi para montar o payload para enviar para o backend.
+      // O mapFormToApi serve para montar o payload e enviar para o backend.
       const payload = mapFormToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues);
-      const res = await ActivePostData(payload);
 
-      // const res = await fetchData({
-      //   method: "POST",
-      //   params: payload,
-      //   pathFile: "GAPP_V2/Active.php",
-      //   urlComplement: "&v2=1&smart=ON",
-      // });
+      // ActivePostData captura o payload(JSON) e faz o envio.
+      const res = await ActivePostData(payload);
 
       if (res.error) throw new Error(res.message);
       alert("Ativo salvo com sucesso!");

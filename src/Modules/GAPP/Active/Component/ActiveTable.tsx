@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import CustomTable from "../../../../Components/CustomTable";
 import FormActive from "./FormActive/FormActive";
 
-import { ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData, ActiveVehicleData} from "../Hooks/ActiveHook";
+import { ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData, ActiveVehicleData} from "../Adapters/Adapters";
 import { convertForTable } from "../../../../Util/Util";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
 import { Active, ActiveTableData } from "./FormActive/FormInterfaces/FormActiveInterface";
