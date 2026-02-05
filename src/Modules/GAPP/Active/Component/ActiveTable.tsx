@@ -2,32 +2,10 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import CustomTable from "../../../../Components/CustomTable";
 import FormActive from "./FormActive/FormActive";
 
-import {
-  ActiveCompanyData,
-  ActiveData,
-  ActiveDepartamentData,
-  ActiveDriverData,
-  ActiveTypeData,
-  ActiveTypeFuelData,
-  ActiveUnitsData,
-  ActiveVehicleData
-} from "../Hooks/ActiveHook";
-
+import { ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData, ActiveVehicleData} from "../Hooks/ActiveHook";
 import { convertForTable } from "../../../../Util/Util";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
-import { ActiveFormValues, ActiveType, Company, Departament, Driver, FuelType, Unit, VehicleFormValues } from "./FormActive/FormInterfaces/FormActiveInterface";
-
-// Tipagem simplificada e mais específica
-interface ActiveTableData {
-  active: ActiveFormValues;
-  vehicle: VehicleFormValues;
-  driver: Driver[];
-  company: Company[];
-  unit: Unit[];
-  activeType: ActiveType[];
-  fuelType: FuelType[];
-  departament: Departament[];
-}
+import { ActiveTableData } from "./FormActive/FormInterfaces/FormActiveInterface";
 
 const ActiveTable: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
@@ -36,7 +14,6 @@ const ActiveTable: React.FC = () => {
   const [modalData, setModalData] = useState<ActiveTableData | null>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
 
-  // Carregamento inicial de dados
   useEffect(() => {
     const loadAllData = async () => {
       setLoading(true);
@@ -97,7 +74,6 @@ const ActiveTable: React.FC = () => {
     try {
       const vehicleRes = await ActiveVehicleData(item[0].active_id.value);
       if (vehicleRes.error) throw new Error(vehicleRes.message);
-
       setModalData((prev) => prev ? { ...prev, vehicle: vehicleRes.data[0] || {}, active: data.find(d => d.active_id === item[0].active_id.value) || {} } : null);
     } catch (error) {
       console.error("Erro ao buscar dados do veículo:", error);
