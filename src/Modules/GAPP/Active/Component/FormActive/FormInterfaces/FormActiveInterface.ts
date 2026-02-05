@@ -278,6 +278,12 @@ export interface Active {
   dep_id_fk: number;
 }
 
+/**
+ * Representa os dados que o formulário de Ativo precisa receber.
+ * Na regra de negócio, isso permite:
+ * - Abrir o formulário já com dados (edição)
+ * - Controlar abertura/fechamento de modal
+ */
 export interface FormActiveProps {
   apiData?: {
     active?: ActiveFormValues;
