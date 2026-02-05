@@ -1,4 +1,4 @@
-import { ActiveFormValues } from "../FormInterfaces/FormActiveInterface";
+import { ActiveFormValues } from "../../../Interfaces/Interfaces";
 
 /**
  * Monta a estrutura do formulário de Ativos, centralizando as regras

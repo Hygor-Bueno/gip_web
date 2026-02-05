@@ -5,7 +5,7 @@ import FormActive from "./FormActive/FormActive";
 import { ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData, ActiveVehicleData} from "../Adapters/Adapters";
 import { convertForTable } from "../../../../Util/Util";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
-import { Active, ActiveTableData } from "./FormActive/FormInterfaces/FormActiveInterface";
+import { Active, ActiveTableData } from "../Interfaces/Interfaces";
 import { tItemTable } from "../../../../types/types";
 
 const ActiveTable: React.FC = () => {

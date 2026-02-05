@@ -1,4 +1,4 @@
-import { IListAdd } from "../FormActive/FormInterfaces/FormActiveInterface"
+import { IListAdd } from "../../Interfaces/Interfaces"
 
 /** 
     Esse componente tem como objetivo de fazer um adicional de itens na lista para ser salvo no sistema.

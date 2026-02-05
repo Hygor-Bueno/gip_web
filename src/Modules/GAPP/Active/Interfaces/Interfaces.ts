@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { ActiveRow } from "../../../ConfigurationTable/ConfigurationTable";
+import { ActiveRow } from "../ConfigurationTable/ConfigurationTable";
 
 /** Contrato padrão dos Schemas */
 export interface Schema { label: string; value: string }[]

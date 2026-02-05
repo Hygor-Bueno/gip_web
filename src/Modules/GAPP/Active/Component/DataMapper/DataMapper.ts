@@ -1,4 +1,4 @@
-import { ActiveFormValues, VehicleFormValues } from "../FormActive/FormInterfaces/FormActiveInterface";
+import { ActiveFormValues, VehicleFormValues } from "../../Interfaces/Interfaces";
 
 
 /** Esse mapeador facilita o envio do payload com os dados a serem mandados para backend. */

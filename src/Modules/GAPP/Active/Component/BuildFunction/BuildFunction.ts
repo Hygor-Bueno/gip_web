@@ -1,4 +1,4 @@
-import { FormActiveProps } from "../FormActive/FormInterfaces/FormActiveInterface";
+import { FormActiveProps } from "../../Interfaces/Interfaces";
 
 export function buildOptions(apiData?: FormActiveProps["apiData"]) {
   return {

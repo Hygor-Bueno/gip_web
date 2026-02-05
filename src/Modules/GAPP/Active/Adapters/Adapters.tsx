@@ -1,5 +1,5 @@
 import { fetchDataFull } from "../../../../Util/Util";
-import { FetchConfig } from "../Component/FormActive/FormInterfaces/FormActiveInterface";
+import { FetchConfig } from "../Interfaces/Interfaces";
 
 function fetchGet({ pathFile, urlComplement = "" }: FetchConfig) {
   return fetchDataFull({

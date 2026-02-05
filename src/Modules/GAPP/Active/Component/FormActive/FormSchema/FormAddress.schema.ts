@@ -1,4 +1,4 @@
-import { PlaceAddress } from "../FormInterfaces/FormActiveInterface";
+import { PlaceAddress } from "../../../Interfaces/Interfaces";
 
 /**
  * Monta o formulário de endereço de compra do ativo.

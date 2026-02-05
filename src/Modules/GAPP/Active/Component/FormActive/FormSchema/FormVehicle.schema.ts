@@ -1,4 +1,4 @@
-import { Schema, VehicleFormValues } from "../FormInterfaces/FormActiveInterface";
+import { Schema, VehicleFormValues } from "../../../Interfaces/Interfaces";
 
 /**
  * Define o formulário de dados do veículo quando o ativo é do tipo veículo.
