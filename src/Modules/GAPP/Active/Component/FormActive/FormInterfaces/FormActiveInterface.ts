@@ -1,4 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
+import { ActiveRow } from "../../../ConfigurationTable/ConfigurationTable";
+
+/** Contrato padrão dos Schemas */
+export interface Schema { label: string; value: string }[]
+
+/** Contrato padrão dos Fetchs */
+export interface FetchConfig { pathFile: string; urlComplement?: string; params?: {}}
 
 /**
  * Representa o conjunto de dados que a tela de Ativos precisa para funcionar.
@@ -234,7 +241,7 @@ export interface Driver {
  * - Inclui vínculos com unidade, empresa, usuário, grupo, etc
  * - É usado para listagem, consulta e relatórios
  */
-export interface Active {
+export interface Active extends ActiveRow {
   active_id: string;
   brand: string;
   model: string;

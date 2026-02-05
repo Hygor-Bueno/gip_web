@@ -1,14 +1,19 @@
 import { fetchDataFull } from "../../../../Util/Util";
-
-interface FetchConfig {
-  pathFile: string;
-  urlComplement?: string;
-}
+import { FetchConfig } from "../Component/FormActive/FormInterfaces/FormActiveInterface";
 
 function fetchGet({ pathFile, urlComplement = "" }: FetchConfig) {
   return fetchDataFull({
     method: "GET",
     params: null,
+    pathFile,
+    urlComplement
+  });
+}
+
+function fetchPost({ pathFile, params = {}, urlComplement }: FetchConfig) {
+  return fetchDataFull({
+    method: "POST",
+    params,
     pathFile,
     urlComplement
   });
@@ -26,6 +31,18 @@ function getByParam(pathFile: string, param: string, value: string) {
     pathFile,
     urlComplement: `&${param}=${value}`
   });
+}
+
+function postToApi(pathFile: string, params: {}) {
+  return fetchPost({
+    params,
+    pathFile,
+    urlComplement: "&v2=1&smart=ON",
+  })
+}
+
+export function ActivePostData(params: {}) {
+  return postToApi("GAPP_V2/Active.php", params);
 }
 
 export function ActiveData() {

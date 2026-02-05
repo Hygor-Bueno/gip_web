@@ -1,6 +1,8 @@
 import { ActiveFormValues, VehicleFormValues } from "../FormActive/FormInterfaces/FormActiveInterface";
 
-export function mapFormToApi(active: ActiveFormValues, vehicle: VehicleFormValues) {
+
+/** Esse mapeador facilita o envio do payload com os dados a serem mandados para backend. */
+export function mapFormToApi (active: ActiveFormValues, vehicle: VehicleFormValues) {
   return {
     active: {
       ...active,

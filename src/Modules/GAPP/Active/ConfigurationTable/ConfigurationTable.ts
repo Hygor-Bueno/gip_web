@@ -1,5 +1,8 @@
 // ==============================
 // Colunas que ficarão escondidas
+
+import { Active } from "../Component/FormActive/FormInterfaces/FormActiveInterface";
+
 // ==============================
 export const listColumnsOcult = [
   "number_nf",

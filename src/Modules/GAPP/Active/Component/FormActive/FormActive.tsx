@@ -8,7 +8,12 @@ import { formVehicle } from "./FormSchema/FormVehicle.schema";
 import { formAddress } from "./FormSchema/FormAddress.schema";
 import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions } from "../BuildFunction/BuildFunction";
+import { ActivePostData } from "../../Hooks/ActiveHook";
 
+/** 
+  Esse Componente de formulario tem como obtivo de registrar/editar os ativos, endereço e se for um 
+  Veiculo ele registra todas as informações de um veiculo também.
+*/
 export default function FormActive({ apiData, openModal }: FormActiveProps) {
   const { fetchData } = useConnection();
 
@@ -83,17 +88,23 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
     }));
   };
 
+  // Para o options não ficar complexo construi um build para simplificar 
+  // a montagem das opções e passalas para frente em cada form mapeado.
   const options = useMemo(() => buildOptions(apiData), [apiData])
 
   const handleSubmit = async () => {
     try {
+      // usando o mapFormToApi para montar o payload para enviar para o backend.
       const payload = mapFormToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues);
-      const res = await fetchData({
-        method: "POST",
-        params: payload,
-        pathFile: "GAPP_V2/Active.php",
-        urlComplement: "&v2=1&smart=ON",
-      });
+      const res = await ActivePostData(payload);
+
+      // const res = await fetchData({
+      //   method: "POST",
+      //   params: payload,
+      //   pathFile: "GAPP_V2/Active.php",
+      //   urlComplement: "&v2=1&smart=ON",
+      // });
+
       if (res.error) throw new Error(res.message);
       alert("Ativo salvo com sucesso!");
     } catch (error) {
@@ -136,7 +147,7 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
             <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Dados do Veículo</h2>
             <CustomForm
               notButton={false}
-              fieldsets={formVehicle(vehicleValues, options.fuel, handleChange)}
+              fieldsets={formVehicle(vehicleValues, options.fuel, options.driver, handleChange)}
               className="row g-3 mb-4"
             />
           </React.Fragment>

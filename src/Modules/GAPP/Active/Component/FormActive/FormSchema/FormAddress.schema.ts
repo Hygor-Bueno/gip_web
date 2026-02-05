@@ -1,8 +1,13 @@
 import { PlaceAddress } from "../FormInterfaces/FormActiveInterface";
 
+/**
+ * Monta o formulário de endereço de compra do ativo.
+ * Em termos de negócio, define quais dados de localização
+ * são registrados para identificar onde o ativo foi adquirido.
+ */
 export const formAddress = (
     values: PlaceAddress = {},
-    onChange: (e: React.ChangeEvent<any>) => void
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void
 ) => [
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Loja', captureValue:{ type: 'text', name: "place_purchase.store", className: "form-control", value: values.store ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Lougradouro', captureValue:{ type: 'text', name: "place_purchase.public_place", className: "form-control", value: values.public_place ?? '', onChange } } },

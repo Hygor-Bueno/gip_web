@@ -5,12 +5,13 @@ import FormActive from "./FormActive/FormActive";
 import { ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData, ActiveVehicleData} from "../Hooks/ActiveHook";
 import { convertForTable } from "../../../../Util/Util";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
-import { ActiveTableData } from "./FormActive/FormInterfaces/FormActiveInterface";
+import { Active, ActiveTableData } from "./FormActive/FormInterfaces/FormActiveInterface";
+import { tItemTable } from "../../../../types/types";
 
 const ActiveTable: React.FC = () => {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Active[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] = useState<tItemTable[]>([]);
   const [modalData, setModalData] = useState<ActiveTableData | null>(null);
   const [openModal, setOpenModal] = useState<boolean>(false);
 
@@ -65,7 +66,7 @@ const ActiveTable: React.FC = () => {
     loadAllData();
   }, []);
 
-  const handleSelect = useCallback(async (item: any) => {
+  const handleSelect = useCallback(async (item: tItemTable[]) => {
     setSelected(item);
     setOpenModal(true);
 

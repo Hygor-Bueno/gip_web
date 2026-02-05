@@ -1,11 +1,15 @@
 import { ActiveFormValues } from "../FormInterfaces/FormActiveInterface";
 
+/**
+ * Monta a estrutura do formulário de Ativos, centralizando as regras
+ * de quais dados são necessários para cadastrar ou editar um ativo no sistema.
+ */
 export const formActive = (
     values: ActiveFormValues,
     unitList: { label: string; value: string }[] = [],
     depList: { label: string, value: string }[] = [],
     classList: { label: string; value: string }[] = [],
-    onChange: (e: React.ChangeEvent<any>) => void
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void
 ) => [
         { attributes: { className: 'd-none' },item: {label: '',captureValue: {type: 'number',name: 'active_id',value: values.active_id ?? '',onChange,}}},
         { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Marca', captureValue: { type: 'text', name: 'brand', className: 'form-control', value: values.brand || '', onChange } } },
