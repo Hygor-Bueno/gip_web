@@ -1,5 +1,6 @@
 import { FormActiveProps } from "../../Interfaces/Interfaces";
 
+/** Esse build permite que constuimos os options de maneira organizada em uma unica função */
 export function buildOptions(apiData?: FormActiveProps["apiData"]) {
   return {
     company: apiData?.company?.map((c) => ({

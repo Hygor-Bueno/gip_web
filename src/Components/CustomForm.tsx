@@ -80,36 +80,6 @@ function CustomForm({ fieldsets, onAction, classRender, classButton, notButton =
   );
 }
 
-function CustomFormGender({ fieldsets, onAction, classRender, classButton, notButton = true, typeButton = 'submit', titleButton = "Login", ...formProps }: CustomFormProps) {
-  return (
-    <form {...formProps}>
-      {fieldsets.map((fieldset: any, fieldsetIndex: any) => (
-        <fieldset key={fieldsetIndex} {...fieldset.attributes}>
-          <legend className={fieldset.legend?.style}>{fieldset.legend?.text}</legend>
-          <label>
-            {fieldset.item.label}
-            <b className={fieldset.item.mandatory ? 'text-danger' : ''}>
-              {fieldset.item.mandatory ? ' *' : ''}
-            </b>
-          </label>
-          {renderField(fieldset.item.captureValue)}
-        </fieldset>
-      ))}
-      {notButton &&
-        <div>
-          <button
-            onClick={onAction}
-            type={typeButton}
-            title="Execultar ação"
-            className={classButton ? classButton : "btn my-2 "}>
-            {titleButton}
-          </button>
-        </div>
-      }
-    </form>
-  );
-}
-
 export function renderField(captureValue: CaptureValueArray | CaptureValueTuple) {
   const convertValueArray = Array.isArray(captureValue) ? captureValue : [captureValue];
   return (

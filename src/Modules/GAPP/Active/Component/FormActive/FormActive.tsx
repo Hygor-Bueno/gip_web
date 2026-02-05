@@ -9,7 +9,7 @@ import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions } from "../BuildFunction/BuildFunction";
 import { ActivePostData } from "../../Adapters/Adapters";
 
-/** 
+/**
   Esse Componente de formulario tem como obtivo de registrar/editar os ativos, endereço e se for um 
   Veiculo ele registra todas as informações de um veiculo também.
 */
@@ -112,8 +112,8 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
         
         <CustomForm 
           notButton={false}
-          fieldsets={formActive(activeValues, options.unit, options.departament, options.company, handleChange)}
           className="row g-3 mb-4"
+          fieldsets={formActive(activeValues, options.unit, options.departament, options.company, handleChange)}
         />
 
         <ListAdd 
