@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Register from "./Register/Register";
 import NavBar from "../../Components/NavBar";
 import { listPathEPP } from "./Navigation/Navigation";
@@ -6,6 +6,7 @@ import CustomTable from "../../Components/CustomTable";
 import { getAllEppOrder } from "./Adapters/Adapters";
 import { convertForTable } from "../../Util/Util";
 import { listColumnsOcult, renamedColumns } from "./Configuration/Configuration";
+import { tItemTable } from "../../types/types";
 
 
 interface EppTableData {
@@ -14,8 +15,10 @@ interface EppTableData {
 
 export default function EppMain() {
     const [data, setData] = useState<[]>([]);
+
+    const [selected, setSelected] = useState<tItemTable[]>([]);
+
     const [modalData, setModalData] = useState<EppTableData | null>(null);
-    const [openModal, setOpenModal] = useState(false);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -33,7 +36,7 @@ export default function EppMain() {
             setData(orderRes.data || []);
 
             setModalData({
-              order: {}
+              order: orderRes.data || []
             });
 
           } catch (error) {
@@ -46,10 +49,15 @@ export default function EppMain() {
         loadAllData();
       }, []);
 
-      function handleClickTable(select: any) {
-        console.log(select);
-        setOpenModal(true);
+     const handleSelect = useCallback(async (item: tItemTable[]) => {
+      setSelected(item);
+      if(!item || !item[0]?.idOrder?.value) return;
+      try {
+         setModalData((prev) => prev ? {...prev} : null);
+      } catch (error) {
+        console.error("Erro ao buscar dados");
       }
+     }, [])
 
      const tableList = useMemo(() => convertForTable(data, {
         ocultColumns: listColumnsOcult,
@@ -62,24 +70,13 @@ export default function EppMain() {
     return (
         <React.Fragment>
             <NavBar list={listPathEPP} />
-            <section className="w-100">
-                <header className="w-100 p-2 d-flex align-items-center justify-content-between">
-                    <div className="">
-                        <label>Código do pedido</label>
-                        <input type="number" name="" id="" className="form-control"/>
-                    </div>
-                    <button className="btn color-gipp" onClick={() => setOpenModal(true)}>
-                        <i className="fa fa-solid fa-plus text-white"></i>
-                    </button>
-                </header>
-                <section className="mt-2 border border-gray p-2">
-                    {openModal && <div>
-                        <Register setOpenRegister={setOpenModal} />
-                    </div>}
-                    <div className="table-epp-default">
+            <section className="d-flex flex-row w-100 h-100 overflow-hidden">
+                <section className="d-flex align-items-center overflow-hidden p-2">
+                    <Register apiData={modalData} />
+                    <div className="flex-grow-1 h-100 overflow-auto">
                         <CustomTable 
                             list={tableList}
-                            onConfirmList={handleClickTable}
+                            onConfirmList={handleSelect}
                             maxSelection={1}
                         />
                     </div>

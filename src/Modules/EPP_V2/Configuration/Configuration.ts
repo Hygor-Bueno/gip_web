@@ -20,6 +20,5 @@ export const renamedColumns = {
   fone: "Telefone",
   email: "Email",
   dateOrder: "Data",
-  delivered:  "Status",
-  description: "Descrição"
+  delivered:  "Status"
 }

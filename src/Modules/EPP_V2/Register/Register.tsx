@@ -5,19 +5,15 @@ import { formOrderData } from "./Components/CustomerData/FormOrderData.schema";
 import { formDelivery } from "./Components/CustomerData/FormDeliveryData.schema";
 
 export interface IRegisterConfiguration {
-  setOpenRegister: any;
+  apiData: any;
 }
 
-export default function Register({setOpenRegister}: IRegisterConfiguration) {
-
-  function stopChange(e: React.MouseEvent) {
-    e.stopPropagation()  
-  }
+export default function Register({apiData}: IRegisterConfiguration) {
 
   return (
     <React.Fragment>
-      <div className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center modal-top" onClick={(e) => setOpenRegister(false)}>
-        <div onClick={stopChange} className="bg-white d-flex flex-column gap-3 container h-75 w-75 overflow-auto p-4 rounded shadow">
+      <div className="h-100 w-50 d-flex justify-content-center flex-column">
+        <div className="bg-white d-flex flex-column gap-3 container h-75 w-75 overflow-auto p-4 rounded shadow">
           <div className="w-100 p-3 bg-light border border-gray rounded">
             <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Dados do cliente</h2>
             <CustomForm
@@ -47,8 +43,8 @@ export default function Register({setOpenRegister}: IRegisterConfiguration) {
             />
           </div>
         </div>
-        <div onClick={stopChange} className="d-flex align-items-center justify-content-center gap-3 w-100 mt-3">
-          <button className="btn color-gipp">
+        <div className="d-flex align-items-center justify-content-center gap-3 w-100 mt-3">
+          <button className="btn color-gipp" onClick={() => console.log(apiData)}>
             Inserir
           </button>
           <button className="btn color-gipp">
