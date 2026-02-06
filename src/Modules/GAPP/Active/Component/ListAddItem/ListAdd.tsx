@@ -1,8 +1,6 @@
 import { IListAdd } from "../../Interfaces/Interfaces"
 
-/** 
-    Esse componente tem como objetivo de fazer um adicional de itens na lista para ser salvo no sistema.
-*/
+/** Esse componente tem como objetivo de fazer um adicional de itens na lista para ser salvo no sistema.*/
 export default function ListAdd ({newItemText, setNewItemText, addItem, activeValues, removeItem}: IListAdd) {
     return (
         <div className="mb-4 p-3 border rounded bg-light">

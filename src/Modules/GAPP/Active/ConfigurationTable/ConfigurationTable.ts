@@ -1,9 +1,4 @@
 // ==============================
-// Colunas que ficarão escondidas
-
-import { Active } from "../Interfaces/Interfaces";
-
-// ==============================
 export const listColumnsOcult = [
   "number_nf",
   "photo",
