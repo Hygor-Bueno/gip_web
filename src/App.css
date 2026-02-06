@@ -194,6 +194,14 @@ label, h1 {
   transition: background-color 0.2s;
 }
 
+.table-epp-default {
+  height: 85vh;
+}
+
+.modal-top {
+  z-index: 1;
+}
+
 .color-gipp:active {
   background-color: #6e7c4f;
 }

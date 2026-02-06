@@ -20,6 +20,8 @@ import ProfileGIPP from './Modules/ProfileGIPP/ProfileGIPP';
 import Gepp from './Modules/GEPP/Gepp';
 import CreateTheme from './Modules/GTPP/CreateTheme/CreateTheme';
 import Active from './Modules/GAPP/Active/Active';
+import EPP from './Modules/EPP/Epp';
+import EppMain from './Modules/EPP_V2/Epp';
 
 function App() {
   function withProvider(component: JSX.Element) {
@@ -46,6 +48,7 @@ function App() {
         <Routes>
           <Route path="/" element={withProvider(<Login />)} />
           <Route path="/GIPP" element={withPrivateProvider(<Home />)} />
+          <Route path="/GIPP/EPP" element={withPrivateProvider(<EppMain />)} />
           <Route path="/GIPP/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
           <Route path="/GIPP/GTPP/create/theme" element={withPrivateProvider(<GtppWsProvider><CreateTheme /></GtppWsProvider>)} />
           <Route path="/GIPP/CFPP" element={withPrivateProvider(<Cfpp />)} />

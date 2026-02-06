@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import NavBar from '../../Components/NavBar';
-import { listPathEPP } from '../GTPP/mock/configurationfile';
 import ScreenClient from './ScreenClient/ScreenClient';
 import TableClient from './TableClient/TableClient';
+import { listPathEPP } from '../EPP_V2/Navigation/Navigation';
 
 const EPP: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
