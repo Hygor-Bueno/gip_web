@@ -309,12 +309,9 @@ const TaskExporter: React.FC<TaskExporterProps> = ({ data }) => {
           aria-label="Gerar PDF"
         >
           {loading === 'pdf' ? (
-            <>
-              <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: '8px' }}>
-                Loading
-              </span>
+            <React.Fragment>
               Gerando PDF...
-            </>
+            </React.Fragment>
           ) : (
             'Gerar PDF'
           )}
