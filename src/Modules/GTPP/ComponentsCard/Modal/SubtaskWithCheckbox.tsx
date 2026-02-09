@@ -3,7 +3,7 @@ import { InputCheckbox } from "../../../../Components/CustomForm";
 import { SubTasksWithCheckboxProps } from "./Types";
 import { useWebSocket } from "../../Context/GtppWsContext";
 import ButtonIcon from "../Button/ButtonIcon/btnicon";
-import AnexoImage from "../../../../Components/AttachmentFile";
+import AnexoImage from "../../../../Components/Attachment/AttachmentFile";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import ModalEditTask from "./ModalEditTask";

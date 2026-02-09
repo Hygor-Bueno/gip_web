@@ -10,7 +10,7 @@ import { fieldsetFormTheme, fieldsetFormThemeUpdate } from "./Fieldset/Fiedset";
 import { DateConverter } from "../Class/DataConvert";
 
 function CreateTheme() {
-  const { themeList, setThemeList, getTask, setGetTask } = useWebSocket();
+  const { themeList, setThemeList, getTask, setGetTask, loadTasks } = useWebSocket();
   const { fetchData } = useConnection();
 
   const [openMenu, setOpenMenu] = useState(true);
@@ -127,6 +127,7 @@ function CreateTheme() {
       setThemeId(0);
       setShowModal(false);
       setDescription("");
+      loadTasks();
     }
   };
 
@@ -171,6 +172,8 @@ function CreateTheme() {
             )
         );
       }
+      
+      loadTasks();
     }
 
     setSelectedTasks([]);
@@ -196,15 +199,13 @@ function CreateTheme() {
           }[]) =>
             prev.map(task =>
               task.id === value.id.value
-                ? {
-                    ...task,
-                    theme_id_fk: null,
-                    description_theme: null
-                  }
+                ? { ...task, theme_id_fk: null, description_theme: null }
                 : task
             )
         );
       }
+
+      loadTasks();
     }
 
     setSelectedTasks([]);

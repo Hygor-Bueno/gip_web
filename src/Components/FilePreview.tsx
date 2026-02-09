@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { handleNotification, IMAGE_WEBP_QUALITY } from '../Util/Util';
+import { isMobileDevice } from './Attachment/utils/fileValidation';
 
 interface FilePreviewProps {
   base64File: string; // Base64 completo, incluindo o prefixo
@@ -33,7 +34,7 @@ export default function FilePreview(props: FilePreviewProps) {
 
         ctx.drawImage(img, 0, 0);
         try {
-          const webpDataUrl = canvas.toDataURL("image/webp", IMAGE_WEBP_QUALITY); // qualidade alta
+          const webpDataUrl = canvas.toDataURL("image/webp", IMAGE_WEBP_QUALITY);
           resolve(webpDataUrl);
         } catch (error) {
           reject("Erro ao converter para WebP: " + error);
@@ -163,22 +164,41 @@ export default function FilePreview(props: FilePreviewProps) {
       );
     }
 
-    // PDF com blob URL
+    // PDF
     if (fileType === 'application/pdf' && blobUrl) {
+      const isMobile = isMobileDevice();
+
+      // 📱 Mobile: abre em nova aba (ou download)
+      if (isMobile) {
+        return (
+          <div style={{ textAlign: 'center' }}>
+            <button
+              className="btn btn-danger btn-lg"
+              onClick={() => window.open(blobUrl, '_blank')}
+            >
+              📄 Abrir PDF
+            </button>
+          </div>
+        );
+      }
+
+      // 💻 Desktop: preview normal em iframe
       return (
         <div style={{ textAlign: 'center' }}>
           <iframe
             src={blobUrl}
             title="Pré-visualização de PDF"
-            style={{ 
-              width: '100%', 
-              height: '60vh', 
-              border: 'none' 
-            }} />
-          <br />
+            style={{
+              width: '100%',
+              height: '60vh',
+              border: 'none'
+            }}
+          />
         </div>
       );
     }
+
+
 
     // --- Botão estilizado para todos os arquivos não visualizáveis ---
     const fileTypeStyles = {

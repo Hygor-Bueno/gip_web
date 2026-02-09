@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AttachmentFile from "../../../Components/AttachmentFile";
+import AttachmentFile from "../../../Components/Attachment/AttachmentFile";
 import SendMessage from "../Class/SendMessage";
 import { useWebSocket } from "../../../Context/WsContext";
 import { useMyContext } from "../../../Context/MainContext";

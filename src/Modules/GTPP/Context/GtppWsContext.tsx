@@ -520,7 +520,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    */
   async function checkedItem(id: number, checked: boolean, idTask: any, taskLocal: any, yes_no?: number) {
     try {
-      setLoading(true);
       const item = yes_no ? { id: parseInt(id.toString()), task_id: idTask.toString(), yes_no: parseInt(yes_no.toString()) } : { check: checked, id: id, task_id: idTask };
       let result: { error: boolean, data?: any, message?: string } = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" }) || { error: false };
       if (result.error) throw new Error(result.message);
@@ -531,8 +530,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       infSenCheckItem(taskLocal, result.data);
     } catch (error) {
       console.error(`Erro ao marcar/desmarcar item ${id}: ${error}`);
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -1068,8 +1065,16 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * @function
    * @param {any} object - Dados do item a ser adicionado.
    */
+  // function reloadPageAddItem(object: any) {
+  //   taskDetails.data?.task_item.push(object.itemUp);
+  //   setTaskDetails({ ...taskDetails });
+  //   reloadPagePercent(object, object.itemUp);
+  // }
+
   function reloadPageAddItem(object: any) {
-    taskDetails.data?.task_item.push(object.itemUp);
+    if(!taskDetails.data) return;
+    if(!Array.isArray(taskDetails.data.task_item)) taskDetails.data.task_item = [] as any;
+    taskDetails.data?.task_item?.push(object.itemUp);
     setTaskDetails({ ...taskDetails });
     reloadPagePercent(object, object.itemUp);
   }
@@ -1092,8 +1097,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    */
   function itemUp(value: any) {
     taskDetails.data?.task_item.forEach((element, index) => {
-      if (taskDetails.data && element.id == value.itemUp.id)
-        taskDetails.data.task_item[index] = value.itemUp;
+      if (taskDetails.data && element.id == value.itemUp.id) taskDetails.data.task_item[index] = value.itemUp;
     });
     setTaskDetails({ ...taskDetails });
     reloadPagePercent(value, value.itemUp);

@@ -220,6 +220,36 @@ label, h1 {
   background-color: var(--vSecondaryColor);
 }
 
+.file-dropzone {
+  min-height: 160px;          /* tamanho fixo */
+  padding: 16px;              /* nunca muda */
+  border: 2px dashed #ccc;    /* espessura fixa */
+  border-radius: 8px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  background-color: #fff;
+
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.file-dropzone {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 480px;   /* ou o tamanho do seu layout */
+  min-width: 480px;   /* trava o tamanho visual */
+}
+
+.file-dropzone[data-dragging="false"] {
+  background-color: #f5f9ff;
+  box-shadow: 0 0 0 2px #0d6efd inset; /* highlight sem mudar tamanho */
+}
+
+
 .StructureModal {
   display: flex;
   align-items: center;

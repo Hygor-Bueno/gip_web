@@ -2,6 +2,7 @@ import React, { Dispatch, MouseEvent, SetStateAction } from "react";
 import CustomForm from "../../../Components/CustomForm";
 import CustomTable from "../../../Components/CustomTable";
 import { CustomButton } from "../../../Components/CustomButton";
+import { useWebSocket } from "../Context/GtppWsContext";
 
 interface ContentDefaultProps {
   getButtonTitle: () => string;

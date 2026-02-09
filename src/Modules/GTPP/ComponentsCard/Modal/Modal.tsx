@@ -10,7 +10,7 @@ import SelectTaskItem from "./SelectTaskItem";
 import { useWebSocket } from "../../Context/GtppWsContext";
 import MessageModal from "../ModalMessage/messagemodal";
 import ButtonIcon from "../Button/ButtonIcon/btnicon";
-import AttachmentFile from "../../../../Components/AttachmentFile";
+import AttachmentFile from "../../../../Components/Attachment/AttachmentFile";
 import "./style.css";
 import { handleNotification } from "../../../../Util/Util";
 
