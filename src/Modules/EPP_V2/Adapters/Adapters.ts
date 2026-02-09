@@ -1,5 +1,5 @@
 import { fetchDataFull } from "../../../Util/Util";
-import { FetchConfig } from "../Interfaces/IAdapters/IAdapters.interface";
+import { FetchConfig } from "../Interfaces/IAdapters.interface";
 
 
 function fetchGet({ pathFile, urlComplement = "" }: FetchConfig) {

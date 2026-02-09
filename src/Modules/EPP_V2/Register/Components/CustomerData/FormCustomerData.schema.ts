@@ -1,8 +1,8 @@
+import { IOrder } from "../../../Interfaces/IOrder.interface";
+
 export const formCustomerData = (
-  values: any = {},
+  values: IOrder,
   optionStatus: { label: string; value: string }[] = [],
-  optionTipo: { label: string; value: string }[] = [],
-  optionOutra: { label: string; value: string }[] = [],
   onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void
 ) => [
   {
@@ -13,7 +13,7 @@ export const formCustomerData = (
         className: "form-control",
         type: "number",
         name: "codigo",
-        value: values.codigo ?? 1,
+        value: values.idOrder ?? 1,
         disabled: true,
         onChange
       }
@@ -28,7 +28,7 @@ export const formCustomerData = (
         className: "form-control",
         type: "text",
         name: "cliente",
-        value: values.cliente ?? "",
+        value: values.nameClient ?? "",
         placeholder: "Nome do cliente",
         onChange
       }
@@ -42,7 +42,7 @@ export const formCustomerData = (
         className: "form-control",
         type: "tel",
         name: "telefone",
-        value: values.telefone ?? "",
+        value: values.fone ?? "",
         placeholder: "(11) 99999-9999",
         onChange
       }
@@ -70,7 +70,7 @@ export const formCustomerData = (
         className: "form-control",
         type: "date",
         name: "data",
-        value: values.data ?? "",
+        value: values.dateOrder ?? "",
         onChange
       }
     }
@@ -83,8 +83,8 @@ export const formCustomerData = (
         className: "form-select",
         type: "select",
         name: "status",
-        value: values.status ?? "",
-        options: optionStatus,
+        value: values.delivered ?? "",
+        options: [{label: "pendente", values: "1"}, {label: "preparo", values: "2"}, {label: "entregue", values: "3"}],
         onChange
       }
     }

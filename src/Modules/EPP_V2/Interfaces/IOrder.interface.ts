@@ -1,0 +1,22 @@
+export interface IOrder {
+    idOrder: string,
+    fone: string | null,
+    email: string | null,
+    signalValue: string | null,
+    menu: string | null,
+    idMenu: string | null,
+    pluMenu: string | null,
+    typeRice: string | null,
+    description: string | null,
+    delivered: string | null,
+    dessert: string | null,
+    obs: string | null,
+    store: string | null,
+    nameClient: string | null,
+    dateOrder: string | null,
+    deliveryDate: string | null,
+    deliveryHour: string | null,
+    deliveryStore: string | null,
+    total: string,
+}
+

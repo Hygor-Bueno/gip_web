@@ -4,21 +4,19 @@ import NavBar from "../../Components/NavBar";
 import { listPathEPP } from "./Navigation/Navigation";
 import CustomTable from "../../Components/CustomTable";
 import { getAllEppOrder } from "./Adapters/Adapters";
-import { convertForTable } from "../../Util/Util";
-import { listColumnsOcult, renamedColumns } from "./Configuration/Configuration";
+import { convertForTable, convertForTable2 } from "../../Util/Util";
+import { behaviorColumns, columnSizes, listColumnsOcult, renamedColumns } from "./Configuration/Configuration";
 import { tItemTable } from "../../types/types";
+import { IOrder } from "./Interfaces/IOrder.interface";
+import { EppTableData } from "./Interfaces/General.interfaces";
 
 
-interface EppTableData {
-    order: any;
-}
+
 
 export default function EppMain() {
-    const [data, setData] = useState<[]>([]);
-
-    const [selected, setSelected] = useState<tItemTable[]>([]);
-
+    const [data, setData] = useState<IOrder[]>([]);
     const [modalData, setModalData] = useState<EppTableData | null>(null);
+    const [selected, setSelected] = useState<tItemTable[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -34,7 +32,6 @@ export default function EppMain() {
             if (orderRes.error) throw new Error(orderRes.message);
     
             setData(orderRes.data || []);
-
             setModalData({
               order: orderRes.data || []
             });
@@ -59,9 +56,11 @@ export default function EppMain() {
       }
      }, [])
 
-     const tableList = useMemo(() => convertForTable(data, {
+     const tableList = useMemo(() => convertForTable2(data, {
         ocultColumns: listColumnsOcult,
-        customTags: renamedColumns
+        customTags: renamedColumns,
+        customValue: behaviorColumns,
+        minWidths: columnSizes
       }), [data]);
 
     if (loading) return <div>Carregando...</div>;

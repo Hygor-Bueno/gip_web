@@ -1,14 +1,30 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CustomForm from "../../../Components/CustomForm";
 import { formCustomerData } from "./Components/CustomerData/FormCustomerData.schema";
 import { formOrderData } from "./Components/CustomerData/FormOrderData.schema";
 import { formDelivery } from "./Components/CustomerData/FormDeliveryData.schema";
+import { IRegisterConfiguration } from "../Interfaces/General.interfaces";
+import { buildOptions } from "../Helpers/Option.helper";
+import { IOrder } from "../Interfaces/IOrder.interface";
 
-export interface IRegisterConfiguration {
-  apiData: any;
-}
 
 export default function Register({apiData}: IRegisterConfiguration) {
+
+  const [ordersForm, setOrdersForm] = useState<Partial<IOrder> | any>({
+    delivered: "",
+  });
+
+  useEffect(() => {
+    if (apiData?.order) setOrdersForm(apiData.order[0]);
+  }, [apiData]);
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+    setOrdersForm((prev: any) => ({ ...prev,[name]: fieldValue }));
+  }
+
+  const options = useMemo(() => buildOptions(apiData), [apiData]);
 
   return (
     <React.Fragment>
@@ -19,7 +35,7 @@ export default function Register({apiData}: IRegisterConfiguration) {
             <CustomForm
               notButton={false}
               className="row g-3 mb-4"
-              fieldsets={formCustomerData()}
+              fieldsets={formCustomerData(ordersForm, options.delivered, handleChange)}
             />
           </div>
           <div className="w-100 p-3 bg-light border border-gray rounded">
