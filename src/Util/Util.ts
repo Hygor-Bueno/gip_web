@@ -333,22 +333,16 @@ export function convertForTable2<T extends Record<string, any>>(
 ): TableItem[] {
   return array.map((item) => {
     const tableItem: TableItem = {};
-
-    // Define as chaves a processar:
-    // - Se customTags existir, segue a ordem delas
-    // - Se não, segue as chaves originais
     const keysToProcess = options?.customTags
       ? Object.keys(options.customTags)
       : Object.keys(item);
 
-    // Inclui também qualquer coluna de ocultColumns que não esteja no customTags
     const allKeys = new Set<string>([
       ...keysToProcess,
       ...(options?.ocultColumns || []),
     ]);
 
     allKeys.forEach((key) => {
-      // Ignora se a chave não existir no item e não estiver em ocultColumns
       if (!(key in item) && !(options?.ocultColumns?.includes(key))) return;
 
       const rawValue = item[key];
@@ -360,7 +354,6 @@ export function convertForTable2<T extends Record<string, any>>(
       const isImage = options?.isImageKeys?.includes(key) ?? false;
       const ocultColumn = options?.ocultColumns?.includes(key) ?? false;
 
-      // 🎯 Min width configurável
       const minWidthCfg = options?.minWidths?.[key];
       const minWidth =
         typeof minWidthCfg === "number" ? `${minWidthCfg}px` : minWidthCfg;
