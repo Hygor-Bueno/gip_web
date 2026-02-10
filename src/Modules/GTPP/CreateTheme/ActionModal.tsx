@@ -6,7 +6,7 @@ interface ActionModalProps {
   isOpen?: boolean;
   onClose?: () => void;
   
-  itemName?: string;
+  itemName?: string | null;
   message?: string;
 
   onDelete?: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void> | void;

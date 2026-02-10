@@ -1,6 +1,7 @@
 import { MutableRefObject, RefObject } from "react";
 import WebSocketCLPP from "../Services/Websocket";
 import Contact from "../Class/Contact";
+import { ITheme } from "../Modules/GTPP/CreateTheme/ICreateTheme";
 
 export interface iUser {
     id: number;
@@ -85,7 +86,7 @@ export interface iGtppWsContextType {
     
     getUser?: any; // FX 02 - TIPAGEM OBRIGATORIA. - Jonatas
     setGetUser?: any; //FX - TIPAGEM OBRIGATORIA. WEBSOCKET
-    themeList?: any; // FX  - TIPAGEM OBRIGATORIA.
+    themeList?: ITheme[]; // FX  - TIPAGEM OBRIGATORIA.
     setThemeList: any; // FX - TIPAGEM OBRIGATORIA.
 
     getThemeListformations?: any;

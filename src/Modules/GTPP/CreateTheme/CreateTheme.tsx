@@ -8,33 +8,34 @@ import { ContentDefault } from "./ContentDefault";
 import { ActionModal } from "./ActionModal";
 import { fieldsetFormTheme, fieldsetFormThemeUpdate } from "./Fieldset/Fiedset";
 import { DateConverter } from "../Class/DataConvert";
+import { ISelectedTasks, ISelectItem } from "./ICreateTheme";
 
 function CreateTheme() {
-  const { themeList, setThemeList, getTask, setGetTask, loadTasks } = useWebSocket();
   const { fetchData } = useConnection();
+  const { themeList, setThemeList, getTask, setGetTask, loadTasks } = useWebSocket();
 
   const [openMenu, setOpenMenu] = useState(true);
   const [showListTask, setShowListTask] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState<string>("");
   const [themeId, setThemeId] = useState(0);
-  const [themeIdFk, setThemeIdFk] = useState("");
-  const [descTheme, setDescTheme] = useState<String>("");
+  const [themeIdFk, setThemeIdFk] = useState<string>("");
+  const [descTheme, setDescTheme] = useState<string>("");
 
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<ISelectItem | null>(null);
   const [selectedType, setSelectedType] = useState<"theme" | "task">("theme");
 
-  const [selectedTasks, setSelectedTasks] = useState<any[]>([]);
+  const [selectedTasks, setSelectedTasks] = useState<ISelectedTasks[]>([]);
 
   useEffect(() => {
     if (themeList && themeList.length > 0 && !themeIdFk) {
-      setThemeIdFk(themeList[0].id);
+      setThemeIdFk(themeList[0].id_theme);
     }
   }, [themeList, themeIdFk]);
 
   const formattedThemeList = useMemo(() => {
-    return themeList?.map((item: any) => ({
+    return themeList?.map((item) => ({
       id_theme: { value: String(item.id_theme), tag: "ID" },
       description_theme: { value: item.description_theme, tag: "Descrição" },
       user_id_fk: { value: item.user_id_fk, tag: "Usuário", ocultColumn: true },
@@ -42,7 +43,7 @@ function CreateTheme() {
   }, [themeList]);
 
   const formattedTaskList = useMemo(() => {
-    return getTask?.map((item: any) => {
+    return getTask?.map((item) => {
       return ({
       id: { value: String(item.id), tag: "Numero" },
       description: { value: item.description, tag: "Nome da Tarefa" },
@@ -78,8 +79,8 @@ function CreateTheme() {
 
     if (!response.error) {
       handleNotification("Sucesso!", response.message, "success");
-      setThemeList((prev: any[]) =>
-        prev.filter((theme) => theme.id_theme !== selectedItem.id_theme.value)
+      setThemeList((prev: any) =>
+        prev.filter((theme: any) => theme.id_theme !== selectedItem.id_theme.value)
       );
       setShowModal(false);
     }
@@ -141,10 +142,10 @@ function CreateTheme() {
     setShowModal(false);
   };
 
-  const onHandleSubmitTask = async (e:any) => {
+  const onHandleSubmitTask = async (e: any) => {
     e.preventDefault();
     if (selectedTasks.length === 0) return;
-    let captureError:any = []; 
+    let captureError = []; 
     for (const value of selectedTasks) {
       const response = await fetchData({
         method: "PUT",
@@ -179,7 +180,7 @@ function CreateTheme() {
     setSelectedTasks([]);
   };
 
-  const handleRemoveTheme = async (e:any) => {
+  const handleRemoveTheme = async (e: any) => {
     e.preventDefault();
     
     if (selectedTasks.length === 0) return;

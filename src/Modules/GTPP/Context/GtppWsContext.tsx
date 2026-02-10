@@ -8,6 +8,7 @@ import NotificationGTPP from "../Class/NotificationGTPP";
 import soundFile from "../../../Assets/Sounds/notify.mp3";
 import { useConnection } from "../../../Context/ConnContext";
 import { useNavigate } from "react-router-dom";
+import { ApiResponse, ITheme } from "../CreateTheme/ICreateTheme";
 
 /**
  * Contexto para gerenciar a conexão WebSocket e estados relacionados às tarefas no sistema GTPP.
@@ -81,7 +82,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * Lista de Temas(categorias) que poderemos visualisar.
    * Cada usuário vai ter seus temas separados por usuário.
    */
-  const [themeList, setThemeList] = useState<any>([]);
+  const [themeList, setThemeList] = useState<ITheme[]>([]);
 
   /**
    * Indica se o usuário atual possui privilégios de administrador.
@@ -265,10 +266,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * @function
    * @async
    */
-    async function getThemeListformations() {
+  async function getThemeListformations() {
     setLoading(true);
     try {
-      const response: any = await fetchData({method: "GET",pathFile: "GTPP/Theme.php", params: null, urlComplement: "&user_theme=1", exception: ["No data"]});
+      const response: ApiResponse<ITheme[]> = await fetchData({method: "GET",pathFile: "GTPP/Theme.php", params: null, urlComplement: "&user_theme=1", exception: ["No data"]});
       if (response.error) throw new Error(response.message || "Erro ao carregar temas");
       const themes = Array.isArray(response.data) ? response.data : [];
       updateThemeList(themes);
@@ -312,9 +313,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   /**
    * This updateTheme working with rendering data list theme.
    */
-  function updateThemeList(newList: any[]) {
+  function updateThemeList(newList: ITheme[]) {
     localStorage.gtppThemeList = JSON.stringify(newList);
-    setThemeList([...newList]);
+    setThemeList(newList);
   }
 
   /**

@@ -2,7 +2,6 @@ import React, { Dispatch, MouseEvent, SetStateAction } from "react";
 import CustomForm from "../../../Components/CustomForm";
 import CustomTable from "../../../Components/CustomTable";
 import { CustomButton } from "../../../Components/CustomButton";
-import { useWebSocket } from "../Context/GtppWsContext";
 
 interface ContentDefaultProps {
   getButtonTitle: () => string;
@@ -12,7 +11,7 @@ interface ContentDefaultProps {
   themeIdFk?: string | number;
   showListTask: boolean;
   
-  formattedList: [];
+  formattedList: any;
   fieldset: [createFieldset: unknown[], linkFieldset: unknown[]];
   onHandleSubmitForm: [
     onSubmitTheme: (e: MouseEvent<HTMLButtonElement>) => void,
@@ -20,11 +19,11 @@ interface ContentDefaultProps {
   ];
   
   setOpenMenu: Dispatch<SetStateAction<boolean>>;
-  setNumberTask?: Dispatch<SetStateAction<Number>>;
-  setThemeIdFk?: Dispatch<SetStateAction<Number>>;
+  setNumberTask?: Dispatch<SetStateAction<number>>;
+  setThemeIdFk?: Dispatch<SetStateAction<number>>;
   setShowListTask: Dispatch<SetStateAction<boolean>>;
   setSelectedTasks: Dispatch<SetStateAction<any[]>>;
-  getDescTheme: Dispatch<SetStateAction<String>>;
+  getDescTheme: Dispatch<SetStateAction<string>>;
   handleRemoveTheme: (selected: unknown) => void;
   handleConfirmList: (selected: unknown[]) => void;
 }

@@ -1,6 +1,7 @@
 import { Task } from "../../../Class/FileGenerator";
 import User from "../../../Class/User";
 import { iStates, iTaskReq } from "../../../Interface/iGIPP";
+import { ITheme } from "../CreateTheme/ICreateTheme";
 
 export default interface GtppMainProps {
   openMenu: boolean;
@@ -24,10 +25,7 @@ export default interface GtppMainProps {
   setOnSounds: (value: boolean) => void;
   selectedThemeIds: string;
   setSelectedThemeIds: React.Dispatch<React.SetStateAction<string>>;
-  themeList: Array<{
-    id_theme: string;
-    description_theme: string;
-  }>;
+  themeList: ITheme[] | undefined;
   idTheme: string;
   getIdTheme: React.Dispatch<React.SetStateAction<string>>;
   getTask: Task[];

@@ -1,4 +1,6 @@
-export function fieldsetFormTheme(themeId: any, description: string, setDescription: any) {
+import { ITheme } from "../ICreateTheme";
+
+export function fieldsetFormTheme(themeId: any, description: string, setDescription: React.Dispatch<React.SetStateAction<string>>) {
   return [
     ...(themeId > 0
       ? [
@@ -35,9 +37,9 @@ export function fieldsetFormTheme(themeId: any, description: string, setDescript
 
 export function fieldsetFormThemeUpdate(
   themeIdFk: string | number,
-  setThemeIdFk: React.Dispatch<React.SetStateAction<any>>,
-  setDescTheme: React.Dispatch<React.SetStateAction<any>>,
-  themeList: { id_theme: string | number; description_theme: string }[] | undefined
+  setThemeIdFk: React.Dispatch<React.SetStateAction<string>>,
+  setDescTheme: React.Dispatch<React.SetStateAction<string>>,
+  themeList: ITheme[] | undefined
 ) {
   const optionsTheme = themeList?.map((theme) => {
     return ({

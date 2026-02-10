@@ -51,8 +51,8 @@ export default function Gtpp(): JSX.Element {
     <React.Fragment>
       <FlowBoard
         openMenu={openMenu}
-        openFilterGolbal={openFilterGolbal}
         isHeader={isHeader}
+        openFilterGolbal={openFilterGolbal}
         userLog={userLog}
         listButtonInputs={listButtonInputs}
         openFilter={openFilter}
