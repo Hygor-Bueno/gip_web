@@ -7,7 +7,6 @@ import { IRegisterConfiguration } from "../Interfaces/General.interfaces";
 import { buildOptions } from "../Helpers/Option.helper";
 import { IOrder } from "../Interfaces/IOrder.interface";
 
-
 export default function Register({apiData}: IRegisterConfiguration) {
 
   const [ordersForm, setOrdersForm] = useState<Partial<IOrder> | any>({

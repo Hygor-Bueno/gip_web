@@ -84,14 +84,12 @@ export interface iGtppWsContextType {
     changeObservedForm: (taskId: number, subId: number, value: string, isObservetion: boolean) => void;
     setIsAdm: (value: any) => void;
     
-    getUser?: any; // FX 02 - TIPAGEM OBRIGATORIA. - Jonatas
-    setGetUser?: any; //FX - TIPAGEM OBRIGATORIA. WEBSOCKET
-    themeList?: ITheme[]; // FX  - TIPAGEM OBRIGATORIA.
-    setThemeList: any; // FX - TIPAGEM OBRIGATORIA.
-
+    getUser?: any;
+    setGetUser?: any;
+    themeList?: ITheme[];
+    setThemeList: any;
     getThemeListformations?: any;
-
-    updatedAddUserTaskItem: (item: { task_id: number, user_id: number, id: number }, x: any) => void; // { task_id: number, user_id: number, id: number }
+    updatedAddUserTaskItem: (item: { task_id: number, user_id: number, id: number }, x: any) => void;
 }
 export interface iStates {
     color: string,

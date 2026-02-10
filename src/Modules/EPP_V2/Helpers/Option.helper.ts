@@ -1,7 +1,5 @@
 import { IRegisterConfiguration } from "../Interfaces/General.interfaces";
 
-
-
 /** Esse build permite que constuimos os options de maneira organizada em uma unica função */
 export function buildOptions(apiData?: IRegisterConfiguration["apiData"]) {
   return {

@@ -41,7 +41,7 @@ export default function EppMain() {
         };
     
         loadAllData();
-      }, []);
+    }, []);
 
      const handleSelect = useCallback(async (item: tItemTable[]) => {
       setSelected(item);
@@ -70,11 +70,7 @@ export default function EppMain() {
                 <section className="d-flex align-items-center overflow-hidden p-2">
                     <Register apiData={modalData} />
                     <div className="flex-grow-1 h-100 overflow-auto">
-                        <CustomTable 
-                            list={tableList}
-                            onConfirmList={handleSelect}
-                            maxSelection={1}
-                        />
+                      <CustomTable list={tableList} onConfirmList={handleSelect} maxSelection={1} />
                     </div>
                 </section>
             </section>
