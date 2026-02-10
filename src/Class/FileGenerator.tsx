@@ -317,7 +317,7 @@ const TaskExporter: React.FC<TaskExporterProps> = ({ data }) => {
           )}
         </button>
 
-        <button
+        {/* <button
           onClick={generateCSV}
           disabled={loading === 'csv' || tasks.length === 0}
           style={{
@@ -346,7 +346,7 @@ const TaskExporter: React.FC<TaskExporterProps> = ({ data }) => {
           ) : (
             'Exportar Excel'
           )}
-        </button>
+        </button> */}
       </div>
 
       {tasks.length === 0 && (

@@ -7,11 +7,13 @@ import CardUser from "../../../CLPP/Components/CardUser";
 import NotificationBell from "../../../../Components/NotificationBell";
 import Cardregister from "../CardRegister/Cardregister";
 import ModalDefault from "../Modal/Modal";
-import PDFGenerator, { generateAndDownloadCSV } from "../../../../Class/FileGenerator";
+// import PDFGenerator, { generateAndDownloadCSV } from "../../../../Class/FileGenerator";
+import PDFGenerator from "../../../../Class/TaskExporter/TaskExporter";
 import { FilterPage } from "../Filter/FilterPage";
 import { InputCheckButton } from "../../../../Components/CustomButton";
 import GtppMainProps from "../../Interfaces/IGtppMainProps";
 import "./FlowBoard.css";
+import { generateAndDownloadCSV } from "../../../../Class/FileGenerator";
 
 export default function GtppMain(props: GtppMainProps) {
   function HeaderFilters() {
