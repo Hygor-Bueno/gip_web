@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, HTMLAttributes } from "react";
 import { useWebSocket } from "../Modules/GTPP/Context/GtppWsContext";
 
 export default function NotificationBell(props: { idTask?: number }): JSX.Element {
@@ -20,15 +20,17 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
     setCount(unique.length);
   }, [notifications, props.idTask]);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    
     const filtered = props.idTask
-      ? notifications.filter((item) => item.task_id === props.idTask)
-      : notifications;
-
+    ? notifications.filter((item) => item.task_id === props.idTask)
+    : notifications;
+    
     const uniqueFiltered = Array.from(new Map(filtered.map(item => [item.id, item])).values());
-
+    
     setFilteredNotifications(uniqueFiltered);
     setShowModal(true);
+    e.stopPropagation();
   };
 
   const handleClose = () => {
@@ -71,14 +73,15 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
           tabIndex={-1}
           role="dialog"
           style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <div className="modal-dialog modal-dialog-centered" role="document">
-            <div className="modal-content bg-dark text-white">
+          <div className="modal-dialog modal-dialog-centered" role="document" >
+            <div className="modal-content bg-light text-white">
               <div className="modal-header">
                 <h5 className="modal-title">Notificações</h5>
                 <button
                   type="button"
-                  className="btn-close btn-close-white"
+                  className="btn-close"
                   aria-label="Fechar"
                   onClick={handleClose}
                 ></button>
@@ -88,12 +91,12 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
                   <ul className="list-unstyled overflow-auto notification-container">
                     {filteredNotifications.map((n, i) => (
                       <li key={n.id ?? i} className="mb-2">
-                        <strong>{n.title}</strong> {n.message}
+                        <strong className="text-dark">{n.title}</strong> {n.message}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p>Sem notificações.</p>
+                  <p className="text-dark">Sem notificações.</p>
                 )}
               </div>
             </div>

@@ -60,6 +60,8 @@ export default function EppMain() {
         minWidths: columnSizes
       }), [data]);
 
+    console.log(selected);
+
     if (loading) return <div>Carregando...</div>;
     if (!data.length) return <div>Nenhum dado encontrado</div>;
 
