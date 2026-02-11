@@ -8,24 +8,7 @@ import { ContentDefault } from "./ContentDefault";
 import { ActionModal } from "./ActionModal";
 import { fieldsetFormTheme, fieldsetFormThemeUpdate } from "./Fieldset/Fiedset";
 import { DateConverter } from "../Class/DataConvert";
-import { ISelectedTasks, ISelectItem } from "./ICreateTheme";
-
-// Tipos básicos (ajuste se já tiver interfaces globais)
-interface ITheme {
-  id_theme: number | string;
-  description_theme: string;
-  user_id_fk?: string | number;
-}
-
-interface ITask {
-  id: number;
-  description: string;
-  initial_date: string;
-  final_date: string;
-  state_description: string;
-  theme_id_fk?: number | string | null;
-  description_theme?: string | null;
-}
+import { ISelectedTasks, ISelectItem, ITask, ITheme } from "./ICreateTheme";
 
 function CreateTheme() {
   const { fetchData } = useConnection();
@@ -50,10 +33,6 @@ function CreateTheme() {
       setThemeIdFk(String(themeList[0].id_theme));
     }
   }, [themeList, themeIdFk]);
-
-  // ================================
-  // 🔁 FUNÇÕES DE ATUALIZAÇÃO EM MEMÓRIA
-  // ================================
 
   // Insere ou atualiza tema na lista
   function upsertTheme(theme: ITheme) {
@@ -87,10 +66,6 @@ function CreateTheme() {
     );
   }
 
-  // ================================
-  // 📋 LISTAS FORMATADAS
-  // ================================
-
   const formattedThemeList = useMemo(() => {
     return (
       themeList?.map((item: ITheme) => ({
@@ -116,10 +91,6 @@ function CreateTheme() {
   }, [getTask]);
 
   const currentList = showListTask ? formattedTaskList : formattedThemeList;
-
-  // ================================
-  // 🧠 HANDLERS
-  // ================================
 
   const handleConfirmList = (selected: any[]) => {
     if (!selected[0]) {
@@ -245,10 +216,6 @@ function CreateTheme() {
   };
 
   const getButtonTitle = () => (themeId === 0 ? "Criar Tema" : "Atualizar Tema");
-
-  // ================================
-  // 🧩 RENDER
-  // ================================
 
   return (
     <React.Fragment>
