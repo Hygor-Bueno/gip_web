@@ -1,4 +1,4 @@
-import React, { Dispatch, MouseEvent, SetStateAction } from "react";
+import React, { Dispatch, MouseEvent, SetStateAction, useState } from "react";
 import CustomForm from "../../../Components/CustomForm";
 import CustomTable from "../../../Components/CustomTable";
 import { CustomButton } from "../../../Components/CustomButton";
@@ -15,7 +15,7 @@ interface ContentDefaultProps {
   fieldset: [createFieldset: unknown[], linkFieldset: unknown[]];
   onHandleSubmitForm: [
     onSubmitTheme: (e: MouseEvent<HTMLButtonElement>) => void,
-    onSubmitTask: (e: MouseEvent<HTMLButtonElement>) => void
+    onSubmitTask: (e: MouseEvent<HTMLButtonElement>, funcAss?: any) => void
   ];
   
   setOpenMenu: Dispatch<SetStateAction<boolean>>;
@@ -53,6 +53,8 @@ export const ContentDefault = React.memo(
     const [onSubmitTheme, onSubmitTask] = onHandleSubmitForm;
     const isEditingTheme = themeId > 0;
 
+    const [openModal, setOpenModal] = useState(false);
+
     return (
       <main id="creating-theme-section" className="container-fluid px-2 px-md-4">
         <header className="d-flex flex-wrap justify-content-between align-items-center gap-2 my-3">
@@ -83,21 +85,16 @@ export const ContentDefault = React.memo(
             </CustomButton>
           </div>
         </header>
-        <section className="row g-3">
-          <div className="col-12 col-md-4 col-lg-3">
-            <div className="card shadow-sm">
-              <div className="card-body">
-                {showListTask ? (
-                  <CustomForm
-                    fieldsets={fieldsetLink}
-                    onAction={onSubmitTask}
-                    titleButton="Vincular Tarefa"
-                    classButton="btn btn-success w-100"
-                  />
-                ) : (
+        <section className="row g-3 themeRelative">
+          {!showListTask && (
+            <div className="col-12 col-md-4 col-lg-3">
+              <div className="card shadow-sm">
+                <div className="card-body">
                   <CustomForm
                     fieldsets={fieldsetCreate}
-                    onAction={onSubmitTheme}
+                    onAction={(e) => {
+                      onSubmitTheme(e);
+                    }}
                     titleButton={getButtonTitle()}
                     classButton={
                       isEditingTheme
@@ -105,12 +102,24 @@ export const ContentDefault = React.memo(
                         : "btn btn-primary w-100"
                     }
                   />
-                )}
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="col-12 col-md-8 col-lg-9">
-            <div className={`card shadow-sm  h-100`}>
+            </div>)}
+            {openModal && (
+              <div className="themeModal" onClick={() => setOpenModal(false)}>
+                <div className="themeModalContent" onClick={(e) => e.stopPropagation()}>
+                  <CustomForm
+                    fieldsets={fieldsetLink}
+                    onAction={(e) => onSubmitTask(e, setOpenModal)}
+                    titleButton="Vincular Tarefa"
+                    classButton="btn btn-success w-100"
+                  />
+                </div>
+              </div>
+            )}
+
+          <div className={`col-12 col-md-8 col-lg-9 ${showListTask ? 'd-flex justify-content-center w-100' : ''}`}>
+            <div className={`card shadow-sm w-100 h-100`}>
               <div
                 className="card-body overflow-auto"
                 style={{ maxHeight: "75vh" }}
@@ -118,9 +127,9 @@ export const ContentDefault = React.memo(
                 {formattedList.length > 0 ? (
                   <CustomTable
                     list={formattedList}
-                    onConfirmList={handleConfirmList}
+                    onConfirmList={() => {setOpenModal(true)}}
                     {...(!showListTask && { maxSelection: 1 })}
-                    {...(showListTask && { hiddenButton: true })}
+                    {...(showListTask && { hiddenButton: false })}
                     onRowClick={
                       showListTask
                         ? (item: {description_theme: {value: string}, id: {value: string}}) => {

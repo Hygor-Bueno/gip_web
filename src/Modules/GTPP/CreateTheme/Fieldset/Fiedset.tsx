@@ -65,7 +65,7 @@ export function fieldsetFormThemeUpdate(
           },
           required: true,
           className: "form-select",                   
-          options: optionsTheme,
+          options: [{ label: "Selecione um valor", value: "" }, ...optionsTheme],
         },
       },
     },

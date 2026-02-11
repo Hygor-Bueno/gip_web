@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, Dispatch } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import NavBar from "../../../Components/NavBar";
 import { useWebSocket } from "../Context/GtppWsContext";
 import { useConnection } from "../../../Context/ConnContext";
@@ -10,62 +10,126 @@ import { fieldsetFormTheme, fieldsetFormThemeUpdate } from "./Fieldset/Fiedset";
 import { DateConverter } from "../Class/DataConvert";
 import { ISelectedTasks, ISelectItem } from "./ICreateTheme";
 
+// Tipos básicos (ajuste se já tiver interfaces globais)
+interface ITheme {
+  id_theme: number | string;
+  description_theme: string;
+  user_id_fk?: string | number;
+}
+
+interface ITask {
+  id: number;
+  description: string;
+  initial_date: string;
+  final_date: string;
+  state_description: string;
+  theme_id_fk?: number | string | null;
+  description_theme?: string | null;
+}
+
 function CreateTheme() {
   const { fetchData } = useConnection();
-  const { themeList, setThemeList, getTask, setGetTask, loadTasks } = useWebSocket();
+  const { themeList, setThemeList, getTask, setGetTask } = useWebSocket();
 
   const [openMenu, setOpenMenu] = useState(true);
   const [showListTask, setShowListTask] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
   const [description, setDescription] = useState<string>("");
-  const [themeId, setThemeId] = useState(0);
+  const [themeId, setThemeId] = useState<number>(0);
   const [themeIdFk, setThemeIdFk] = useState<string>("");
   const [descTheme, setDescTheme] = useState<string>("");
 
   const [selectedItem, setSelectedItem] = useState<ISelectItem | null>(null);
   const [selectedType, setSelectedType] = useState<"theme" | "task">("theme");
-
   const [selectedTasks, setSelectedTasks] = useState<ISelectedTasks[]>([]);
 
+  // Define tema inicial selecionado
   useEffect(() => {
     if (themeList && themeList.length > 0 && !themeIdFk) {
-      setThemeIdFk(themeList[0].id_theme);
+      setThemeIdFk(String(themeList[0].id_theme));
     }
   }, [themeList, themeIdFk]);
 
+  // ================================
+  // 🔁 FUNÇÕES DE ATUALIZAÇÃO EM MEMÓRIA
+  // ================================
+
+  // Insere ou atualiza tema na lista
+  function upsertTheme(theme: ITheme) {
+    setThemeList((prev: ITheme[]) => {
+      const exists = prev.some(t => String(t.id_theme) === String(theme.id_theme));
+      if (exists) {
+        return prev.map(t =>
+          String(t.id_theme) === String(theme.id_theme) ? { ...t, ...theme } : t
+        );
+      }
+      return [...prev, theme];
+    });
+  }
+
+  // Atualiza o tema de uma task em memória (tempo real)
+  function updateTaskTheme(
+    taskId: number,
+    themeId: number | string | null,
+    descriptionTheme: string | null
+  ) {
+    setGetTask((prev: ITask[]) =>
+      prev.map(task =>
+        task.id === taskId
+          ? {
+              ...task,
+              theme_id_fk: themeId,
+              description_theme: descriptionTheme
+            }
+          : task
+      )
+    );
+  }
+
+  // ================================
+  // 📋 LISTAS FORMATADAS
+  // ================================
+
   const formattedThemeList = useMemo(() => {
-    return themeList?.map((item) => ({
-      id_theme: { value: String(item.id_theme), tag: "ID" },
-      description_theme: { value: item.description_theme, tag: "Descrição" },
-      user_id_fk: { value: item.user_id_fk, tag: "Usuário", ocultColumn: true },
-    })) || [];
+    return (
+      themeList?.map((item: ITheme) => ({
+        id_theme: { value: String(item.id_theme), tag: "ID" },
+        description_theme: { value: item.description_theme, tag: "Descrição" },
+        user_id_fk: { value: String(item.user_id_fk ?? ""), tag: "Usuário", ocultColumn: true }
+      })) || []
+    );
   }, [themeList]);
 
   const formattedTaskList = useMemo(() => {
-    return getTask?.map((item) => {
-      return ({
-      id: { value: String(item.id), tag: "Numero" },
-      description: { value: item.description, tag: "Nome da Tarefa" },
-      initial_date: { value: DateConverter.formatDate(item.initial_date), tag: "Início" },
-      final_date: { value: DateConverter.formatDate(item.final_date), tag: "Fim" },
-      state_id: { value: item.state_description, tag: "Estado" },
-      theme_id_fk: {value: item.theme_id_fk, tag: "Tema", ocultColumn: true},
-      description_theme: {value: item.description_theme, tag: "Tema"}
-    })}) || [];
+    return (
+      getTask?.map((item: ITask) => ({
+        id: { value: String(item.id), tag: "Numero" },
+        description: { value: item.description, tag: "Nome da Tarefa" },
+        initial_date: { value: DateConverter.formatDate(item.initial_date), tag: "Início" },
+        final_date: { value: DateConverter.formatDate(item.final_date), tag: "Fim" },
+        state_id: { value: item.state_description, tag: "Estado" },
+        theme_id_fk: { value: String(item.theme_id_fk ?? ""), tag: "Tema", ocultColumn: true },
+        description_theme: { value: String(item.description_theme ?? ""), tag: "Tema" }
+      })) || []
+    );
   }, [getTask]);
 
   const currentList = showListTask ? formattedTaskList : formattedThemeList;
 
+  // ================================
+  // 🧠 HANDLERS
+  // ================================
+
   const handleConfirmList = (selected: any[]) => {
-      if (!selected[0]) {
-        setThemeId(0);
-        setDescription("");
-        return;
-      };
-      setSelectedItem(selected[0]);
-      setSelectedType(showListTask ? "task" : "theme");
-      setShowModal(true);
+    if (!selected[0]) {
+      setThemeId(0);
+      setDescription("");
+      return;
+    }
+    setSelectedItem(selected[0]);
+    setSelectedType(showListTask ? "task" : "theme");
+    setShowModal(true);
   };
 
   const handleDelete = async () => {
@@ -74,13 +138,13 @@ function CreateTheme() {
     const response = await fetchData({
       method: "DELETE",
       params: { id_theme: selectedItem.id_theme.value },
-      pathFile: "GTPP/Theme.php",
+      pathFile: "GTPP/Theme.php"
     });
 
     if (!response.error) {
       handleNotification("Sucesso!", response.message, "success");
-      setThemeList((prev: any) =>
-        prev.filter((theme: any) => theme.id_theme !== selectedItem.id_theme.value)
+      setThemeList((prev: ITheme[]) =>
+        prev.filter(theme => String(theme.id_theme) !== String(selectedItem.id_theme.value))
       );
       setShowModal(false);
     }
@@ -88,64 +152,60 @@ function CreateTheme() {
 
   const onHandleSubmitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
     if (!description.trim()) {
-      handleNotification( "Atenção!", "O campo de descrição é obrigatório.", "danger");
+      handleNotification("Atenção!", "O campo de descrição é obrigatório.", "danger");
       return;
     }
 
-    const params: {description_theme?: string, id_theme?: number}  = { description_theme: description };
+    const params: { description_theme: string; id_theme?: number } = {
+      description_theme: description
+    };
+
     const method: "POST" | "PUT" = themeId > 0 ? "PUT" : "POST";
     if (themeId > 0) params.id_theme = themeId;
 
     const response = await fetchData({
       method,
       params,
-      pathFile: "GTPP/Theme.php",
+      pathFile: "GTPP/Theme.php"
     });
 
     if (response && !response.error) {
+      const newId = response.data?.last_id || themeId;
+
+      const newItem: ITheme = {
+        id_theme: newId,
+        description_theme: description
+      };
+
+      upsertTheme(newItem);
+
       handleNotification(
         "Sucesso!",
         themeId > 0 ? "Tema atualizado" : "Tema criado",
         "success"
       );
 
-      const newItem = {
-        id_theme: response.data.last_id || themeId,
-        description_theme: description,
-      };
-
-      setThemeList((prev: any) => {
-        if (themeId > 0) {
-          return prev?.map((theme: any) =>
-            theme?.id_theme === themeId ? { ...theme, ...newItem } : theme
-          );
-        } else {
-          return [...prev, newItem];
-        }
-      });
-
       setThemeId(0);
       setShowModal(false);
       setDescription("");
-      loadTasks();
     }
   };
 
   const handleEdit = () => {
     if (!selectedItem) return;
     if (selectedType === "theme") {
-      setThemeId(selectedItem.id_theme.value);
+      setThemeId(Number(selectedItem.id_theme.value));
       setDescription(selectedItem.description_theme.value);
     }
-
     setShowModal(false);
   };
 
-  const onHandleSubmitTask = async (e: any) => {
+  const onHandleSubmitTask = async (e: any, funcAss?: any) => {
     e.preventDefault();
     if (selectedTasks.length === 0) return;
-    let captureError = []; 
+
     for (const value of selectedTasks) {
       const response = await fetchData({
         method: "PUT",
@@ -153,60 +213,31 @@ function CreateTheme() {
         pathFile: "GTPP/Task.php"
       });
 
-      captureError.push(response)
-
       if (!response.error) {
-        setGetTask(
-          (prev: {
-            id: number;
-            theme_id_fk?: number;
-            description_theme?: string;
-          }[]) =>
-            prev.map(task =>
-              task.id === value.id.value
-                ? {
-                    ...task,
-                    theme_id_fk: themeIdFk,
-                    description_theme: descTheme
-                  }
-                : task
-            )
-        );
+        updateTaskTheme(Number(value.id.value), themeIdFk, descTheme);
       }
-      
-      loadTasks();
     }
 
     setSelectedTasks([]);
+    funcAss(false);
+    handleNotification("Sucesso!", "Tarefas vinculadas ao tema", "success");
   };
 
   const handleRemoveTheme = async (e: any) => {
     e.preventDefault();
-    
+
     if (selectedTasks.length === 0) return;
+
     for (const value of selectedTasks) {
       const response = await fetchData({
         method: "PUT",
         params: { task_id: value.id.value, theme_id_fk: null },
-        pathFile: "GTPP/Task.php",
+        pathFile: "GTPP/Task.php"
       });
 
       if (!response.error) {
-        setGetTask(
-          (prev: {
-            id: number;
-            theme_id_fk?: number;
-            description_theme?: string;
-          }[]) =>
-            prev.map(task =>
-              task.id === value.id.value
-                ? { ...task, theme_id_fk: null, description_theme: null }
-                : task
-            )
-        );
+        updateTaskTheme(Number(value.id.value), null, null);
       }
-
-      loadTasks();
     }
 
     setSelectedTasks([]);
@@ -215,25 +246,44 @@ function CreateTheme() {
 
   const getButtonTitle = () => (themeId === 0 ? "Criar Tema" : "Atualizar Tema");
 
+  // ================================
+  // 🧩 RENDER
+  // ================================
+
   return (
     <React.Fragment>
       {openMenu && <NavBar list={listPath} />}
-      <ActionModal 
+
+      <ActionModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         itemName={selectedItem?.description_theme?.value || null}
-        message={!showListTask ? "Quais operações você deseja executar?" : "Deseja realmente desvincular esse tema a essa tarefa?"}
+        message={
+          !showListTask
+            ? "Quais operações você deseja executar?"
+            : "Deseja realmente desvincular esse tema dessa tarefa?"
+        }
         deleteText={!showListTask ? "Excluir" : "Desvincular"}
         editText={!showListTask ? "Editar" : "Cancelar"}
-        onEdit={() => !showListTask ? handleEdit() : setShowModal(false)}
-        onDelete={(e) => {!showListTask ?  handleDelete() : (<>{handleRemoveTheme(e)}{setShowModal(false)}</>)}}
+        onEdit={() => (!showListTask ? handleEdit() : setShowModal(false))}
+        onDelete={(e) => {
+          if (!showListTask) handleDelete();
+          else {
+            handleRemoveTheme(e);
+            setShowModal(false);
+          }
+        }}
       />
+
       <ContentDefault
         openMenu={openMenu}
         themeId={themeId}
         formattedList={currentList}
         showListTask={showListTask}
-        fieldset={[fieldsetFormTheme(themeId, description, setDescription),fieldsetFormThemeUpdate(themeIdFk, setThemeIdFk, setDescTheme, themeList)]}
+        fieldset={[
+          fieldsetFormTheme(themeId, description, setDescription),
+          fieldsetFormThemeUpdate(themeIdFk, setThemeIdFk, setDescTheme, themeList)
+        ]}
         setSelectedTasks={setSelectedTasks}
         setOpenMenu={setOpenMenu}
         getButtonTitle={getButtonTitle}
