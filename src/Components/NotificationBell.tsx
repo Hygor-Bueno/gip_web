@@ -88,12 +88,15 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
               </div>
               <div className="modal-body">
                 {filteredNotifications.length > 0 ? (
-                  <ul className="list-unstyled overflow-auto notification-container">
-                    {filteredNotifications.map((n, i) => (
-                      <li key={n.id ?? i} className="mb-2">
-                        <strong className="text-dark">{n.title}</strong> {n.message}
-                      </li>
-                    ))}
+                  <ul className="overflow-auto notification-container"> {/* list-unstyled */}
+                    {filteredNotifications.map((n, i) => {
+                      console.log(n);
+                      return (
+                        <li key={n.id ?? i} className="mb-2">
+                          <strong className="text-dark">{n.title}</strong> <label className="text-dark">{n.message}</label>
+                        </li>
+                      )
+                    })}
                   </ul>
                 ) : (
                   <p className="text-dark">Sem notificações.</p>

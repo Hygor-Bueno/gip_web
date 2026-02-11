@@ -16,6 +16,34 @@ export interface iUser {
     session?: string;
 }
 
+export interface iUserDefaultClass {
+  // Propriedades públicas
+  photo: string;
+  shop: string;
+  departament: string;
+  sub: string;
+  CSDS: string;
+
+  // Getters / Setters (expostos como propriedades)
+  readonly id: number;
+
+  yourContact?: number;
+  notification?: number;
+  pendingMessage?: number;
+
+  name?: string;
+  company?: string;
+
+  administrator: number;
+  session: string;
+
+  // Métodos
+  loadInfo(isPhoto?: boolean): Promise<void>;
+  loadPhotos(): Promise<void>;
+  loadDetails(): Promise<void>;
+}
+
+
 export interface iContact {
     id: number;
     yourContact?: number;

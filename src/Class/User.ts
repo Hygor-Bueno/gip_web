@@ -1,7 +1,7 @@
-import { iUser } from "../Interface/iGIPP";
+import { iUser, iUserDefaultClass } from "../Interface/iGIPP";
 import { fetchDataFull } from "../Util/Util";
 
-export default class User {
+export default class User implements iUserDefaultClass {
     #id: number;
     #yourContact?: number;
     #notification?: number;

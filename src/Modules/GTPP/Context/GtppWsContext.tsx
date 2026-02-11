@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-import { CustomNotification, iGtppWsContextType, iStates, iTaskReq } from "../../../Interface/iGIPP";
+import { CustomNotification, iGtppWsContextType, iStates, iTaskReq, iUserDefaultClass } from "../../../Interface/iGIPP";
 import GtppWebSocket from "./GtppWebSocket";
 import { useMyContext } from "../../../Context/MainContext";
 import InformSending from "../Class/InformSending";
@@ -94,7 +94,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * Dados do usuário atual logado.
    * @type {[any, React.Dispatch<React.SetStateAction<any>>]}
    */
-  const [getUser, setGetUser] = useState<any>("");
+  const [getUser, setGetUser] = useState<iUserDefaultClass | null>(null);
 
   /**
    * Lista de vinculações de usuários às tarefas.

@@ -6,6 +6,7 @@ import User from "../../../../Class/User";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import { DateConverter } from "../../Class/DataConvert";
+import { iUser } from "../../../../Interface/iGIPP";
 
 interface HeaderModalProps {
   color: string;
