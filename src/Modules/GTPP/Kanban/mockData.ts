@@ -1,0 +1,60 @@
+import { ColumnType } from "./types";
+export const mockColumns: ColumnType[] = [
+  {
+    id: "todo",
+    title: "A Fazer",
+    cards: [
+      { id: "1", title: "Ajustar layout dashboard", description: "Atualizar grid e tipografia", priority: "medium", progress: 25, dueDate: "14 Fev" },
+      { id: "5", title: "Planejar campanha de Páscoa", priority: "high", progress: 0, dueDate: "18 Fev" },
+      { id: "6", title: "Atualizar preços fornecedores", priority: "medium", progress: 10, dueDate: "20 Fev" },
+      { id: "7", title: "Revisar política de descontos", priority: "low", progress: 0, dueDate: "22 Fev" },
+      { id: "8", title: "Auditoria loja 12", priority: "high", progress: 0, dueDate: "09 Fev" },
+      { id: "9", title: "Criar material treinamento", priority: "medium", progress: 15, dueDate: "25 Fev" },
+      { id: "10", title: "Ajustar permissões sistema", priority: "medium", progress: 5, dueDate: "17 Fev" },
+      { id: "11", title: "Atualizar cadastro produtos", priority: "low", progress: 0, dueDate: "28 Fev" },
+      { id: "12", title: "Revisar contratos TI", priority: "high", progress: 0, dueDate: "19 Fev" },
+      { id: "13", title: "Planejar inventário mensal", priority: "medium", progress: 20, dueDate: "21 Fev" },
+    ],
+  },
+  {
+    id: "doing",
+    title: "Em andamento",
+    cards: [
+      { id: "2", title: "Integração API estoque", priority: "high", progress: 65, dueDate: "10 Fev" },
+      { id: "14", title: "Automação relatório vendas", priority: "medium", progress: 40, dueDate: "13 Fev" },
+      { id: "15", title: "Redesign site institucional", priority: "medium", progress: 55, dueDate: "15 Fev" },
+      { id: "16", title: "Configuração novos terminais", priority: "high", progress: 70, dueDate: "12 Fev" },
+      { id: "17", title: "Treinamento operadores caixa", priority: "low", progress: 60, dueDate: "18 Fev" },
+      { id: "18", title: "Negociação logística", priority: "high", progress: 35, dueDate: "16 Fev" },
+      { id: "19", title: "Campanha redes sociais", priority: "medium", progress: 45, dueDate: "14 Fev" },
+      { id: "20", title: "Integração módulo fiscal", priority: "high", progress: 50, dueDate: "11 Fev" },
+      { id: "21", title: "Teste nova balança", priority: "low", progress: 30, dueDate: "19 Fev" },
+      { id: "22", title: "Ajuste performance banco", priority: "high", progress: 75, dueDate: "09 Fev" },
+    ],
+  },
+  {
+    id: "review",
+    title: "Validação",
+    cards: [
+      { id: "3", title: "Relatório financeiro", priority: "medium", progress: 90, dueDate: "08 Fev" },
+      { id: "23", title: "Manual de processos RH", priority: "medium", progress: 85, dueDate: "17 Fev" },
+      { id: "24", title: "Layout nova loja", priority: "low", progress: 80, dueDate: "19 Fev" },
+      { id: "25", title: "Relatório estoque geral", priority: "high", progress: 95, dueDate: "10 Fev" },
+      { id: "26", title: "Validação campanha marketing", priority: "medium", progress: 88, dueDate: "14 Fev" },
+      { id: "27", title: "Teste integração pagamentos", priority: "high", progress: 92, dueDate: "11 Fev" },
+    ],
+  },
+  {
+    id: "done",
+    title: "Concluído",
+    cards: [
+      { id: "4", title: "Atualização servidor", priority: "low", progress: 100, dueDate: "02 Fev" },
+      { id: "28", title: "Fechamento contábil janeiro", priority: "high", progress: 100, dueDate: "03 Fev" },
+      { id: "29", title: "Inventário loja 03", priority: "medium", progress: 100, dueDate: "04 Fev" },
+      { id: "30", title: "Pesquisa satisfação clientes", priority: "low", progress: 100, dueDate: "05 Fev" },
+      { id: "31", title: "Atualização antivírus", priority: "high", progress: 100, dueDate: "06 Fev" },
+      { id: "32", title: "Treinamento novos gerentes", priority: "medium", progress: 100, dueDate: "07 Fev" },
+      { id: "33", title: "Correção bug faturamento", priority: "high", progress: 100, dueDate: "08 Fev" },
+    ],
+  },
+];

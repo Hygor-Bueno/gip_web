@@ -20,6 +20,9 @@ import ProfileGIPP from './Modules/ProfileGIPP/ProfileGIPP';
 import Gepp from './Modules/GEPP/Gepp';
 import CreateTheme from './Modules/GTPP/CreateTheme/CreateTheme';
 import Active from './Modules/GAPP/Active/Active';
+import KanbanBoard from './Modules/GTPP/Kanban/KanbanBoard';
+import Board from './Modules/GTPP/Kanban/Board.kanban';
+import { mockColumns } from './Modules/GTPP/Kanban/mockData';
 
 function App() {
   function withProvider(component: JSX.Element) {
@@ -46,7 +49,8 @@ function App() {
         <Routes>
           <Route path="/" element={withProvider(<Login />)} />
           <Route path="/GIPP" element={withPrivateProvider(<Home />)} />
-          <Route path="/GIPP/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} />
+          {/* <Route path="/GIPP/GTPP" element={withPrivateProvider(<GtppWsProvider><Gtpp /></GtppWsProvider>)} /> */}
+          <Route path="/GIPP/GTPP" element={withPrivateProvider(<GtppWsProvider><Board columns={mockColumns} /></GtppWsProvider>)} />
           <Route path="/GIPP/GTPP/create/theme" element={withPrivateProvider(<GtppWsProvider><CreateTheme /></GtppWsProvider>)} />
           <Route path="/GIPP/CFPP" element={withPrivateProvider(<Cfpp />)} />
           <Route path='/GIPP/configuration/profile' element={withPrivateProvider(<ProfileGIPP />)} />
