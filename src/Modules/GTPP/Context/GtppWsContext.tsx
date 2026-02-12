@@ -394,7 +394,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   async function callbackOnMessage(event: any) {
     const response = JSON.parse(event.data);
     if (response.error || response.send_user_id == localStorage.codUserGIPP) {
-      return;
+      handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
+      setTimeout(() => {
+        navigate("/");
+        localStorage.removeItem("tokenGIPP");
+        localStorage.removeItem("codUserGIPP");
+      }, 5000);
     }
 
     updateNotification([response]);
