@@ -59,7 +59,7 @@ export const ContentDefault = React.memo(
 
     return (
       <main id="creating-theme-section" className="container-fluid px-2 px-md-4">
-        <header className="d-flex flex-wrap flex-column justify-content-between align-items-center gap-2 my-3">
+        <header className="d-flex flex-wrap theme-header-mobile justify-content-between align-items-center gap-2 my-3">
           <h5 className="mb-0 fw-bold">
             {showListTask ? "Vincular Tarefa ao Tema" : "Gerenciar Temas"}
           </h5>
