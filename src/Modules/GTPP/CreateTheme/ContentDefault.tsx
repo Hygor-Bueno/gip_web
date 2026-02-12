@@ -20,7 +20,7 @@ interface ContentDefaultProps {
   
   setOpenMenu: Dispatch<SetStateAction<boolean>>;
   setNumberTask?: Dispatch<SetStateAction<number>>;
-  setThemeIdFk?: Dispatch<SetStateAction<number>>;
+  setThemeIdFk?: any;
   setShowListTask: Dispatch<SetStateAction<boolean>>;
   setSelectedTasks: Dispatch<SetStateAction<any[]>>;
   getDescTheme: Dispatch<SetStateAction<string>>;
@@ -33,6 +33,8 @@ export const ContentDefault = React.memo(
     openMenu,
     setOpenMenu,
     themeId,
+
+    setThemeIdFk,
 
     fieldset,
     onHandleSubmitForm,
@@ -57,12 +59,12 @@ export const ContentDefault = React.memo(
 
     return (
       <main id="creating-theme-section" className="container-fluid px-2 px-md-4">
-        <header className="d-flex flex-wrap justify-content-between align-items-center gap-2 my-3">
+        <header className="d-flex flex-wrap flex-column justify-content-between align-items-center gap-2 my-3">
           <h5 className="mb-0 fw-bold">
             {showListTask ? "Vincular Tarefa ao Tema" : "Gerenciar Temas"}
           </h5>
 
-          <div className="d-flex gap-2 align-items-center d-flexr">
+          <div className="d-flex gap-2 align-items-center">
             {showListTask && (
               <CustomButton
                 className="btn btn-danger btn-sm"
@@ -85,7 +87,7 @@ export const ContentDefault = React.memo(
             </CustomButton>
           </div>
         </header>
-        <section className="row g-3 themeRelative">
+        <section className="row g-3">
           {!showListTask && (
             <div className="col-12 col-md-4 col-lg-3">
               <div className="card shadow-sm">
@@ -106,7 +108,7 @@ export const ContentDefault = React.memo(
               </div>
             </div>)}
             {openModal && (
-              <div className="themeModal" onClick={() => setOpenModal(false)}>
+              <div className="themeModal" onClick={() => {setOpenModal(false); setThemeIdFk("")}}>
                 <div className="themeModalContent" onClick={(e) => e.stopPropagation()}>
                   <CustomForm
                     fieldsets={fieldsetLink}
@@ -118,21 +120,26 @@ export const ContentDefault = React.memo(
               </div>
             )}
 
-          <div className={`col-12 col-md-8 col-lg-9 ${showListTask ? 'd-flex justify-content-center w-100' : ''}`}>
-            <div className={`card shadow-sm w-100 h-100`}>
-              <div
-                className="card-body overflow-auto"
-                style={{ maxHeight: "75vh" }}
-              >
+          <div className={`col-12 col-md-8 col-lg-9  overflow-hidden ${showListTask ? 'd-flex justify-content-center w-100' : ''}`}>
+            <div className={`card shadow-sm w-100 overflow-hidden`}>
+              <div className="card-body theme-table">
                 {formattedList.length > 0 ? (
                   <CustomTable
                     list={formattedList}
-                    onConfirmList={() => {setOpenModal(true)}}
+                    maxSelection={10}
+                    onConfirmList={(items) => {
+                      if(!showListTask) {
+                        handleConfirmList(items);
+                      } else {
+                        setSelectedTasks(items);
+                        setOpenModal(true);
+                      }
+                    }}
                     {...(!showListTask && { maxSelection: 1 })}
                     {...(showListTask && { hiddenButton: false })}
                     onRowClick={
                       showListTask
-                        ? (item: {description_theme: {value: string}, id: {value: string}}) => {
+                        ? (item: any) => {
                             if (item.description_theme) {
                               getDescTheme(item.description_theme.value);
                             }

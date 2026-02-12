@@ -20,6 +20,21 @@
   animation: slideUp 0.3s ease-out;
 }
 
+.theme-table {
+  max-height: 75vh;
+
+  @media screen and (max-width: 440px) {
+    div > div.w-100 {
+      flex-wrap: wrap;
+      justify-content: center;
+
+      button {
+        margin: 0 auto;
+      }
+    }
+  }
+}
+
 .action-modal-title {
   margin: 0 0 10px 0;
   font-size: 1.4rem;

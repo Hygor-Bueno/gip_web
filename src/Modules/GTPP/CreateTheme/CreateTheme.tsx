@@ -26,11 +26,14 @@ function CreateTheme() {
   const [selectedItem, setSelectedItem] = useState<ISelectItem | null>(null);
   const [selectedType, setSelectedType] = useState<"theme" | "task">("theme");
   const [selectedTasks, setSelectedTasks] = useState<ISelectedTasks[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const [selectionResetKey, setSelectionResetKey] = useState(0);
 
   // Define tema inicial selecionado
   useEffect(() => {
     if (themeList && themeList.length > 0 && !themeIdFk) {
-      setThemeIdFk(String(themeList[0].id_theme));
+      setThemeIdFk(String(themeList[0]));
     }
   }, [themeList, themeIdFk]);
 
@@ -173,47 +176,76 @@ function CreateTheme() {
     setShowModal(false);
   };
 
-  const onHandleSubmitTask = async (e: any, funcAss?: any) => {
-    e.preventDefault();
-    if (selectedTasks.length === 0) return;
-
-    for (const value of selectedTasks) {
-      const response = await fetchData({
-        method: "PUT",
-        params: { task_id: value.id.value, theme_id_fk: themeIdFk },
-        pathFile: "GTPP/Task.php"
-      });
-
-      if (!response.error) {
-        updateTaskTheme(Number(value.id.value), themeIdFk, descTheme);
-      }
-    }
-
-    setSelectedTasks([]);
-    funcAss(false);
-    handleNotification("Sucesso!", "Tarefas vinculadas ao tema", "success");
-  };
-
-  const handleRemoveTheme = async (e: any) => {
+  const onHandleSubmitTask = async (e: React.MouseEvent, funcAss?: (value: boolean) => boolean) => {
     e.preventDefault();
 
-    if (selectedTasks.length === 0) return;
-
-    for (const value of selectedTasks) {
-      const response = await fetchData({
-        method: "PUT",
-        params: { task_id: value.id.value, theme_id_fk: null },
-        pathFile: "GTPP/Task.php"
-      });
-
-      if (!response.error) {
-        updateTaskTheme(Number(value.id.value), null, null);
-      }
+    if (isProcessing) return;
+    if (selectedTasks.length === 0) {
+      alert("Seleção está vazia");
+      return;
     }
 
-    setSelectedTasks([]);
-    handleNotification("Sucesso!", "Tarefas desvinculadas", "success");
+    setIsProcessing(true);
+    
+    const tasksSnapshot = [...selectedTasks];
+    const uniqueTasks = tasksSnapshot.filter((task, index, self) => index === self.findIndex(t => t.id.value ===  task.id.value));
+
+    try {
+      const results = await Promise.all(
+        uniqueTasks.map(value =>
+          fetchData({
+            method: "PUT",
+            params: { task_id: value.id.value, theme_id_fk: themeIdFk },
+            pathFile: "GTPP/Task.php"
+          }).then(response => ({ response, value }))
+        )
+      );
+
+      for (const { response, value } of results) {
+        if (!response?.error) {
+          updateTaskTheme(Number(value.id.value), themeIdFk, descTheme);
+        }
+      }
+
+      setSelectedTasks([]);
+      results[0].response.error == false && handleNotification("Sucesso!", "Tarefas vinculadas ao tema", "success");
+    } finally {
+      setIsProcessing(false);
+      setThemeIdFk("");
+      funcAss?.(false);
+    }
   };
+
+  const handleRemoveTheme = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isProcessing) return;
+    if (selectedTasks.length === 0) return;
+    setIsProcessing(true);
+    const tasksSnapshot = [...selectedTasks];
+    const uniqueTasks = tasksSnapshot.filter((task, index, self) => index === self.findIndex(t => t.id.value ===  task.id.value));
+    try {
+      const results = await Promise.all(
+        uniqueTasks.map(value =>
+          fetchData({
+            method: "PUT",
+            params: { task_id: value.id.value, theme_id_fk: null },
+            pathFile: "GTPP/Task.php",
+          }).then(response => ({ response, value }))
+        )
+      );
+      for (const { response, value } of results) {
+        if (!response?.error) {
+          updateTaskTheme(Number(value.id.value), null, null);
+        }
+      }
+      setSelectedTasks([]);
+      setSelectionResetKey(prev => prev + 1);
+      results[0].response.error == false && handleNotification("Sucesso!", "Tarefas removidas do tema", "success");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
 
   const getButtonTitle = () => (themeId === 0 ? "Criar Tema" : "Atualizar Tema");
 
@@ -243,6 +275,7 @@ function CreateTheme() {
       />
 
       <ContentDefault
+        key={selectionResetKey}
         openMenu={openMenu}
         themeId={themeId}
         formattedList={currentList}
@@ -253,6 +286,7 @@ function CreateTheme() {
         ]}
         setSelectedTasks={setSelectedTasks}
         setOpenMenu={setOpenMenu}
+        setThemeIdFk={setThemeIdFk}
         getButtonTitle={getButtonTitle}
         setShowListTask={setShowListTask}
         onHandleSubmitForm={[onHandleSubmitForm, onHandleSubmitTask]}
