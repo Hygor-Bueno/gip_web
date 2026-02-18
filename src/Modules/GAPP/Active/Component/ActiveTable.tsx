@@ -7,6 +7,7 @@ import { convertForTable } from "../../../../Util/Util";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
 import { Active, ActiveTableData } from "../Interfaces/Interfaces";
 import { tItemTable } from "../../../../types/types";
+import ServicesBox from "./ServicesBox/ServicesBox";
 
 const ActiveTable: React.FC = () => {
   const [data, setData] = useState<Active[]>([]);
@@ -68,7 +69,6 @@ const ActiveTable: React.FC = () => {
 
   const handleSelect = useCallback(async (item: tItemTable[]) => {
     setSelected(item);
-    setOpenModal(true);
 
     if (!item || !item[0]?.active_id?.value) return;
 
@@ -79,6 +79,12 @@ const ActiveTable: React.FC = () => {
     } catch (error) {
       console.error("Erro ao buscar dados do veículo:", error);
     }
+  }, [data]);
+
+
+  const handleServicesBox = useCallback(async (item: tItemTable[]) => {
+    setOpenModal(true);
+    // handleSelect(item);
   }, [data]);
 
   const tableList = useMemo(() => convertForTable(data, {
@@ -94,13 +100,18 @@ const ActiveTable: React.FC = () => {
     <div className="p-2">
       <CustomTable
         list={tableList}
-        onConfirmList={handleSelect}
+        onConfirmList={handleServicesBox}
         maxSelection={1}
       />
 
-      {openModal && selected && modalData && (
-        <FormActive apiData={modalData} openModal={setOpenModal} />
+      {/* modal para escolher entre os serviços */}
+      {openModal && (
+        <ServicesBox setOpenModal={setOpenModal} />
       )}
+
+      {/* {openModal && selected && modalData && (
+        <FormActive apiData={modalData} openModal={setOpenModal} />
+      )} */}
     </div>
   );
 };

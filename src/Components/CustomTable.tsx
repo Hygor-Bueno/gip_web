@@ -232,7 +232,10 @@ export default function CustomTable(props: CustomTableProps) {
       </div>
       {!props.hiddenButton && (
         <div className="w-100 d-flex justify-content-between gap-4">
-          <button title={selectedRows.length > 0 ? "Confirmar seleção atual" : "Voltar para tela anterior"} className="btn btn-primary mt-3 w-25" onClick={() => { props.onConfirmList(selectedRows); setSelectedRows([]); }}>
+          <button title={selectedRows.length > 0 ? "Confirmar seleção atual" : "Voltar para tela anterior"} className="btn btn-primary mt-3 w-25" onClick={() => { 
+              props.onConfirmList(selectedRows);  
+              setSelectedRows([]);
+            }}>
             {selectedRows.length > 0 ? 'Confirmar Seleção' : 'Voltar'}
           </button>
           {
