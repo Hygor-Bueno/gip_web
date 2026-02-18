@@ -393,13 +393,18 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    */
   async function callbackOnMessage(event: any) {
     const response = JSON.parse(event.data);
-    if (response.error || response.send_user_id == localStorage.codUserGIPP) {
-      handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
-      setTimeout(() => {
-        navigate("/");
-        localStorage.removeItem("tokenGIPP");
-        localStorage.removeItem("codUserGIPP");
-      }, 5000);
+
+    // if (response.error || response.send_user_id == localStorage.codUserGIPP) {
+    //   handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
+    //   setTimeout(() => {
+    //     navigate("/");
+    //     localStorage.removeItem("tokenGIPP");
+    //     localStorage.removeItem("codUserGIPP");
+    //   }, 5000);
+    // }
+
+    if (response.send_user_id === userLog.id) {
+        return; 
     }
 
     updateNotification([response]);
@@ -685,7 +690,9 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       };
 
       if (taskDetails.data) {
-        Array.isArray(taskDetails.data?.task_item) ? taskDetails.data?.task_item.push(item) : taskDetails.data.task_item = [item];
+        Array.isArray(taskDetails.data?.task_item) ? 
+          taskDetails.data?.task_item.push(item) : 
+          taskDetails.data.task_item = [item];
       }
 
       ws.current.informSending({
@@ -698,6 +705,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         task_id,
         type: 2
       });
+
       setTaskDetails({ ...taskDetails });
       reloadPagePercent(response.data, { task_id: task_id });
 
@@ -1058,7 +1066,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * @param {any} object - Dados do item ou observação.
    */
   function reloadPageItem(object: any) {
-    console.log(object);
     if (object.itemUp) {
       reloadPageAddItem(object);
     } else {
