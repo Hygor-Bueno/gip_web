@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { CustomNotification, iGtppWsContextType, iStates, iTaskReq, iUserDefaultClass } from "../../../Interface/iGIPP";
 import GtppWebSocket from "./GtppWebSocket";
 import { useMyContext } from "../../../Context/MainContext";
@@ -388,28 +388,34 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   /**
-   * Processa mensagens recebidas do WebSocket com travas de segurança por ID.
-   * Garante que um usuário não veja dados de uma tarefa na qual não está focado.
+   * Processa mensagens recebidas do WebSocket.
+   * Filtra conflitos de sessão, evita duplicação visual de ações do próprio usuário
+   * e sincroniza o estado das tarefas em tempo real.
    */
   async function callbackOnMessage(event: any) {
     const response = JSON.parse(event.data);
-
-    // if (response.error || response.send_user_id == localStorage.codUserGIPP) {
-    //   handleNotification("Você será desconectado.", "Usuário logado em outro dispositivo!", "danger");
+    // 1. FILTRO DE LOGOUT: Verifica se o servidor enviou um erro de sessão duplicada
+    // if (response.error === true && response.message === "This user has been connected to another place") {
+    //   handleNotification("Atenção!", "Usuário logado em outro dispositivo! Você será desconectado.", "danger");
     //   setTimeout(() => {
-    //     navigate("/");
     //     localStorage.removeItem("tokenGIPP");
     //     localStorage.removeItem("codUserGIPP");
+    //     navigate("/");
     //   }, 5000);
+    //   return;
     // }
-
-    if (response.send_user_id === userLog.id) {
-        return; 
+    
+    // 2. FILTRO DE DUPLICAÇÃO: Ignora mensagens que você mesmo enviou.
+    const myId = userLog?.id || localStorage.codUserGIPP;
+    if (response.send_user_id && String(response.send_user_id) === String(myId)) {
+      return;
     }
 
+    // 3. ATUALIZAÇÃO DE NOTIFICAÇÕES (para mensagens de terceiros)
     updateNotification([response]);
-
     const isTargetingCurrentTask = task && task.id === response.task_id;
+
+    // 4. ATUALIZAÇÃO DE ESTADOS (TYPE 6: Mudança de Status/Percentual)
     if (response.type == 6) {
       if (isTargetingCurrentTask) {
         const updatedTask = {
@@ -421,7 +427,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
       await loadTasks();
     } 
-
+    // 5. ATUALIZAÇÃO DE ITENS (TYPE 2: Adição, Remoção, Vinculação de Usuário)
     else if (response.type == 2) {
       if (isTargetingCurrentTask && response.object) {
         if (response.object.isItemUp) {
@@ -435,7 +441,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
       }
     } 
-
+    // 6. FECHAMENTO DE CARDS E VINCULAÇÃO (TYPE -3 ou 5)
     else if (response.type == -3 || response.type == 5) {
       if (isTargetingCurrentTask && response.type == -3) {
         setOpenCardDefault(false);
@@ -443,6 +449,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
       await loadTasks();
     }
+    // 7. ATUALIZAÇÃO DE DESCRIÇÃO (TYPE 3)
     else if (response.type == 3) {
       if (isTargetingCurrentTask && response.object) {
         getDescription(response.object);
@@ -662,62 +669,62 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * @param {number} yes_no - Indicador de resposta sim/não.
    * @param {string} [file] - Arquivo associado ao item (opcional).
    */
-  async function handleAddTask(description: string, task_id: string, yes_no: number, file?: string) {
-    setLoading(true);
-    try {
-      const response: any = await fetchData({
-        method: "POST",
-        params: {
+  const handleAddTask = useCallback(async (description: string, task_id: string, yes_no: number, file?: string) => {
+      setLoading(true);
+      try {
+        const response: any = await fetchData({
+          method: "POST",
+          params: {
+            description: description,
+            file: file ? file : '',
+            task_id: task_id,
+            yes_no
+          },
+          pathFile: "GTPP/TaskItem.php"
+        });
+        if (response.error) throw new Error(response.message);
+
+        const item = {
+          id: response.data.last_id,
           description: description,
-          file: file ? file : '',
-          task_id: task_id,
-          yes_no
-        },
-        pathFile: "GTPP/TaskItem.php"
-      });
-      if (response.error) throw new Error(response.message);
+          check: false,
+          task_id: parseInt(task_id),
+          order: response.data.order,
+          created_by: response.data.created_by,
+          yes_no: response.data.yes_no,
+          file: file ? 1 : 0,
+          note: null
+        };
 
-      const item = {
-        id: response.data.last_id,
-        description: description,
-        check: false,
-        task_id: parseInt(task_id),
-        order: response.data.order,
-        created_by: response.data.created_by,
-        yes_no: response.data.yes_no,
-        file: file ? 1 : 0,
-        note: null
-      };
+        if (taskDetails.data) {
+          Array.isArray(taskDetails.data?.task_item) ? 
+            taskDetails.data?.task_item.push(item) : 
+            taskDetails.data.task_item = [item];
+        }
 
-      if (taskDetails.data) {
-        Array.isArray(taskDetails.data?.task_item) ? 
-          taskDetails.data?.task_item.push(item) : 
-          taskDetails.data.task_item = [item];
+        ws.current.informSending({
+          user_id: userLog,
+          object: {
+            description: "Novo item adicionado",
+            percent: response.data.percent,
+            itemUp: item,
+          },
+          task_id,
+          type: 2
+        });
+
+        setTaskDetails({ ...taskDetails });
+        reloadPagePercent(response.data, { task_id: task_id });
+
+        if (task.state_id != response.data.state_id) {
+          await verifyChangeState(response.data.state_id, task.state_id, { task_id: task.id }, response.data);
+        }
+      } catch (error: any) {
+        console.error(`Erro ao adicionar item à tarefa ${task_id}: ${error.message}`);
+      } finally {
+        setLoading(false);
       }
-
-      ws.current.informSending({
-        user_id: userLog,
-        object: {
-          description: "Novo item adicionado",
-          percent: response.data.percent,
-          itemUp: item,
-        },
-        task_id,
-        type: 2
-      });
-
-      setTaskDetails({ ...taskDetails });
-      reloadPagePercent(response.data, { task_id: task_id });
-
-      if (task.state_id != response.data.state_id) {
-        await verifyChangeState(response.data.state_id, task.state_id, { task_id: task.id }, response.data);
-      }
-    } catch (error: any) {
-      console.error(`Erro ao adicionar item à tarefa ${task_id}: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  }
+    },[fetchData, userLog, taskDetails]);
 
   /**
    * Atualiza a descrição completa de uma tarefa e notifica via WebSocket.
@@ -1109,10 +1116,19 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
    * @param {any} value - Dados do item atualizado.
    */
   function itemUp(value: any) {
-    taskDetails.data?.task_item.forEach((element, index) => {
-      if (taskDetails.data && element.id == value.itemUp.id) taskDetails.data.task_item[index] = value.itemUp;
-    });
-    setTaskDetails({ ...taskDetails });
+    // taskDetails.data?.task_item.forEach((element, index) => {
+    //   if (taskDetails.data && element.id == value.itemUp.id) taskDetails.data.task_item[index] = value.itemUp;
+    // });
+    // setTaskDetails({ ...taskDetails });
+    setTaskDetails((prev: any) => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        task_item: prev.data.task_item.map((item: any) => 
+          item.id === value.itemUp.id ? value.itemUp : item
+        )
+      }
+    }));
     reloadPagePercent(value, value.itemUp);
   }
 
