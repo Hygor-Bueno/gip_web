@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import ConfirmModal from "../../../../Components/CustomConfirm";
 import { useWebSocket } from "../../Context/GtppWsContext";
-import { useConnection } from "../../../../Context/ConnContext";
 import SocialCommentFeed from "./Comment.tsx/Comment";
 
 export default function ModalEditTask(props: any) {
@@ -22,56 +21,27 @@ export default function ModalEditTask(props: any) {
   const [msgConfirm, setMsgConfirm] = useState<{ title: string; message: string }>({ title: "", message: "" });
   const [isQuest, setIsQuest] = useState<boolean>(false);
 
-  // Estado de comentários centralizado no Modal
-  const [comment, setComment] = useState<{ isComment: boolean; data: any[] }>({
-    isComment: false,
-    data: []
-  });
-
-  const { updatedForQuestion, changeObservedForm } = useWebSocket();
-  const { fetchData } = useConnection();
-
-  /**
-   * Busca comentários na API.
-   * Usamos useCallback para que a função possa ser passada via props para o Feed
-   * sem causar re-renderizações infinitas.
-   */
-  const getComment = useCallback(async () => {
-    if (!editTask?.id) return;
-
-    try {
-      const response = await fetchData({
-        method: "GET",
-        params: null,
-        pathFile: 'GTPP/TaskItemResponse.php',
-        urlComplement: `&task_item_id=${editTask.id}`,
-        exception: ["No data"]
-      });
-
-      if (response && !response.error) {
-        setComment(prev => ({
-          ...prev,
-          data: Array.isArray(response.data) ? response.data : []
-        }));
-      } else {
-        setComment(prev => ({ ...prev, data: [] }));
-      }
-    } catch (error) {
-      console.error("Erro ao buscar comentários:", error);
-    }
-  }, [editTask?.id, fetchData]);
+  // Resgatando tudo do Contexto Global (WebSocket)
+  const { 
+    updatedForQuestion, 
+    changeObservedForm, 
+    comment, 
+    setComment, 
+    getComment 
+  } = useWebSocket();
 
   /**
    * Sincroniza os estados locais com a tarefa selecionada
+   * e dispara a busca de comentários via Contexto
    */
   useEffect(() => {
-    if (onEditTask && editTask) {
+    if (onEditTask && editTask?.id) {
       setDescription(editTask.description || "");
       setNote(editTask.note || "");
       setIsQuest(editTask.yes_no === 1 || editTask.yes_no === 2 || editTask.yes_no === 3);
       
-      // Carrega os comentários ao abrir o modal ou mudar de item
-      getComment();
+      // Busca os comentários globalmente
+      getComment(editTask.id);
     }
   }, [editTask?.id, onEditTask, getComment]);
 
@@ -96,8 +66,6 @@ export default function ModalEditTask(props: any) {
     setConfirm(false);
     setPendingAction(null);
   };
-
-  console.log(editTask);
 
   return (
     onEditTask && (
@@ -127,7 +95,7 @@ export default function ModalEditTask(props: any) {
         >
           <header className="d-flex flex-column w-100 border-bottom pb-2">
             <div className="d-flex align-items-center justify-content-between w-100">
-              <h4 className="m-0 fw-bold">Editar item da tarefa</h4>
+              <h4 className="m-0 fw-bold text-dark">Editar item da tarefa</h4>
               <button title="Fechar" onClick={onClose} className="btn btn-danger btn-sm rounded-circle">
                 <i className="text-white fa-solid fa-x fa p-1"></i>
               </button>
@@ -162,7 +130,7 @@ export default function ModalEditTask(props: any) {
                     setConfirm(true);
                   } else {
                     setIsObservation(false);
-                    setComment(prev => ({ ...prev, isComment: false }));
+                    setComment((prev: any) => ({ ...prev, isComment: false }));
                   }
                 }}
               >
@@ -178,7 +146,7 @@ export default function ModalEditTask(props: any) {
                     setConfirm(true);
                   } else {
                     setIsObservation(true);
-                    setComment(prev => ({ ...prev, isComment: false }));
+                    setComment((prev: any) => ({ ...prev, isComment: false }));
                   }
                 }}
               >
@@ -187,10 +155,10 @@ export default function ModalEditTask(props: any) {
 
               <button
                 className={`btn btn-sm ${comment.isComment ? "btn-primary" : "btn-light border"}`}
-                onClick={() => setComment(prev => ({ ...prev, isComment: !prev.isComment }))}
+                onClick={() => setComment((prev: any) => ({ ...prev, isComment: !prev.isComment }))}
               >
-                <i className="fa fa-solid fa-chat me-3"></i>
-                Comentários ({comment.data.filter((i: any) => i.status > 0).length})
+                <i className="fa fa-solid fa-comments me-2"></i>
+                Comentários ({comment.data?.filter((i: any) => i.status > 0).length || 0})
               </button>
             </div>
 
@@ -205,12 +173,12 @@ export default function ModalEditTask(props: any) {
                   placeholder={isObservation ? "Adicione observações detalhadas..." : "Descreva a tarefa..."}
                 />
               ) : (
-                <SocialCommentFeed
-                  userList={userList}
-                  initialComments={comment.data}
-                  editTask={editTask}
-                  onSubmit={getComment}
-                />
+                <React.Fragment>
+                  <SocialCommentFeed
+                    userList={userList}
+                    editTask={editTask}
+                  />
+                </React.Fragment>
               )}
             </div>
           </section>
@@ -225,7 +193,7 @@ export default function ModalEditTask(props: any) {
                 onClose();
               }}
             >
-              <i className="bi bi-check2-circle me-1"></i> Salvar
+              <i className="fa fa-solid fa-floppy-disk me-1"></i> Salvar
             </button>
           </footer>
         </div>

@@ -111,7 +111,15 @@ export interface iGtppWsContextType {
     stopAndToBackTask: (taskId: number, resource: string | null, date: string | null, taskList: any) => void;
     changeObservedForm: (taskId: number, subId: number, value: string, isObservetion: boolean) => void;
     setIsAdm: (value: any) => void;
-    
+    getComment: (taskItemId: number, count?: boolean) => void;
+    setComment: any;
+    deleteComment: any;
+    sendComment: any;
+    updateCommentCount: any;
+    getCountComment: any;
+
+
+    comment: any;
     getUser?: any;
     setGetUser?: any;
     themeList?: ITheme[];
@@ -143,7 +151,8 @@ export interface iTaskReq {
             creator_name?: string,
             created_at?: string,
             updated_at?: string,
-            updated_by?: number
+            updated_by?: number,
+            total_comment?: number,
         }],
         task_user: taskItem[]
     }

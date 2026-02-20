@@ -11,6 +11,7 @@ import { Image } from "react-bootstrap";
 import { convertImage, handleNotification } from "../../../../Util/Util";
 import imageUser from "../../../../Assets/Image/user.png";
 import ModalConfirm from "./ModalConfirm";
+import SocialCommentFeed from "./Comment.tsx/Comment";
 require('animate.css');
 
 interface iSubTask {
@@ -32,6 +33,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     deleteItemTaskWS,
     updateItemTaskFile,
     updatedAddUserTaskItem,
+    updateCommentCount,
+    getTaskInformations,
+    getComment,
     getUser    
   } = useWebSocket();
 
@@ -46,8 +50,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   const [isTrashDelete, setIsTrashDelete] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<any>(null);
 
-  const [authorData, setAuthorData] = useState<any>(null);
-
+  const [showChat, setShowChat] = useState(false);
 
   const [userState, setUserState] = useState({
     loadingList: { users: undefined, listTask: undefined } as { users?: any; listTask?: any },
@@ -62,6 +65,15 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     }
   }, [taskDetails, onScrollDown]);
 
+  // Atualiza os dados gerais da tarefa ao abrir
+  useEffect(() => {
+    if (task.id) {
+      getTaskInformations();
+    }
+  }, [task.id]);
+
+  // REMOVI AQUI O useEffect DUPLICADO DO getComment. O Chat cuida disso!
+
   const [subTask, setSubtask] = useState<iSubTask>({
     isObservable: false,
     isQuestion: false,
@@ -71,11 +83,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     openDialog: false
   });
 
-  // Hygor Bueno 23/10/2025
   function includeAuthorInList(listUser: any) {
-    // Garante que listUser é um array; se não for, cria um array vazio
     let list: any[] = Array.isArray(listUser) ? [...listUser] : [];
-
     if (listUser && listUser.length > 0) {
       const exists = list.some((item: any) => item.user_id === getUser.id);
       if (!exists) {
@@ -88,13 +97,11 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
         });
       }
     }
-
     return list;
   }
 
-   function getCompleteUserList(listUser: any) {
+  function getCompleteUserList(listUser: any) {
       let list: any[] = Array.isArray(listUser) ? [...listUser] : [];
-
       if (getUser && getUser.id) {
           const exists = list.some((item: any) => item.user_id === getUser.id);
           if (!exists) {
@@ -106,10 +113,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
               });
           }
       }
-      
       return list;
   }
-
 
   const ModalInformation = (props: any) => {
     return (
@@ -156,21 +161,20 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     return result;
   }
 
-  async function handleTrashDelete(task: any) {
-    
+  async function handleTrashDelete(taskItemObj: any) {
     try {
       setLoading(true);
-      if (task.id && task.task_id) {
+      if (taskItemObj.id && taskItemObj.task_id) {
         const result = await deleteTaskItem({
-          id: task.id,
-          task_id: task.task_id,
+          id: taskItemObj.id,
+          task_id: taskItemObj.task_id,
         });
         if (result.error) throw new Error(result.message);
-        removeItemOfList(task.id);
-        reloadPagePercent(result.data, task);
+        removeItemOfList(taskItemObj.id);
+        reloadPagePercent(result.data, taskItemObj);
         deleteItemTaskWS({
           description: "Um item foi removido.",
-          itemUp: task.id,
+          itemUp: taskItemObj.id,
           percent: parseInt(result.data.percent),
           remove: true,
         });
@@ -181,7 +185,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       setLoading(false);
     }
   }
-
 
   async function updatePositionTaskItem(item: { id: number, next_or_previous: "next" | "previous" }) {
     const value: { task_id: number, id: number, next_or_previous: "next" | "previous" } = { task_id: task.id, id: item.id, next_or_previous: item.next_or_previous };
@@ -219,36 +222,53 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                 </div>
                 <label className="ms-3 mb-0"><strong>{item.name}</strong></label>
               </div>
-            ))
-            )}
+            )))}
           </div>
         </div>
       )}
       <div>
+        {/* Renderiza o Chat dinamicamente usando a prop KEY para resetar */}
+        {showChat && (
+          <SocialCommentFeed 
+            key={editTask?.id} // ESSA CHAVE GARANTE QUE O CHAT SEJA NOVO A CADA TAREFA
+            userList={getCompleteUserList(props.details.data?.task_user)} 
+            editTask={editTask} 
+            onClose={() => setShowChat(false)} 
+          />
+        )}
+        
         <ModalEditTask userList={getCompleteUserList(props.details.data?.task_user)} onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
         <ModalConfirm isOpen={isTrashDelete} onCancel={async () => setIsTrashDelete(false)} onSave={async () => {
           await handleTrashDelete(taskToDelete);
           setIsTrashDelete(false);
         }} title="Atenção" children="Deseja apagar esse conteúdo?" cancelText="Voltar" saveText="Confirmar" />
-        {(taskDetails.data?.task_item || []).map((task, index: number) => {
-          const list = users?.find((item: { user_id: number }) => item?.user_id == task?.created_by);
+        
+        {/* Mudei "task" para "taskItem" no map para evitar conflito com o "task" global */}
+        {(taskDetails.data?.task_item || []).map((taskItem, index: number) => {
+          const list = users?.find((item: { user_id: number }) => item?.user_id == taskItem?.created_by);
           const creator = !isMissing(list?.name) ? list?.name : getUser.name;
           const assignedUser = includeAuthorInList(props.details.data?.task_user)?.find(
-            (user: any) => user.user_id === task.assigned_to
+            (user: any) => user.user_id === taskItem.assigned_to
           );
 
+          if (taskItem.id && taskItem.total_comment === undefined) {
+            updateCommentCount(Number(taskItem.id));
+          }
+
+          const total = Number(taskItem.total_comment) || 0;
+
           return (
-            <div key={task.id} className={`d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto ${userState.loadingList.listTask?.id == task.id ? 'border-mark' : ''}`}>
-              {(subTask.openDialog && subTask.idSubTask === task.id && task.note) && <ModalInformation onClose={closeObservation} task description={task.note} />}
-              {(task.id && positionTaskStates[task.id]) &&
+            <div key={taskItem.id} className={`d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto ${userState.loadingList.listTask?.id == taskItem.id ? 'border-mark' : ''}`}>
+              {(subTask.openDialog && subTask.idSubTask === taskItem.id && taskItem.note) && <ModalInformation onClose={closeObservation} task description={taskItem.note} />}
+              {(taskItem.id && positionTaskStates[taskItem.id]) &&
                 <div>
                   <button onClick={async () => {
-                    changePositionItem(false, task.id || 0);
-                    task.id && await updatePositionTaskItem({ id: task.id, next_or_previous: "previous" });
+                    changePositionItem(false, taskItem.id || 0);
+                    taskItem.id && await updatePositionTaskItem({ id: taskItem.id, next_or_previous: "previous" });
                   }} title="Subir uma posiçaõ" className="btn py-1 px-3 my-1 btn-outline-success fa-solid fa-arrow-up-long"></button>
                   <button onClick={async () => {
-                    changePositionItem(true, task.id || 0);
-                    task.id && await updatePositionTaskItem({ id: task.id, next_or_previous: "next" });
+                    changePositionItem(true, taskItem.id || 0);
+                    taskItem.id && await updatePositionTaskItem({ id: taskItem.id, next_or_previous: "next" });
                   }} title="Descer uma posição" className="btn py-1 px-3 my-1 btn-outline-danger fa-solid fa-arrow-down-long"></button>
                 </div>
               }
@@ -257,18 +277,18 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                   <div className="col-md-10 col-sm-9">
                     <div className="text-wrap text-break">
                       <InputCheckbox
-                        label={task.description}
-                        task={task}
+                        label={taskItem.description}
+                        task={taskItem}
                         onChange={checkedItem}
                         onPosition={() => {
-                          togglePositionTask(task.id || 0);
+                          togglePositionTask(taskItem.id || 0);
                           setOnScrollDown(!onScrollDown);
                         }}
-                        yesNo={task.yes_no || 0}
-                        checked={task.check || false}
+                        yesNo={taskItem.yes_no || 0}
+                        checked={taskItem.check || false}
                         key={index}
-                        id={(task.id || "0").toString()}
-                        order={task.order || 0}
+                        id={(taskItem.id || "0").toString()}
+                        order={taskItem.order || 0}
                       />
                     </div>
                   </div>
@@ -280,22 +300,22 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                             ...prev,
                             loadingList: {
                               users: props.details.data?.task_user,
-                              listTask: task
+                              listTask: taskItem
                             },
                             isListUser: true,
                             listUserBtn: { isGetTaskOrIncludeColaborator: false }
                           }));
                         } else {
                           const payload: any = {
-                            id: task.id,
-                            task_id: task.task_id,
-                            user_id: task.assigned_to == 0 ? userLog.id : task.assigned_to
+                            id: taskItem.id,
+                            task_id: taskItem.task_id,
+                            user_id: taskItem.assigned_to == 0 ? userLog.id : taskItem.assigned_to
                           }
                           await updatedAddUserTaskItem(payload, setUserState);
                         }
                       }}
                     >
-                      {Number(task?.assigned_to) > 0 && assignedUser ? (
+                      {Number(taskItem?.assigned_to) > 0 && assignedUser ? (
                         <Image
                           title={assignedUser.name}
                           src={convertImage(assignedUser.photo) || imageUser}
@@ -312,20 +332,50 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
 
                 <div className="row justify-content-between align-items-center">
                   <div className="col-sm-6">
-                    <i>
-                      <small className="text-secondary">
-                        Por: {task.created_by ? creator : getUser?.name}
-                      </small>
-                    </i>
+                    <div>
+                      <i>
+                        <small className="text-secondary">
+                          Por: {taskItem.created_by ? creator : getUser?.name}
+                        </small>
+                      </i>
+                    </div>
+                    
+                    {total > 0 && (
+                      <React.Fragment>
+                        <i 
+                          style={{
+                            padding: '10px',
+                            // backgroundColor: showChat ? 'rgba(108, 117, 125, 0.4)' : '', 
+                            // opacity: showChat ? 0.6 : 1,
+                            pointerEvents: showChat ? 'none' : 'auto',
+                            cursor: showChat ? 'not-allowed' : 'pointer',
+                            filter: showChat ? 'grayscale(100%)' : 'none',
+                            transition: 'all 0.2s ease-in-out',
+                            display: 'inline-block' 
+                          }} 
+                          className={`rounded ${showChat ? 'text-secondary' : 'text-primary'} fa-sm fa-solid fa-share animate__animated animate__fadeIn`}
+                          title={showChat ? "Feche o chat aberto para selecionar outro" : "Visualizar comentários"}
+                          onClick={() => {
+                            if (!showChat) {
+                              setEditTask(taskItem);
+                              setShowChat(true);
+                            }
+                          }}
+                        >
+                          <small className=""> {total} Comentários</small>
+                        </i>
+                      </React.Fragment>
+                    )}
+
                   </div>
                   <div className="col-sm-6 d-flex justify-content-end gap-2">
-                    {task.note && (
+                    {taskItem.note && (
                       <ButtonIcon
                         title="Visualizar observação"
                         color="primary"
                         icon="circle-info"
                         description=""
-                        onClick={() => closeObservation(task)}
+                        onClick={() => closeObservation(taskItem)}
                       />
                     )}
                     <ButtonIcon
@@ -334,7 +384,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                       icon="pencil"
                       description=""
                       onClick={() => {
-                        setEditTask(task);
+                        setEditTask(taskItem);
                         setOnEditTask(true);
                       }}
                     />
@@ -345,14 +395,14 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                       icon="trash"
                       description=""
                       onClick={() => {
-                        setTaskToDelete(task);
+                        setTaskToDelete(taskItem);
                         setIsTrashDelete(true);
                       }}
                     />
 
                     <AnexoImage
-                      item_id={task.id || 0}
-                      file={task.file || 0}
+                      item_id={taskItem.id || 0}
+                      file={taskItem.file || 0}
                       updateAttachmentFile={updateItemTaskFile}
                     />
                   </div>
@@ -364,8 +414,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       </div>
     </div>
   );
-  function closeObservation(task: any) {
-    setSubtask((prev) => ({ ...prev, idSubTask: task.id, openDialog: !prev.openDialog }));
+  function closeObservation(taskObj: any) {
+    setSubtask((prev) => ({ ...prev, idSubTask: taskObj.id, openDialog: !prev.openDialog }));
   }
 
   async function deleteTaskItem(item: { id: number; task_id: number }) {
