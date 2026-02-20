@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { fetchDataFull } from "../Util/Util";
+import { fetchDataFull, FetchDownload, formDataFetch } from "../Util/Util";
 import { ConnectionContextProps, iReqConn } from "../Interface/iConnection";
 
 
@@ -18,8 +18,33 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
             }
             return request
     };
+
+    const DataFetchForm = async (req: iReqConn) => {        
+            const request = await formDataFetch(req);
+            if(request.error && request.message){
+                const tokenExpired = request.message.toLowerCase().includes('authorization denied') || request.message.toLowerCase().includes('time expired token 24rs limit');
+                if(tokenExpired && isLogged){
+                    setIsLogged(false);
+                    localStorage.clear();
+                }
+            }
+            return request
+    };
+
+    const DownloadFile = async (req: iReqConn) => {        
+            const request = await FetchDownload(req);
+            if(request.error && request.message){
+                const tokenExpired = request.message.toLowerCase().includes('authorization denied') || request.message.toLowerCase().includes('time expired token 24rs limit');
+                if(tokenExpired && isLogged){
+                    setIsLogged(false);
+                    localStorage.clear();
+                }
+            }
+            return request
+    };
+
     return (
-        <ConnectionContext.Provider value={{ fetchData, isLogged, setIsLogged }} >
+        <ConnectionContext.Provider value={{ fetchData, isLogged, setIsLogged, DataFetchForm, DownloadFile }} >
             {children}
         </ConnectionContext.Provider>
     );

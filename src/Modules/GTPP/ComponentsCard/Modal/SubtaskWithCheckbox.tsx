@@ -46,6 +46,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   const [isTrashDelete, setIsTrashDelete] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<any>(null);
 
+  const [authorData, setAuthorData] = useState<any>(null);
+
 
   const [userState, setUserState] = useState({
     loadingList: { users: undefined, listTask: undefined } as { users?: any; listTask?: any },
@@ -88,6 +90,24 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     }
 
     return list;
+  }
+
+   function getCompleteUserList(listUser: any) {
+      let list: any[] = Array.isArray(listUser) ? [...listUser] : [];
+
+      if (getUser && getUser.id) {
+          const exists = list.some((item: any) => item.user_id === getUser.id);
+          if (!exists) {
+              list.push({
+                  user_id: getUser.id,
+                  name: getUser.name || "Autor",
+                  photo: getUser.photo,
+                  status: true
+              });
+          }
+      }
+      
+      return list;
   }
 
 
@@ -169,6 +189,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   }
   
   const assinatura = userState.loadingList?.listTask?.assigned_to;
+
   return (
     <div ref={containerTaskItemsRef} className="overflow-auto rounded flex-grow-1">
       {userState.isListUser && (
@@ -204,7 +225,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
         </div>
       )}
       <div>
-        <ModalEditTask onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
+        <ModalEditTask userList={getCompleteUserList(props.details.data?.task_user)} onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
         <ModalConfirm isOpen={isTrashDelete} onCancel={async () => setIsTrashDelete(false)} onSave={async () => {
           await handleTrashDelete(taskToDelete);
           setIsTrashDelete(false);
