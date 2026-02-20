@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useConnection } from '../../../../../Context/ConnContext';
-import { convertImage } from '../../../../../Util/Util'; // Importe sua função de conversão
+import { convertImage, handleNotification } from '../../../../../Util/Util'; // Importe sua função de conversão
 import imageUser from "../../../../../Assets/Image/user.png"; // Fallback caso não ache a foto
 
 interface CommentProps {
@@ -14,7 +14,8 @@ export default function SocialCommentFeed({ initialComments, userList, onSubmit,
   const [text, setText] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { DataFetchForm, DownloadFile } = useConnection();
+
+  const { DataFetchForm, DownloadFile, fetchData } = useConnection();
 
   const handleSend = async () => {
     if (!text.trim() && !selectedFile) return;
@@ -44,6 +45,21 @@ export default function SocialCommentFeed({ initialComments, userList, onSubmit,
     }
   };
 
+  const handleTrash = async (idToDelete: number) => {
+    const res = await fetchData({
+      method: "PUT",
+      params: {
+        id: idToDelete,
+        status: "0"
+      },
+      pathFile: 'GTPP/TaskItemResponse.php',
+    });
+
+    if(res.error) throw new Error("Error this component", {cause: "400"});
+
+    handleNotification("Apagado", res.message, "success");
+  }
+
   return (
     <div className="d-flex flex-column border rounded bg-white" style={{ height: '450px' }}>
       <div className="flex-grow-1 p-3 overflow-auto bg-light" style={{ backgroundImage: 'linear-gradient(#f0f2f5, #e5e7eb)' }}>
@@ -62,10 +78,16 @@ export default function SocialCommentFeed({ initialComments, userList, onSubmit,
                 style={{ width: '38px', height: '38px', objectFit: 'cover' }}
               />
               <div className="d-flex flex-column w-100">
-                <div className="bg-white p-2 px-3 rounded-4 shadow-sm border border-light" style={{ width: 'fit-content', maxWidth: '90%' }}>
-                  <span className="fw-bold d-block small text-primary">
-                    {localStorage.getItem('codUserGIPP') == item.user.id ? `Você` : userName}
-                  </span>
+                <div className="bg-white p-2 px-3 rounded-4 shadow-sm border border-light w-100" style={{ width: 'fit-content', maxWidth: '90%' }}>
+                  <div className='d-flex align-items-center justify-content-between w-100'>
+                    <span className="fw-bold d-block small text-primary">                  
+                      {localStorage.getItem('codUserGIPP') == item.user.id ? `Você` : userName}
+                    </span>
+                    <i onClick={() => {
+                      handleTrash(item.id);
+                    }} className='fa fa-solid fa-trash fa-sm d-block text-danger p-1 cursor-pointer'></i>
+                  </div>
+
                   <span className="small text-dark" style={{ whiteSpace: 'pre-wrap' }}>{item.comment}</span>
                   
                   {item.file && item.file.file_name && (
