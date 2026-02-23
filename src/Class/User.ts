@@ -113,6 +113,7 @@ export default class User implements iUserDefaultClass {
 
     async loadDetails(): Promise<void> {
         try {
+            if(this.#id == undefined ) return;
             const details: any = await fetchDataFull({method:"GET",params:null,pathFile:'CCPP/Employee.php',urlComplement:`&id=${this.#id}`});
             if (details.error && !details.message.includes('No data')) throw new Error(details.message);
             this.name = details.data[0]["name"];

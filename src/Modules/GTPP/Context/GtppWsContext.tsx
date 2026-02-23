@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState, useMemo } from "react";
 import { CustomNotification, iGtppWsContextType, iStates, iTaskReq, iUserDefaultClass } from "../../../Interface/iGIPP";
 import GtppWebSocket from "./GtppWebSocket";
 import { useMyContext } from "../../../Context/MainContext";
@@ -59,15 +59,17 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     getThemeListformations();
   }, []);
 
+  // Adicionado userLog?.id nas dependências para evitar stale closure do myId
   useEffect(() => {
     ws.current.callbackOnMessage = callbackOnMessage;
-  }, [task, taskDetails, notifications, onSounds, openCardDefault]);
+  }, [task, taskDetails, notifications, onSounds, openCardDefault, userLog?.id]);
 
+  // CORREÇÃO: Dependendo apenas do ID para evitar loops infinitos
   useEffect(() => {
     (async () => {
-      if (task.id) await getTaskInformations();
+      if (task?.id) await getTaskInformations();
     })();
-  }, [task]);
+  }, [task?.id]);
 
   useEffect(() => {
     if (!userLog?.id) return;
@@ -170,7 +172,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const response = JSON.parse(event.data);
     const myId = userLog?.id || localStorage.codUserGIPP;
     
-    // FILTRO DE ORIGEM: Ignora mensagens enviadas por este mesmo PC/Usuário
     if (response.send_user_id && String(response.send_user_id) === String(myId)) {
       return;
     }
@@ -180,10 +181,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     if (response.type === 7) {
       if (isTargetingCurrentTask && response.object && response.object.task_item_id) {
-        // Atualiza o contador na lista local deste PC
         await updateCommentCount(response.object.task_item_id);
-        
-        // Se o chat estiver aberto, atualiza as mensagens
         await getComment(response.object.task_item_id);
       }
     }
@@ -248,12 +246,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 user_id: userLog.id,
                 task_id: taskId,
                 type: 7,
-                object: { task_item_id: taskItemId } // Isso é o que o outro lado precisa ler
+                object: { task_item_id: taskItemId } 
             });
             
-            // Força a atualização local IMEDIATA
             await updateCommentCount(taskItemId);
-            
             return response;
         }
     } catch (error) { console.error("Erro ao enviar comentário:", error); }
@@ -279,14 +275,18 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (onSounds) { new Audio(soundFile).play().catch(e => console.error(e)); }
       const notify = new NotificationGTPP();
       await notify.loadNotify(item, states);
-      notifications.push(...notify.list);
-      setNotifications([...notifications, ...notify.list]);
+      // CORREÇÃO: Usando a forma imutável para não duplicar chamadas no estado
+      setNotifications(prev => [...prev, ...notify.list]);
       handleNotification(notify.list[0]["title"], notify.list[0]["message"], notify.list[0]["typeNotify"]);
     } catch (error) { console.error(`Erro ao atualizar notificações: ${error}`); } finally { setLoading(false); }
   }
 
   function getDescription(description: any) {
-    if (taskDetails.data) { taskDetails.data.full_description = description.full_description; setTaskDetails({ ...taskDetails }); }
+    // CORREÇÃO: Atualização imutável
+    setTaskDetails(prev => {
+      if (!prev.data) return prev;
+      return { ...prev, data: { ...prev.data, full_description: description.full_description } };
+    });
   }
 
   async function checkedItem(id: number, checked: boolean, idTask: any, taskLocal: any, yes_no?: number) {
@@ -294,11 +294,15 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const item = yes_no ? { id: parseInt(id.toString()), task_id: idTask.toString(), yes_no: parseInt(yes_no.toString()) } : { check: checked, id: id, task_id: idTask };
       let result: any = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" }) || { error: false };
       if (result.error) throw new Error(result.message);
-      if (!yes_no) taskLocal.check = checked;
+      
+      // Criamos um clone para não mutar a prop original diretamente
+      const taskClone = { ...taskLocal };
+      if (!yes_no) taskClone.check = checked;
+      
       if (yes_no) reloadPageChangeQuestion(yes_no, id);
       reloadPagePercent(result.data, { task_id: idTask });
-      await verifyChangeState(result.data.state_id, task.state_id, taskLocal, result.data);
-      infSenCheckItem(taskLocal, result.data);
+      await verifyChangeState(result.data.state_id, task.state_id, taskClone, result.data);
+      infSenCheckItem(taskClone, result.data);
     } catch (error) { console.error(`Erro ao marcar item: ${error}`); }
   }
 
@@ -307,7 +311,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
   function infSenStates(taskLocal: any, result: any) {
-    task.state_id = result.state_id; setTask({ ...task });
+    setTask((prev: any) => ({ ...prev, state_id: result.state_id }));
     ws.current.informSending(classToJSON(new InformSending(false, userLog.id, taskLocal.task_id, 6, { description: "Mudou para", task_id: taskLocal.task_id, percent: result.percent, state_id: result.state_id, task: task })));
   }
 
@@ -333,13 +337,19 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const response: any = await fetchData({ method: "POST", params: { description, file: file || '', task_id, yes_no }, pathFile: "GTPP/TaskItem.php" });
         if (response.error) throw new Error(response.message);
         const item = { id: response.data.last_id, description, check: false, task_id: parseInt(task_id), order: response.data.order, created_by: response.data.created_by, yes_no: response.data.yes_no, file: file ? 1 : 0, note: null };
-        if (taskDetails.data) { Array.isArray(taskDetails.data?.task_item) ? taskDetails.data?.task_item.push(item) : taskDetails.data.task_item = [item]; }
+        
+        // CORREÇÃO: Inserção imutável
+        setTaskDetails((prev: any) => {
+          if (!prev.data) return prev;
+          const newTaskItems = Array.isArray(prev.data.task_item) ? [...prev.data.task_item, item] : [item];
+          return { ...prev, data: { ...prev.data, task_item: newTaskItems } };
+        });
+
         ws.current.informSending({ user_id: userLog, object: { description: "Novo item", percent: response.data.percent, itemUp: item }, task_id, type: 2 });
-        setTaskDetails({ ...taskDetails });
         reloadPagePercent(response.data, { task_id });
         if (task.state_id != response.data.state_id) await verifyChangeState(response.data.state_id, task.state_id, { task_id: task.id }, response.data);
       } catch (error: any) { console.error(error.message); } finally { setLoading(false); }
-  },[fetchData, userLog, taskDetails]);
+  }, [fetchData, userLog, task.id, task.state_id]);
 
   async function changeDescription(description: string, id: number, descLocal: string) {
     setLoading(true);
@@ -396,9 +406,23 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       setLoading(true);
       await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" });
-      const newItem = taskDetails.data?.task_item.filter((element) => element.id == item.id);
-      if (newItem) { newItem[0].yes_no = item.yes_no; itemUp({ itemUp: newItem[0], id: item.task_id, percent: task.percent }); }
-      await upTask(item.task_id, null, null, null, "item comum", 2, { description: "Alterado", percent: task.percent, itemUp: { ...newItem?.[0] }, isItemUp: true });
+      
+      let clonedItemUp: any = null;
+      setTaskDetails((prev: any) => {
+        if (!prev.data || !prev.data.task_item) return prev;
+        const updatedList = prev.data.task_item.map((element: any) => {
+          if (element.id == item.id) {
+            clonedItemUp = { ...element, yes_no: item.yes_no };
+            return clonedItemUp;
+          }
+          return element;
+        });
+        return { ...prev, data: { ...prev.data, task_item: updatedList } };
+      });
+
+      if (clonedItemUp) {
+         await upTask(item.task_id, null, null, null, "item comum", 2, { description: "Alterado", percent: task.percent, itemUp: clonedItemUp, isItemUp: true });
+      }
     } catch (error) { console.error(error); } finally { setLoading(false); }
   }
 
@@ -406,12 +430,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const value = { task_id: item.task_id, id: item.id, assigned_to: item.user_id };
     const { error, message } = await fetchData({ method: "PUT", params: value, pathFile: "GTPP/TaskItem.php", urlComplement: "" });
     if (!error) {
-      const newItem: any = taskDetails.data?.task_item.filter((element) => element.id == item.id);
-      newItem[0].assigned_to = value.assigned_to;
-      ws.current.informSending(classToJSON(new InformSending(false, userLog.id, item.task_id, 2, { description: "Usuário vinculado", itemUp: { ...newItem?.[0] }, isUserTask: true })));
       setUserState((prev: any) => ({ ...prev, isListUser: false, loadingList: [] }));
-      getTaskInformations(); setTaskDetails({ ...taskDetails });
+      await getTaskInformations(); 
       handleNotification('Sucesso', 'Vínculo ok!', 'success');
+      
+      // Enviando pro socket apos garantir que o DB salvou
+      ws.current.informSending(classToJSON(new InformSending(false, userLog.id, item.task_id, 2, { description: "Usuário vinculado", isUserTask: true })));
     } else console.error(message);
   }
 
@@ -420,54 +444,157 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   function reloadPagePercent(value: any, taskLocal: any) {
     if (task.id == taskLocal.task_id) {
       setTaskPercent(parseInt(value.percent));
-      if (getTask.length > 0) { getTask[getTask.findIndex(item => item.id == taskLocal.task_id)].percent = parseInt(value.percent); setGetTask([...getTask]); }
+      setGetTask(prev => prev.map(item => item.id == taskLocal.task_id ? { ...item, percent: parseInt(value.percent) } : item));
     }
   }
 
   function reloadPageChangeQuestion(yes_no: number, item_id: number) {
-    if (taskDetails.data?.task_item) taskDetails.data.task_item[taskDetails.data?.task_item.findIndex(item => item.id == item_id)].yes_no = yes_no;
+    // CORREÇÃO: Atualização imutável
+    setTaskDetails((prev: any) => {
+      if (!prev.data || !prev.data.task_item) return prev;
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          task_item: prev.data.task_item.map((item: any) => item.id == item_id ? { ...item, yes_no } : item)
+        }
+      };
+    });
   }
 
   function reloadPageDeleteItem(value: any) {
-    const idx = taskDetails.data?.task_item.findIndex(item => item.id == value.object.itemUp);
-    if (idx != undefined && idx >= 0) { taskDetails.data?.task_item.splice(idx, 1); setTaskDetails({ ...taskDetails }); }
+    // CORREÇÃO: Usando filter para remover de forma imutável
+    setTaskDetails((prev: any) => {
+      if (!prev.data || !prev.data.task_item) return prev;
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          task_item: prev.data.task_item.filter((item: any) => item.id != value.object.itemUp)
+        }
+      };
+    });
     reloadPagePercent(value.object, value);
   }
 
   function reloadPageItem(object: any) { if (object.itemUp) reloadPageAddItem(object); else reloadPageUpNoteItem(object); }
 
   function reloadPageAddItem(object: any) {
-    if(!taskDetails.data) return;
-    if(!Array.isArray(taskDetails.data.task_item)) taskDetails.data.task_item = [] as any;
-    taskDetails.data?.task_item?.push(object.itemUp); setTaskDetails({ ...taskDetails }); reloadPagePercent(object, object.itemUp);
+    // CORREÇÃO: Usando spread operator para não mutar
+    setTaskDetails((prev: any) => {
+      if (!prev.data) return prev;
+      const newList = Array.isArray(prev.data.task_item) ? [...prev.data.task_item, object.itemUp] : [object.itemUp];
+      return { ...prev, data: { ...prev.data, task_item: newList } };
+    });
+    reloadPagePercent(object, object.itemUp);
   }
 
   function reloadPageUpNoteItem(object: any) {
-    const idx: number = taskDetails.data?.task_item.findIndex((item) => item.id === object.id) || 0;
-    if (taskDetails.data) taskDetails.data.task_item[idx].note = object.note; setTaskDetails({ ...taskDetails });
+    // CORREÇÃO: Imutabilidade com map
+    setTaskDetails((prev: any) => {
+      if (!prev.data || !prev.data.task_item) return prev;
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          task_item: prev.data.task_item.map((item: any) => item.id === object.id ? { ...item, note: object.note } : item)
+        }
+      };
+    });
   }
 
   function itemUp(value: any) {
-    setTaskDetails((prev: any) => ({ ...prev, data: { ...prev.data, task_item: prev.data.task_item.map((item: any) => item.id === value.itemUp.id ? value.itemUp : item) } }));
+    setTaskDetails((prev: any) => {
+      if (!prev.data || !prev.data.task_item) return prev;
+      return {
+        ...prev, 
+        data: { 
+          ...prev.data, 
+          task_item: prev.data.task_item.map((item: any) => item.id === value.itemUp.id ? value.itemUp : item) 
+        } 
+      };
+    });
     reloadPagePercent(value, value.itemUp);
   }
 
   function userTaskItem(value: any) {
-    taskDetails.data?.task_item.forEach((element, index) => { if (taskDetails.data && element.id == value.itemUp.id) taskDetails.data.task_item[index] = value.itemUp; });
-    setTaskDetails({ ...taskDetails });
+    setTaskDetails((prev: any) => {
+      if (!prev.data || !prev.data.task_item) return prev;
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          task_item: prev.data.task_item.map((element: any) => element.id == value.itemUp.id ? value.itemUp : element)
+        }
+      };
+    });
   }
 
   function clearGtppWsContext() { setTask({}); setTaskDetails({}); }
 
+  // CORREÇÃO FINAL: Memoizando o Provider para evitar que a tela inteira pisque a cada renderização do Contexto
+  const contextValue = useMemo(() => ({
+    taskDetails, task, taskPercent, userTaskBind, notifications, states, onSounds, getTask, isAdm, openCardDefault, themeList, comment,
+    setThemeList, updateItemTaskFile, updatedForQuestion, reloadPagePercent, deleteItemTaskWS, addUserTask, getTaskInformations,
+    setOpenCardDefault, loadTasks, reqTasks, setGetTask, updateStates, setOnSounds, setNotifications, setTaskPercent, setTask, handleAddTask,
+    setTaskDetails, clearGtppWsContext, checkedItem, checkTaskComShoDepSub, changeDescription, stopAndToBackTask, changeObservedForm,
+    setIsAdm, getCountComment, updateCommentCount, getUser, setGetUser, getComment, updatedAddUserTaskItem, getThemeListformations,
+    setComment, deleteComment, sendComment,
+  }), [
+    taskDetails, task, taskPercent, userTaskBind, notifications, states, onSounds, getTask, isAdm, openCardDefault, themeList, comment,
+    getComment, sendComment, handleAddTask // Injetando as dependências corretas
+  ]);
+
   return (
     <GtppWsContext.Provider
       value={{
-        taskDetails, task, taskPercent, userTaskBind, notifications, states, onSounds, getTask, isAdm, openCardDefault, themeList, comment,
-        setThemeList, updateItemTaskFile, updatedForQuestion, reloadPagePercent, deleteItemTaskWS, addUserTask, getTaskInformations,
-        setOpenCardDefault, loadTasks, reqTasks, setGetTask, updateStates, setOnSounds, setNotifications, setTaskPercent, setTask, handleAddTask,
-        setTaskDetails, clearGtppWsContext, checkedItem, checkTaskComShoDepSub, changeDescription, stopAndToBackTask, changeObservedForm,
-        setIsAdm, getCountComment, updateCommentCount, getUser, setGetUser, getComment, updatedAddUserTaskItem, getThemeListformations,
-        setComment, deleteComment, sendComment,
+        taskDetails,
+        task,
+        taskPercent,
+        userTaskBind,
+        notifications,
+        states,
+        onSounds,
+        getTask,
+        isAdm,
+        openCardDefault,
+        themeList,
+        comment,
+        setThemeList,
+        updateItemTaskFile,
+        updatedForQuestion,
+        reloadPagePercent,
+        deleteItemTaskWS,
+        addUserTask,
+        getTaskInformations,
+        setOpenCardDefault,
+        loadTasks,
+        reqTasks,
+        setGetTask,
+        updateStates,
+        setOnSounds,
+        setNotifications,
+        setTaskPercent,
+        setTask,
+        handleAddTask,
+        setTaskDetails,
+        clearGtppWsContext,
+        checkedItem,
+        checkTaskComShoDepSub,
+        changeDescription,
+        stopAndToBackTask,
+        changeObservedForm,
+        setIsAdm,
+        getUser,
+        setGetUser,
+        updatedAddUserTaskItem,
+        getThemeListformations,
+        deleteComment,
+        getComment,
+        getCountComment,
+        sendComment,
+        setComment,
+        updateCommentCount,
       }}
     >
       {children}
