@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useConnection } from '../../../../../Context/ConnContext';
 import { convertImage } from '../../../../../Util/Util';
 import imageUser from "../../../../../Assets/Image/user.png";
@@ -53,13 +53,12 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         left: isMobile ? '0' : '20px', 
         top: isMobile ? '0' : '20vh',
         position: 'fixed',
-        backgroundColor: '#fafafafa', // Fundo Principal Branco
+        backgroundColor: '#fafafafa',
         borderRadius: isMobile ? '0' : '20px',
-        border: '1px solid #e0e0e0', // Borda leve para destacar do fundo do sistema
+        border: '1px solid #e0e0e0',
         overflow: 'hidden'
       }}
     >
-      {/* Header Branco e Clean */}
       <div className="p-3 d-flex justify-content-between align-items-center bg-white border-bottom" style={{ borderColor: '#f0f0f0' }}>
         <h6 className="m-0 fw-bold" style={{ color: '#333' }}>
           <i className="fa-solid fa-comments me-2" style={{ color: '#198754' }}></i>
@@ -71,12 +70,9 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
           onClick={onClose}
           title="Fechar"
         >
-          {/* O X Vermelho que você pediu */}
           <i className="fa-solid fa-xmark fs-5 text-danger"></i>
         </button>
       </div>
-
-      {/* Listagem de Comentários (Fundo levemente cinza para os balões destacarem) */}
       <div className="flex-grow-1 p-3 overflow-auto custom-scrollbar" style={{ backgroundColor: '#f8f9fa' }}>
         {comment.data && comment.data.length > 0 ? (
           comment.data.map((item: any) => {
@@ -84,32 +80,27 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
             const userPhoto = userData?.photo ? convertImage(userData.photo) : imageUser;
             const userName = userData?.name || item.user.name;
             const isMe = localStorage.getItem('codUserGIPP') == item.user.id;
-
             return item.status == 1 && (
               <div 
                 key={item.id} 
                 className={`d-flex mb-3 align-items-end animate__animated animate__fadeIn ${isMe ? 'flex-row-reverse' : ''}`}
               >
-                {/* Foto do Usuário */}
                 <img
                   src={userPhoto}
                   alt={userName}
                   className={`rounded-circle border border-white shadow-sm ${isMe ? 'ms-2' : 'me-2'}`}
                   style={{ width: '38px', height: '38px', objectFit: 'cover' }}
                 />
-
-                {/* Balão da Mensagem (Fundo Escuro para o Texto Branco e Nome Verde brilharem) */}
                 <div className={`d-flex flex-column overflow-hidden ${isMe ? 'align-items-end' : 'align-items-start'}`} style={{ maxWidth: '80%' }}>
                   <div 
                     className="p-2 px-3 shadow-sm" 
                     style={{ 
-                      backgroundColor: '#2b2d42', // Tom escuro moderno para os balões
-                      borderRadius: isMe ? '20px 20px 2px 20px' : '20px 20px 20px 2px', // Estilo gota de app de chat
+                      backgroundColor: '#2b2d42',
+                      borderRadius: isMe ? '20px 20px 2px 20px' : '20px 20px 20px 2px',
                       border: '1px solid rgba(0,0,0,0.1)'
                     }}
                   >
                     <div className='d-flex align-items-center justify-content-between mb-1 gap-3'>
-                      {/* Nome das Pessoas Verde */}
                       <span className="fw-bold small text-truncate" style={{ color: '#00d26a', letterSpacing: '0.3px' }}>
                         {isMe ? `Você` : userName}
                       </span>
@@ -121,13 +112,9 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
                         ></i>
                       )}
                     </div>
-
-                    {/* Texto Branco */}
                     <span className="small text-white" style={{ whiteSpace: 'pre-wrap', fontSize: '0.9rem', lineHeight: '1.4' }}>
                       {item.comment}
                     </span>
-                    
-                    {/* Anexo */}
                     {item.file && item.file.file_name && (
                       <div className="mt-2 p-2 rounded-3 d-flex align-items-center overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
                         <div className="d-flex flex-column overflow-hidden flex-grow-1">
@@ -158,8 +145,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
           </div>
         )}
       </div>
-
-      {/* Input Area (Rodapé Branco) */}
       <div className="p-3 bg-white border-top" style={{ borderColor: '#f0f0f0' }}>
         {selectedFile && (
           <div className="badge mb-2 d-flex align-items-center p-2 rounded-pill animate__animated animate__bounceIn shadow-sm" style={{ backgroundColor: '#198754', width: 'fit-content' }}>
@@ -185,8 +170,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             />
           </div>
-          
-          {/* Botão Enviar Verde com Avião Branco */}
           <button 
             className="btn btn-success rounded-circle ms-2 shadow-sm d-flex justify-content-center align-items-center" 
             style={{ width: '45px', height: '45px', backgroundColor: '#198754', borderColor: '#198754' }} 
