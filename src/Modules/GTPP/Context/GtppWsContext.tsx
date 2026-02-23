@@ -178,7 +178,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     updateNotification([response]);
     const isTargetingCurrentTask = task && task.id === response.task_id;
 
-    // AQUI ESTAVA O ERRO DO WEBSOCKET: Agora garantimos que ele só altera se a tarefa for a mesma
     if (response.type === 7) {
       if (isTargetingCurrentTask && response.object && response.object.task_item_id) {
         // Atualiza o contador na lista local deste PC
@@ -244,8 +243,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         if (response && !response.error) {
             await getComment(taskItemId);
-            
-            // GARANTIA DE ENVIO WS: Garantimos que o objeto vai limpo
             ws.current.informSending({
                 error: false,
                 user_id: userLog.id,

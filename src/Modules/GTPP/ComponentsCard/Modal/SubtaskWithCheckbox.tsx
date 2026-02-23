@@ -339,8 +339,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                         </small>
                       </i>
                     </div>
-                    
-                    {total > 0 && (
                       <React.Fragment>
                         <i 
                           style={{
@@ -362,11 +360,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                             }
                           }}
                         >
-                          <small className=""> {total} Comentários</small>
+                          <small className=""> {total > 0 ? `${total} Comentários` : 'Fazer comentario' }</small>
                         </i>
                       </React.Fragment>
-                    )}
-
                   </div>
                   <div className="col-sm-6 d-flex justify-content-end gap-2">
                     {taskItem.note && (
