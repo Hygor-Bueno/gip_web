@@ -230,7 +230,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
         {/* Renderiza o Chat dinamicamente usando a prop KEY para resetar */}
         {showChat && (
           <SocialCommentFeed 
-            key={editTask?.id} // ESSA CHAVE GARANTE QUE O CHAT SEJA NOVO A CADA TAREFA
+            key={editTask?.id}
             userList={getCompleteUserList(props.details.data?.task_user)} 
             editTask={editTask} 
             onClose={() => setShowChat(false)} 
