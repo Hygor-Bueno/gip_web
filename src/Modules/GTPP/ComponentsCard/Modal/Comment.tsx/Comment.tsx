@@ -21,7 +21,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [connectionType, setConnectionType] = useState<string | null>(null);
   const [isSlowConnection, setIsSlowConnection] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine); // Controle de rede real
+  const [isOnline, setIsOnline] = useState(navigator.onLine); 
   const [isLoading, setIsLoading] = useState(false);
 
   const MAX_CARACTERES = 1000;
@@ -29,7 +29,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   const { comment, deleteComment, sendComment, getComment } = useWebSocket();
   const { DownloadFile } = useConnection();
 
-  // Monitor de conexão (Online/Offline)
   useEffect(() => {
     const handleStatus = () => setIsOnline(navigator.onLine);
     window.addEventListener('online', handleStatus);
@@ -40,7 +39,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
     };
   }, []);
 
-  // Monitor de velocidade da conexão
   useEffect(() => {
     const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
     if (connection) {
@@ -73,26 +71,17 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
 
   const handleSend = async () => {
     const textClean = text.trim();
-    
-    // CORREÇÃO 1: Permite enviar se tiver texto OU se tiver arquivo
     if (!textClean && !selectedFile) return;
-    
-    // CORREÇÃO 2: Bloqueia se estiver offline
-    if (!isOnline) {
-      return;
-    }
+    if (!isOnline) return;
 
     setIsLoading(true);
 
     try {
       const res = await sendComment(textClean, selectedFile, editTask.id, editTask.task_id);
-
       if (res && !res.error) {
         setText("");
         setSelectedFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
-      } else {
-        console.warn('new Error');
       }
     } catch (error) {
       console.error("Erro no envio:", error);
@@ -125,11 +114,11 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
     <div 
       className={`d-flex flex-column shadow-lg animate__animated ${isMobile ? 'animate__fadeInUp' : 'animate__fadeInRight'}`} 
       style={{ 
-        height: isMobile ? '100dvh' : '500px', 
+        height: isMobile ? '100dvh' : 'calc(100% - 34px)', 
         width: isMobile ? '100%' : '450px',
         zIndex: 2000, 
         left: isMobile ? '0' : '20px', 
-        top: isMobile ? '0' : '20vh',
+        top: isMobile ? '0' : '4vh',
         position: 'fixed',
         backgroundColor: '#fafafafa',
         borderRadius: isMobile ? '0' : '20px',
@@ -137,7 +126,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         overflow: 'hidden'
       }}
     >
-      {/* CORREÇÃO 3: Overlay de Offline (Resiliência) */}
+      {/* Overlay de Offline Bloqueante */}
       {!isOnline && (
         <div style={{
           position: "absolute", inset: 0, background: "rgba(255,255,255,0.9)",
@@ -150,8 +139,8 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         </div>
       )}
 
-      {/* CORREÇÃO 4: Loading agora renderiza DENTRO do componente */}
-      {isLoading && (
+      {/* Loading de Envio de Mensagem */}
+      {isLoading && isOnline && (
         <div style={{
           position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)",
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
@@ -207,10 +196,21 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
             );
           })
         ) : (
-          /* CORREÇÃO 5: Spinner de carregamento em vez de texto vazio */
+          /* CORREÇÃO APLICADA: Diferenciação entre vazio (primeira vez) e carregando (sem internet) */
           <div className="text-center mt-5 d-flex flex-column align-items-center animate__animated animate__fadeIn">
-            <div className="spinner-border text-success opacity-25 mb-3" role="status" style={{ width: '2.5rem', height: '2.5rem' }}></div>
-            <span className="small fw-medium text-muted">Carregando conversas...</span>
+             {!isOnline ? (
+               // Se estiver sem internet, mostra o carregamento/reconexão
+               <>
+                 <div className="spinner-border text-success opacity-50 mb-3" role="status" style={{ width: '2.5rem', height: '2.5rem' }}></div>
+                 <span className="small fw-medium" style={{ color: '#9ca3af' }}>Carregando conversas...</span>
+               </>
+             ) : (
+               // Se tiver internet mas não tiver mensagem, mostra estado vazio limpo
+               <>
+                 <i className="fa-regular fa-comments fs-1 mb-2 text-muted opacity-25"></i>
+                 <span className="small text-muted">Nenhum comentário ainda.</span>
+               </>
+             )}
           </div>
         )}
         <div ref={bottomRef} />
