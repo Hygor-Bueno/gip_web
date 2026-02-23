@@ -53,7 +53,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         left: isMobile ? '0' : '20px', 
         top: isMobile ? '0' : '20vh',
         position: 'fixed',
-        backgroundColor: '#ffffff', // Fundo Principal Branco
+        backgroundColor: '#fafafafa', // Fundo Principal Branco
         borderRadius: isMobile ? '0' : '20px',
         border: '1px solid #e0e0e0', // Borda leve para destacar do fundo do sistema
         overflow: 'hidden'
