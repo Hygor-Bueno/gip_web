@@ -1,20 +1,39 @@
 class GtppWebSocket {
+  private static instance: GtppWebSocket;
   private socket!: WebSocket;
-  isConnected: boolean = false;
+  public isConnected: boolean = false;
   private responseWebSocket: object | null = {};
   private dataResponseWebSocket: object | null | any[] = [];
   private pingIntervalRef: NodeJS.Timeout | null = null;
   private timeoutRef: NodeJS.Timeout | null = null;
   private lastSentMessage: object | null = null;
-  callbackOnMessage!: (notify: any) => Promise<void>;
+  
+  private callbacks: { [key: string]: (notify: any) => void } = {};
 
-  // Função para conectar ao WebSocket
+  private constructor() {}
+
+  public static getInstance(): GtppWebSocket {
+    if (!GtppWebSocket.instance) {
+      GtppWebSocket.instance = new GtppWebSocket();
+    }
+    return GtppWebSocket.instance;
+  }
+
+  public setCallback(key: string, callback: (notify: any) => void) {
+    this.callbacks[key] = callback;
+  }
+
+  public removeCallback(key: string) {
+    delete this.callbacks[key];
+  }
 
   connect(): void {
+    if (this.isConnected || this.socket?.readyState === WebSocket.OPEN) return;
 
     if (localStorage?.tokenGIPP) {
       this.socket = new WebSocket(`${process.env.REACT_APP_API_GIPP_BASE_WS}:${process.env.REACT_APP_API_GIPP_PORT_SOCKET_SECONDARY}`);
       const localWs = this.socket;
+      
       this.socket.onopen = (ev) => {
         this.onOpen(localWs);
       };
@@ -33,7 +52,8 @@ class GtppWebSocket {
           this.pong();
           return;
         }
-        this.callbackOnMessage(ev);
+        
+        Object.values(this.callbacks).forEach(callback => callback(ev));
       };
     }
   }
@@ -49,10 +69,7 @@ class GtppWebSocket {
   }
 
   private startPing(): void {
-    if (this.pingIntervalRef) {
-      clearInterval(this.pingIntervalRef);
-    }
-
+    if (this.pingIntervalRef) clearInterval(this.pingIntervalRef);
     this.pingIntervalRef = setInterval(() => {
       this.ping();
     }, 10000);
@@ -68,11 +85,7 @@ class GtppWebSocket {
   private ping(): void {
     if (this.isConnected && this.socket?.readyState === WebSocket.OPEN) {
       this.socket.send("__ping__");
-
-      if (this.timeoutRef) {
-        clearTimeout(this.timeoutRef);
-      }
-
+      if (this.timeoutRef) clearTimeout(this.timeoutRef);
       this.timeoutRef = setTimeout(() => {
         console.warn("Timeout: não recebeu __pong__");
       }, 5000);

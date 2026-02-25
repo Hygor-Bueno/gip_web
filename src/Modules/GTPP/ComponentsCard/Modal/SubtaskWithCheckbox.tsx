@@ -11,7 +11,7 @@ import { Image } from "react-bootstrap";
 import { convertImage, handleNotification } from "../../../../Util/Util";
 import imageUser from "../../../../Assets/Image/user.png";
 import ModalConfirm from "./ModalConfirm";
-import SocialCommentFeed from "./Comment.tsx/Comment";
+import SocialCommentFeed from "./Comment.tsx/SocialCommentFeed";
 require('animate.css');
 
 interface iSubTask {
@@ -35,7 +35,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     updatedAddUserTaskItem,
     updateCommentCount,
     getTaskInformations,
-    getComment,
     getUser    
   } = useWebSocket();
 

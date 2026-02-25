@@ -30,7 +30,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const { setLoading, userLog } = useMyContext();
   const navigate = useNavigate();
   const { fetchData, DataFetchForm } = useConnection();
-  const ws = useRef(new GtppWebSocket());
+  const ws = useRef(GtppWebSocket.getInstance());
 
   useEffect(() => {
     ws.current.connect();
@@ -61,7 +61,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Adicionado userLog?.id nas dependências para evitar stale closure do myId
   useEffect(() => {
-    ws.current.callbackOnMessage = callbackOnMessage;
+    ws.current.setCallback("MAIN_TASK", callbackOnMessage);
   }, [task, taskDetails, notifications, onSounds, openCardDefault, userLog?.id]);
 
   // CORREÇÃO: Dependendo apenas do ID para evitar loops infinitos
@@ -265,7 +265,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 return { 
                   ...item, 
                   total_comment: novoTotal, 
-                  hasNewComment: temNovidade // <-- AQUI A CHAVE DA MÁGICA
+                  // hasNewComment: temNovidade // <-- AQUI A CHAVE DA MÁGICA
                 };
               }
               return item;
@@ -296,13 +296,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         if (response && !response.error) {
             await getComment(taskItemId);
-            ws.current.informSending({
-                error: false,
-                user_id: userLog.id,
-                task_id: taskId,
-                type: 7,
-                object: { task_item_id: taskItemId } 
-            });
+            // ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 7, object: { task_item_id: taskItemId } });
             
             await updateCommentCount(taskItemId);
             return response;
@@ -314,11 +308,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const response = await fetchData({ method: "PUT", params: { id: idToDelete, status: "0" }, pathFile: 'GTPP/TaskItemResponse.php' });
     if (response && !response.error) {
         await getComment(taskItemId);
-        ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 9, 
-          object: { 
-            task_item_id: taskItemId, 
-            description:  `Comentario foi removido na tarefa: (${taskId})`
-          }});
+        // ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 9, object: { task_item_id: taskItemId, description:  `Comentario foi removido na tarefa: (${taskId})`}});
         await updateCommentCount(taskItemId);
         return response;
     }
@@ -337,13 +327,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (response && !response.error) {
         await getComment(taskItemId);
         
-        ws.current.informSending({ 
-            error: false, 
-            user_id: userLog.id, 
-            task_id: taskId, 
-            type: 7, 
-            object: { task_item_id: taskItemId } 
-        });
+        // ws.current.informSending({  error: false,  user_id: userLog.id,  task_id: taskId,  type: 7,  object: { task_item_id: taskItemId } });
         
         handleNotification("Sucesso", "Comentário editado com sucesso!", "success");
         return response;
@@ -355,18 +339,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const notifyMentionWs = useCallback((mentionedUsers: any[], taskId: number, taskItemDesc: string) => {
     mentionedUsers.forEach(user => {
-        ws.current.informSending({
-            error: false,
-            user_id: user.user_id,
-            send_user_id: userLog.id,
-            task_id: taskId,
-            type: 8,
-            object: { 
-                description: `mencionou você na tarefa: (${taskId})\n no Item: "${taskItemDesc}"`, 
-                isMention: true, 
-                task_id: taskId 
-            }
-        });
+      // ws.current.informSending({ error: false, user_id: user.user_id, send_user_id: userLog.id, task_id: taskId, type: 8, object: { description: `mencionou você na tarefa: (${taskId})\n no Item: "${taskItemDesc}"`, isMention: true, task_id: taskId }});
     });
   }, [userLog.id]);
 

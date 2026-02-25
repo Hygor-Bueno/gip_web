@@ -111,15 +111,15 @@ export interface iGtppWsContextType {
     stopAndToBackTask: (taskId: number, resource: string | null, date: string | null, taskList: any) => void;
     changeObservedForm: (taskId: number, subId: number, value: string, isObservetion: boolean) => void;
     setIsAdm: (value: any) => void;
-    getComment: (taskItemId: number, count?: boolean) => void;
-    setComment: any;
-    deleteComment: any;
-    sendComment: any;
     updateCommentCount: any;
-    getCountComment: any;
+    // getComment: (taskItemId: number, count?: boolean) => void;
+    // setComment: any;
+    // deleteComment: any;
+    // sendComment: any;
+    // getCountComment: any;
 
 
-    comment: any;
+    // comment: any;
     getUser?: any;
     setGetUser?: any;
     themeList?: ITheme[];
