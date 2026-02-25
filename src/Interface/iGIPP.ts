@@ -153,6 +153,7 @@ export interface iTaskReq {
             updated_at?: string,
             updated_by?: number,
             total_comment?: number,
+            hasNewComment?: any
         }],
         task_user: taskItem[]
     }

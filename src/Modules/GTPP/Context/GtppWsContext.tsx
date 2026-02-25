@@ -76,17 +76,21 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     loadTasks();
   }, [isAdm, userLog?.id]);
 
-  const loadTasks = async () => {
-    try { await reqTasks(); } catch (error) { console.error(`Erro ao carregar tarefas: ${error}`); }
+  const loadTasks = async (silent = false) => {
+    try { await reqTasks(silent); } catch (error) { console.error(`Erro ao carregar tarefas: ${error}`); }
   };
 
-  async function reqTasks() {
+  async function reqTasks(silent = false) {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true); // Só ativa o loading se NÃO for silent
       const getTaskRes: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", urlComplement: `${isAdm ? "&administrator=1" : ""}` });
       if (getTaskRes.error) throw new Error(getTaskRes.message);
       setGetTask(getTaskRes.data);
-    } catch (error) { console.error(`Erro ao requisitar tarefas: ${error}`); } finally { setLoading(false); }
+    } catch (error) { 
+      console.error(`Erro ao requisitar tarefas: ${error}`); 
+    } finally { 
+      if (!silent) setLoading(false); 
+    }
   }
 
   async function getStateformations() {
@@ -153,13 +157,17 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return listState;
   }
 
-  async function getTaskInformations(): Promise<void> {
+  async function getTaskInformations(silent = false): Promise<void> {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const getTaskItem: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", exception: ["no data"], urlComplement: `&id=${task.id}` });
       if (getTaskItem.error) throw new Error(getTaskItem.message);
       setTaskDetails(getTaskItem);
-    } catch (error) { console.error(`Erro ao obter detalhes: ${error}`); } finally { setLoading(false); }
+    } catch (error) { 
+      console.error(`Erro ao obter detalhes: ${error}`); 
+    } finally { 
+      if (!silent) setLoading(false); 
+    }
   }
 
   function addUserTask(element: any, type: number) {
@@ -179,6 +187,28 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     updateNotification([response]);
     const isTargetingCurrentTask = task && task.id === response.task_id;
 
+    // Comentario removido
+    if (response.type === 9) {
+      if (onSounds) { new Audio(soundFile).play().catch(e => console.error(e)); }
+      handleNotification("Comentario removido!", response.object?.description, "info");
+
+      if (isTargetingCurrentTask && response.object && response.object.task_item_id) {
+        await updateCommentCount(response.object.task_item_id);
+        await getComment(response.object.task_item_id);
+      }
+    }
+
+    if (response.type === 8) {
+      if (onSounds) { new Audio(soundFile).play().catch(e => console.error(e)); }
+      handleNotification("Mencionou você!", response.object?.description, "info");
+      
+      // RELOAD SILENCIOSO
+      await loadTasks(true); 
+      if (isTargetingCurrentTask) await getTaskInformations(true); 
+      return;
+    }
+
+    // Comentario adicionado
     if (response.type === 7) {
       if (isTargetingCurrentTask && response.object && response.object.task_item_id) {
         await updateCommentCount(response.object.task_item_id);
@@ -190,7 +220,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (isTargetingCurrentTask) {
         setTask((prev: any ) => ({ ...prev, state_id: response.object?.state_id, percent: response.object?.percent }));
       }
-      await loadTasks();
+      await loadTasks(true); 
+      if (isTargetingCurrentTask) {
+        await getTaskInformations(true);
+      }
     } 
     else if (response.type == 2) {
       if (isTargetingCurrentTask && response.object) {
@@ -209,14 +242,36 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }
 
-  const updateCommentCount = async (taskItemId: number) => {
+ const updateCommentCount = async (taskItemId: number) => {
     if (!taskItemId) return;
     const res: any = await fetchData({ method: "GET", params: null, pathFile: 'GTPP/TaskItemResponse.php', urlComplement: `&task_item_id=${taskItemId}&count=true`, exception: ["No data"] });
+    
     if (res && !res.error) {
-      const novoTotal = res.data[0]?.total_comment || 0;
+      const novoTotal = Number(res.data[0]?.total_comment) || 0;
+
       setTaskDetails((prev: any) => {
         if (!prev.data || !prev.data.task_item) return prev;
-        return { ...prev, data: { ...prev.data, task_item: prev.data.task_item.map((item: any) => item.id === taskItemId ? { ...item, total_comment: novoTotal } : item) } };
+
+        return {
+          ...prev,
+          data: {
+            ...prev.data,
+            task_item: prev.data.task_item.map((item: any) => {
+              if (item.id === taskItemId) {
+                // SÓ marcamos como novo se o número aumentou e o chat NÃO está aberto
+                const antigoTotal = Number(item.total_comment) || 0;
+                const temNovidade = novoTotal > antigoTotal;
+
+                return { 
+                  ...item, 
+                  total_comment: novoTotal, 
+                  hasNewComment: temNovidade // <-- AQUI A CHAVE DA MÁGICA
+                };
+              }
+              return item;
+            })
+          }
+        };
       });
     }
   };
@@ -259,13 +314,61 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const response = await fetchData({ method: "PUT", params: { id: idToDelete, status: "0" }, pathFile: 'GTPP/TaskItemResponse.php' });
     if (response && !response.error) {
         await getComment(taskItemId);
-        ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 7, object: { task_item_id: taskItemId } });
+        ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 9, 
+          object: { 
+            task_item_id: taskItemId, 
+            description:  `Comentario foi removido na tarefa: (${taskId})`
+          }});
         await updateCommentCount(taskItemId);
         return response;
     }
     if (!response.error) { handleNotification("Sucesso", "Comentário removido", "success"); await getComment(taskItemId); }
     return response;
   };
+
+  // EDITAR COMENTÁRIO
+  const editComment = async (idToEdit: number, newComment: string, taskItemId: number, taskId: number) => {
+    const response = await fetchData({ 
+        method: "PUT", 
+        params: { id: idToEdit, comment: newComment }, 
+        pathFile: 'GTPP/TaskItemResponse.php' 
+    });
+
+    if (response && !response.error) {
+        await getComment(taskItemId);
+        
+        ws.current.informSending({ 
+            error: false, 
+            user_id: userLog.id, 
+            task_id: taskId, 
+            type: 7, 
+            object: { task_item_id: taskItemId } 
+        });
+        
+        handleNotification("Sucesso", "Comentário editado com sucesso!", "success");
+        return response;
+    } else {
+        handleNotification("Erro", response?.message || "Erro ao editar comentário", "danger");
+    }
+    return response;
+  };
+
+  const notifyMentionWs = useCallback((mentionedUsers: any[], taskId: number, taskItemDesc: string) => {
+    mentionedUsers.forEach(user => {
+        ws.current.informSending({
+            error: false,
+            user_id: user.user_id,
+            send_user_id: userLog.id,
+            task_id: taskId,
+            type: 8,
+            object: { 
+                description: `mencionou você na tarefa: (${taskId})\n no Item: "${taskItemDesc}"`, 
+                isMention: true, 
+                task_id: taskId 
+            }
+        });
+    });
+  }, [userLog.id]);
 
   useEffect(() => { requestNotificationPermission(); }, []);
 
@@ -292,18 +395,16 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   async function checkedItem(id: number, checked: boolean, idTask: any, taskLocal: any, yes_no?: number) {
     try {
       const item = yes_no ? { id: parseInt(id.toString()), task_id: idTask.toString(), yes_no: parseInt(yes_no.toString()) } : { check: checked, id: id, task_id: idTask };
-      let result: any = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" }) || { error: false };
+      let result: { error: boolean, data?: any, message?: string } = await fetchData({ method: "PUT", params: item, pathFile: "GTPP/TaskItem.php" }) || { error: false };
       if (result.error) throw new Error(result.message);
-      
-      // Criamos um clone para não mutar a prop original diretamente
-      const taskClone = { ...taskLocal };
-      if (!yes_no) taskClone.check = checked;
-      
+      if (!yes_no) taskLocal.check = checked;
       if (yes_no) reloadPageChangeQuestion(yes_no, id);
       reloadPagePercent(result.data, { task_id: idTask });
-      await verifyChangeState(result.data.state_id, task.state_id, taskClone, result.data);
-      infSenCheckItem(taskClone, result.data);
-    } catch (error) { console.error(`Erro ao marcar item: ${error}`); }
+      await verifyChangeState(result.data.state_id, task.state_id, taskLocal, result.data);
+      infSenCheckItem(taskLocal, result.data);
+    } catch (error) {
+      console.error(`Erro ao marcar/desmarcar item ${id}: ${error}`);
+    }
   }
 
   async function verifyChangeState(newState: number, oldState: number, taskLocal: any, result: any) {
@@ -539,64 +640,15 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setOpenCardDefault, loadTasks, reqTasks, setGetTask, updateStates, setOnSounds, setNotifications, setTaskPercent, setTask, handleAddTask,
     setTaskDetails, clearGtppWsContext, checkedItem, checkTaskComShoDepSub, changeDescription, stopAndToBackTask, changeObservedForm,
     setIsAdm, getCountComment, updateCommentCount, getUser, setGetUser, getComment, updatedAddUserTaskItem, getThemeListformations,
-    setComment, deleteComment, sendComment,
+    setComment, deleteComment, sendComment, 
+    editComment, notifyMentionWs
   }), [
     taskDetails, task, taskPercent, userTaskBind, notifications, states, onSounds, getTask, isAdm, openCardDefault, themeList, comment,
-    getComment, sendComment, handleAddTask // Injetando as dependências corretas
+    getComment, sendComment, handleAddTask 
   ]);
 
   return (
-    <GtppWsContext.Provider
-      value={{
-        taskDetails,
-        task,
-        taskPercent,
-        userTaskBind,
-        notifications,
-        states,
-        onSounds,
-        getTask,
-        isAdm,
-        openCardDefault,
-        themeList,
-        comment,
-        setThemeList,
-        updateItemTaskFile,
-        updatedForQuestion,
-        reloadPagePercent,
-        deleteItemTaskWS,
-        addUserTask,
-        getTaskInformations,
-        setOpenCardDefault,
-        loadTasks,
-        reqTasks,
-        setGetTask,
-        updateStates,
-        setOnSounds,
-        setNotifications,
-        setTaskPercent,
-        setTask,
-        handleAddTask,
-        setTaskDetails,
-        clearGtppWsContext,
-        checkedItem,
-        checkTaskComShoDepSub,
-        changeDescription,
-        stopAndToBackTask,
-        changeObservedForm,
-        setIsAdm,
-        getUser,
-        setGetUser,
-        updatedAddUserTaskItem,
-        getThemeListformations,
-        deleteComment,
-        getComment,
-        getCountComment,
-        sendComment,
-        setComment,
-        updateCommentCount,
-      }}
-    >
+    <GtppWsContext.Provider value={contextValue}>
       {children}
     </GtppWsContext.Provider>
   );

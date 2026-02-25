@@ -169,6 +169,13 @@ export function MyProvider({ children }: Props) {
         statusDevice,
         setStatusDevice
       }}>
+      {/* Tenho que fazer alguma coisa aqui! (O reloading da tela vai atrapalhar a experiencia do usuário) 
+        <StructureModal className="StructureModal ModalBgWhite">
+          <div className="d-flex flex-column align-items-center">
+            <img className="spinner-grow-img" src={logo} alt="Logo Peg Pese" />
+          </div>
+        </StructureModal>
+      */}
       {loading && (
         <StructureModal className="StructureModal ModalBgWhite">
           <div className="d-flex flex-column align-items-center">
