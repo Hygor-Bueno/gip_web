@@ -55,6 +55,39 @@ export default class Translator {
             case "Assigned updated successfully":
                 this.#messagePT = "Assinatura realizada com sucesso!"
             break;
+            case "task_item_id is required":
+                this.#messagePT = "chave task_item_id é requerido"
+            break;
+            case "comment is required":
+                this.#messagePT = "chave 'comment' é requirida!"
+            break;
+            case "id is required":
+                this.#messagePT = "chave 'id' é requirida!"
+            break;
+            case "ID is required for update":
+                this.#messagePT = "Atualização falhou!"
+            break;
+            case "ID is required for update":
+                this.#messagePT = "Atualização falhou!"
+            break;
+            case "File not found.":
+                this.#messagePT = "Arquivo não encontrado!"
+            break;
+            case "The file not exist in server.":
+                this.#messagePT = "O arquivo não existe no servidor!"
+            break;
+            case "Comment not found!":
+                this.#messagePT = "O comentario não foi encontrado!"
+            break;
+            case "Only the author can edit this message.":
+                this.#messagePT = "Voce não é o author dessa mensagem para poder editar"
+            break;
+            case "The editing time limit (10 minutes) has expired.":
+                this.#messagePT = "O editor tem um tempo limite de 10 minutos para expirar"
+            break;
+            case "Failed to update":
+                this.#messagePT = "Falha ao atualizar o arquivo"
+            break;
             default:
                 this.#messagePT = messagePT;
                 break;
