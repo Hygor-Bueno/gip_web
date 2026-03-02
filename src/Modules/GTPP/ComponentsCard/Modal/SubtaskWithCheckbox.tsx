@@ -218,6 +218,12 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
 
   return (
     <div ref={containerTaskItemsRef} className="overflow-auto rounded flex-grow-1">
+      <ModalEditTask userList={getCompleteUserList(props.details.data?.task_user)} onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
+      <ModalConfirm isOpen={isTrashDelete} onCancel={async () => setIsTrashDelete(false)} onSave={async () => {
+        await handleTrashDelete(taskToDelete);
+        setIsTrashDelete(false);
+      }} title="Atenção" children="Deseja apagar esse conteúdo?" cancelText="Voltar" saveText="Confirmar" />
+
       {userState.isListUser && (
         <div className="position-absolute list-user-task rounded p-2 cursor-pointer bg-list-user overflow-hidden">
           <div><button className="btn btn-danger" onClick={() => { setUserState((prev: any) => ({ ...prev, isListUser: false, loadingList: [] })) }}><i className="fa fa-solid fa-x text-white"></i></button></div>
@@ -249,8 +255,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
           </div>
         </div>
       )}
+
       <div>
-        {/* Renderiza o Chat dinamicamente usando a prop KEY para resetar */}
         {showChat && (
           <SocialCommentFeed 
             key={editTask?.id}
@@ -260,13 +266,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
           />
         )}
         
-        <ModalEditTask userList={getCompleteUserList(props.details.data?.task_user)} onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
-        <ModalConfirm isOpen={isTrashDelete} onCancel={async () => setIsTrashDelete(false)} onSave={async () => {
-          await handleTrashDelete(taskToDelete);
-          setIsTrashDelete(false);
-        }} title="Atenção" children="Deseja apagar esse conteúdo?" cancelText="Voltar" saveText="Confirmar" />
-        
-        {/* Mudei "task" para "taskItem" no map para evitar conflito com o "task" global */}
         {(taskDetails.data?.task_item || []).map((taskItem, index: number) => {
           const list = users?.find((item: { user_id: number }) => item?.user_id == taskItem?.created_by);
           const creator = !isMissing(list?.name) ? list?.name : getUser?.name;
@@ -318,7 +317,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                   <div className="col-md-2 col-sm-3 text-center">
                     <div className="mx-auto cursor-pointer userPhotoAnimation border-warning"
                       onClick={async () => {
-                        // Adicionado getUser?.id no lugar de getUser.id para evitar quebra no click
                         if (userLog.administrator == 1 || getUser?.id == userLog.id) {
                           setUserState((prev: any) => ({
                             ...prev,

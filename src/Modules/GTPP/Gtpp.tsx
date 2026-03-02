@@ -62,7 +62,7 @@ export default function Gtpp(): JSX.Element {
         themeList={themeList}
         idTheme={idTheme}
         getTask={getTask}
-        selectedTasks={selectedTasks}
+        selectedtasks={selectedTasks}
         task={task}
         taskDetails={taskDetails}
         openCardDefault={openCardDefault}

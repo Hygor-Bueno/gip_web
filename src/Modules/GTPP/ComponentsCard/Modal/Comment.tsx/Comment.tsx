@@ -5,7 +5,6 @@ interface CommentItemProps {
   item: any;
   isMe: boolean;
   isAdmin: boolean;
-  canEdit: boolean;
   userPhoto: string;
   userName: string;
   editingId: number | null;
@@ -15,7 +14,7 @@ interface CommentItemProps {
   DownloadFile: (params: any) => void;
 }
 
-export default function CommentItem({ item, isMe, isAdmin, canEdit, userPhoto, userName, editingId, setEditingId, deleteComment, handleSaveEdit, DownloadFile }: CommentItemProps) {
+export default function CommentItem({ item, isMe, isAdmin, userPhoto, userName, editingId, setEditingId, deleteComment, handleSaveEdit, DownloadFile }: CommentItemProps) {
   const [tempText, setTempText] = useState("");
 
   // Função para pintar a menção de Azul Claro e Negrito (apenas o primeiro nome)
@@ -46,9 +45,6 @@ export default function CommentItem({ item, isMe, isAdmin, canEdit, userPhoto, u
           <div className='d-flex align-items-center justify-content-between mb-1 gap-3'>
             <span className="fw-bold small text-truncate" style={{ color: '#00d26a' }}>{isMe ? `Você` : userName}</span>
             <div className="d-flex gap-2">
-              {/* {isMe && !editingId && canEdit && (
-                <i onClick={() => { setEditingId(item.id); setTempText(item.comment); }} className='fa-solid fa-pen fa-xs text-warning opacity-75 cursor-pointer' title="Editar (até 10 min)"></i>
-              )} */}
               {(isMe || isAdmin) && !editingId && (
                 <i onClick={() => deleteComment(item.id)} className='fa fa-solid fa-trash fa-xs text-danger opacity-75 cursor-pointer' title="Excluir"></i>
               )}

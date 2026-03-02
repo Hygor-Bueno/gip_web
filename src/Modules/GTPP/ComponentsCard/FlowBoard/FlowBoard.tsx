@@ -74,7 +74,6 @@ export default function GtppMain(props: GtppMainProps) {
               <div key={state.id} className="column-task-container p-2 flex-shrink-0">
                 <ColumnTaskState
                   theme_id_fk={props.selectedThemeIds}
-                  selectedTasks={props.selectedTasks}
                   setSelectedTasks={props.setSelectedTasks}
                   title={state.description}
                   bg_color={state.color}

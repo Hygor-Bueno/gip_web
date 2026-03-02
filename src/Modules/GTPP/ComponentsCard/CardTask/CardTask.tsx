@@ -13,7 +13,6 @@ type CardTaskProps = {
     final_date?: string;
     percent?:number;
     create_by:number;
-    selectedTasks?: any;
 }
 
 type CardTaskAllPropsHTML = React.HTMLAttributes<HTMLDivElement> & {}

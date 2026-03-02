@@ -3,7 +3,7 @@ import { useConnection } from '../../../../../Context/ConnContext';
 import { convertImage } from '../../../../../Util/Util';
 import imageUser from "../../../../../Assets/Image/user.png";
 import { useWebSocket } from '../../../Context/GtppWsContext';
-import ChatInput from './ChatInput';     // Ajuste o caminho se necessário
+import ChatInput from './ChatInput';
 import CommentItem from './Comment';
 
 interface CommentProps {
@@ -21,15 +21,9 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   const [isOnline, setIsOnline] = useState(navigator.onLine); 
   const [isLoading, setIsLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [currentTime, setCurrentTime] = useState(Date.now());
 
   const { comment, deleteComment, sendComment, getComment, editComment, notifyMentionWs } = useWebSocket() as any;
   const { DownloadFile } = useConnection();
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(Date.now()), 30000); 
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const handleStatus = () => setIsOnline(navigator.onLine);
@@ -59,7 +53,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
     setIsAtBottom(isBottom);
   };
 
-  // Centralizando a lógica de Envio (Recebe os dados do filho ChatInput)
   const handleSendOrchestrator = async (text: string, file: File | null, mentionedUsers: any[]): Promise<boolean> => {
     if (!isOnline) return false;
     setIsLoading(true);
@@ -69,7 +62,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         if (mentionedUsers.length > 0 && notifyMentionWs) {
           notifyMentionWs(mentionedUsers, editTask.task_id, editTask.description);
         }
-        return true; // Sucesso, o Input vai limpar o texto
+        return true;
       }
       return false;
     } catch (error) {
@@ -99,7 +92,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   return (
     <div 
       className={`d-flex flex-column shadow-lg animate__animated ${isMobile ? 'animate__fadeInUp' : 'animate__fadeInRight'}`} 
-      style={{ height: isMobile ? '100dvh' : window.innerHeight > 1500 ? 'calc(100% - 80px)' : 'calc(100% - 36px)', width: isMobile ? '100%' : '450px', zIndex: 2000, left: isMobile ? '0' : '20px', top: isMobile ? '0' : '4vh', position: 'fixed', backgroundColor: '#fafafafa', borderRadius: isMobile ? '0' : '20px', border: '1px solid #e0e0e0', overflow: 'hidden' }}
+      style={{ height: isMobile ? '100dvh' : window.innerHeight > 1500 ? 'calc(100% - 80px)' : 'calc(100% - 36px)', width: isMobile ? '100%' : '450px', zIndex: 1, left: isMobile ? '0' : '20px', top: isMobile ? '0' : '4vh', position: 'fixed', backgroundColor: '#fafafafa', borderRadius: isMobile ? '0' : '20px', border: '1px solid #e0e0e0', overflow: 'hidden' }}
     >
       {!isOnline && (
         <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.9)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 4000 }}>
@@ -108,7 +101,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         </div>
       )}
 
-      {/* Header */}
       <div className="p-3 d-flex justify-content-between align-items-center bg-white border-bottom">
         <div className="overflow-hidden pe-2">
           <h6 className="m-0 fw-bold"><i className="fa-solid fa-comments me-2 text-success"></i> Comentários</h6>
@@ -117,7 +109,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         <button className="btn btn-sm btn-light border-0 rounded-circle" onClick={onClose}><i className="fa-solid fa-xmark fs-5 text-danger"></i></button>
       </div>
 
-      {/* Área do Chat (Mapeia a Lista de Componentes Filhos) */}
       <div ref={chatContainerRef} onScroll={handleScroll} className="flex-grow-1 p-3 overflow-auto" style={{ backgroundColor: '#f8f9fa' }}>
         {comment.data && comment.data.length > 0 ? (
           comment.data.map((item: any) => {
@@ -125,7 +116,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
             const userPhoto = userData?.photo ? convertImage(userData.photo) : imageUser;
             const userName = userData?.name || item.user.name;
             const isMe = localStorage.getItem('codUserGIPP') == item.user.id;
-            const canEdit = (currentTime - new Date(item.created_at).getTime()) < (10 * 60 * 1000); 
             const isAdmin = localStorage.getItem('ADM') == '1';
             
             return item.status == 1 && (
@@ -134,7 +124,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
                 item={item}
                 isMe={isMe}
                 isAdmin={isAdmin}
-                canEdit={canEdit}
                 userPhoto={userPhoto}
                 userName={userName}
                 editingId={editingId}
@@ -151,7 +140,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         <div ref={bottomRef} />
       </div>
 
-      {/* Componente Filho de Digitação */}
       <ChatInput 
         userList={userList}
         isLoading={isLoading}
@@ -159,7 +147,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         onSend={handleSendOrchestrator}
       />
 
-      {/* Botão Flutuante de Rolar para Baixo */}
       {!isAtBottom && (
         <button onClick={() => bottomRef.current?.scrollIntoView({ behavior: "smooth" })} style={{ position: "absolute", bottom: "90px", right: "20px", borderRadius: "50%", width: "45px", height: "45px", zIndex: 10 }} className="btn btn-success shadow">
           <i className="fa-solid fa-arrow-down text-white"></i>

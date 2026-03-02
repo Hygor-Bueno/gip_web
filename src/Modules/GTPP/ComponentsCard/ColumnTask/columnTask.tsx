@@ -38,7 +38,6 @@ interface ColumnTaskStateProps {
     buttonHeader?: JSX.Element;
     istheme?: string;
     content_body?: any[];
-    selectedTasks?: number[];
     setSelectedTasks?: React.Dispatch<React.SetStateAction<number[]>>;
     theme_id_fk: string;
     is_first_column?: boolean;
@@ -54,7 +53,6 @@ const ColumnTaskState: React.FC<ColumnTaskStateProps> = ({
     bg_color,
     buttonHeader,
     content_body,
-    selectedTasks,
     setSelectedTasks,
     theme_id_fk,
     is_first_column,
@@ -189,7 +187,6 @@ const ColumnTaskState: React.FC<ColumnTaskStateProps> = ({
                                 onClick={() => handleSelectTask(task.id)}
                             >
                                 <CardTask
-                                    selectedTasks={selectedTasks}
                                     id={task.id}
                                     initial_date={task.initial_date}
                                     final_date={task.final_date}

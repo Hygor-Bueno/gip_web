@@ -29,7 +29,7 @@ export default interface GtppMainProps {
   idTheme: string;
   getIdTheme: React.Dispatch<React.SetStateAction<string>>;
   getTask: Task[];
-  selectedTasks: number[];
+  selectedtasks: number[];
   setSelectedTasks: React.Dispatch<React.SetStateAction<number[]>>;
   task: Task;
   taskDetails: iTaskReq;
