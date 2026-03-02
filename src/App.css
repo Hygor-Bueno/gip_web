@@ -252,8 +252,25 @@ label, h1 {
   width: 100%;
 }
 
+.zIndex-one {
+  z-index: 1;
+}
 
+.modal-edit {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: #00000088;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
 
+.comment_i {  
+  display: inline-block;
+  padding: 10px;
+  transition: all 0.2s ease-in-out;
+}
 
 .file-dropzone {
   min-height: 160px;          /* tamanho fixo */
