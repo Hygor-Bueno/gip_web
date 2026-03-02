@@ -1,7 +1,7 @@
 import { ITask } from "../../../../Interface/iGIPP";
 
 export const filterTasks = (
-    tasks: ITask[], 
+    tasks: any, 
     searchTerm: string = "", 
     rangeDateInitial: string = "", 
     rangeDateInitialFinal: string = "", 

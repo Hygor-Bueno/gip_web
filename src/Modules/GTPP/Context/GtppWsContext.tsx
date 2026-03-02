@@ -350,7 +350,8 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setLoading(true);
       if (onSounds) { new Audio(soundFile).play().catch(e => console.error(e)); }
       const notify = new NotificationGTPP();
-      await notify.loadNotify(item, states);
+      const req = await notify.loadNotify(item, states);
+      if(req === undefined) throw new Error("No data");
       // CORREÇÃO: Usando a forma imutável para não duplicar chamadas no estado
       setNotifications(prev => [...prev, ...notify.list]);
       handleNotification(notify.list[0]["title"], notify.list[0]["message"], notify.list[0]["typeNotify"]);

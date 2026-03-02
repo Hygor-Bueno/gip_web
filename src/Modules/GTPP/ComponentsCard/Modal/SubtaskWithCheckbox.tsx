@@ -71,8 +71,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     }
   }, [task.id]);
 
-  // REMOVI AQUI O useEffect DUPLICADO DO getComment. O Chat cuida disso!
-
   const [subTask, setSubtask] = useState<iSubTask>({
     isObservable: false,
     isQuestion: false,
@@ -85,8 +83,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   function includeAuthorInList(listUser: any) {
     let list: any[] = Array.isArray(listUser) ? [...listUser] : [];
     if (listUser && listUser.length > 0) {
-      const exists = list.some((item: any) => item.user_id === getUser.id);
-      if (!exists) {
+      // Uso de optional chaining (?.) para evitar quebra caso getUser seja nulo ou undefined
+      const exists = list.some((item: any) => item.user_id === getUser?.id);
+      if (!exists && getUser?.id) { // Só adiciona se o ID do getUser realmente existir
         list.push({
           task_id: listUser[0].task_id,
           user_id: getUser.id,
@@ -101,18 +100,21 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
 
   function getCompleteUserList(listUser: any) {
       let list: any[] = Array.isArray(listUser) ? [...listUser] : [];
+
+      // Verifica se o getUser existe e possui ID antes de continuar
+      if (!getUser || !getUser.id) {
+          return list;
+      }
       
       // 1. Garante que o usuário logado (Você) está na lista para poder ser mencionado/visualizado
-      if (getUser && getUser.id) {
-          const exists = list.some((item: any) => item.user_id === getUser.id);
-          if (!exists) {
-              list.push({
-                  user_id: getUser.id,
-                  name: getUser.name || "Você",
-                  photo: getUser.photo,
-                  status: true
-              });
-          }
+      const exists = list.some((item: any) => item.user_id === getUser.id);
+      if (!exists) {
+          list.push({
+              user_id: getUser.id,
+              name: getUser.name || "Você",
+              photo: getUser.photo,
+              status: true
+          });
       }
 
       // 2. Garante que o AUTOR DA TAREFA está na lista (Busca na prop 'users' geral)
@@ -267,7 +269,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
         {/* Mudei "task" para "taskItem" no map para evitar conflito com o "task" global */}
         {(taskDetails.data?.task_item || []).map((taskItem, index: number) => {
           const list = users?.find((item: { user_id: number }) => item?.user_id == taskItem?.created_by);
-          const creator = !isMissing(list?.name) ? list?.name : getUser.name;
+          const creator = !isMissing(list?.name) ? list?.name : getUser?.name;
           const assignedUser = includeAuthorInList(props.details.data?.task_user)?.find(
             (user: any) => user.user_id === taskItem.assigned_to
           );
@@ -316,7 +318,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                   <div className="col-md-2 col-sm-3 text-center">
                     <div className="mx-auto cursor-pointer userPhotoAnimation border-warning"
                       onClick={async () => {
-                        if (userLog.administrator == 1 || getUser.id == userLog.id) {
+                        // Adicionado getUser?.id no lugar de getUser.id para evitar quebra no click
+                        if (userLog.administrator == 1 || getUser?.id == userLog.id) {
                           setUserState((prev: any) => ({
                             ...prev,
                             loadingList: {
@@ -364,8 +367,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                         <i 
                           style={{
                             padding: '10px',
-                            // backgroundColor: showChat ? 'rgba(108, 117, 125, 0.4)' : '', 
-                            // opacity: showChat ? 0.6 : 1,
                             pointerEvents: showChat ? 'none' : 'auto',
                             cursor: showChat ? 'not-allowed' : 'pointer',
                             filter: showChat ? 'grayscale(100%)' : 'none',
@@ -431,6 +432,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       </div>
     </div>
   );
+  
   function closeObservation(taskObj: any) {
     setSubtask((prev) => ({ ...prev, idSubTask: taskObj.id, openDialog: !prev.openDialog }));
   }

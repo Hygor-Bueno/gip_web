@@ -13,7 +13,6 @@ type CardTaskProps = {
     final_date?: string;
     percent?:number;
     create_by:number;
-    isTheme?: any;
     selectedTasks?: any;
 }
 
@@ -37,10 +36,9 @@ const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
     }
 
     let { color, title } = colorPriorityCard(props.priority_card);
-    let animationTask = props.selectedTasks?.includes(props.id) && props.isTheme ? 'vibrate-selected' : '';
 
     return (
-        <div title={`Tarefa: ${props.title_card}`} {...props} className={`card-task-container modal-container ${animationTask} modal-Xsmall cursor-pointer p-2`}>
+        <div title={`Tarefa: ${props.title_card}`} {...props} className={`card-task-container modal-container modal-Xsmall cursor-pointer p-2`}>
             <React.Fragment>
                 <h1 className="fw-bold card-text">#{props.id}</h1>
                 <div className="card-task-header d-flex justify-content-between col-12 gap-3">
