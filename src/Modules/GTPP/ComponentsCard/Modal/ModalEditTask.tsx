@@ -56,7 +56,7 @@ export default function ModalEditTask(props: any) {
   return (
     onEditTask && (
       <div
-        className="d-flex align-items-center justify-content-center"
+        className="d-flex align-items-center justify-content-center modal-edit"
         style={{
           position: "absolute",
           height: "100%",
