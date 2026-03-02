@@ -7,7 +7,7 @@ import ModalEditTask from "./ModalEditTask";
 import ModalConfirm from "./ModalConfirm";
 import SocialCommentFeed from "./Comment/SocialCommentFeed";
 import UserLinkingList from "./TaskItem/components/UserLinkingList";
-import { deleteTaskItem, getCompleteUserList, removeItemOfList } from "./TaskItem/utils/utilsTaskItem";
+import { getCompleteUserList } from "./TaskItem/utils/utilsTaskItem";
 import TaskItemList from "./TaskItem/components/TaskItemList";
 require('animate.css');
 
@@ -49,7 +49,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       containerTaskItemsRef.current.scrollTop = containerTaskItemsRef.current.scrollHeight;
     }
   }, [taskDetails, onScrollDown]);
-
+  
   useEffect(() => {
     if (task.id) {
       getTaskInformations();
@@ -82,11 +82,19 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     try {
       setLoading(true);
       if (taskItemObj.id && taskItemObj.task_id) {
-        const result = await deleteTaskItem({ id: taskItemObj.id, task_id: taskItemObj.task_id }, fetchData);
+        const result = await deleteTaskItem({
+          id: taskItemObj.id,
+          task_id: taskItemObj.task_id,
+        });
         if (result.error) throw new Error(result.message);
-        removeItemOfList(taskItemObj.id, taskDetails, setTaskDetails);
+        removeItemOfList(taskItemObj.id);
         reloadPagePercent(result.data, taskItemObj);
-        deleteItemTaskWS({ description: "Um item foi removido.", itemUp: taskItemObj.id, percent: parseInt(result.data.percent), remove: true });
+        deleteItemTaskWS({
+          description: "Um item foi removido.",
+          itemUp: taskItemObj.id,
+          percent: parseInt(result.data.percent),
+          remove: true,
+        });
       }
     } catch (error: any) {
       console.error(error.message);
@@ -109,14 +117,13 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   return (
     <div ref={containerTaskItemsRef} className="overflow-auto rounded flex-grow-1">
       <ModalEditTask 
+        userList={listWithUser()} 
         onEditTask={onEditTask} 
-        isObservation={isObservation} 
-        editTask={editTask} 
-        setIsObservation={setIsObservation} 
-        userList={listWithUser()}
         onClose={() => setOnEditTask(false)} 
-        setEditTask={setEditTask} 
-      />
+        isObservation={isObservation} 
+        setIsObservation={setIsObservation} 
+        editTask={editTask} 
+        setEditTask={setEditTask} />
 
       <ModalConfirm isOpen={isTrashDelete} onCancel={async () => setIsTrashDelete(false)} onSave={async () => {
         await handleTrashDelete(taskToDelete);
@@ -152,9 +159,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
           updateCommentCount={updateCommentCount}
           userLog={userLog}
           userState={userState}
-          setSubtask={setSubtask}
           setTaskDetails={setTaskDetails}
           checkedItem={checkedItem}
+          closeObservation={closeObservation}
           isMissing={isMissing}
           setEditTask={setEditTask}
           setIsTrashDelete={setIsTrashDelete}
@@ -171,6 +178,23 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       </div>
     </div>
   );
+  
+  function closeObservation(taskObj: any) {
+    setSubtask((prev) => ({ ...prev, idSubTask: taskObj.id, openDialog: !prev.openDialog }));
+  }
+
+  async function deleteTaskItem(item: { id: number; task_id: number }) {
+    const req: any = await fetchData({ method: "DELETE", params: { id: item.id, task_id: item.task_id }, pathFile: 'GTPP/TaskItem.php' });
+    return req;
+  }
+
+  function removeItemOfList(id: number) {
+    const indexDelete: number | undefined = taskDetails.data?.task_item.findIndex(item => item.id == id);
+    if (indexDelete != undefined && indexDelete >= 0) {
+      taskDetails.data?.task_item.splice(indexDelete, 1);
+      setTaskDetails({ ...taskDetails });
+    }
+  }
 };
 
 export default SubTasksWithCheckbox;

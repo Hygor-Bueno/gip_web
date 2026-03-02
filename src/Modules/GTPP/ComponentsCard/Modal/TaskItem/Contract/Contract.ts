@@ -5,7 +5,7 @@ export interface ITaskItemList {
     getUser:any, 
     updateCommentCount:any, 
     userState:any, 
-    setSubtask: any,    
+    closeObservation:any, 
     subTask:any, 
     positionTaskStates:any,
     updatePositionTaskItem:any,

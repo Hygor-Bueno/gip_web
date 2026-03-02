@@ -9,7 +9,7 @@ import AnexoImage from "../../../../../../Components/Attachment/AttachmentFile";
 import { ITaskItemList } from '../Contract/Contract';
 import { changePositionItem, closeObservation, includeAuthorInList } from '../utils/utilsTaskItem';
 
-const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, getUser, updateCommentCount, setSubtask, userState, subTask, positionTaskStates, updatePositionTaskItem, checkedItem, togglePositionTask, setOnScrollDown, onScrollDown, userLog, setUserState, updatedAddUserTaskItem, showChat, setEditTask, setOnEditTask, setShowChat, setTaskToDelete, setIsTrashDelete, updateItemTaskFile, setTaskDetails, props }) => {
+const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, getUser, updateCommentCount, closeObservation, userState, subTask, positionTaskStates, updatePositionTaskItem, checkedItem, togglePositionTask, setOnScrollDown, onScrollDown, userLog, setUserState, updatedAddUserTaskItem, showChat, setEditTask, setOnEditTask, setShowChat, setTaskToDelete, setIsTrashDelete, updateItemTaskFile, setTaskDetails, props }) => {
   return (
     <React.Fragment>
       {(taskDetails.data?.task_item || []).map((taskItem: any, index: number) => {
@@ -22,7 +22,7 @@ const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, 
 
         return (
           <div key={taskItem.id} className={`d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto ${userState.loadingList.listTask?.id == taskItem.id ? 'border-mark' : ''}`}>
-            {(subTask.openDialog && subTask.idSubTask === taskItem.id && taskItem.note) && <ModalInformation onClose={closeObservation({ setSubtask })} task description={taskItem.note} />}
+            {(subTask.openDialog && subTask.idSubTask === taskItem.id && taskItem.note) && <ModalInformation onClose={closeObservation} task description={taskItem.note} />}
             {(taskItem.id && positionTaskStates[taskItem.id]) &&
               <div>
                 <button onClick={async () => {
