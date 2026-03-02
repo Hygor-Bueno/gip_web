@@ -7,7 +7,7 @@ import ModalEditTask from "./ModalEditTask";
 import ModalConfirm from "./ModalConfirm";
 import SocialCommentFeed from "./Comment/SocialCommentFeed";
 import UserLinkingList from "./TaskItem/components/UserLinkingList";
-import { getCompleteUserList } from "./TaskItem/utils/utilsTaskItem";
+import { deleteTaskItem, getCompleteUserList, removeItemOfList } from "./TaskItem/utils/utilsTaskItem";
 import TaskItemList from "./TaskItem/components/TaskItemList";
 require('animate.css');
 
@@ -21,19 +21,8 @@ interface iSubTask {
 }
 
 const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, props }) => {
-  const {
-    checkedItem,
-    task,
-    taskDetails,
-    setTaskDetails,
-    reloadPagePercent,
-    deleteItemTaskWS,
-    updateItemTaskFile,
-    updatedAddUserTaskItem,
-    updateCommentCount,
-    getTaskInformations,
-    getUser    
-  } = useWebSocket();
+  const { task, taskDetails, updateCommentCount, getUser, reloadPagePercent, deleteItemTaskWS, updateItemTaskFile, 
+  setTaskDetails, updatedAddUserTaskItem, getTaskInformations, checkedItem } = useWebSocket();
 
   const { setLoading, userLog } = useMyContext();
   const { fetchData } = useConnection();
@@ -61,7 +50,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     }
   }, [taskDetails, onScrollDown]);
 
-  // Atualiza os dados gerais da tarefa ao abrir
   useEffect(() => {
     if (task.id) {
       getTaskInformations();
@@ -88,46 +76,27 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     return !value;
   }
 
-  function changePositionItem(next: boolean, id: number) {
-    let result = false;
-    if (taskDetails.data && taskDetails.data.task_item) {
-      const items = taskDetails.data.task_item;
-      const currentIndex = items.findIndex(item => item.id === id);
-      const newIndex = next ? currentIndex + 1 : currentIndex - 1;
-      const validMove = currentIndex !== -1 && newIndex >= 0 && newIndex < items.length;
-      if (validMove) {
-        const [movedItem] = items.splice(currentIndex, 1);
-        items.splice(newIndex, 0, movedItem);
-        setTaskDetails({ ...taskDetails });
-        result = true;
-      }
-    }
-    return result;
-  }
+  
 
   async function handleTrashDelete(taskItemObj: any) {
     try {
       setLoading(true);
       if (taskItemObj.id && taskItemObj.task_id) {
-        const result = await deleteTaskItem({
-          id: taskItemObj.id,
-          task_id: taskItemObj.task_id,
-        });
+        const result = await deleteTaskItem({ id: taskItemObj.id, task_id: taskItemObj.task_id }, fetchData);
         if (result.error) throw new Error(result.message);
-        removeItemOfList(taskItemObj.id);
+        removeItemOfList(taskItemObj.id, taskDetails, setTaskDetails);
         reloadPagePercent(result.data, taskItemObj);
-        deleteItemTaskWS({
-          description: "Um item foi removido.",
-          itemUp: taskItemObj.id,
-          percent: parseInt(result.data.percent),
-          remove: true,
-        });
+        deleteItemTaskWS({ description: "Um item foi removido.", itemUp: taskItemObj.id, percent: parseInt(result.data.percent), remove: true });
       }
     } catch (error: any) {
       console.error(error.message);
     } finally {
       setLoading(false);
     }
+  }
+
+  function listWithUser() {
+    return getCompleteUserList(props.details.data?.task_user, getUser, task, users);
   }
 
   async function updatePositionTaskItem(item: { id: number, next_or_previous: "next" | "previous" }) {
@@ -139,25 +108,39 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
 
   return (
     <div ref={containerTaskItemsRef} className="overflow-auto rounded flex-grow-1">
-      <UserLinkingList getUser={getUser} setUserState={setUserState} signature={assinatura}updatedAddUserTaskItem={updatedAddUserTaskItem}userState={userState} />
+      <ModalEditTask 
+        onEditTask={onEditTask} 
+        isObservation={isObservation} 
+        editTask={editTask} 
+        setIsObservation={setIsObservation} 
+        userList={listWithUser()}
+        onClose={() => setOnEditTask(false)} 
+        setEditTask={setEditTask} 
+      />
+
+      <ModalConfirm isOpen={isTrashDelete} onCancel={async () => setIsTrashDelete(false)} onSave={async () => {
+        await handleTrashDelete(taskToDelete);
+        setIsTrashDelete(false);
+      }} title="Atenção" children="Deseja apagar esse conteúdo?" cancelText="Voltar" saveText="Confirmar" />
+      
+      <UserLinkingList 
+        getUser={getUser} 
+        setUserState={setUserState} 
+        signature={assinatura} 
+        updatedAddUserTaskItem={updatedAddUserTaskItem}
+        userState={userState} />
+
       <div>
         {showChat && (
           <SocialCommentFeed 
             key={editTask?.id}
-            userList={getCompleteUserList(props.details.data?.task_user, getUser, task, users)} 
+            userList={listWithUser()} 
             editTask={editTask} 
             onClose={() => setShowChat(false)} 
           />
         )}
 
-        <ModalEditTask userList={getCompleteUserList(props.details.data?.task_user, getUser, task, users)} onEditTask={onEditTask} onClose={() => setOnEditTask(false)} isObservation={isObservation} setIsObservation={setIsObservation} editTask={editTask} setEditTask={setEditTask} />
-        
-        <ModalConfirm isOpen={isTrashDelete} onCancel={async () => setIsTrashDelete(false)} onSave={async () => {
-          await handleTrashDelete(taskToDelete);
-          setIsTrashDelete(false);
-        }} title="Atenção" children="Deseja apagar esse conteúdo?" cancelText="Voltar" saveText="Confirmar" />
-
-        <TaskItemList 
+        <TaskItemList
           props={props}
           users={users}
           getUser={getUser}
@@ -169,8 +152,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
           updateCommentCount={updateCommentCount}
           userLog={userLog}
           userState={userState}
+          setSubtask={setSubtask}
+          setTaskDetails={setTaskDetails}
           checkedItem={checkedItem}
-          closeObservation={closeObservation}
           isMissing={isMissing}
           setEditTask={setEditTask}
           setIsTrashDelete={setIsTrashDelete}
@@ -179,7 +163,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
           setShowChat={setShowChat}
           setTaskToDelete={setTaskToDelete}
           setUserState={setUserState}
-          changePositionItem={changePositionItem}
           updateItemTaskFile={updateItemTaskFile}
           updatePositionTaskItem={updatePositionTaskItem}
           updatedAddUserTaskItem={updatedAddUserTaskItem}
@@ -188,23 +171,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       </div>
     </div>
   );
-  
-  function closeObservation(taskObj: any) {
-    setSubtask((prev) => ({ ...prev, idSubTask: taskObj.id, openDialog: !prev.openDialog }));
-  }
-
-  async function deleteTaskItem(item: { id: number; task_id: number }) {
-    const req: any = await fetchData({ method: "DELETE", params: { id: item.id, task_id: item.task_id }, pathFile: 'GTPP/TaskItem.php' });
-    return req;
-  }
-
-  function removeItemOfList(id: number) {
-    const indexDelete: number | undefined = taskDetails.data?.task_item.findIndex(item => item.id == id);
-    if (indexDelete != undefined && indexDelete >= 0) {
-      taskDetails.data?.task_item.splice(indexDelete, 1);
-      setTaskDetails({ ...taskDetails });
-    }
-  }
 };
 
 export default SubTasksWithCheckbox;

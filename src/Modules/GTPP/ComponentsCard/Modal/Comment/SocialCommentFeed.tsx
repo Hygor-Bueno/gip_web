@@ -99,7 +99,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   return (
     <div 
       className={`d-flex flex-column shadow-lg animate__animated ${isMobile ? 'animate__fadeInUp' : 'animate__fadeInRight'}`} 
-      style={{ height: isMobile ? '100dvh' : 'calc(100% - 34px)', width: isMobile ? '100%' : '450px', zIndex: 2000, left: isMobile ? '0' : '20px', top: isMobile ? '0' : '4vh', position: 'fixed', backgroundColor: '#fafafafa', borderRadius: isMobile ? '0' : '20px', border: '1px solid #e0e0e0', overflow: 'hidden' }}
+      style={{ height: isMobile ? '100dvh' : 'calc(100% - 80px)', width: isMobile ? '100%' : '450px', zIndex: 2000, left: isMobile ? '0' : '20px', top: isMobile ? '0' : '4vh', position: 'fixed', backgroundColor: '#fafafafa', borderRadius: isMobile ? '0' : '20px', border: '1px solid #e0e0e0', overflow: 'hidden' }}
     >
       {!isOnline && (
         <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.9)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 4000 }}>

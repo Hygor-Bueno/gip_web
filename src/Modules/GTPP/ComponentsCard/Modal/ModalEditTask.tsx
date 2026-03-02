@@ -3,14 +3,7 @@ import ConfirmModal from "../../../../Components/CustomConfirm";
 import { useWebSocket } from "../../Context/GtppWsContext";
 
 export default function ModalEditTask(props: any) {
-  const {
-    onEditTask,
-    editTask,
-    setEditTask,
-    isObservation,
-    setIsObservation,
-    onClose,
-  } = props;
+  const { onEditTask, editTask, setEditTask, isObservation, setIsObservation, onClose } = props;
 
   const [note, setNote] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -82,9 +75,7 @@ export default function ModalEditTask(props: any) {
                   updatedForQuestion({
                     id: editTask.id,
                     task_id: editTask.task_id,
-                    yes_no: event.target.checked
-                      ? 3 // Marcar como questão neutra ao marcar
-                      : 0 // Voltar para comum ao desmarcar
+                    yes_no: event.target.checked ? 3 : 0 
                   });
                 }}
                 id={`item_quest_edit_${editTask.task_id}`}

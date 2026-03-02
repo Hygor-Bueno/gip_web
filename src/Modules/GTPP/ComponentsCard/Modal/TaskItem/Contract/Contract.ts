@@ -5,10 +5,9 @@ export interface ITaskItemList {
     getUser:any, 
     updateCommentCount:any, 
     userState:any, 
-    closeObservation:any, 
+    setSubtask: any,    
     subTask:any, 
-    positionTaskStates:any, 
-    changePositionItem:any, 
+    positionTaskStates:any,
     updatePositionTaskItem:any,
     checkedItem:any,
     togglePositionTask:any,
@@ -24,6 +23,7 @@ export interface ITaskItemList {
     setTaskToDelete:any,
     setIsTrashDelete:any,
     updateItemTaskFile:any,
+    setTaskDetails: any,
     props: any,
 };
 
