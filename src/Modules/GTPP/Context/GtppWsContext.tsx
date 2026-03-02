@@ -10,6 +10,7 @@ import { useConnection } from "../../../Context/ConnContext";
 import { useNavigate } from "react-router-dom";
 import { ApiResponse, ITheme } from "../CreateTheme/ICreateTheme";
 
+// Refactory this code.
 const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 
 export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
