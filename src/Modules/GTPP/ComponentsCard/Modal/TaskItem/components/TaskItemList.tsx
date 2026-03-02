@@ -7,7 +7,7 @@ import ButtonIcon from '../../../Button/ButtonIcon/btnicon';
 import ModalInformation from './InformationModal';
 import AnexoImage from "../../../../../../Components/Attachment/AttachmentFile";
 import { ITaskItemList } from '../Contract/Contract';
-import { changePositionItem, closeObservation, includeAuthorInList } from '../utils/utilsTaskItem';
+import { changePositionItem, includeAuthorInList } from '../utils/utilsTaskItem';
 
 const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, getUser, updateCommentCount, closeObservation, userState, subTask, positionTaskStates, updatePositionTaskItem, checkedItem, togglePositionTask, setOnScrollDown, onScrollDown, userLog, setUserState, updatedAddUserTaskItem, showChat, setEditTask, setOnEditTask, setShowChat, setTaskToDelete, setIsTrashDelete, updateItemTaskFile, setTaskDetails, props }) => {
   return (
