@@ -55,17 +55,7 @@ export default function ModalEditTask(props: any) {
 
   return (
     onEditTask && (
-      <div
-        className="d-flex align-items-center justify-content-center"
-        style={{
-          position: "absolute",
-          height: "100%",
-          width: "100%",
-          background: "#00000088",
-          top: 0,
-          left: 0,
-        }}
-      >
+      <div className="d-flex align-items-center justify-content-center modal-edit">
         {confirm && (
           <ConfirmModal
             {...msgConfirm}
