@@ -247,27 +247,16 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const res: any = await fetchData({ method: "GET", params: null, pathFile: 'GTPP/TaskItemResponse.php', urlComplement: `&task_item_id=${taskItemId}&count=true`, exception: ["No data"] });
     
     if (res && !res.error) {
-      const novoTotal = Number(res.data[0]?.total_comment) || 0;
+      const total = Number(res.data[0]?.total_comment) || 0;
 
       setTaskDetails((prev: any) => {
         if (!prev.data || !prev.data.task_item) return prev;
-
         return {
           ...prev,
           data: {
             ...prev.data,
             task_item: prev.data.task_item.map((item: any) => {
-              if (item.id === taskItemId) {
-                // SÓ marcamos como novo se o número aumentou e o chat NÃO está aberto
-                const antigoTotal = Number(item.total_comment) || 0;
-                const temNovidade = novoTotal > antigoTotal;
-
-                return { 
-                  ...item, 
-                  total_comment: novoTotal, 
-                  // hasNewComment: temNovidade // <-- AQUI A CHAVE DA MÁGICA
-                };
-              }
+              if (item.id === taskItemId) return { ...item, total_comment: total };
               return item;
             })
           }
