@@ -30,7 +30,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const navigate = useNavigate();
   const { setLoading, userLog } = useMyContext();
-  const { fetchData, DataFetchForm } = useConnection();
+  const { fetchData } = useConnection();
   const ws = useRef(GtppWebSocket.getInstance());
 
   useEffect(() => {
@@ -281,7 +281,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         dataToSend.append('comment', text);
         if (file) dataToSend.append('file', file);
 
-        const response = await DataFetchForm({ method: "POST", params: dataToSend, pathFile: 'GTPP/TaskItemResponse.php' });
+        const response = await fetchData({ method: "POST", params: dataToSend, pathFile: 'GTPP/TaskItemResponse.php' });
 
         if (response && !response.error) {
             await getComment(taskItemId);
@@ -291,7 +291,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             return response;
         }
     } catch (error) { console.error("Erro ao enviar comentário:", error); }
-  }, [DataFetchForm, getComment, userLog.id]);
+  }, [fetchData, getComment, userLog.id]);
 
   const deleteComment = async (idToDelete: number, taskItemId: number, taskId: number) => {
     const response = await fetchData({ method: "PUT", params: { id: idToDelete, status: "0" }, pathFile: 'GTPP/TaskItemResponse.php' });

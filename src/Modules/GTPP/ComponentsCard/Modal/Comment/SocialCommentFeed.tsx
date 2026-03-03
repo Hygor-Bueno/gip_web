@@ -23,7 +23,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const { comment, deleteComment, sendComment, getComment, editComment, notifyMentionWs } = useWebSocket() as any;
-  const { DownloadFile } = useConnection();
+  const { fetchData } = useConnection();
 
   useEffect(() => {
     const handleStatus = () => setIsOnline(navigator.onLine);
@@ -130,7 +130,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
                 setEditingId={setEditingId}
                 deleteComment={handleDeleteOrchestrator}
                 handleSaveEdit={handleSaveEditOrchestrator}
-                DownloadFile={DownloadFile}
+                DownloadFileComment={fetchData}
               />
             );
           })

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { convertTime } from '../../../../../Util/Util';
 
 interface CommentItemProps {
@@ -11,29 +11,10 @@ interface CommentItemProps {
   setEditingId: (id: number | null) => void;
   deleteComment: (id: number) => void;
   handleSaveEdit: (id: number, text: string) => Promise<void>;
-  DownloadFile: (params: any) => void;
+  DownloadFileComment: (params: any) => void;
 }
 
-export default function CommentItem({ item, isMe, isAdmin, canEdit, userPhoto, userName, editingId, setEditingId, deleteComment, handleSaveEdit, DownloadFile }: CommentItemProps) {
-  const [tempText, setTempText] = useState(""); 
-  const renderComment = (commentText: string) => {
-    if (!commentText) return null;
-    const parts = commentText.split(/(@\w+)/g);
-
-    return parts.map((part, index) => {
-      if (part.startsWith('@')) {
-        const fullMention = part.substring(1); 
-        const firstName = fullMention.split(' ')[0]; 
-        return (
-          <span key={index} style={{ color: '#00d2ff', fontWeight: 'bold' }}>
-            @{firstName}
-          </span>
-        );
-      }
-      return part;
-    });
-  };
-
+export default function CommentItem({ item, isMe, isAdmin, userPhoto, userName, editingId, deleteComment, DownloadFileComment }: CommentItemProps) {
   return (
     <div className={`d-flex mb-3 align-items-end animate__animated animate__fadeIn ${isMe ? 'flex-row-reverse' : ''}`}>
       <img src={userPhoto} alt={userName} className={`rounded-circle border border-white shadow-sm ${isMe ? 'ms-2' : 'me-2'}`} style={{ width: '38px', height: '38px', objectFit: 'cover', flexShrink: 0 }} />
@@ -49,35 +30,19 @@ export default function CommentItem({ item, isMe, isAdmin, canEdit, userPhoto, u
             </div>
           </div>
 
-          {editingId === item.id ? (
-            <div className="d-flex flex-column gap-2 mt-2">
-                <textarea 
-                    className="form-control form-control-sm border-secondary text-white"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.1)', resize: 'none', minHeight: '60px', fontSize: '0.9rem' }}
-                    value={tempText}
-                    onChange={(e) => setTempText(e.target.value)}
-                    autoFocus
-                />
-                <div className="d-flex justify-content-end gap-2">
-                    <button className="btn btn-sm btn-outline-light py-0" style={{fontSize: '0.75rem'}} onClick={() => setEditingId(null)}>Cancelar</button>
-                    <button className="btn btn-sm btn-success py-0" style={{fontSize: '0.75rem'}} onClick={() => handleSaveEdit(item.id, tempText)}>Salvar</button>
-                </div>
-            </div>
-          ) : (
-            <React.Fragment>
-              <span className="small text-white" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '0.9rem', lineHeight: '1.4' }}>
-                {renderComment(item.comment)}
-              </span>
-              {item.updated_at && item.updated_at !== item.created_at && (
-                <small className="text-muted d-block mt-1" style={{ fontSize: '0.65rem' }}>(editado)</small>
-              )}
-            </React.Fragment>
-          )}
+          <React.Fragment>
+            <span className="small text-white" style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '0.9rem', lineHeight: '1.4' }}>
+              {item.comment}
+            </span>
+            {item.updated_at && item.updated_at !== item.created_at && (
+              <small className="text-muted d-block mt-1" style={{ fontSize: '0.65rem' }}>(editado)</small>
+            )}
+          </React.Fragment>
 
           {item.file && item.file.file_name && (
             <div className="mt-2 p-2 rounded-3 d-flex align-items-center" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
               <span className="small fw-bold text-white text-truncate" style={{ maxWidth: '140px' }}>{item.file.file_name}</span>
-              <button className="btn btn-sm ms-2" onClick={() => DownloadFile({method: 'GET', params: null,pathFile:'GTPP/Handlers/TaskItemResponse.php',urlComplement:`&id_comment=${item.id}`})}>
+              <button className="btn btn-sm ms-2" onClick={() => DownloadFileComment({method: 'GET', params: null,pathFile:'GTPP/Handlers/TaskItemResponse.php',urlComplement:`&id_comment=${item.id}`})}>
                 <i className="fa-solid fa-download fs-5 text-success"></i>
               </button>
             </div>

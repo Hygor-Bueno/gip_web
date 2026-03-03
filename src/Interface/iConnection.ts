@@ -1,7 +1,7 @@
 export interface ConnectionContextProps {
     fetchData: (req: iReqConn) => Promise<any>;
-    DataFetchForm: (req: iReqConn) => Promise<any>;
-    DownloadFile: (req: iReqConn) => Promise<any>;
+    // DataFetchForm: (req: iReqConn) => Promise<any>;
+    // DownloadFileComment: (req: iReqConn) => Promise<any>;
     isLogged: boolean;
     setIsLogged: (isLogged: boolean) => void;
 }

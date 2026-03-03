@@ -218,27 +218,10 @@ export async function fetchNodeDataFull(req: iReqConn, headers?: Record<string, 
     }
 };
 
+// Jonatas silva dos santos | data: 03/03/2026
+// - Fiz uma mudança para trabalhar com FormData para envios de arquivos e leitura binaria
 export async function fetchDataFull(req: iReqConn) {
-    let result: { error: boolean, message?: string, data?: any } = { error: true, message: "Generic Error!" };
-    try {
-        const URL = settingUrl(`/Controller/${req.pathFile}?app_id=${req.appId ? req.appId : "18"}&AUTH=${localStorage.tokenGIPP ? localStorage.tokenGIPP : ''}${req.urlComplement ? req.urlComplement : ""}`);
-        let objectReq: any = { method: req.method };
-        if (req.params) objectReq.body = JSON.stringify(req.params);
-        const response = await fetch(URL, objectReq);
-        const body = await response.json();
-        result = body;        
-        if (body.error) throw new Error(body.message);
-    } catch (messageErr: any) {
-        const translate = new Translator(messageErr.message);
-        const passDefault = messageErr.message.toLowerCase().includes('default password is not permited');
-        checkedExceptionError(messageErr.message, req.exception) && handleNotification(passDefault ? "Atenção!" : "Erro!", translate.getMessagePT(), passDefault ? "info" : "danger");
-    } finally {
-        return result;
-    }
-};
-
-export async function formDataFetch(req: iReqConn) {
-    let result: { error: boolean, message?: string, data?: any } = { error: true, message: "Generic Error!" };
+    let result: any = { error: true, message: "Generic Error!" };
 
     try {
         const URL = settingUrl(`/Controller/${req.pathFile}?app_id=${req.appId ? req.appId : "18"}&AUTH=${localStorage.tokenGIPP ? localStorage.tokenGIPP : ''}${req.urlComplement ? req.urlComplement : ""}`);
@@ -256,38 +239,15 @@ export async function formDataFetch(req: iReqConn) {
         }
 
         const response = await fetch(URL, objectReq);
-        const body = await response.json();
-        result = body;
-
-        if (body.error) throw new Error(body.message);
-
-    } catch (messageErr: any) {
-        const translate = new Translator(messageErr.message);
-        const passDefault = messageErr.message.toLowerCase().includes('default password is not permited');
-        checkedExceptionError(messageErr.message, req.exception) &&
-            handleNotification(passDefault ? "Atenção!" : "Erro!", translate.getMessagePT(), passDefault ? "info" : "danger");
-    } finally {
-        return result;
-    }
-};
-
-export async function FetchDownload (req: iReqConn) {
-    let result: any = { error: true, message: "Generic Error!" };
-    try {
-        const URL = settingUrl(`/Controller/${req.pathFile}?app_id=${req.appId ? req.appId : "18"}&AUTH=${localStorage.tokenGIPP ? localStorage.tokenGIPP : ''}${req.urlComplement ? req.urlComplement : ""}`);
-        let objectReq: any = { method: req.method };
-        if (req.params) objectReq.body = JSON.stringify(req.params);
-
-        const response = await fetch(URL, objectReq);
-
-        // CHECAGEM DE TIPO: Se for um arquivo, não damos .json()
+        
+        // CHECAGEM DE TIPO: Se for um arquivo, baixa. Se for JSON, continua.
         const contentType = response.headers.get("content-type");
         if (contentType && !contentType.includes("application/json")) {
             const blob = await response.blob();
             const downloadUrl = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = downloadUrl;
-            a.download = ""; // O navegador usa o nome do header
+            a.download = "";
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -295,10 +255,12 @@ export async function FetchDownload (req: iReqConn) {
         }
 
         const body = await response.json();
-        result = body;
+        result = body;        
         if (body.error) throw new Error(body.message);
     } catch (messageErr: any) {
-        console.log(messageErr);
+        const translate = new Translator(messageErr.message);
+        const passDefault = messageErr.message.toLowerCase().includes('default password is not permited');
+        checkedExceptionError(messageErr.message, req.exception) && handleNotification(passDefault ? "Atenção!" : "Erro!", translate.getMessagePT(), passDefault ? "info" : "danger");
     } finally {
         return result;
     }

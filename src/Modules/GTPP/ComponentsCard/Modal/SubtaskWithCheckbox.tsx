@@ -34,7 +34,6 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   const containerTaskItemsRef = useRef<HTMLDivElement>(null);
   const [isTrashDelete, setIsTrashDelete] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<any>(null);
-  const [userLinked, setUserLinked] = useState<any>(false);
 
   const [showChat, setShowChat] = useState(false);
 
