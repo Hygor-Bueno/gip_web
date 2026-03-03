@@ -48,10 +48,11 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   const containerTaskItemsRef = useRef<HTMLDivElement>(null);
   const [isTrashDelete, setIsTrashDelete] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<any>(null);
+  const [userLinked, setUserLinked] = useState<any>(false);
 
   const [showChat, setShowChat] = useState(false);
 
-  const [userState, setUserState] = useState({
+  const [userState, setUserState] = useState<any>({
     loadingList: { users: undefined, listTask: undefined } as { users?: any; listTask?: any },
     isListUser: false,
     getListUser: { name: undefined, photo: undefined, user_id: undefined } as { name?: string; photo?: string; user_id?: number },
@@ -224,7 +225,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
         setIsTrashDelete(false);
       }} title="Atenção" children="Deseja apagar esse conteúdo?" cancelText="Voltar" saveText="Confirmar" />
 
-      {userState.isListUser && (
+      {userLinked && userState?.isListUser && (
         <div className="position-absolute list-user-task rounded p-2 cursor-pointer bg-list-user overflow-hidden">
           <div><button className="btn btn-danger" onClick={() => { setUserState((prev: any) => ({ ...prev, isListUser: false, loadingList: [] })) }}><i className="fa fa-solid fa-x text-white"></i></button></div>
           <div className="overflow-auto">
@@ -239,7 +240,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                   const alreadyAssigned = userState.loadingList?.listTask?.assigned_to === item.user_id;
                   const payload = { task_id: userState.loadingList?.listTask?.task_id, id: userState.loadingList?.listTask?.id, user_id: alreadyAssigned ? 0 : item.user_id };
                   await updatedAddUserTaskItem(payload, setUserState);
-                  if (!alreadyAssigned) setUserState((prev) => ({ ...prev, getListUser: item }));
+                  if (!alreadyAssigned) setUserState((prev: any) => ({ ...prev, getListUser: item }));
                 }}
               >
                 <div className="rounded-circle overflow-hidden d-flex align-items-center justify-content-center" style={{ width: "30px", height: "30px" }}>
@@ -262,7 +263,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
             key={editTask?.id}
             userList={getCompleteUserList(props.details.data?.task_user)} 
             editTask={editTask} 
-            onClose={() => setShowChat(false)} 
+            onClose={() => {
+              setShowChat(false)
+            }} 
           />
         )}
         
@@ -317,6 +320,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                   <div className="col-md-2 col-sm-3 text-center">
                     <div className="mx-auto cursor-pointer userPhotoAnimation border-warning"
                       onClick={async () => {
+                        setUserLinked(true);
                         if (userLog.administrator == 1 || getUser?.id == userLog.id) {
                           setUserState((prev: any) => ({
                             ...prev,
@@ -402,6 +406,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
                       onClick={() => {
                         setEditTask(taskItem);
                         setOnEditTask(true);
+                        setShowChat(false);
+                        setUserLinked(false);
                       }}
                     />
 
