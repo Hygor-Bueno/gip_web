@@ -10,6 +10,7 @@ import { useConnection } from "../../../Context/ConnContext";
 import { useNavigate } from "react-router-dom";
 import { ApiResponse, ITheme } from "../CreateTheme/ICreateTheme";
 
+// Refactory this code.
 const GtppWsContext = createContext<iGtppWsContextType | undefined>(undefined);
 
 export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -27,8 +28,8 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [getUser, setGetUser] = useState<iUserDefaultClass | null>(null);
   const [userTaskBind, setUserTaskBind] = useState<any[]>([]);
 
-  const { setLoading, userLog } = useMyContext();
   const navigate = useNavigate();
+  const { setLoading, userLog } = useMyContext();
   const { fetchData, DataFetchForm } = useConnection();
   const ws = useRef(GtppWebSocket.getInstance());
 
@@ -248,7 +249,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     
     if (res && !res.error) {
       const total = Number(res.data[0]?.total_comment) || 0;
-
       setTaskDetails((prev: any) => {
         if (!prev.data || !prev.data.task_item) return prev;
         return {
@@ -256,7 +256,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           data: {
             ...prev.data,
             task_item: prev.data.task_item.map((item: any) => {
-              if (item.id === taskItemId) return { ...item, total_comment: total };
+              if (item.id === taskItemId) return { ...item, total_comment: total }
               return item;
             })
           }

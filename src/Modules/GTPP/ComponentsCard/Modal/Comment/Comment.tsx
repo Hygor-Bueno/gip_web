@@ -14,10 +14,8 @@ interface CommentItemProps {
   DownloadFile: (params: any) => void;
 }
 
-export default function CommentItem({ item, isMe, isAdmin, userPhoto, userName, editingId, setEditingId, deleteComment, handleSaveEdit, DownloadFile }: CommentItemProps) {
-  const [tempText, setTempText] = useState("");
-
-  // Função para pintar a menção de Azul Claro e Negrito (apenas o primeiro nome)
+export default function CommentItem({ item, isMe, isAdmin, canEdit, userPhoto, userName, editingId, setEditingId, deleteComment, handleSaveEdit, DownloadFile }: CommentItemProps) {
+  const [tempText, setTempText] = useState(""); 
   const renderComment = (commentText: string) => {
     if (!commentText) return null;
     const parts = commentText.split(/(@\w+)/g);

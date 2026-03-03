@@ -3,14 +3,7 @@ import ConfirmModal from "../../../../Components/CustomConfirm";
 import { useWebSocket } from "../../Context/GtppWsContext";
 
 export default function ModalEditTask(props: any) {
-  const {
-    onEditTask,
-    editTask,
-    setEditTask,
-    isObservation,
-    setIsObservation,
-    onClose,
-  } = props;
+  const { onEditTask, editTask, setEditTask, isObservation, setIsObservation, onClose } = props;
 
   const [note, setNote] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -55,17 +48,7 @@ export default function ModalEditTask(props: any) {
 
   return (
     onEditTask && (
-      <div
-        className="d-flex align-items-center justify-content-center modal-edit"
-        style={{
-          position: "absolute",
-          height: "100%",
-          width: "100%",
-          background: "#00000088",
-          top: 0,
-          left: 0,
-        }}
-      >
+      <div className="d-flex align-items-center justify-content-center modal-edit">
         {confirm && (
           <ConfirmModal
             {...msgConfirm}
@@ -92,9 +75,7 @@ export default function ModalEditTask(props: any) {
                   updatedForQuestion({
                     id: editTask.id,
                     task_id: editTask.task_id,
-                    yes_no: event.target.checked
-                      ? 3 // Marcar como questão neutra ao marcar
-                      : 0 // Voltar para comum ao desmarcar
+                    yes_no: event.target.checked ? 3 : 0 
                   });
                 }}
                 id={`item_quest_edit_${editTask.task_id}`}

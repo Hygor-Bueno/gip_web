@@ -10,6 +10,7 @@ interface ChatInputProps {
 }
 
 export default function ChatInput({ userList, isLoading, isEditing, onSend }: ChatInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,9 +49,8 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
     setMentionState({ isVisible: false, filter: "", startIndex: -1 });
     
     setTimeout(() => {
-        const input = document.getElementById('chat-input');
-        if(input) input.focus();
-    }, 10);
+        inputRef.current?.focus();
+    }, 0);
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -79,12 +79,8 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
     const textClean = text.trim();
     if (!textClean && !selectedFile) return;
     if (textClean.length < 3) {
-      handleNotification(
-        "Atenção", 
-        "O comentário deve ter pelo menos 3 caracteres.", 
-        "warning"
-      );
-      document.getElementById('chat-input')?.focus();
+      handleNotification("Atenção", "O comentário deve ter pelo menos 3 caracteres.", "warning");
+      inputRef.current?.focus();
       return;
     }
 
@@ -120,8 +116,6 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
         <input type="file" ref={fileInputRef} className="d-none" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} />
         
         <div className="flex-grow-1 rounded-pill px-3 py-1 d-flex align-items-center position-relative" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
-          
-          {/* Caixa flutuante de menção */}
           {mentionState.isVisible && (
             <div className="position-absolute shadow-lg rounded bg-white overflow-hidden animate__animated animate__fadeIn" style={{ bottom: '120%', left: '10px', zIndex: 3000, maxHeight: '200px', overflowY: 'auto', width: '250px', border: '1px solid #e0e0e0' }}>
               {userList?.filter(u => u.name && u.name.toLowerCase().includes(mentionState.filter)).length > 0 ? (
@@ -138,7 +132,7 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
           )}
 
           <input
-            id="chat-input"
+            ref={inputRef}
             type="text"
             maxLength={MAX_CARACTERES}
             className="form-control border-0 bg-transparent shadow-none small p-2"
