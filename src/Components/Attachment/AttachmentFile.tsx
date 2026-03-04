@@ -3,7 +3,7 @@ import { AttachmentProps } from './types';
 import { useAttachmentFile } from './hooks/useAttachmentFile';
 import { AttachmentModal } from './components/AttachmentModal';
 
-export default function AttachmentFile(props: AttachmentProps) {
+export default function AttachmentFile(props: AttachmentProps & {readOnly?: any}) {
   const [isOpen, setIsOpen] = useState(false);
 
   const { base64File, setBase64File } = useAttachmentFile(
@@ -25,7 +25,7 @@ export default function AttachmentFile(props: AttachmentProps) {
   };
 
   return (
-    <div title="Anexar arquivo" onClick={() => setIsOpen(true)}>
+    <div onClick={() => setIsOpen(true)}>
       <div
         className={`fa fa-paperclip p-2 cursor-pointer ${
           base64File ? 'text-success shadow rounded-circle' : ''
@@ -39,6 +39,7 @@ export default function AttachmentFile(props: AttachmentProps) {
           setBase64File={setBase64File}
           updateAttachmentFile={props.updateAttachmentFile}
           onClose={closeModal}
+          readOnly={props.readOnly}
         />
       )}
     </div>

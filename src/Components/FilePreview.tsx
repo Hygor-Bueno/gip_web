@@ -3,21 +3,19 @@ import { handleNotification, IMAGE_WEBP_QUALITY } from '../Util/Util';
 import { isMobileDevice } from './Attachment/utils/fileValidation';
 
 interface FilePreviewProps {
-  base64File: string; // Base64 completo, incluindo o prefixo
-  fileName?: string; // Nome do arquivo, opcional
+  base64File: string;
+  fileName?: string;
 }
 
 export default function FilePreview(props: FilePreviewProps) {
 
   const [processedBase64, setProcessedBase64] = useState<string>(props.base64File);
 
-  // Função para extrair o tipo MIME do Base64
   const getFileTypeFromBase64 = (base64: string): string | null => {
     const match = base64.match(/^data:(.*?);base64,/);
-    return match ? match[1] : null; // Retorna o tipo MIME ou null se não encontrado
+    return match ? match[1] : null;
   };
 
-  // Recupera o tipo do arquivo
   const fileType: any = getFileTypeFromBase64(processedBase64);
 
   const convertToWebP = (base64: string): Promise<string> => {
@@ -28,10 +26,8 @@ export default function FilePreview(props: FilePreviewProps) {
         const canvas = document.createElement("canvas");
         canvas.width = img.width;
         canvas.height = img.height;
-
         const ctx = canvas.getContext("2d");
         if (!ctx) return reject("Erro ao obter contexto do canvas");
-
         ctx.drawImage(img, 0, 0);
         try {
           const webpDataUrl = canvas.toDataURL("image/webp", IMAGE_WEBP_QUALITY);
@@ -43,7 +39,6 @@ export default function FilePreview(props: FilePreviewProps) {
       img.onerror = () => reject("Erro ao carregar imagem");
     });
   };
-
 
   useEffect(() => {
     const shouldConvertToWebP =
@@ -57,161 +52,122 @@ export default function FilePreview(props: FilePreviewProps) {
           handleNotification("Erro", "Falha ao converter imagem para WebP: " + err, "danger")
         );
     } else {
-      setProcessedBase64(processedBase64); // Usa como está
+      setProcessedBase64(processedBase64);
     }
   }, [processedBase64]);
-
-  const openImageInNewTab = () => {
-    const newWindow = window.open();
-    if(newWindow) {
-      newWindow.document.write(`
-        <html>
-          <head>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
-            <title>GTPP - Visualizador da Imagem</title>
-            <style>
-              body { margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; padding: 20px; box-sizing: border-box; }
-              .container { text-align: center; background-color: #151111; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 90%; width: auto; }
-              img { max-width: 100%; max-height: 70vh; display: block; margin: 0 auto 20px auto; border: 1px solid #ddd; border-radius: 4px;}
-              .form-group { margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; }
-              .form-control { width: 80%; max-width: 300px; margin-bottom: 10px; }
-              .btn-custom { width: 80%; max-width: 300px; }
-            </style>
-          </head>
-          <body>
-            <div class="container bg-light">
-              <div class="d-flex flex-column align-items-center">
-                <img id="imageViewer" src="${processedBase64}" alt="Imagem" />
-                <div class="form-group">
-                  <label htmlFor="fileNameInput" class="form-label">Nome do arquivo:</label>
-                  <input type="text" id="fileNameInput" class="form-control" value="imagem_download" />
-                </div>
-                <button id="downloadBtn" class="btn btn-primary btn-custom">Download Imagem</button>
-              </div>
-            </div>
-
-            <script>
-              document.addEventListener('DOMContentLoaded', () => {
-                const downloadBtn = document.getElementById('downloadBtn');
-                const fileNameInput = document.getElementById('fileNameInput');
-                const imageSrc = document.getElementById('imageViewer').src;
-
-                // Tenta extrair a extensão da string base64 ou usa .png como padrão
-                let fileExtension = '.png'; // Default
-                if (imageSrc.startsWith('data:image/')) {
-                    const mimeType = imageSrc.substring(5, imageSrc.indexOf(';'));
-                    if (mimeType.includes('/')) {
-                        fileExtension = '.' + mimeType.split('/')[1];
-                    }
-                }
-                
-                // Define um valor inicial para o input com base no timestamp
-                const defaultFileName = 'imagem_' + Date.now();
-                fileNameInput.value = defaultFileName;
-
-
-                downloadBtn.addEventListener('click', () => {
-                  const fileName = fileNameInput.value.trim();
-                  if (fileName) {
-                    const a = document.createElement('a');
-                    a.href = imageSrc;
-                    // Garante que o nome do arquivo tenha uma extensão
-                    a.download = fileName + (fileName.endsWith(fileExtension) ? '' : fileExtension);
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                  } else {
-                    alert('Por favor, digite um nome para o arquivo.');
-                  }
-                });
-              });
-            </script>
-          </body>
-        </html>
-      `);
-      newWindow.document.close();
-    }
-  }
 
   function base64ToBlob(base64: string, contentType: string): Blob {
     const byteCharacters = atob(base64.split(',')[1]);
     const byteArrays = [];
-
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteArrays.push(byteCharacters.charCodeAt(i));
-    }
-
+    for (let i = 0; i < byteCharacters.length; i++) { byteArrays.push(byteCharacters.charCodeAt(i)); }
     return new Blob([new Uint8Array(byteArrays)], { type: contentType });
   }
 
-  // A Blob URL é criada uma vez no render, o que é eficiente
   const blob = fileType ? base64ToBlob(processedBase64, fileType) : null;
   const blobUrl = blob ? URL.createObjectURL(blob) : null;
 
+  // Função utilitária para gerar o nome do arquivo de imagem para download
+  const getImageDownloadName = () => {
+    let ext = 'png';
+    if (fileType) {
+      const mimeMatch = fileType.split('/');
+      if (mimeMatch.length === 2) ext = mimeMatch[1];
+    }
+    const fallbackName = `imagem_${Date.now()}.${ext}`;
+    if (!props.fileName) return fallbackName;
+    return props.fileName.includes('.') ? props.fileName : `${props.fileName}.${ext}`;
+  };
 
   function renderPreview() {
     if (!fileType) {
-      return <p>Tipo de arquivo desconhecido. Não é possível exibir uma pré-visualização.</p>;
-    }
-
-    // Imagens
-    if (fileType.startsWith('image/')) {
       return (
-        <div onClick={openImageInNewTab} style={{ cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <img className="rounded w-100 h-100" src={processedBase64} alt="Imagem" style={{ width: '100%', maxWidth: '500px' }} />
+        <div className="d-flex flex-column align-items-center justify-content-center text-muted h-100">
+          <i className="fa-solid fa-triangle-exclamation fa-3x mb-3 opacity-50"></i>
+          <p className="mb-0 text-center">Tipo de arquivo desconhecido.<br />Não é possível exibir a pré-visualização.</p>
         </div>
       );
     }
 
-    // PDF
+    // --- IMAGENS ---
+    if (fileType.startsWith('image/')) {
+      return (
+        <div className="d-flex justify-content-center w-100 position-relative" style={{ padding: '10px 0' }} >
+          <div className="position-relative d-inline-block" style={{ maxWidth: '100%' }}>
+
+            <img
+              className="img-fluid rounded shadow-sm border"
+              src={processedBase64}
+              alt="Pré-visualização"
+              style={{
+                maxWidth: '100%',
+                height: 'auto',
+                objectFit: 'contain'
+              }}
+            />
+
+            <a
+              href={processedBase64}
+              download={getImageDownloadName()}
+              className="btn btn-primary position-absolute d-flex align-items-center justify-content-center shadow"
+              title="Baixar imagem"
+              style={{
+                top: '10px',
+                right: '8px',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                opacity: 0.85,
+                transition: 'all 0.2s ease-in-out'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.opacity = '0.85';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              <i className="fa-solid fa-download text-white"></i>
+            </a>
+
+          </div>
+        </div>
+      );
+    }
+
+    // --- PDF ---
     if (fileType === 'application/pdf' && blobUrl) {
       const isMobile = isMobileDevice();
-
-      // 📱 Mobile: abre em nova aba (ou download)
       if (isMobile) {
         return (
-          <div style={{ textAlign: 'center' }}>
-            <button
-              className="btn btn-danger btn-lg"
-              onClick={() => window.open(blobUrl, '_blank')}
-            >
-              📄 Abrir PDF
-            </button>
+          <div className="d-flex justify-content-center align-items-center h-100 w-100" style={{ minHeight: '200px' }}>
+            <a href={blobUrl} download={props.fileName || `documento_${Date.now()}.pdf`} className="btn btn-danger btn-lg d-flex flex-column align-items-center p-4 rounded-4 shadow-sm text-decoration-none">
+              <i className="fa-solid fa-file-pdf fa-3x mb-2"></i>
+              <span>Baixar Documento PDF</span>
+            </a>
           </div>
         );
       }
-
-      // 💻 Desktop: preview normal em iframe
       return (
-        <div style={{ textAlign: 'center' }}>
-          <iframe
-            src={blobUrl}
-            title="Pré-visualização de PDF"
-            style={{
-              width: '100%',
-              height: '60vh',
-              border: 'none'
-            }}
-          />
+        <div className="w-100 h-100 rounded overflow-hidden" style={{ minHeight: '50vh' }}>
+          <iframe src={blobUrl} title="Pré-visualização de PDF" className="w-100 h-100 border-0" />
         </div>
       );
     }
 
-
-
-    // --- Botão estilizado para todos os arquivos não visualizáveis ---
+    // --- OUTROS ARQUIVOS ---
     const fileTypeStyles = {
-      zip: { name: 'ZIP', color: '#8395a7', icon: 'fa-solid fa-file-zipper text-white' },
-      rar: { name: 'RAR', color: '#8395a7', icon: 'fa-solid fa-file-zipper text-white' },
-      excalidraw: { name: 'Excalidraw', color: '#343a40', icon: 'fa-solid fa-pen-ruler text-white' },
-      word: { name: 'Word', color: '#2b579a', icon: 'fa-solid fa-file-word text-white' },
-      excel: { name: 'Excel', color: '#1d6f42', icon: 'fa-solid fa-file-excel text-white' },
-      powerpoint: { name: 'PowerPoint', color: '#d24726', icon: 'fa-solid fa-file-powerpoint text-white' },
-      xml: { name: 'XML', color: '#617a8c', icon: 'fa-solid fa-file-code text-white' },
-      csv: { name: 'CSV', color: '#556b2f', icon: 'fa-solid fa-file-csv text-white' },
-      pdf: { name: 'PDF', color: '#b71c1c', icon: 'fa-solid fa-file-pdf text-white' },
-      default: { name: 'Arquivo', color: '#6c757d', icon: 'fa-solid fa-file text-white' }
+      zip: { name: 'ZIP', color: '#8395a7', icon: 'fa-solid fa-file-zipper' },
+      rar: { name: 'RAR', color: '#8395a7', icon: 'fa-solid fa-file-zipper' },
+      excalidraw: { name: 'Excalidraw', color: '#343a40', icon: 'fa-solid fa-pen-ruler' },
+      word: { name: 'Word', color: '#2b579a', icon: 'fa-solid fa-file-word' },
+      excel: { name: 'Excel', color: '#1d6f42', icon: 'fa-solid fa-file-excel' },
+      powerpoint: { name: 'PowerPoint', color: '#d24726', icon: 'fa-solid fa-file-powerpoint' },
+      xml: { name: 'XML', color: '#617a8c', icon: 'fa-solid fa-file-code' },
+      csv: { name: 'CSV', color: '#556b2f', icon: 'fa-solid fa-file-csv' },
+      pdf: { name: 'PDF', color: '#b71c1c', icon: 'fa-solid fa-file-pdf' },
+      default: { name: 'Arquivo', color: '#6c757d', icon: 'fa-solid fa-file' }
     };
 
     const getFileTypeInfo = () => {
@@ -235,47 +191,19 @@ export default function FilePreview(props: FilePreviewProps) {
     };
 
     const fileInfo = getFileTypeInfo();
-
-    // Usa sempre o blobUrl para download se disponível
     const downloadUrl = blobUrl || processedBase64;
     const downloadName = props.fileName || `arquivo.${fileInfo.name.toLowerCase()}`;
-
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
-        <a
-          href={downloadUrl}
-          download={downloadName}
-          className="btn"
-          style={{
-            background: fileInfo.color,
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: 22,
-            padding: '2rem 2.5rem',
-            borderRadius: 16,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            border: 'none',
-            transition: 'background 0.2s'
-          }}
-        >
-          <i className={`${fileInfo.icon} fa-3x mb-2`} />
-          <span style={{ fontSize: 18, marginBottom: 4 }}>Baixar {fileInfo.name}</span>
-          <span style={{
-            fontSize: 13,
-            opacity: 0.85,
-            maxWidth: 220,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}>{props.fileName}</span>
-          <i className="fa-solid fa-download fa-lg mt-3 text-white" />
+      <div className="d-flex justify-content-center align-items-center w-100 h-100" style={{ minHeight: '250px' }}>
+        <a href={downloadUrl} download={downloadName} className="btn text-white d-flex flex-column align-items-center p-4 rounded-4 shadow" style={{ backgroundColor: fileInfo.color, transition: 'all 0.2s', textDecoration: 'none', minWidth: '220px' }} onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+          <i className={`${fileInfo.icon} fa-3x mb-3`}></i>
+          <span className="fs-5 fw-semibold text mb-1">Baixar {fileInfo.name}</span>
+          <span className="small opacity-75 text-truncate text-center" style={{ maxWidth: '200px' }}>{props.fileName}</span>
+          <i className="fa-solid fa-download fs-4 mt-3"></i>
         </a>
       </div>
     );
   }
 
-  return <div>{renderPreview()}</div>;
+  return <div className="w-100 h-100 d-flex flex-column">{renderPreview()}</div>;
 }

@@ -9,6 +9,7 @@ interface Props {
   setBase64File: (v: string) => void;
   onClose: () => void;
   updateAttachmentFile?: (file: string, item_id: number) => Promise<void>;
+  readOnly: any;
 }
 
 export const AttachmentModal: React.FC<Props> = ({
@@ -17,6 +18,7 @@ export const AttachmentModal: React.FC<Props> = ({
   setBase64File,
   onClose,
   updateAttachmentFile,
+  readOnly
 }) => {
   const [fileName, setFileName] = useState('');
 
@@ -51,46 +53,93 @@ export const AttachmentModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div 
+      className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" 
+      onClick={onClose}
+      style={{ zIndex: 1050, backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+    >
       <div
-        style={{ maxWidth: '75%', maxHeight: '90%' }}
-        className="d-flex flex-column align-items-center bg-white p-4 rounded"
+        className="bg-white rounded-3 shadow-lg d-flex flex-column m-3 animate__animated animate__fadeIn"
+        style={{ 
+          width: '100%', 
+          maxWidth: '850px', 
+          maxHeight: '90vh', 
+          overflow: 'hidden' 
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="d-flex align-items-center justify-content-between w-100">
-          <span className="h5">Anexo:</span>
-          {base64File && (
+        
+        {/* === HEADER (Fixo) === */}
+        <div className="d-flex align-items-center justify-content-between p-3 border-bottom bg-light flex-shrink-0">
+          <div className="d-flex align-items-center overflow-hidden">
+            <i className="fa-solid fa-paperclip text-secondary fs-5 me-2 flex-shrink-0"></i>
+            <h5 className="mb-0 fw-semibold text-dark text-truncate">
+              {readOnly ? 'Visualizar Anexo' : 'Gerenciar Anexo'}
+            </h5>
+          </div>
+
+          {!readOnly && base64File && (
             <button
               title="Remover anexo"
-              className="btn btn-danger m-2 fa-solid fa-trash"
+              className="btn btn-sm btn-danger d-flex align-items-center px-2 px-sm-3 ms-2 flex-shrink-0"
               onClick={async () => {
                 if (updateAttachmentFile) await updateAttachmentFile('', itemId);
                 setBase64File('');
                 setFileName('');
               }}
-            />
+            >
+              <i className="fa-solid fa-trash-can text-white me-0 me-sm-2"></i>
+              <span className="d-none d-sm-inline">Remover Imagem</span>
+            </button>
           )}
         </div>
 
-        <div className="d-flex flex-column align-items-center justify-content-center w-100 h-100 overflow-auto">
+        {/* === BODY (Rolagem Isolada) === */}
+        <div className={`p-3 p-md-4 flex-grow-1 d-flex flex-column w-100 ${!base64File ? 'align-items-center justify-content-center' : ''}`}
+          style={{ 
+            backgroundColor: '#f8f9fa',
+            overflowY: 'auto',
+            overflowX: 'hidden'
+          }}>
           {base64File ? (
-            <FilePreview base64File={base64File} fileName={fileName || 'document'} />
+            <div className="w-100 d-flex justify-content-center bg-white p-2 p-md-3 rounded border shadow-sm overflow-auto" style={{ minHeight: '30vh', height: 'fit-content' }}>
+              <FilePreview base64File={base64File} fileName={fileName || 'document'} />
+            </div>
+          ) : !readOnly ? (
+            <div 
+              className="w-100 bg-white rounded border shadow-sm p-3 p-md-4 d-flex align-items-center justify-content-center"
+              style={{ minHeight: '30vh' }}
+            >
+              <FileDropzone
+                  onFileSelected={(file) => processFile(file)}
+                  accept=".pdf,.doc,.docx,.xml,.ppt,.pptx,.xls,.xlsx,.csv,.excalidraw,.zip,.rar,image/*"
+              />
+            </div>
           ) : (
-            <FileDropzone
-                onFileSelected={(file) => processFile(file)}
-                accept=".pdf,.doc,.docx,.xml,.ppt,.pptx,.xls,.xlsx,.csv,.excalidraw,.zip,.rar,image/*"
-            />
+            <div className="text-center text-muted p-4 p-md-5 d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '30vh' }}>
+              <i className="fa-solid fa-folder-open fa-3x fa-sm-4x mb-3 opacity-25"></i>
+              <p className="mb-0 fs-6 fs-md-5">Nenhum arquivo encontrado.</p>
+            </div>
           )}
         </div>
 
-        <div className="d-flex justify-content-around w-100">
-          <button className="btn btn-success m-2" disabled={!itemId} onClick={handleSave}>
-            Salvar
+        <div className="p-3 border-top d-flex justify-content-end gap-2 bg-white flex-shrink-0">
+          <button className="btn btn-outline-secondary px-3 px-md-4 fw-medium" onClick={onClose}>
+            {readOnly ? 'Fechar' : 'Voltar'}
           </button>
-          <button className="btn btn-danger m-2" onClick={onClose}>
-            Voltar
-          </button>
+          
+          {!readOnly && (
+            <button 
+              className="btn btn-success px-3 px-md-4 fw-medium d-flex align-items-center shadow-sm" 
+              disabled={!itemId} 
+              onClick={handleSave}
+            >
+              <i className="fa-solid text-white fa-check me-2"></i>
+              Salvar
+            </button>
+          )}
         </div>
+        
       </div>
     </div>
   );

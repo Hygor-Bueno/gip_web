@@ -1,6 +1,6 @@
 export interface AttachmentProps {
   item_id?: number;
-  file: number;
+  file?: number;
   base64?: string;
   reset?: boolean;
   fullFiles?: boolean;
