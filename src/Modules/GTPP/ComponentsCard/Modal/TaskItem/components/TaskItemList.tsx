@@ -9,7 +9,7 @@ import AnexoImage from "../../../../../../Components/Attachment/AttachmentFile";
 import { ITaskItemList } from '../Contract/Contract';
 import { changePositionItem, includeAuthorInList } from '../utils/utilsTaskItem';
 
-const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, getUser, updateCommentCount, closeObservation, userState, subTask, positionTaskStates, updatePositionTaskItem, checkedItem, togglePositionTask, setOnScrollDown, onScrollDown, userLog, setUserState, updatedAddUserTaskItem, showChat, setEditTask, setOnEditTask, setShowChat, setTaskToDelete, setIsTrashDelete, updateItemTaskFile, setTaskDetails, props }) => {
+const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, getUser, updateCommentCount, closeObservation, userState, subTask, setShowUserLinkedList, positionTaskStates, updatePositionTaskItem, checkedItem, togglePositionTask, setOnScrollDown, onScrollDown, userLog, setUserState, updatedAddUserTaskItem, showChat, setEditTask, setOnEditTask, setShowChat, setTaskToDelete, setIsTrashDelete, updateItemTaskFile, setTaskDetails, props }) => {
   return (
     <React.Fragment>
       {(taskDetails.data?.task_item || []).map((taskItem: any, index: number) => {
@@ -58,6 +58,7 @@ const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, 
                 <div className="col-md-2 col-sm-3 text-center">
                   <div className="mx-auto cursor-pointer userPhotoAnimation border-warning"
                     onClick={async () => {
+                      setShowUserLinkedList(true);
                       if (userLog.administrator == 1 || getUser?.id == userLog.id) {
                         setUserState((prev: any) => ({
                           ...prev,
@@ -129,6 +130,8 @@ const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, 
                     onClick={() => {
                       setEditTask(taskItem);
                       setOnEditTask(true);
+                      setShowChat(false);
+                      setShowUserLinkedList(false);
                     }}
                   />
 

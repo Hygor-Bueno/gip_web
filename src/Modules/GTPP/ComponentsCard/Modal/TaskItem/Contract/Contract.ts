@@ -25,6 +25,8 @@ export interface ITaskItemList {
     updateItemTaskFile:any,
     setTaskDetails: any,
     props: any,
+
+    setShowUserLinkedList: any,
 };
 
 export interface IUserLinkingList {

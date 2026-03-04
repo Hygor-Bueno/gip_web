@@ -35,6 +35,8 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   const [isTrashDelete, setIsTrashDelete] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<any>(null);
 
+  const [showUserLinkedList, setShowUserLinkedList] = useState(false);
+
   const [showChat, setShowChat] = useState(false);
 
   const [userState, setUserState] = useState<any>({
@@ -130,12 +132,12 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
         setIsTrashDelete(false);
       }} title="Atenção" children="Deseja apagar esse conteúdo?" cancelText="Voltar" saveText="Confirmar" />
       
-      <UserLinkingList 
+      {showUserLinkedList && <UserLinkingList 
         getUser={getUser} 
         setUserState={setUserState} 
         signature={assinatura} 
         updatedAddUserTaskItem={updatedAddUserTaskItem}
-        userState={userState} />
+        userState={userState} />}
 
       <div>
         {showChat && (
@@ -161,6 +163,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
           updateCommentCount={updateCommentCount}
           userLog={userLog}
           userState={userState}
+          setShowUserLinkedList={setShowUserLinkedList}
           setTaskDetails={setTaskDetails}
           checkedItem={checkedItem}
           closeObservation={closeObservation}

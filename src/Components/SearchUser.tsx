@@ -42,6 +42,7 @@ export default function SearchUser(props: { onClose?: (value: any) => void, sele
             setLoading(false)
         }
     }
+    
     function convertForTable(array: any[]): tItemTable[] {
         return array.map(element => ({
             employee_id: maskUserSeach(element["employee_id"], "", false, true),
