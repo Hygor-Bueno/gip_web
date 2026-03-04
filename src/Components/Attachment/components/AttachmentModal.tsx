@@ -102,7 +102,7 @@ export const AttachmentModal: React.FC<Props> = ({
             overflowX: 'hidden'
           }}>
           {base64File ? (
-            <div className="w-100 d-flex justify-content-center bg-white p-2 p-md-3 rounded border shadow-sm overflow-auto" style={{ minHeight: '30vh', height: 'fit-content' }}>
+            <div className="w-100 h-100 d-flex justify-content-center bg-white p-2 p-md-3 rounded border shadow-sm overflow-auto" style={{ height: 'fit-content' }}>
               <FilePreview base64File={base64File} fileName={fileName || 'document'} />
             </div>
           ) : !readOnly ? (

@@ -151,7 +151,7 @@ export default function FilePreview(props: FilePreviewProps) {
       }
       return (
         <div className="w-100 h-100 rounded overflow-hidden" style={{ minHeight: '50vh' }}>
-          <iframe src={blobUrl} title="Pré-visualização de PDF" className="w-100 h-100 border-0" />
+          <iframe src={blobUrl} title="Pré-visualização de PDF" className="w-100 h-100 border-0" style={{ minHeight: '50vh' }} />
         </div>
       );
     }
