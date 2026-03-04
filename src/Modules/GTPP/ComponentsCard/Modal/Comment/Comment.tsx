@@ -1,5 +1,5 @@
 import React from 'react';
-import { convertTime } from '../../../../../Util/Util';
+import { convertTime } from '../../../../../Util/Utils';
 
 interface CommentItemProps {
   item: any;

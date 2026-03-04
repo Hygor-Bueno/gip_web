@@ -1,4 +1,4 @@
-import { fetchDataFull } from "../../../../Util/Util";
+import { fetchDataFull } from "../../../../Util/Utils";
 import { FetchConfig } from "../Interfaces/Interfaces";
 
 function fetchGet({ pathFile, urlComplement = "" }: FetchConfig) {

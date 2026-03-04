@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { convertForTable, fetchNodeDataFull, handleNotification } from "../../../Util/Util";
+import { convertForTable, fetchNodeDataFull, handleNotification } from "../../../Util/Utils";
 import CustomTable from "../../../Components/CustomTable";
 import DetailsTimeRecords from "./DetailsTimesRecords";
 import { useCfppContext } from "../Context/CfppContex";

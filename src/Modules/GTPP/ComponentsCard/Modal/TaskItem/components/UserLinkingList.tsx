@@ -1,5 +1,5 @@
 import React from "react";
-import { convertImage } from "../../../../../../Util/Util";
+import { convertImage } from "../../../../../../Util/Utils";
 import imageUser from "../../../../../../Assets/Image/user.png";
 import { Image } from "react-bootstrap";
 import { IUserLinkingList } from "../Contract/Contract";

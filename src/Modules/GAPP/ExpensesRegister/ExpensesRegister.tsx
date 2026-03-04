@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CustomTable from "../../../Components/CustomTable";
-import { convertDate, convertForTable, maskMoney, sortListByKey } from "../../../Util/Util";
+import { convertDate, convertForTable, maskMoney, sortListByKey } from "../../../Util/Utils";
 import { useConnection } from "../../../Context/ConnContext";
 import CustomForm from "../../../Components/CustomForm";
 import { customTagsExpense, formExpense, minWidthsExpense } from "./Configuration/ConfigExpensesRegister";

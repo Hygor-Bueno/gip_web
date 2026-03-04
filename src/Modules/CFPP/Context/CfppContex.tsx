@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState, useEffect } from "react";
-import { fetchNodeDataFull } from "../../../Util/Util";
+import { fetchNodeDataFull } from "../../../Util/Utils";
 import { TSelectForm } from "../Components/TypesReportsCFPP";
 
 // Definindo a interface para o contexto

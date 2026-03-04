@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import useWindowSize from "../../GAPP/Infraction/hook/useWindowSize";
-import { formatDateBR } from "../../../Util/Util";
+import { formatDateBR } from "../../../Util/Utils";
 import useFormattedProduct from "./Hooks/useFormattedProduct";
 import ProductSalesInfo from "../InformationSalesC5/ProductSalesInfo";
 import "./CardProd.css";

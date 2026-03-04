@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { formChangePassword } from "../Configs/DefaultPassword";
 import CustomForm from "./CustomForm";
 import { useMyContext } from "../Context/MainContext";
-import { handleNotification } from "../Util/Util";
+import { handleNotification } from "../Util/Utils";
 import { useConnection } from "../Context/ConnContext";
 
 export default function DefaultPassword(props: {

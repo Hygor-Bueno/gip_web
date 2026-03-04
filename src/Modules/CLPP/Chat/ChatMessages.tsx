@@ -1,7 +1,7 @@
 import { useMyContext } from "../../../Context/MainContext";
 import { useWebSocket } from "../../../Context/WsContext";
 import { useConnection } from "../../../Context/ConnContext";
-import { convertTime } from "../../../Util/Util";
+import { convertTime } from "../../../Util/Utils";
 
 export default
     function ChatMessages() {

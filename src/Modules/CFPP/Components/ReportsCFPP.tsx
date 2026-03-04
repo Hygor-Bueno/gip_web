@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useMyContext } from '../../../Context/MainContext';
 import { useCfppContext } from '../Context/CfppContex';
-import { convertForTable, fetchNodeDataFull, handleNotification } from '../../../Util/Util';
+import { convertForTable, fetchNodeDataFull, handleNotification } from '../../../Util/Utils';
 import CustomForm from '../../../Components/CustomForm';
 import CustomTable from '../../../Components/CustomTable';
 import { TUrl } from './TypesReportsCFPP';

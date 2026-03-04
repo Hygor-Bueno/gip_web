@@ -1,4 +1,4 @@
-import { formatDateBR } from "../../../../Util/Util";
+import { formatDateBR } from "../../../../Util/Utils";
 
 
 export default function useFormattedProduct(currentProduct: any[]) {

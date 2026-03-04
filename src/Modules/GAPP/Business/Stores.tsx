@@ -5,7 +5,7 @@ import { IFormData, IFormGender } from './Interfaces/IFormGender';
 import { useMyContext } from '../../../Context/MainContext';
 import { listPathGAPP } from '../ConfigGapp';
 import CustomTable from '../../../Components/CustomTable';
-import { convertForTable, handleNotification } from '../../../Util/Util';
+import { convertForTable, handleNotification } from '../../../Util/Utils';
 import { iPropsInputCheckButton } from '../../../Interface/iGTPP';
 import { InputCheckButton } from '../../../Components/CustomButton';
 import { useConnection } from '../../../Context/ConnContext';

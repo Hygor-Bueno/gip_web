@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Clpp from '../Modules/CLPP/Clpp';
 import { useMyContext } from '../Context/MainContext';
 import CardUser from '../Modules/CLPP/Components/CardUser';
-import { classToJSON, cleanLocalStorage, fetchDataFull } from '../Util/Util';
+import { classToJSON, cleanLocalStorage, fetchDataFull } from '../Util/Utils';
 import { useWebSocket } from '../Context/WsContext';
 import SendMessage from '../Modules/CLPP/Class/SendMessage';
 import { useNavigate } from 'react-router-dom';

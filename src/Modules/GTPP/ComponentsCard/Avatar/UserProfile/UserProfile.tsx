@@ -1,5 +1,5 @@
 import ImageUser from "../../../../../Assets/Image/user.png";
-import { convertImage } from "../../../../../Util/Util";
+import { convertImage } from "../../../../../Util/Utils";
 import Image from "../Image/Image";
 import './Style.css';
 

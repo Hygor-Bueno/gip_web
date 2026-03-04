@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useConnection } from '../../../../../Context/ConnContext';
-import { convertImage } from '../../../../../Util/Util';
+import { convertImage } from '../../../../../Util/Utils';
 import imageUser from "../../../../../Assets/Image/user.png";
 import { useWebSocket } from '../../../Context/GtppWsContext';
 import ChatInput from './ChatInput';

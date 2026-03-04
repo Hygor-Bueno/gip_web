@@ -3,7 +3,7 @@ import { useMyContext } from './MainContext';
 import WebSocketCLPP from '../Services/Websocket';
 import { iSender, iUser, iWebSocketContextType } from '../Interface/iGIPP';
 import ContactList from '../Modules/CLPP/Class/ContactList';
-import { handleNotification } from '../Util/Util';
+import { handleNotification } from '../Util/Utils';
 import { useConnection } from './ConnContext';
 import Contact from '../Class/Contact';
 import User from '../Class/User';

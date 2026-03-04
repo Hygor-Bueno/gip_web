@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useMyContext } from "../../../../Context/MainContext";
 import iconImage from "../../../../Assets/Image/user.png";
 import { useConnection } from "../../../../Context/ConnContext";
-import { convertImage } from "../../../../Util/Util";
+import { convertImage } from "../../../../Util/Utils";
 import { Image } from "../Avatar";
 
 const FilterTask = (props: any) => {

@@ -6,7 +6,7 @@ import { Card } from "../Components/Card";
 import { cardsConfig } from "../ManagerCard/Json/Card";
 import { useConnection } from "../../../Context/ConnContext";
 import { ObservationModal } from "../Components/Modal";
-import { handleNotification } from "../../../Util/Util";
+import { handleNotification } from "../../../Util/Utils";
 import CustomForm from "../../../Components/CustomForm";
 import { formFieldsData, getProductParams, putProductParams } from "./ProductSalesInfo.Config";
 

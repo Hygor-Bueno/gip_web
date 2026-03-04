@@ -3,7 +3,7 @@ import { CustomNotification, iGtppWsContextType, iStates, iTaskReq, iUserDefault
 import GtppWebSocket from "./GtppWebSocket";
 import { useMyContext } from "../../../Context/MainContext";
 import InformSending from "../Class/InformSending";
-import { classToJSON, handleNotification } from "../../../Util/Util";
+import { classToJSON, handleNotification } from "../../../Util/Utils";
 import NotificationGTPP from "../Class/NotificationGTPP";
 import soundFile from "../../../Assets/Sounds/notify.mp3";
 import { useConnection } from "../../../Context/ConnContext";

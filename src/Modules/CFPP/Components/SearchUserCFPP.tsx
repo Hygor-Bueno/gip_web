@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { convertForTable, fetchNodeDataFull, objectForString } from '../../../Util/Util';
+import { convertForTable, fetchNodeDataFull, objectForString } from '../../../Util/Utils';
 import CustomForm from '../../../Components/CustomForm';
 import CustomTable from '../../../Components/CustomTable';
 import { formSearchUserCFPP } from './Configs';

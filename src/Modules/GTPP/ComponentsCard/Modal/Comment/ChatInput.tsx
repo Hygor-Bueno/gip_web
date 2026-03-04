@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { handleNotification, convertImage } from '../../../../../Util/Util';
+import { handleNotification, convertImage } from '../../../../../Util/Utils';
 import AttachmentFile from '../../../../../Components/Attachment/AttachmentFile';
 
 interface ChatInputProps {

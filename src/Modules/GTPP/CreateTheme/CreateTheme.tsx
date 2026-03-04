@@ -3,7 +3,7 @@ import NavBar from "../../../Components/NavBar";
 import { useWebSocket } from "../Context/GtppWsContext";
 import { useConnection } from "../../../Context/ConnContext";
 import { listPath } from "../mock/configurationfile";
-import { handleNotification } from "../../../Util/Util";
+import { handleNotification } from "../../../Util/Utils";
 import { ContentDefault } from "./ContentDefault";
 import { ActionModal } from "./ActionModal";
 import { fieldsetFormTheme, fieldsetFormThemeUpdate } from "./Fieldset/Fiedset";

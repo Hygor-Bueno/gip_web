@@ -1,5 +1,5 @@
 import { iUser, iUserDefaultClass } from "../Interface/iGIPP";
-import { fetchDataFull } from "../Util/Util";
+import { fetchDataFull } from "../Util/Utils";
 
 export default class User implements iUserDefaultClass {
     #id: number;

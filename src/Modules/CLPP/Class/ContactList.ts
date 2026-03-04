@@ -1,5 +1,5 @@
 import User from "../../../Class/User";
-import { fetchDataFull } from "../../../Util/Util";
+import { fetchDataFull } from "../../../Util/Utils";
 
 export default class ContactList {
     #contacts: User[] = [];

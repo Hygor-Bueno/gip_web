@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useMyContext } from "../../../Context/MainContext";
 import ListRegister from "./ListRegister";
-import { fetchNodeDataFull } from "../../../Util/Util";
+import { fetchNodeDataFull } from "../../../Util/Utils";
 
 export default function DetailsTimeRecords(props: { onClose: () => void; journeyCode: string }) {
     const [timeRecords, setTimeRecords] = useState<any[]>([]);

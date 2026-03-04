@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { handleNotification, IMAGE_WEBP_QUALITY } from '../Util/Util';
+import { handleNotification, IMAGE_WEBP_QUALITY } from '../Util/Utils';
 import { isMobileDevice } from './Attachment/utils/fileValidation';
 
 interface FilePreviewProps {

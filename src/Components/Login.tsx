@@ -7,7 +7,7 @@ import DefaultPassword from "./DefaultPassword";
 import { ReactNotifications } from "react-notifications-component";
 import { useConnection } from "../Context/ConnContext";
 import User from "../Class/User";
-import { loadLocalStorage } from "../Util/Util";
+import { loadLocalStorage } from "../Util/Utils";
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
 export default function Login() {

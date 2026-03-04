@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { convertTime } from "../../../Util/Util";
+import { convertTime } from "../../../Util/Utils";
 
 export default function ListRegister(props:
     { listRegister: { id_record_type_fk: string; times: string }[], setListRegister: (value: { id_record_type_fk: string; times: string }[]) => void, onAction?: (value: any) => void, noDelete?: boolean } |

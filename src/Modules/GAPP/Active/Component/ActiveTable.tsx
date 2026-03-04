@@ -3,7 +3,7 @@ import CustomTable from "../../../../Components/CustomTable";
 import FormActive from "./FormActive/FormActive";
 
 import { ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData, ActiveVehicleData} from "../Adapters/Adapters";
-import { convertForTable } from "../../../../Util/Util";
+import { convertForTable } from "../../../../Util/Utils";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
 import { Active, ActiveTableData } from "../Interfaces/Interfaces";
 import { tItemTable } from "../../../../types/types";

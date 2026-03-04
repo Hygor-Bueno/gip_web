@@ -6,7 +6,7 @@ import EditInfraction from "./Component/EditInfraction/EditInfraction";
 import CreateInfraction from "./Component/CreateInfraction/CreateInfraction";
 import { listPathGAPP } from "../ConfigGapp";
 import { useMyContext } from "../../../Context/MainContext";
-import { handleNotification } from "../../../Util/Util";
+import { handleNotification } from "../../../Util/Utils";
 import { useConnection } from "../../../Context/ConnContext";
 import useInfractionFields from "./hook/useInfractionFields";
 require("bootstrap/dist/css/bootstrap.min.css");

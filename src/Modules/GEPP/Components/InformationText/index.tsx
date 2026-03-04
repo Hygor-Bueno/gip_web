@@ -1,6 +1,6 @@
 import React from "react";
 import { ISalesC5Information } from "../../InformationSalesC5/Interfaces/ISalesC5Information";
-import { formatDateBR } from "../../../../Util/Util";
+import { formatDateBR } from "../../../../Util/Utils";
 
 function InformationText({ product }: ISalesC5Information) {
   return (

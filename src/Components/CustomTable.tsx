@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { tItemTable } from "../types/types";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable'; // Importe o autoTable diretamente
-import { convertDate, convertTime } from "../Util/Util";
+import { convertDate, convertTime } from "../Util/Utils";
 
 const defaultImage = require('../Assets/Image/groupCLPP.png');
 

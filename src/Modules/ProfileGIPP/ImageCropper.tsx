@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import useWindowSize from "../GAPP/Infraction/hook/useWindowSize";
-import { IMAGE_WEBP_QUALITY } from "../../Util/Util";
+import { IMAGE_WEBP_QUALITY } from "../../Util/Utils";
 
 // --- COMPONENTE DE RECORTE DE IMAGEM (INTEGRADO) ---
 interface ImageCropperProps {

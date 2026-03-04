@@ -12,7 +12,7 @@ import MessageModal from "../ModalMessage/messagemodal";
 import ButtonIcon from "../Button/ButtonIcon/btnicon";
 import AttachmentFile from "../../../../Components/Attachment/AttachmentFile";
 import "./style.css";
-import { handleNotification } from "../../../../Util/Util";
+import { handleNotification } from "../../../../Util/Utils";
 
 interface BodyDefaultProps {
   disabledForm?: boolean;

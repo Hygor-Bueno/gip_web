@@ -3,7 +3,7 @@ import AttachmentFile from "../../../Components/Attachment/AttachmentFile";
 import SendMessage from "../Class/SendMessage";
 import { useWebSocket } from "../../../Context/WsContext";
 import { useMyContext } from "../../../Context/MainContext";
-import { captureTime, classToJSON } from "../../../Util/Util";
+import { captureTime, classToJSON } from "../../../Util/Utils";
 import { useConnection } from "../../../Context/ConnContext";
 
 export default function ChatControls() {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useMyContext } from '../../../Context/MainContext';
-import { convertForTable, fetchNodeDataFull, getCurrentDate, handleNotification } from '../../../Util/Util';
+import { convertForTable, fetchNodeDataFull, getCurrentDate, handleNotification } from '../../../Util/Utils';
 import RegisterValidator from '../Class/RegisterValidator';
 import SearchUserCFPP from './SearchUserCFPP';
 import CustomTable from '../../../Components/CustomTable';

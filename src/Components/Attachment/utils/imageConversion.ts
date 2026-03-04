@@ -1,4 +1,4 @@
-import { IMAGE_WEBP_QUALITY } from "../../../Util/Util";
+import { IMAGE_WEBP_QUALITY } from "../../../Util/Utils";
 
 export async function convertImageToWebp(base64: string): Promise<string> {
   return new Promise((resolve) => {

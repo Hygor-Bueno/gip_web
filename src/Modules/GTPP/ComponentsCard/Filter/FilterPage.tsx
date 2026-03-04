@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import CustomTable from "../../../../Components/CustomTable";
 import FiltersSearchUser from "../../../../Components/FiltersSearchUser";
 import { tItemTable } from "../../../../types/types";
-import { maskUserSeach } from "../../../../Util/Util";
+import { maskUserSeach } from "../../../../Util/Utils";
 import { useWebSocket } from "../../Context/GtppWsContext";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";

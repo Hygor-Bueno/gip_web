@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { fetchDataFull } from "../Util/Util";
+import { fetchDataFull } from "../Util/Utils";
 import { ConnectionContextProps, iReqConn } from "../Interface/iConnection";
 
 

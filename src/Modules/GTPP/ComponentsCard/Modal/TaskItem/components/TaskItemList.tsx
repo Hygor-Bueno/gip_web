@@ -1,7 +1,7 @@
 import React from 'react';
 import { InputCheckbox } from '../../../../../../Components/CustomForm';
 import { Image } from 'react-bootstrap';
-import { convertImage } from '../../../../../../Util/Util';
+import { convertImage } from '../../../../../../Util/Utils';
 import imageUser from "../../../../../../Assets/Image/user.png";
 import ButtonIcon from '../../../Button/ButtonIcon/btnicon';
 import ModalInformation from './InformationModal';

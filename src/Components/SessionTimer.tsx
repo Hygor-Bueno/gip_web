@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { isTokenExpired } from "../Util/Util";
+import { isTokenExpired } from "../Util/Utils";
 import { useMyContext } from "../Context/MainContext";
 
 interface SessionTimerProps {

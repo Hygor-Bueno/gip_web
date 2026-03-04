@@ -1,4 +1,4 @@
-import { classToJSON } from "../../../Util/Util";
+import { classToJSON } from "../../../Util/Utils";
 
 export default class InformSending {
     #error!: boolean;

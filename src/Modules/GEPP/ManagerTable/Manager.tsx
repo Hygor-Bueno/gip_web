@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useConnection } from "../../../Context/ConnContext";
 import CustomTable from "../../../Components/CustomTable";
 import { IManagerProps } from "./Interfaces/IManager";
-import { convertForTable, formatDateBR, handleNotification } from "../../../Util/Util";
+import { convertForTable, formatDateBR, handleNotification } from "../../../Util/Utils";
 import { EStatusProduct } from "./Enum/statusProduct";
 import CustomForm from "../../../Components/CustomForm";
 require("./Style.css");
