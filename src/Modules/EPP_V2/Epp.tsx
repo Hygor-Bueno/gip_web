@@ -4,8 +4,8 @@ import NavBar from "../../Components/NavBar";
 import { listPathEPP } from "./Navigation/Navigation";
 import CustomTable from "../../Components/CustomTable";
 import { getAllEppOrder } from "./Adapters/Adapters";
-import { convertForTable2 } from "../../Util/Utils";
-import { behaviorColumns, columnSizes, listColumnsOcult, renamedColumns } from "./Configuration/Configuration";
+import { convertForTable } from "../../Util/Utils";
+import { behaviorColumns, listColumnsOcult, renamedColumns } from "./Configuration/Configuration";
 import { tItemTable } from "../../types/types";
 import { IOrder } from "./Interfaces/IOrder.interface";
 import { EppTableData } from "./Interfaces/General.interfaces";
@@ -53,11 +53,10 @@ export default function EppMain() {
       }
      }, [])
 
-     const tableList = useMemo(() => convertForTable2(data, {
+     const tableList = useMemo(() => convertForTable(data, {
         ocultColumns: listColumnsOcult,
         customTags: renamedColumns,
-        customValue: behaviorColumns,
-        minWidths: columnSizes
+        customValue: behaviorColumns
       }), [data]);
 
     console.log(selected);
