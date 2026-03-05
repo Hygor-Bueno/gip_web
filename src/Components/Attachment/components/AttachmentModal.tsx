@@ -106,10 +106,7 @@ export const AttachmentModal: React.FC<Props> = ({
               <FilePreview base64File={base64File} fileName={fileName || 'document'} />
             </div>
           ) : !readOnly ? (
-            <div 
-              className="w-100 bg-white rounded border shadow-sm p-3 p-md-4 d-flex align-items-center justify-content-center"
-              style={{ minHeight: '30vh' }}
-            >
+            <div className="w-100 bg-white rounded border shadow-sm p-3 p-md-4 d-flex align-items-center justify-content-center" style={{ minHeight: '30vh' }} >
               <FileDropzone
                   onFileSelected={(file) => processFile(file)}
                   accept=".pdf,.doc,.docx,.xml,.ppt,.pptx,.xls,.xlsx,.csv,.excalidraw,.zip,.rar,image/*"

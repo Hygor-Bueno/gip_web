@@ -1,5 +1,5 @@
 import React from 'react';
-import { convertTime } from '../../../../../Util/Utils';
+import { convertTime, downloadFile } from '../../../../../Util/Utils';
 
 interface CommentItemProps {
   item: any;
@@ -42,7 +42,7 @@ export default function CommentItem({ item, isMe, isAdmin, userPhoto, userName, 
           {item.file && item.file.file_name && (
             <div className="mt-2 p-2 rounded-3 d-flex align-items-center" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
               <span className="small fw-bold text-white text-truncate" style={{ maxWidth: '140px' }}>{item.file.file_name}</span>
-              <button className="btn btn-sm ms-2" onClick={() => DownloadFileComment({method: 'GET', params: null,pathFile:'GTPP/Handlers/TaskItemResponse.php',urlComplement:`&id_comment=${item.id}`})}>
+              <button className="btn btn-sm ms-2" onClick={() => downloadFile({method: 'GET', params: null,pathFile:'GTPP/Handlers/TaskItemResponse.php',urlComplement:`&id_comment=${item.id}`})}>
                 <i className="fa-solid fa-download fs-5 text-success"></i>
               </button>
             </div>
