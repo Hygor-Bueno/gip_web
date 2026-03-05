@@ -107,10 +107,10 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
           className={`rounded-circle me-2 d-flex justify-content-center align-items-center flex-shrink-0 bg-light ${isLoading || isEditing ? 'opacity-50' : ''}`}
           style={{ width: '40px', height: '40px', pointerEvents: isLoading || isEditing ? 'none' : 'auto' }} >
           <AttachmentFile
-            item_id={0} // 0 pois é um novo comentário
+            item_id={0}
             captureNameDoc={(name: string) => setFileName(name)}
             base64={attachmentBase64}
-            fullFiles={true} // Requer a string completa (data:image/...) para o converter funcionar
+            fullFiles={true}
             reset={!attachmentBase64}
             onClose={(result: any) => setAttachmentBase64(result || "")}
           />
