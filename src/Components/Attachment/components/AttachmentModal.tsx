@@ -10,6 +10,7 @@ interface Props {
   onClose: () => void;
   updateAttachmentFile?: (file: string, item_id: number) => Promise<void>;
   readOnly: any;
+  fileInputRef?: (name: string) => void; // Tipagem corrigida para função de callback
 }
 
 export const AttachmentModal: React.FC<Props> = ({
@@ -18,15 +19,26 @@ export const AttachmentModal: React.FC<Props> = ({
   setBase64File,
   onClose,
   updateAttachmentFile,
+  fileInputRef,
   readOnly
 }) => {
   const [fileName, setFileName] = useState('');
 
+  // Processa o arquivo e já dispara a atualização inicial
   const { processFile } = useFileProcessor((base64, name) => {
     setBase64File(base64);
     setFileName(name);
+    if (fileInputRef) fileInputRef(name);
   });
 
+  // Sincroniza o nome com o componente pai (inclusive quando limpo)
+  useEffect(() => {
+    if (fileInputRef) {
+      fileInputRef(fileName || 'document');
+    }
+  }, [fileName, fileInputRef]);
+
+  // Captura o evento de colar (Paste)
   useEffect(() => {
     const handlePaste = (event: ClipboardEvent) => {
       const items = event.clipboardData?.items;
@@ -52,6 +64,12 @@ export const AttachmentModal: React.FC<Props> = ({
     onClose();
   };
 
+  const handleRemove = async () => {
+    if (updateAttachmentFile) await updateAttachmentFile('', itemId);
+    setBase64File('');
+    setFileName(''); // O useEffect acima notificará o ChatInput para limpar o estado lá também
+  };
+
   return (
     <div 
       className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" 
@@ -69,7 +87,7 @@ export const AttachmentModal: React.FC<Props> = ({
         onClick={(e) => e.stopPropagation()}
       >
         
-        {/* === HEADER (Fixo) === */}
+        {/* === HEADER === */}
         <div className="d-flex align-items-center justify-content-between p-3 border-bottom bg-light flex-shrink-0">
           <div className="d-flex align-items-center overflow-hidden">
             <i className="fa-solid fa-paperclip text-secondary fs-5 me-2 flex-shrink-0"></i>
@@ -82,11 +100,7 @@ export const AttachmentModal: React.FC<Props> = ({
             <button
               title="Remover anexo"
               className="btn btn-sm btn-danger d-flex align-items-center px-2 px-sm-3 ms-2 flex-shrink-0"
-              onClick={async () => {
-                if (updateAttachmentFile) await updateAttachmentFile('', itemId);
-                setBase64File('');
-                setFileName('');
-              }}
+              onClick={handleRemove}
             >
               <i className="fa-solid fa-trash-can text-white me-0 me-sm-2"></i>
               <span className="d-none d-sm-inline">Remover Imagem</span>
@@ -94,13 +108,15 @@ export const AttachmentModal: React.FC<Props> = ({
           )}
         </div>
 
-        {/* === BODY (Rolagem Isolada) === */}
-        <div className={`p-3 p-md-4 flex-grow-1 d-flex flex-column w-100 ${!base64File ? 'align-items-center justify-content-center' : ''}`}
+        {/* === BODY === */}
+        <div 
+          className={`p-3 p-md-4 flex-grow-1 d-flex flex-column w-100 ${!base64File ? 'align-items-center justify-content-center' : ''}`}
           style={{ 
             backgroundColor: '#f8f9fa',
             overflowY: 'auto',
             overflowX: 'hidden'
-          }}>
+          }}
+        >
           {base64File ? (
             <div className="w-100 h-100 d-flex justify-content-center bg-white p-2 p-md-3 rounded border shadow-sm overflow-auto" style={{ height: 'fit-content' }}>
               <FilePreview base64File={base64File} fileName={fileName || 'document'} />
@@ -120,6 +136,7 @@ export const AttachmentModal: React.FC<Props> = ({
           )}
         </div>
 
+        {/* === FOOTER === */}
         <div className="p-3 border-top d-flex justify-content-end gap-2 bg-white flex-shrink-0">
           <button className="btn btn-outline-secondary px-3 px-md-4 fw-medium" onClick={onClose}>
             {readOnly ? 'Fechar' : 'Voltar'}
@@ -128,7 +145,7 @@ export const AttachmentModal: React.FC<Props> = ({
           {!readOnly && (
             <button 
               className="btn btn-success px-3 px-md-4 fw-medium d-flex align-items-center shadow-sm" 
-              disabled={!itemId} 
+              disabled={!itemId && itemId !== 0} // Permitindo itemId 0 para novos chats
               onClick={handleSave}
             >
               <i className="fa-solid text-white fa-check me-2"></i>

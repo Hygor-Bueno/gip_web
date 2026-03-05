@@ -11,6 +11,7 @@ interface ChatInputProps {
 
 export default function ChatInput({ userList, isLoading, isEditing, onSend }: ChatInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string>("");
   const [text, setText] = useState("");
   const [attachmentBase64, setAttachmentBase64] = useState<string>("");
   const MAX_CARACTERES = 1000;
@@ -42,7 +43,7 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
     }
   };
 
-  const base64ToFile = (base64String: string, fileName: string): File | null => {
+  const base64ToFile = (base64String: string, fileName: any): File | null => {
     if (!base64String) return null;
 
     try {
@@ -88,7 +89,7 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
 
     let fileToSend: File | null = null;
     if (attachmentBase64) {
-      fileToSend = base64ToFile(attachmentBase64, `anexo_${Date.now()}`);
+      fileToSend = base64ToFile(attachmentBase64, fileName);
     }
 
     const success = await onSend(textClean, fileToSend, mentionedUsers);
@@ -107,6 +108,7 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
           style={{ width: '40px', height: '40px', pointerEvents: isLoading || isEditing ? 'none' : 'auto' }} >
           <AttachmentFile
             item_id={0} // 0 pois é um novo comentário
+            captureNameDoc={(name: string) => setFileName(name)}
             base64={attachmentBase64}
             fullFiles={true} // Requer a string completa (data:image/...) para o converter funcionar
             reset={!attachmentBase64}
