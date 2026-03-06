@@ -26,7 +26,7 @@ export default function RenderPage(props: Props): JSX.Element {
       </section>
       <ReactNotifications />
       {/* <footer>
-        © Peg Pese Supermercados Importação e Exportação Ltda. Desenvolvido por Hygor Bueno
+        © Peg Pese Supermercados Importação e Exportação Ltda.
       </footer> */}
     </div>
   );

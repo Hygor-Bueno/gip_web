@@ -14,12 +14,7 @@ const EPP: React.FC = () => {
 
       <section className="flex-grow-1">
         <header id="header-title-project" className="d-flex align-items-center justify-content-end w-100 px-3">
-          <button
-            id="btn-eyes-themes"
-            className="btn btn-outline-secondary d-md-none mt-2"
-            onClick={toggleMenu}
-            aria-label={isMenuOpen ? 'Hide menu' : 'Show menu'}
-          >
+          <button id="btn-eyes-themes" className="btn btn-outline-secondary d-md-none mt-2" onClick={toggleMenu} aria-label={isMenuOpen ? 'Hide menu' : 'Show menu'}>
             <i className={`fa-solid text-dark ${isMenuOpen ? 'fa-eye' : 'fa-eye-slash'}`}></i>
           </button>
         </header>

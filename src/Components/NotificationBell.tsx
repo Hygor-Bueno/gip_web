@@ -36,7 +36,6 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
   const handleClose = () => {
     setShowModal(false);
 
-    // Remove notificações da task atual ou todas
     setNotifications(
       props.idTask
         ? notifications.filter((item) => item.task_id !== props.idTask)
@@ -88,7 +87,7 @@ export default function NotificationBell(props: { idTask?: number }): JSX.Elemen
               </div>
               <div className="modal-body">
                 {filteredNotifications.length > 0 ? (
-                  <ul className="overflow-auto notification-container"> {/* list-unstyled */}
+                  <ul className="overflow-auto notification-container">
                     {filteredNotifications.map((n, i) => {
                       console.log(n);
                       return (
