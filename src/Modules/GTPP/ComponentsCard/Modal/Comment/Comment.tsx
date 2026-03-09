@@ -15,6 +15,7 @@ interface CommentItemProps {
 }
 
 export default function CommentItem({ item, isMe, isAdmin, userPhoto, userName, editingId, deleteComment, DownloadFileComment }: CommentItemProps) {
+  console.log(item);
   return (
     <div className={`d-flex mb-3 align-items-end animate__animated animate__fadeIn ${isMe ? 'flex-row-reverse' : ''}`}>
       <img src={userPhoto} alt={userName} className={`rounded-circle border border-white shadow-sm ${isMe ? 'ms-2' : 'me-2'}`} style={{ width: '38px', height: '38px', objectFit: 'cover', flexShrink: 0 }} />

@@ -21,6 +21,9 @@ interface iSubTask {
 }
 
 const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, props }) => {
+
+  console.log(props);
+
   const { task, taskDetails, updateCommentCount, getUser, reloadPagePercent, deleteItemTaskWS, updateItemTaskFile, 
   setTaskDetails, updatedAddUserTaskItem, getTaskInformations, checkedItem } = useWebSocket();
 

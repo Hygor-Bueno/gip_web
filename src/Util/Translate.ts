@@ -82,15 +82,24 @@ export default class Translator {
             case "Only the author can edit this message.":
                 this.#messagePT = "Voce não é o author dessa mensagem para poder editar"
             break;
-            case "The editing time limit (10 minutes) has expired.":
-                this.#messagePT = "O editor tem um tempo limite de 10 minutos para expirar"
-            break;
             case "Failed to update":
                 this.#messagePT = "Falha ao atualizar o arquivo"
             break;
+            case "It's not possible to add or exlude a response because the task is stoped.":
+                this.#messagePT = "No momento não é possivel adicionar ou excluir o comentario, porque a tarefa está parada."
+            break;
+            case "It's not possible to add or exlude a response because the task is closed.":
+                this.#messagePT = "No momento não é possivel adicionar ou excluir o comentario, porque a tarefa está fechada."
+            break;
+            case "It's not possible to add or exlude a response because the task is completed.":
+                this.#messagePT = "No momento não é possivel adicionar ou excluir o comentario, porque a tarefa está completa."
+            break;
+            case "It's not possible to add or exlude a response because the task is canceled.":
+                this.#messagePT = "No momento não é possivel adicionar ou excluir o comentario, porque a tarefa está cancelada."
+            break;
             default:
                 this.#messagePT = messagePT;
-                break;
+            break;
         }
     }
 

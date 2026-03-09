@@ -45,9 +45,9 @@ export default function EppMain() {
 
      const handleSelect = useCallback(async (item: tItemTable[]) => {
       setSelected(item);
-      if(!item || !item[0]?.idOrder?.value) return;
       try {
-         setModalData((prev) => prev ? {...prev} : null);
+        if(!item || !item[0]?.idOrder?.value) return;
+        setModalData((prev) => prev ? {...prev} : null);
       } catch (error) {
         console.error("Erro ao buscar dados");
       }
@@ -58,8 +58,6 @@ export default function EppMain() {
         customTags: renamedColumns,
         customValue: behaviorColumns
       }), [data]);
-
-    console.log(selected);
 
     if (loading) return <div>Carregando...</div>;
     if (!data.length) return <div>Nenhum dado encontrado</div>;
