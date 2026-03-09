@@ -189,8 +189,7 @@ export function infSenCheckItem(
 ): void {
   ws.current.informSending(
     classToJSON(
-      // @ts-ignore 
-      new InformSending(false, userLog.id, undefined, 2, {
+      new InformSending(false, userLog.id, 0, 2, {
         description: taskLocal.check
           ? "Um item foi marcado"
           : "Um item foi desmarcado",

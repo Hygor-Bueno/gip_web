@@ -40,8 +40,7 @@ const FormularioDinamico: React.FC = () => {
   );
 
   // Função para lidar com mudanças nos inputs
-  const handleInputChange = (e: React.ChangeEvent<(EventTarget & HTMLInputElement) | (EventTarget & HTMLSelectElement)>) => {
-    // @ts-ignore
+  const handleInputChange = (e: React.ChangeEvent<(EventTarget & HTMLInputElement) | (EventTarget & HTMLSelectElement)> | any) => {
     const { name, value, type, checked } = e.target;
     if (type === 'checkbox') {
       // Para checkboxes, alteramos o estado com base na seleção

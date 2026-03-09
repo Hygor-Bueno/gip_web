@@ -38,13 +38,12 @@ export default function GtppMain(props: GtppMainProps) {
           </h1>
           {props.openFilter && (
             <div className="position-absolute bg-white shadow rounded border p-3 mt-2 z-10" style={{ minWidth: "220px", zIndex: "1" }}>
-              {props.states?.map((state) => (
+              {props.states?.map((state: any) => (
                 <div key={state.id} className="d-flex align-items-center mb-2">
                   <input
                     id={`filter_state_${state.id}`}
                     className="form-check-input me-2"
                     type="checkbox"
-                    // @ts-ignore
                     checked={state.active}
                     onChange={() => props.handleCheckboxChange(state.id)}
                   />
@@ -63,13 +62,13 @@ export default function GtppMain(props: GtppMainProps) {
   function ContentDefault() {
     return (
       <Col xs={12} className="d-flex flex-nowrap p-0 menu-expansivo flex-grow-1" style={{ overflowX: "auto", height: "70%" }}>
-        {props.states?.map((state, idx) => {
+        {props.states?.map((state: any, idx) => {
           const x = props.getTask;
           const filteredTasks = x.filter((t: {state_id: any}) => t.state_id === state.id);
           const isFirstColumn = idx === 0;
 
           return (
-            // @ts-ignore
+            
             state.active && (
               <div key={state.id} className="column-task-container p-2 flex-shrink-0">
                 <ColumnTaskState
