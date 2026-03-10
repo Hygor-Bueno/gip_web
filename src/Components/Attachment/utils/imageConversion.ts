@@ -28,13 +28,11 @@ export async function convertImageToWebp(base64: string): Promise<string> {
     const dataUrl = canvas.toDataURL("image/webp", midQuality);
     const size = getBase64Size(dataUrl);
 
-    console.log(midQuality, dataUrl, size);
-
     if (size <= TARGET_SIZE_BYTES) {
       bestResult = dataUrl;
-      minQuality = midQuality; // Try to get better quality
+      minQuality = midQuality;
     } else {
-      maxQuality = midQuality; // Need more compression
+      maxQuality = midQuality;
     }
   }
 
