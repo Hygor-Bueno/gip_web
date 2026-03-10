@@ -1,7 +1,5 @@
 export const IMAGE_WEBP_QUALITY = 0.4;
 
-
-
 export function convertImage(src: any): string {
     if (src != null) {
         return "data:image/jpeg;base64, " + src;

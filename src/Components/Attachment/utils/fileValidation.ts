@@ -1,4 +1,4 @@
-export const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+export const MAX_FILE_SIZE = 15 * 1024 * 1024;
 
 export const ALLOWED_MIME_TYPES = [
   'application/pdf',
@@ -15,6 +15,11 @@ export const ALLOWED_MIME_TYPES = [
   'application/x-zip-compressed',
   'application/vnd.rar',
   'application/x-rar-compressed',
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "text/plain"
 ];
 
 export function isAllowedFile(file: File): boolean {
