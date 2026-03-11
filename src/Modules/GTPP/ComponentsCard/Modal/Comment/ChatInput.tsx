@@ -112,6 +112,7 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
             base64={attachmentBase64}
             fullFiles={true}
             reset={!attachmentBase64}
+            isComment={true}
             onClose={(result: any) => setAttachmentBase64(result || "")}
           />
         </div>

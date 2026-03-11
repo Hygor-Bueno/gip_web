@@ -10,6 +10,7 @@ interface Props {
   onClose: () => void;
   updateAttachmentFile?: (file: string, item_id: number) => Promise<void>;
   readOnly: any;
+  isComment: any;
   fileInputRef?: (name: string) => void;
 }
 
@@ -20,7 +21,8 @@ export const AttachmentModal: React.FC<Props> = ({
   onClose,
   updateAttachmentFile,
   fileInputRef,
-  readOnly
+  readOnly,
+  isComment
 }) => {
   const [fileName, setFileName] = useState('');
 
@@ -129,10 +131,10 @@ export const AttachmentModal: React.FC<Props> = ({
         </div>
         <div className="p-3 border-top d-flex justify-content-end gap-2 bg-white flex-shrink-0">
           <button className="btn btn-outline-secondary px-3 px-md-4 fw-medium" onClick={onClose}>
-            {readOnly ? 'Fechar' : 'Voltar'}
+            {isComment ? 'Fechar' : 'Voltar'}
           </button>
           
-          {!readOnly && (
+          {!isComment && (
             <button 
               className="btn btn-success px-3 px-md-4 fw-medium d-flex align-items-center shadow-sm" 
               disabled={!itemId && itemId !== 0}

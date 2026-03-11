@@ -3,7 +3,7 @@ import { AttachmentProps } from './types';
 import { useAttachmentFile } from './hooks/useAttachmentFile';
 import { AttachmentModal } from './components/AttachmentModal';
 
-export default function AttachmentFile(props: AttachmentProps & {readOnly?: any, captureNameDoc?: any}) {
+export default function AttachmentFile(props: AttachmentProps & {readOnly?: any, captureNameDoc?: any, isComment?: any}) {
   const [isOpen, setIsOpen] = useState(false);
 
   const { base64File, setBase64File } = useAttachmentFile(
@@ -35,6 +35,7 @@ export default function AttachmentFile(props: AttachmentProps & {readOnly?: any,
       {isOpen && (
         <AttachmentModal
           fileInputRef={props.captureNameDoc}
+          isComment={props.isComment}
           itemId={props.item_id || 0}
           base64File={base64File}
           setBase64File={setBase64File}
