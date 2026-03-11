@@ -88,6 +88,9 @@ export default class Translator {
             case "Failed to update":
                 this.#messagePT = "Falha ao atualizar o arquivo"
             break;
+            case "This MIME type is not allowed.": 
+                this.#messagePT = "Esse tipo de arquivo não é permitido."
+            break;
             default:
                 this.#messagePT = messagePT;
                 break;
