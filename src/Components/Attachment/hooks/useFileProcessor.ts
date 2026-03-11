@@ -1,19 +1,20 @@
 import { useCallback } from "react";
 import { convertImageToWebp } from "../utils/imageConversion";
 import { isAllowedFile, MAX_FILE_SIZE } from "../utils/fileValidation";
+import { handleNotification } from "../../../Util/Utils";
 
-const TARGET_SIZE = 200 * 1024; // 200KB
+const TARGET_SIZE = 200 * 1024;
 
 export function useFileProcessor(onFileReady: (base64: string, fileName: string) => void) {
   const processFile = useCallback((file: File | null) => {
     if (!file) return;
     if (file.size > MAX_FILE_SIZE) {
-      alert("O arquivo excede o limite de 15MB.");
+      handleNotification('Erro', "O arquivo excede o limite de 15MB.", 'danger');
       return;
     }
 
     if (!isAllowedFile(file)) {
-      alert(`Tipo de arquivo não suportado: ${file.name} (${file.type})`);
+      handleNotification('Erro!', `Tipo de arquivo não suportado: ${file.name} (${file.type})`, 'danger');
       return;
     }
 
@@ -39,12 +40,12 @@ export function useFileProcessor(onFileReady: (base64: string, fileName: string)
 
       } catch (error) {
         console.error("Erro ao processar arquivo:", error);
-        alert("Erro ao processar o arquivo.");
+        handleNotification('Erro!',"Erro ao processar o arquivo.", 'danger');
       }
 
     };
     reader.onerror = () => {
-      alert("Erro ao ler o arquivo.");
+      handleNotification('Erro!', "Erro ao ler o arquivo.", 'danger');
     };
     reader.readAsDataURL(file);
   }, [onFileReady]);
