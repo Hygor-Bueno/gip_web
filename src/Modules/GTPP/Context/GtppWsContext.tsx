@@ -83,7 +83,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   async function reqTasks(silent = false) {
     try {
-      if (!silent) setLoading(true); // Só ativa o loading se NÃO for silent
+      if (!silent) setLoading(true);
       const getTaskRes: any = await fetchData({ method: "GET", params: null, pathFile: "GTPP/Task.php", urlComplement: `${isAdm ? "&administrator=1" : ""}` });
       if (getTaskRes.error) throw new Error(getTaskRes.message);
       setGetTask(getTaskRes.data);
@@ -194,7 +194,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       handleNotification("Comentario removido!", response.object?.description, "info");
 
       if (isTargetingCurrentTask && response.object && response.object.task_item_id) {
-        await updateCommentCount(response.object.task_item_id);
+        updateCommentCount(response.object.task_item_id, "remove");
         await getComment(response.object.task_item_id);
       }
     }
@@ -212,7 +212,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Comentario adicionado
     if (response.type === 7) {
       if (isTargetingCurrentTask && response.object && response.object.task_item_id) {
-        await updateCommentCount(response.object.task_item_id);
+        await updateCommentCount(response.object.task_item_id, "add");
         await getComment(response.object.task_item_id);
       }
     }
@@ -243,27 +243,27 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }
 
- const updateCommentCount = async (taskItemId: number) => {
+  const updateCommentCount = useCallback((taskItemId: number, action: "add" | "remove") => {
     if (!taskItemId) return;
-    const res: any = await fetchData({ method: "GET", params: null, pathFile: 'GTPP/TaskItemResponse.php', urlComplement: `&task_item_id=${taskItemId}&count=true`, exception: ["No data"] });
-    
-    if (res && !res.error) {
-      const total = Number(res.data[0]?.total_comment) || 0;
-      setTaskDetails((prev: any) => {
-        if (!prev.data || !prev.data.task_item) return prev;
-        return {
-          ...prev,
-          data: {
-            ...prev.data,
-            task_item: prev.data.task_item.map((item: any) => {
-              if (item.id === taskItemId) return { ...item, total_comment: total }
-              return item;
-            })
-          }
-        };
-      });
-    }
-  };
+
+    setTaskDetails((prev: any) => {
+      if (!prev.data || !prev.data.task_item) return prev;
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          task_item: prev.data.task_item.map((item: any) => {
+            if (Number(item.id) === Number(taskItemId)) {
+              const currentTotal = Number(item.total_comment) || 0;
+              const newTotal = action === "add" ? currentTotal + 1 : Math.max(0, currentTotal - 1);
+              return { ...item, total_comment: newTotal };
+            }
+            return item;
+          })
+        }
+      };
+    });
+  }, [setTaskDetails]);
 
   const requestNotificationPermission = async () => {
     if (!("Notification" in window)) return;
@@ -285,9 +285,10 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         if (response && !response.error) {
             await getComment(taskItemId);
-            // ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 7, object: { task_item_id: taskItemId } });
-            
-            await updateCommentCount(taskItemId);
+
+            ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 7, object: { task_item_id: taskItemId } });
+
+            await updateCommentCount(taskItemId, "add");
             return response;
         }
     } catch (error) { console.error("Erro ao enviar comentário:", error); }
@@ -298,7 +299,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (response && !response.error) {
         await getComment(taskItemId);
         // ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 9, object: { task_item_id: taskItemId, description:  `Comentario foi removido na tarefa: (${taskId})`}});
-        await updateCommentCount(taskItemId);
+        await updateCommentCount(taskItemId, "remove");
         return response;
     }
     if (!response.error) { handleNotification("Sucesso", "Comentário removido", "success"); await getComment(taskItemId); }
@@ -607,7 +608,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     editComment, notifyMentionWs
   }), [
     taskDetails, task, taskPercent, userTaskBind, notifications, states, onSounds, getTask, isAdm, openCardDefault, themeList, comment,
-    getComment, sendComment, handleAddTask 
+    getComment, sendComment, handleAddTask, updateCommentCount
   ]);
 
   return (

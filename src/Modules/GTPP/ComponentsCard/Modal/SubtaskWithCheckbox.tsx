@@ -29,6 +29,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   const [editTask, setEditTask] = useState<any>("");
   const [isObservation, setIsObservation] = useState<boolean>(false);
   const [positionTaskStates, setPositionTaskStates] = useState<{ [key: number]: boolean }>({});
+  
   const [onScrollDown, setOnScrollDown] = useState<boolean>(true);
   const [onEditTask, setOnEditTask] = useState<boolean>(false);
   const containerTaskItemsRef = useRef<HTMLDivElement>(null);
@@ -124,8 +125,9 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
         onClose={() => setOnEditTask(false)} 
         isObservation={isObservation} 
         setIsObservation={setIsObservation} 
-        editTask={editTask} 
-        setEditTask={setEditTask} />
+        editTask={editTask}
+        setEditTask={setEditTask}
+      />
 
       <ModalConfirm isOpen={isTrashDelete} onCancel={async () => setIsTrashDelete(false)} onSave={async () => {
         await handleTrashDelete(taskToDelete);
