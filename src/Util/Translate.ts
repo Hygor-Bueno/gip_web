@@ -91,6 +91,12 @@ export default class Translator {
             case "This MIME type is not allowed.": 
                 this.#messagePT = "Esse tipo de arquivo não é permitido."
             break;
+            case "The file could not be moved to the final destination.": 
+                this.#messagePT = "O arquivo não pode ser movido para o destino."
+            break;
+            case "Temporary file not found.":
+                this.#messagePT = "Arquivo temporario não encontrado"
+            break;
             default:
                 this.#messagePT = messagePT;
                 break;
