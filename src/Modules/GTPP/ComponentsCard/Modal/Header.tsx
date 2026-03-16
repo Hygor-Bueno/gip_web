@@ -167,22 +167,20 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
 
   async function cancelTask(description: string) {
     try {
-      // NOVA LÓGICA: Pegamos o exato momento do cancelamento no formato ISO seguro para o Banco de Dados
       const cancelDateStr = DateConverter.toDatabaseFormat(new Date());
-
       await fetchData({ 
         method: "PUT", 
         params: { 
           id: task.id, 
           state_id: 7, 
           description: description,
-          canceled_at: cancelDateStr // Enviando para o BD
+          canceled_at: cancelDateStr
         }, 
         pathFile: "GTPP/Task.php" 
       });
       await loadTasks();
       if (onClick) onClick();
-      setModalConfirmCancel(false); // Fecha o modal após sucesso
+      setModalConfirmCancel(false);
     } catch (error) {
       console.error(error);
     }
