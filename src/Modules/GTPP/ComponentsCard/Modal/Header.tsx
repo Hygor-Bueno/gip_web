@@ -45,7 +45,7 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
   // ==========================================
   // 2. CONTEXTS
   // ==========================================
-  const { getTask, task, loadTasks, setGetUser } = useWebSocket();
+  const { task, loadTasks, setGetUser } = useWebSocket();
   const { setLoading } = useMyContext();
   const { fetchData } = useConnection();
 
