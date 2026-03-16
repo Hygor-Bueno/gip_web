@@ -298,7 +298,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const response = await fetchData({ method: "PUT", params: { id: idToDelete, status: "0" }, pathFile: 'GTPP/TaskItemResponse.php' });
     if (response && !response.error) {
         await getComment(taskItemId);
-        // ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 9, object: { task_item_id: taskItemId, description:  `Comentario foi removido na tarefa: (${taskId})`}});
+        ws.current.informSending({ error: false, user_id: userLog.id, task_id: taskId, type: 9, object: { task_item_id: taskItemId, description:  `Comentario foi removido na tarefa: (${taskId})`}});
         await updateCommentCount(taskItemId, "remove");
         return response;
     }
@@ -317,7 +317,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (response && !response.error) {
         await getComment(taskItemId);
         
-        // ws.current.informSending({  error: false,  user_id: userLog.id,  task_id: taskId,  type: 7,  object: { task_item_id: taskItemId } });
+        ws.current.informSending({  error: false,  user_id: userLog.id,  task_id: taskId,  type: 7,  object: { task_item_id: taskItemId } });
         
         handleNotification("Sucesso", "Comentário editado com sucesso!", "success");
         return response;
@@ -329,7 +329,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const notifyMentionWs = useCallback((mentionedUsers: any[], taskId: number, taskItemDesc: string) => {
     mentionedUsers.forEach(user => {
-      // ws.current.informSending({ error: false, user_id: user.user_id, send_user_id: userLog.id, task_id: taskId, type: 8, object: { description: `mencionou você na tarefa: (${taskId})\n no Item: "${taskItemDesc}"`, isMention: true, task_id: taskId }});
+      ws.current.informSending({ error: false, user_id: user.user_id, send_user_id: userLog.id, task_id: taskId, type: 8, object: { description: `mencionou você na tarefa: (${taskId})\n no Item: "${taskItemDesc}"`, isMention: true, task_id: taskId }});
     });
   }, [userLog.id]);
 

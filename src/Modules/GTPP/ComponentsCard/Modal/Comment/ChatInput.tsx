@@ -3,13 +3,12 @@ import { handleNotification, convertImage } from '../../../../../Util/Utils';
 import AttachmentFile from '../../../../../Components/Attachment/AttachmentFile';
 
 interface ChatInputProps {
-  userList: any[];
   isLoading: boolean;
   isEditing: boolean;
   onSend: any;
 }
 
-export default function ChatInput({ userList, isLoading, isEditing, onSend }: ChatInputProps) {
+export default function ChatInput({ isLoading, isEditing, onSend }: ChatInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string>("");
   const [text, setText] = useState("");
@@ -80,20 +79,12 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
       return;
     }
 
-    const myId = String(localStorage.getItem('codUserGIPP'));
-
-    const mentionedUsers = userList.filter(u => {
-      if (!u.name || String(u.user_id) === myId) return false;
-      const regex = new RegExp(`@${u.name.split(' ')[0]}( |$)`, 'i');
-      return regex.test(textClean);
-    });
-
     let fileToSend: File | null = null;
     if (attachmentBase64) {
       fileToSend = base64ToFile(attachmentBase64, fileName);
     }
 
-    const success = await onSend(textClean, fileToSend, mentionedUsers);
+    const success = await onSend(textClean, fileToSend);
 
     if (success) {
       setText("");

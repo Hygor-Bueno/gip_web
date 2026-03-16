@@ -1,3 +1,4 @@
+import { maskChassis } from "../../../../../../Util/Utils";
 import { Schema, VehicleFormValues } from "../../../Interfaces/Interfaces";
 
 /**
@@ -14,7 +15,7 @@ export const formVehicle = (
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Placa', captureValue: { type: 'text', name: 'license_plates', className: 'form-control', value: values.license_plates ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Ano', captureValue: { type: 'number', name: 'year', className: 'form-control', value: values.year ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-4' }, item: { label: 'Ano Modelo', captureValue: { type: 'number', name: 'year_model', className: 'form-control', value: values.year_model ?? '', onChange } } },
-    { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Chassi', captureValue: { type: 'text', name: 'chassi', className: 'form-control', value: values.chassi ?? '', onChange } } },
+    { attributes: { className: 'my-2 col-12 col-md-4' }, item: { label: 'Chassi', captureValue: { type: 'text', name: 'chassi', className: 'form-control', value: maskChassis(String(values.chassi)) ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Cor', captureValue: { type: 'text', name: 'color', className: 'form-control', value: values.color ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Renavam', captureValue: { type: 'text', name: 'renavam', className: 'form-control', value: values.renavam ?? '', onChange } } },
     { attributes: { className: 'my-2 col-6 col-md-3' }, item: { label: 'Potência', captureValue: { type: 'number', step: '0.01', name: 'power', className: 'form-control', value: values.power ?? '', onChange } } },

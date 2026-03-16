@@ -7,7 +7,6 @@ import { convertForTable } from "../../../../Util/Utils";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
 import { Active, ActiveTableData } from "../Interfaces/Interfaces";
 import { tItemTable } from "../../../../types/types";
-import ServicesBox from "./ServicesBox/ServicesBox";
 
 const ActiveTable: React.FC = () => {
   const [data, setData] = useState<Active[]>([]);

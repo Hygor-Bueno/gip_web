@@ -1,42 +1,57 @@
 import React, { useState } from 'react';
-import { Navbar, Nav } from 'react-bootstrap';
+import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-import { Container } from 'react-bootstrap';
+export type NavBarProps = {
+    list?: any[];
+    page?: string;
+    icon?: string;
+    children?: React.ReactNode;
+    actionAdd?: (value?: any) => any;
+};
 
-type NavBarProps = {
-    list?: any[],
-    page?: string,
-    icon?: string,
-    children?: React.ReactNode,
-    actionAdd?: (value?:any)=>any
-}
-
-const NavBar: React.FC<NavBarProps> = (props: any) => {
+const NavBar: React.FC<NavBarProps> = ({ list }) => {
     const [isBgListActive, setIsBgListActive] = useState(false);
 
     const handleToggleClick = () => {
-        setIsBgListActive(!isBgListActive);
+        // Boa prática: usar o estado anterior para garantir a alternância correta
+        setIsBgListActive((prev) => !prev);
     };
 
     return (
-        <Navbar expand="" id='navGipp' className="align-items-start bg-transparent">
+        <Navbar expand="" id="navGipp" className="align-items-start bg-transparent">
             <Container>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" onClick={()=>handleToggleClick} />
+                {/* Bug corrigido: A função agora é chamada corretamente */}
+                <Navbar.Toggle aria-controls="basic-navbar-nav" onClick={handleToggleClick} />
+                
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav>
-                        {props.list && props.list.length > 0 ? (
-                            props.list.map((item: any, index: any) => (
-                                <Nav.Link onClick={()=>{
-                                    item.actionAdd && item.actionAdd();
-                                    }} key={index} as={Link} to={item.page || "/GIPP"}>
-                                    <div className='d-flex align-items-center'>
-                                        <div className={item.icon} ></div> <span className='mx-2'>{item.children || "Default Text"}</span>
-                                    </div>
-                                </Nav.Link>
-                            ))
+                        {list && list.length > 0 ? (
+                            list.map((item: any, index: number) => {
+                                const handleItemClick = () => {
+                                    if (item?.actionAdd) {
+                                        item.actionAdd();
+                                    }
+                                };
+
+                                return (
+                                    <Nav.Link 
+                                        key={index} 
+                                        as={Link} 
+                                        to={item?.page || "/GIPP"}
+                                        onClick={handleItemClick}
+                                    >
+                                        <div className="d-flex align-items-center">
+                                            {item?.icon && <div className={item.icon}></div>}
+                                            <span className="mx-2">
+                                                {item?.children || "Default Text"}
+                                            </span>
+                                        </div>
+                                    </Nav.Link>
+                                );
+                            })
                         ) : (
-                            <p>No items to display</p>
+                            <p className="text-muted mt-2">No items to display</p>
                         )}
                     </Nav>
                 </Navbar.Collapse>
