@@ -53,13 +53,13 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
   // 3. REGRAS DE NEGÓCIO E UI
   // ==========================================
   
-  // Array com os IDs dos status que NÃO permitem cancelamento.
-  // IMPORTANTE: Sabemos que 7 é Cancelado. Substitua o 3 e 4 pelos IDs corretos de "Feito" e "Parado" do seu Banco de Dados!
-  const invalidStatesForCancel = [3, 4, 7]; 
+  // IDs dos status que indicam que a tarefa "parou de correr contra o tempo" (Feito, Parado, Cancelado)
+  // Lembre-se de ajustar os IDs 3 e 4 para os valores reais do seu banco!
+  const inactiveStates = [3, 4, 6, 7]; 
   const isTaskExpired = DateConverter.isAfter(new Date(), task.final_date);
   
-  // Apenas mostra o botão se não estiver expirada E não estiver em um status bloqueado
-  const showCancelButton = !isTaskExpired && !invalidStatesForCancel.includes(task.state_id);
+  // O botão de cancelar só aparece se a tarefa NÃO expirou e NÃO está inativa
+  const showCancelButton = !isTaskExpired && !inactiveStates.includes(task.state_id);
 
   // ==========================================
   // 4. EFFECTS
@@ -143,14 +143,13 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
     const diffDays = DateConverter.getDaysDifference(new Date(), task.final_date);
     let timeStatus = null;
     
-    if (diffDays !== null) {
-      if (diffDays < 0) {
-        timeStatus = <span className="badge bg-danger ms-2" style={{ fontSize: '0.8em' }}>Atrasado {Math.abs(diffDays)} dia(s)</span>;
-      } else if (diffDays === 0) {
-        timeStatus = <span className="badge bg-warning text-dark ms-2" style={{ fontSize: '0.8em' }}>Vence hoje!</span>;
-      } else {
-        timeStatus = <span className="badge bg-info ms-2" style={{ fontSize: '0.8em' }}>Faltam {diffDays} dia(s)</span>;
-      }
+    const isTaskInactive = inactiveStates.includes(task.state_id);
+
+    // REGRA APLICADA: 
+    // 1. A tarefa NÃO pode estar Feita, Parada ou Cancelada (!isTaskInactive)
+    // 2. A tag SOMENTE aparece se a tarefa estiver Expirada/Atrasada (diffDays < 0)
+    if (!isTaskInactive && diffDays !== null && diffDays < 0) {
+      timeStatus = <span className="badge bg-danger ms-2" style={{ fontSize: '0.8em' }}>Atrasado {Math.abs(diffDays)} dia(s)</span>;
     }
 
     return (
@@ -199,7 +198,6 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
           <InputCheckButton nameButton="Dados do criador da tarefa" inputId={`task_details_user_${task.user_id}`} onAction={async (e: boolean) => setDetailUser(e)} labelIconConditional={["fa-solid fa-chevron-down", "fa-solid fa-chevron-up"]} />
           <InputCheckButton nameButton="Detalhes da tarefa." inputId={`task_details_${task.user_id}`} onAction={async (e: boolean) => setDetailTask(e)} labelIcon={"fa-solid fa-circle-info"} highlight={true} />
           
-          {/* O botão agora só é renderizado se a variável showCancelButton for verdadeira */}
           {showCancelButton && (
             <button 
               title="Cancelar a tarefa!" 
