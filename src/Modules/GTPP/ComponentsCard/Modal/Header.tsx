@@ -6,6 +6,7 @@ import User from "../../../../Class/User";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import { DateConverter } from "../../Class/DataConvert";
+import { iUser } from "../../../../Interface/iGIPP";
 
 interface HeaderModalProps {
   color: string;
@@ -41,11 +42,12 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
       const req: any = await fetchData({ method: "PUT", params: { id: taskParam.id, priority: taskParam.priority, description: newTitle }, pathFile: "GTPP/Task.php" })
       if (req.error) throw new Error(req.message);
       setDesc(newTitle);
-      getTask.filter(item => item.id == task.id)[0].description = newTitle;
+      getTask.filter((item: any) => item.id == task.id)[0].description = newTitle;
     } catch (error: any) {
       console.error(error.message)
     }
   }
+
   useEffect(() => {
     if (titleTaskInput.current) {
       if (habilitEditionOfText) {
@@ -54,19 +56,33 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
         titleTaskInput.current.blur();
       }
     }
-    (async()=>loadNameUserTask())();
+    (async () => loadNameUserTask())();
   }, [habilitEditionOfText]);
 
   function DetailsTask() {
+    const diffDays = DateConverter.getDaysDifference(new Date(), task.final_date);
+    let timeStatus = null;
+    if (diffDays !== null) {
+      if (diffDays < 0) {
+        timeStatus = <span className="badge bg-danger ms-2" style={{ fontSize: '0.8em' }}>Atrasado {Math.abs(diffDays)} dia(s)</span>;
+      } else if (diffDays === 0) {
+        timeStatus = <span className="badge bg-warning text-dark ms-2" style={{ fontSize: '0.8em' }}>Vence hoje!</span>;
+      } else {
+        timeStatus = <span className="badge bg-info ms-2" style={{ fontSize: '0.8em' }}>Faltam {diffDays} dia(s)</span>;
+      }
+    }
+
     return (
       <div className="d-flex flex-column h-100 border p-2 my-2 rounded cardContact">
         <span className="d-flex justify-content-between">
           <strong>Data inicial:</strong>
           <div>{`${DateConverter.formatDate(task.initial_date)}`}</div>
         </span>
-        <span className="d-flex justify-content-between">
+        <span className="d-flex justify-content-between align-items-center">
           <strong>Data Final:</strong>
-          <div>{`${DateConverter.formatDate(task.final_date)}`}</div>
+          <div className="d-flex align-items-center">
+            {timeStatus} {`${DateConverter.formatDate(task.final_date)}`}
+          </div>
         </span>
         <span className="d-flex justify-content-between">
           <strong>Status:</strong>
@@ -108,14 +124,20 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
           className="bg-transparent w-100 font-weight-bold"
           style={{ border: "none", fontWeight: "bold" }}
         ></input>
-        <div className="d-flex gap-2">
-          <InputCheckButton nameButton="Dados do criador da tarefa" inputId={`task_details_user_${task.user_id}`} onAction={async (e: boolean) => {setDetailUser(e);}} labelIconConditional={["fa-solid fa-chevron-down", "fa-solid fa-chevron-up"]} />
+        <div className="d-flex gap-2 align-items-center">
+          <InputCheckButton nameButton="Dados do criador da tarefa" inputId={`task_details_user_${task.user_id}`} onAction={async (e: boolean) => { setDetailUser(e); }} labelIconConditional={["fa-solid fa-chevron-down", "fa-solid fa-chevron-up"]} />
           <InputCheckButton nameButton="Detalhes da tarefa." inputId={`task_details_${task.user_id}`} onAction={async (e: boolean) => {
             setDetailTask(e);
           }} labelIcon={"fa-solid fa-circle-info"} highlight={true} />
-          <button title="Cancelar a tarefa!" className="btn p-1 border-none" onClick={() => setModalConfirmCancel(true)}>
-            <i className="fa-solid fa-ban text-danger"></i>
+          
+          <button 
+            title={"Cancelar a tarefa!"} 
+            className="btn p-1 border-none" 
+            onClick={() => setModalConfirmCancel(true)}
+          >
+            <i className={`fa-solid fa-ban text-danger"}`}></i>
           </button>
+          
           <button
             onClick={onClick || (() => console.warn("Valor indefinido!"))}
             className={`btn btn-${color} text-light fa fa-x`}
@@ -125,8 +147,8 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
         {modalConfirmCancel ?
           <div style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 1, maxWidth: "300px" }} className="d-flex flex-column position-absolute p-2 rounded shadow-lg bg-dark w-75">
             <header className="w-100 d-flex flex-column align-items-center">
-              <h1 className="text-white">Cancelar tarefa</h1>
-              <span className="text-white">Você está prestes a cancelar essa tarefa, informe o motivo?</span>
+              <h1 className="text-white fs-5">Cancelar tarefa</h1>
+              <span className="text-white text-center" style={{ fontSize: '0.9em' }}>Você está prestes a cancelar essa tarefa, informe o motivo:</span>
             </header>
             <input value={reasonCancellation} className="form-control my-2" placeholder="Informe o motivo" type="text" onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setReasonCancellation(e.currentTarget.value) }} />
             <div className="d-flex w-100 align-items-center justify-content-around">
@@ -137,7 +159,7 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
           : <React.Fragment />
         }
       </div>
-      {!detailUser && <h6 className="mx-2 text-muted">Por: {userTask?.name}</h6>}
+      {!detailUser && <h6 className="mx-2 text-muted mt-2" style={{ fontSize: '0.9em' }}>Por: {userTask?.name}</h6>}
       {detailUser ? <CardUser {...userTask} name={userTask?.name} /> : <React.Fragment />}
       {detailTask ? <DetailsTask /> : <React.Fragment />}
     </div>
@@ -145,9 +167,22 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
 
   async function cancelTask(description: string) {
     try {
-      await fetchData({ method: "PUT", params: { id: task.id, state_id: 7, description: description }, pathFile: "GTPP/Task.php" });
+      // NOVA LÓGICA: Pegamos o exato momento do cancelamento no formato ISO seguro para o Banco de Dados
+      const cancelDateStr = DateConverter.toDatabaseFormat(new Date());
+
+      await fetchData({ 
+        method: "PUT", 
+        params: { 
+          id: task.id, 
+          state_id: 7, 
+          description: description,
+          canceled_at: cancelDateStr // Enviando para o BD
+        }, 
+        pathFile: "GTPP/Task.php" 
+      });
       await loadTasks();
       if (onClick) onClick();
+      setModalConfirmCancel(false); // Fecha o modal após sucesso
     } catch (error) {
       console.error(error);
     }
