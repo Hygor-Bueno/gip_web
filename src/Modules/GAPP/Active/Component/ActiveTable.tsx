@@ -84,7 +84,7 @@ const ActiveTable: React.FC = () => {
 
   const handleServicesBox = useCallback(async (item: tItemTable[]) => {
     setOpenModal(true);
-    // handleSelect(item);
+    handleSelect(item);
   }, [data]);
 
   const tableList = useMemo(() => convertForTable(data, {
@@ -105,13 +105,13 @@ const ActiveTable: React.FC = () => {
       />
 
       {/* modal para escolher entre os serviços */}
-      {openModal && (
+      {/* {openModal && (
         <ServicesBox setOpenModal={setOpenModal} />
-      )}
-
-      {/* {openModal && selected && modalData && (
-        <FormActive apiData={modalData} openModal={setOpenModal} />
       )} */}
+
+      {openModal && selected && modalData && (
+        <FormActive apiData={modalData} openModal={setOpenModal} />
+      )}
     </div>
   );
 };
