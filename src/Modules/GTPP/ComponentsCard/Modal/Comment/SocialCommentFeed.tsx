@@ -53,18 +53,12 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
     setIsAtBottom(isBottom);
   };
 
-  const handleSendOrchestrator = async (text: string, file: File | null, mentionedUsers: any[]): Promise<boolean> => {
+  const handleSendOrchestrator = async (text: string, file: File | null) => {
     if (!isOnline) return false;
     setIsLoading(true);
     try {
-      const res = await sendComment(text, file, editTask.id, editTask.task_id);
-      if (res && !res.error) {
-        if (mentionedUsers.length > 0 && notifyMentionWs) {
-          notifyMentionWs(mentionedUsers, editTask.task_id, editTask.description);
-        }
-        return true;
-      }
-      return false;
+      await sendComment(text, file, editTask.id, editTask.task_id);
+      return true; 
     } catch (error) {
       console.error("Erro no envio:", error);
       return false;
@@ -72,7 +66,6 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
       setIsLoading(false);
     }
   };
-
   const handleSaveEditOrchestrator = async (id: number, newText: string) => {
     setIsLoading(true);
     try {

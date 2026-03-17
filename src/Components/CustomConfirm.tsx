@@ -1,96 +1,66 @@
 import React from 'react';
 
+interface ConfirmModalProps {
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onClose: () => void;
+}
+
 export default function ConfirmModal({
   title,
   message,
   onConfirm,
   onClose,
-}: {
-  title: string;
-  message: string;
-  onConfirm: () => void;
-  onClose: () => void;
-}): JSX.Element {
+}: ConfirmModalProps): JSX.Element {
   return (
-    <>
-      <style>{`
-        .confirm-modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100dvh;
-          background-color: rgba(0, 0, 0, 0.5);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 1050;
-          padding: 1rem;
-        }
+    <div 
+      className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center p-3"
+      style={{ 
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+        zIndex: 1050 
+      }}
+      onClick={onClose} // Fecha ao clicar no fundo (overlay)
+    >
+      <div 
+        className="card shadow w-100" 
+        style={{ maxWidth: '30rem' }}
+        onClick={(e) => e.stopPropagation()} // Impede que o clique no modal feche ele
+      >
+        {/* Header */}
+        <div className="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
+          <h5 className="mb-0 fw-bold">{title}</h5>
+          <button 
+            type="button" 
+            className="btn-close" 
+            onClick={onClose} 
+            aria-label="Close"
+          ></button>
+        </div>
 
-        .confirm-modal-container {
-          background-color: #fff;
-          border-radius: 0.5rem;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          width: 100%;
-          max-width: 30rem;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-        }
+        {/* Body */}
+        <div className="card-body py-4">
+          <p className="mb-0 text-secondary">{message}</p>
+        </div>
 
-        .confirm-modal-header {
-          padding: 1rem;
-          border-bottom: 1px solid #dee2e6;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .confirm-modal-title {
-          margin: 0;
-          font-size: 1.25rem;
-        }
-
-        .confirm-modal-body {
-          padding: 1rem;
-          font-size: 1rem;
-        }
-
-        .confirm-modal-body p {
-          margin: 0;
-        }
-
-        .confirm-modal-footer {
-          padding: 1rem;
-          border-top: 1px solid #dee2e6;
-          display: flex;
-          justify-content: flex-end;
-          gap: 0.5rem;
-        }
-      `}</style>
-
-      <div className="confirm-modal-overlay">
-        <div className="confirm-modal-container">
-          <div className="confirm-modal-header">
-            <h5 className="confirm-modal-title">{title}</h5>
-            <button className="btn-close" onClick={onClose} aria-label="Close"></button>
-          </div>
-
-          <div className="confirm-modal-body">
-            <p>{message}</p>
-          </div>
-
-          <div className="confirm-modal-footer">
-            <button title="Cancelar ação." className="btn btn-secondary" onClick={onClose}>
-              Cancelar
-            </button>
-            <button title="Confirmar ação" className="btn btn-primary" onClick={onConfirm}>
-              Confirmar
-            </button>
-          </div>
+        {/* Footer */}
+        <div className="card-footer d-flex justify-content-end gap-2 bg-white border-top py-3">
+          <button 
+            type="button"
+            className="btn btn-light border px-4" 
+            onClick={onClose}
+          >
+            Cancelar
+          </button>
+          <button 
+            type="button"
+            className="btn btn-primary px-4" 
+            onClick={onConfirm}
+          >
+            Confirmar
+          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -10,15 +10,24 @@ import { ITaskItemList } from '../Contract/Contract';
 import { changePositionItem, includeAuthorInList } from '../utils/utilsTaskItem';
 
 const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, getUser, updateCommentCount, closeObservation, userState, subTask, setShowUserLinkedList, positionTaskStates, updatePositionTaskItem, checkedItem, togglePositionTask, setOnScrollDown, onScrollDown, userLog, setUserState, updatedAddUserTaskItem, showChat, setEditTask, setOnEditTask, setShowChat, setTaskToDelete, setIsTrashDelete, updateItemTaskFile, setTaskDetails, props }) => {
+  
+  React.useEffect(() => {
+    const items = taskDetails?.data?.task_item || [];
+    items.forEach((item: any) => {
+      if (item.id && item.total_comment == null) {
+        updateCommentCount(Number(item.id));
+      }
+    });
+  }, [taskDetails?.data?.task_item, updateCommentCount]);
+  
   return (
     <React.Fragment>
       {(taskDetails.data?.task_item || []).map((taskItem: any, index: number) => {
         const list = users?.find((item: { user_id: number }) => item?.user_id == taskItem?.created_by);
         const creator = !isMissing(list?.name) ? list?.name : getUser?.name;
         const assignedUser = includeAuthorInList(props.details.data?.task_user, getUser)?.find((user: any) => user.user_id === taskItem.assigned_to);
-        const total = Number(taskItem.total_comment) || 0;
 
-        if (taskItem.id && taskItem.total_comment === undefined) updateCommentCount(Number(taskItem.id));
+        const total = Number(taskItem.total_comment) || 0;
 
         return (
           <div key={taskItem.id} className={`d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto ${userState.loadingList.listTask?.id == taskItem.id ? 'border-mark' : ''}`}>

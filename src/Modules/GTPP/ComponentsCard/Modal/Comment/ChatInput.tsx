@@ -6,7 +6,7 @@ interface ChatInputProps {
   userList: any[];
   isLoading: boolean;
   isEditing: boolean;
-  onSend: (text: string, file: File | null, mentionedUsers: any[]) => Promise<boolean>;
+  onSend: any;
 }
 
 export default function ChatInput({ userList, isLoading, isEditing, onSend }: ChatInputProps) {
@@ -81,6 +81,7 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
     }
 
     const myId = String(localStorage.getItem('codUserGIPP'));
+
     const mentionedUsers = userList.filter(u => {
       if (!u.name || String(u.user_id) === myId) return false;
       const regex = new RegExp(`@${u.name.split(' ')[0]}( |$)`, 'i');
@@ -112,6 +113,7 @@ export default function ChatInput({ userList, isLoading, isEditing, onSend }: Ch
             base64={attachmentBase64}
             fullFiles={true}
             reset={!attachmentBase64}
+            isComment={true}
             onClose={(result: any) => setAttachmentBase64(result || "")}
           />
         </div>

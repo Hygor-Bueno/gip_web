@@ -4,181 +4,166 @@ import { useConnection } from "../../../../Context/ConnContext";
 
 interface SelectTaskItemProps {
   data?: {
-    // Array com as relações já existentes vindas do banco
     csds: { company_id: number; shop_id: number; depart_id: number }[];
     id: number;
-    setcheckTaskComShoDepSub: any;
   };
 }
 
-const SelectTaskItem: React.FC<SelectTaskItemProps> = (props) => {
-  const { data } = props;
+interface Option {
+  id: number;
+  description: string;
+}
+
+const SelectTaskItem: React.FC<SelectTaskItemProps> = ({ data }) => {
   const { loadTasks, checkTaskComShoDepSub } = useWebSocket();
   const { fetchData } = useConnection();
 
-  // --- ESTADOS ---
+  const [companyOptions, setCompanyOptions] = useState<Option[]>([]);
+  const [shopOptions, setShopOptions] = useState<Option[]>([]);
+  const [departmentOptions, setDepartmentOptions] = useState<Option[]>([]);
 
-  // Opções para os seletores
-  const [companyOptions, setCompanyOptions] = useState<
-    { id: number; description: string }[]
-  >([]);
-  const [shopOptions, setShopOptions] = useState<
-    { id: number; description: string }[]
-  >([]);
-  const [departmentOptions, setDepartmentOptions] = useState<
-    { id: number; description: string }[]
-  >([]);
-
-  // Valores selecionados pelo usuário
   const [selectedCompany, setSelectedCompany] = useState<number | "">(
-    data?.csds[0]?.company_id || ""
-  );
-  const [selectedShop, setSelectedShop] = useState<number | "">(
-    data?.csds[0]?.shop_id || ""
+    data?.csds?.[0]?.company_id || ""
   );
 
-  // ✅ CORREÇÃO: Inicializa o estado como um array de IDs de departamentos que já vêm do banco.
-  // Usamos .map() para extrair todos os depart_id do array csds.
+  const [selectedShop, setSelectedShop] = useState<number | "">(
+    data?.csds?.[0]?.shop_id || ""
+  );
+
   const [selectedDepartments, setSelectedDepartments] = useState<number[]>(
     data?.csds?.map((item) => item.depart_id) || []
   );
 
-  // Controle de visibilidade da lista de departamentos
   const [isDepartmentsOpen, setIsDepartmentsOpen] = useState(false);
 
-  // --- EFEITOS PARA BUSCAR DADOS (DATA FETCHING) ---
-
-  // Busca todas as companhias na montagem do componente
-  useEffect(() => {
-    async function fetchCompanyData() {
+  const request = async (
+    pathFile: string,
+    urlComplement: string = ""
+  ): Promise<Option[]> => {
+    try {
       const response: any = await fetchData({
         method: "GET",
         params: null,
-        pathFile: "CCPP/Company.php",
+        pathFile,
+        urlComplement,
       });
-      if (response?.data) {
-        setCompanyOptions(response.data);
-      }
-    }
-    fetchCompanyData();
-  }, [fetchData]);
 
-  // Busca as lojas sempre que uma companhia for selecionada
+      return response?.data || [];
+    } catch (error) {
+      console.error(`Error loading ${pathFile}`, error);
+      return [];
+    }
+  };
+
   useEffect(() => {
-    // Só busca se uma companhia estiver selecionada
-    if (selectedCompany) {
-      async function fetchShopData() {
-        const response: any = await fetchData({
-          method: "GET",
-          params: null,
-          pathFile: "CCPP/Shop.php",
-          urlComplement: `&company_id=${selectedCompany}`,
-        });
-        if (response?.data) {
-          setShopOptions(response.data);
-        }
-      }
-      fetchShopData();
-    } else {
-      // Limpa as opções de loja se nenhuma companhia for selecionada
+    async function loadCompanies() {
+      const companies = await request("CCPP/Company.php");
+      setCompanyOptions(companies);
+    }
+
+    loadCompanies();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedCompany) {
       setShopOptions([]);
+      return;
     }
-  }, [selectedCompany, fetchData]);
 
-  // Busca os departamentos sempre que uma loja for selecionada
+    async function loadShops() {
+      const shops = await request(
+        "CCPP/Shop.php",
+        `&company_id=${selectedCompany}`
+      );
+
+      setShopOptions(shops);
+    }
+
+    loadShops();
+  }, [selectedCompany]);
+
   useEffect(() => {
-    if (selectedShop) {
-      async function fetchDepartmentData() {
-        const response: any = await fetchData({
-          method: "GET",
-          params: null,
-          pathFile: "CCPP/Department.php",
-          urlComplement: `&shop_id=${selectedShop}`,
-        });
-        if (response?.data) {
-          setDepartmentOptions(response.data);
-        }
-      }
-      fetchDepartmentData();
-    } else {
-      // Limpa as opções de departamento se nenhuma loja for selecionada
+    if (!selectedShop) {
       setDepartmentOptions([]);
+      return;
     }
-  }, [selectedShop, fetchData]);
 
-  // --- MEMOIZAÇÃO ---
+    async function loadDepartments() {
+      const departments = await request(
+        "CCPP/Department.php",
+        `&shop_id=${selectedShop}`
+      );
 
-  // useMemo para ordenar as companhias apenas quando a lista mudar, otimizando a performance.
+      setDepartmentOptions(departments);
+    }
+
+    loadDepartments();
+  }, [selectedShop]);
+
   const sortedCompanies = useMemo(() => {
     return [...companyOptions].sort((a, b) =>
       a.description.localeCompare(b.description)
     );
   }, [companyOptions]);
 
-  // --- MANIPULADORES DE EVENTOS (EVENT HANDLERS) ---
-
-  // ✅ LÓGICA: Atualiza a companhia selecionada e reseta a loja e os departamentos.
   const handleCompanyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const companyId = Number(e.target.value);
+
     setSelectedCompany(companyId);
-    // Reseta a seleção de loja e departamentos para forçar o usuário a escolher novamente
     setSelectedShop("");
     setDepartmentOptions([]);
-    setIsDepartmentsOpen(false); // Fecha a lista de departamentos
+    setSelectedDepartments([]);
+    setIsDepartmentsOpen(false);
   };
 
-  // ✅ LÓGICA: Atualiza a loja selecionada.
   const handleShopChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const shopId = Number(e.target.value);
+
     setSelectedShop(shopId);
-    setIsDepartmentsOpen(false); // Fecha a lista para recarregar com os novos deps
+    setSelectedDepartments([]);
+    setIsDepartmentsOpen(false);
   };
 
-  // ✅ LÓGICA: Adiciona ou remove um departamento da lista de selecionados.
   const handleCheckboxChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     departmentId: number
   ) => {
     try {
       const isChecked = e.target.checked;
-      const reqCSDS:any = await checkTaskComShoDepSub(
+
+      const req: any = await checkTaskComShoDepSub(
         data?.id || 0,
         Number(selectedCompany),
         Number(selectedShop),
         departmentId,
         data?.id
       );
-      if(reqCSDS["error"]) throw new Error(reqCSDS["message"]);
 
-      if (isChecked) {
-        setSelectedDepartments((prev) => [...prev, departmentId]);
-        // Envia os dados para o WebSocket/Contexto
-      } else {
-        setSelectedDepartments((prev) =>
-          prev.filter((id) => id !== departmentId)
-        );
-        // Aqui você poderia adicionar uma função para "desmarcar" no backend se necessário
-      }
+      if (req?.error) throw new Error(req.message);
 
-      await loadTasks(); // Recarrega as tarefas após a alteração
-    } catch (error:any) {
-      console.error("Erro ao atualizar o departamento:", error.message || error);
+      setSelectedDepartments((prev) =>
+        isChecked
+          ? [...prev, departmentId]
+          : prev.filter((id) => id !== departmentId)
+      );
+
+      await loadTasks();
+    } catch (error: any) {
+      console.error("Error updating department:", error.message);
     }
   };
-
-  // --- RENDERIZAÇÃO ---
 
   return (
     <div>
       <div className="d-flex gap-3">
-        {/* Seletor de Companhia */}
         <select
           className="form-select"
           value={selectedCompany}
           onChange={handleCompanyChange}
-          disabled={selectedDepartments.length > 0} // Desabilita se houver departamentos selecionados
+          disabled={selectedDepartments.length > 0}
         >
-          <option value="">Selecione uma companhia</option>
+          <option value="">Selecione a companhia</option>
+
           {sortedCompanies.map((company) => (
             <option key={company.id} value={company.id}>
               {company.description}
@@ -186,73 +171,55 @@ const SelectTaskItem: React.FC<SelectTaskItemProps> = (props) => {
           ))}
         </select>
 
-        {/* ✅ LÓGICA: Seletor de Loja - Habilitado apenas se uma companhia for selecionada */}
         <select
-          key={selectedDepartments.length} // força re-render ao mudar departamentos
           className="form-select"
           value={selectedShop}
           onChange={handleShopChange}
-          disabled={!selectedCompany || selectedDepartments.length > 0} // Desabilita se não houver companhia ou se houver departamentos selecionados
+          disabled={!selectedCompany || selectedDepartments.length > 0}
         >
-          <option value="">Selecione uma loja</option>
+          <option value="">Selecione a Loja</option>
+
           {shopOptions.map((shop) => (
             <option key={shop.id} value={shop.id}>
               {shop.description}
             </option>
           ))}
         </select>
+
       </div>
 
-      {/* ✅ LÓGICA: Botão de Departamentos - Habilitado apenas se uma loja for selecionada */}
       <button
-        className="btn border-light w-100 mt-2 hover-bg-primary"
-        onClick={() => setIsDepartmentsOpen(!isDepartmentsOpen)}
-        disabled={!selectedShop} // Desabilita se não houver loja
+        className="btn btn-primary w-100 mt-2"
+        onClick={() => setIsDepartmentsOpen((prev) => !prev)}
+        disabled={!selectedShop}
       >
-        Departamentos
+        Departamento {!isDepartmentsOpen ? "▲" : "▼"}
       </button>
 
-      {/* Lista de Departamentos (Checkboxes) */}
-      <div>
-        {isDepartmentsOpen && departmentOptions.length > 0 && (
-          <div className="form-control mt-2 p-3 department-list">
-            {departmentOptions.map((dep: any) => (
-              <label className="form-check d-block form-check-inline" key={dep.id} >
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  value={dep.id}
-                  // ✅ LÓGICA: Marca o checkbox se o ID do departamento estiver no nosso array de estado.
-                  checked={selectedDepartments.includes(dep.id)}
-                  onChange={(e) => handleCheckboxChange(e, dep.id)}
-                />
-                <strong>{dep.description}</strong>
-              </label>
-            ))}
-          </div>
-        )}
-      </div>
+      {isDepartmentsOpen && departmentOptions.length > 0 && (
+        <div
+          className="border rounded p-3 mt-2 overflow-auto"
+          style={{ maxHeight: "250px" }}
+        >
+          {departmentOptions.map((dep) => (
+            <label
+              className="form-check d-block"
+              key={dep.id}
+            >
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={selectedDepartments.includes(dep.id)}
+                onChange={(e) => handleCheckboxChange(e, dep.id)}
+              />
 
-      {/* Estilos (mantidos como no original) */}
-      <style>{`
-        .hover-bg-primary {
-            transition: all 0.5s ease;
-        }
-        .hover-bg-primary:hover {
-            background-color: #2b63c9 !important;
-            color: #fff !important;
-            border-color: #2b63c9 !important;
-        }
-        .border-light {
-            border: 1px solid #e0e0e0 !important;
-            padding: 0.5rem 1rem !important;
-            border-radius: 0.25rem !important;
-        }
-        .department-list {
-            max-height: clamp(200px, 25vh, 450px);
-            overflow-y: auto;
-        }
-      `}</style>
+              <span className="fw-semibold ms-2">
+                {dep.description}
+              </span>
+            </label>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -85,17 +85,14 @@ export default class Translator {
             case "Failed to update":
                 this.#messagePT = "Falha ao atualizar o arquivo"
             break;
-            case "It's not possible to add or exlude a response because the task is stoped.":
-                this.#messagePT = "No momento não é possivel adicionar ou excluir o comentario, porque a tarefa está parada."
+            case "This MIME type is not allowed.": 
+                this.#messagePT = "Esse tipo de arquivo não é permitido."
             break;
-            case "It's not possible to add or exlude a response because the task is closed.":
-                this.#messagePT = "No momento não é possivel adicionar ou excluir o comentario, porque a tarefa está fechada."
+            case "The file could not be moved to the final destination.": 
+                this.#messagePT = "O arquivo não pode ser movido para o destino."
             break;
-            case "It's not possible to add or exlude a response because the task is completed.":
-                this.#messagePT = "No momento não é possivel adicionar ou excluir o comentario, porque a tarefa está completa."
-            break;
-            case "It's not possible to add or exlude a response because the task is canceled.":
-                this.#messagePT = "No momento não é possivel adicionar ou excluir o comentario, porque a tarefa está cancelada."
+            case "Temporary file not found.":
+                this.#messagePT = "Arquivo temporario não encontrado"
             break;
             default:
                 this.#messagePT = messagePT;
