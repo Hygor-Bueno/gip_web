@@ -69,7 +69,6 @@ export const customValueActive: Record<string, ValueFormatter> = {
   address: (_: unknown, row?: ActiveRow): string => {
     try {
       const address = row?.address ? JSON.parse(row.address) : null;
-
       return (
         `${address?.city}, ${address?.public_place}, ${address?.zip_code}` || ""
       );
@@ -81,9 +80,7 @@ export const customValueActive: Record<string, ValueFormatter> = {
   value_purchase: (value: unknown): string => {
     try {
       const number = Number(value);
-
       if (Number.isNaN(number)) return "";
-
       return new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL",

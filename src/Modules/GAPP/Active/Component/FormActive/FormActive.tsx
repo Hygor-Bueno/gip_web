@@ -1,19 +1,17 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
-import { ActiveFormValues, FormActiveProps, VehicleFormValues } from "../../Interfaces/Interfaces";
+import { ActiveFormValues, FormActiveProps, FormInsuranceProps, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
 import { mapFormToApi } from "../PayloadMapper/PayloadMapper";
 import ListAdd from "../ListAddItem/ListAdd";
 import { formVehicle } from "./FormSchema/FormVehicle.schema";
 import { formAddress } from "./FormSchema/FormAddress.schema";
 import { formActive } from "./FormSchema/FormActive.schema";
-import { buildOptions } from "../BuildFunction/BuildFunction";
+import { buildOptions, buildOptionsInsurance } from "../BuildFunction/BuildFunction";
 import { ActivePostData } from "../../Adapters/Adapters";
+import { formInsurance } from "./FormSchema/FormInsurance.schema";
+import ListAddFranchise from "../ListAddItem/ListAddFranchise";
 
-/**
-  Esse Componente de formulario tem como obtivo de registrar/editar os ativos, endereço e se for um 
-  Veiculo ele registra todas as informações de um veiculo também.
-*/
-export default function FormActive({ apiData, openModal }: FormActiveProps) {
+export default function FormActive({ apiData, openModal }: any) {
   const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
     brand: "",
     model: "",
@@ -27,27 +25,23 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
     shielding: false,
   });
 
+  const [insurance, setInsurance] = useState<Partial<Insurance>>({
+    risk_cep: "",
+  });
+
   const [newItemText, setNewItemText] = useState("");
 
   useEffect(() => {
     if (apiData) {
       if (apiData.active) setActiveValues(apiData.active);
       if (apiData.vehicle) setVehicleValues(apiData.vehicle);
+      if (apiData.insurance) setInsurance(apiData.insurance);
     }
   }, [apiData]);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleActiveChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    let fieldValue =
-    type === "checkbox"
-      ? (e.target as HTMLInputElement).checked
-      : value;
-
-    if (name === 'is_vehicle') {
-      fieldValue = value === '1';
-    } else if (name === 'shielding') {
-      fieldValue = value === '1';
-    }
+    const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
 
     if (name.startsWith('place_purchase.')) {
       const field = name.split('.')[1];
@@ -55,16 +49,37 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
         ...prev,
         place_purchase: { ...(prev.place_purchase || {}), [field]: fieldValue }
       }));
-    } else if (name in (activeValues || {})) {
-      setActiveValues(prev => ({ ...prev, [name]: fieldValue }));
     } else {
-      setVehicleValues(prev => ({ ...prev, [name]: fieldValue }));
+      setActiveValues(prev => ({ ...prev, [name]: fieldValue }));
     }
-  }, [activeValues]);
+  }, []);
 
-  const addItem = () => {
-    const canAdd = !!newItemText.trim();
-    if (canAdd) {
+  const handleVehicleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+    setVehicleValues(prev => ({ ...prev, [name]: fieldValue }));
+  }, []);
+
+  const handleInsuranceChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+    setInsurance(prev => ({ ...prev, [name]: fieldValue }));
+  }, []);
+
+  const addFranchiseItem = useCallback(() => {
+    if (newItemText.trim()) {
+      setInsurance((prev) => ({
+        ...prev,
+        franchise_list: {
+          list: [...(prev.franchise_list?.list || []), newItemText],
+        },
+      }));
+      setNewItemText("");
+    }
+  }, [newItemText]);
+
+  const addItem = useCallback(() => {
+    if (newItemText.trim()) {
       setActiveValues((prev) => ({
         ...prev,
         list_items: {
@@ -73,47 +88,55 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
       }));
       setNewItemText("");
     }
-  };
+  }, [newItemText]);
 
-  const removeItem = (indexToRemove: number) => {
-    setActiveValues((prev) => ({
-      ...prev,
-      list_items: { list: (prev.list_items?.list || []).filter((_, index: number) => index !== indexToRemove)}
+  const removeItem = useCallback((indexToRemove: number) => {
+    setActiveValues((prev) => ({ 
+      ...prev, 
+      list_items: { 
+        list: (prev.list_items?.list || []).filter((_, index) => index !== indexToRemove)
+      }
     }));
-  };
+  }, []);
 
-  // Para o options não ficar complexo construi um build para simplificar 
-  // a montagem das opções e passalas para frente em cada form mapeado.
-  const options = useMemo(() => buildOptions(apiData), [apiData])
+  const removeFranchiseItem = useCallback((indexToRemove: number) => {
+    setInsurance((prev) => ({
+      ...prev,
+      franchise_list: {
+        list: (prev.franchise_list?.list || []).filter((_, index) => index !== indexToRemove),
+      },
+    }));
+  }, []);
+
+  const options = useMemo(() => buildOptions(apiData), [apiData]);
+  const optionsInsurance = useMemo(() => buildOptionsInsurance(apiData), [apiData]);
 
   const handleSubmit = async () => {
     try {
-      // O mapFormToApi serve para montar o payload e enviar para o backend.
-      const payload = mapFormToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues);
-
-      // ActivePostData captura o payload(JSON) e faz o envio.
+      const payload = mapFormToApi(activeValues as ActiveFormValues,  vehicleValues as VehicleFormValues, insurance as Insurance);
       const res = await ActivePostData(payload);
-
       if (res.error) throw new Error(res.message);
-      alert("Ativo salvo com sucesso!");
+      openModal?.(false); 
     } catch (error) {
-      if(error instanceof Error) {
-        console.error("Erro no envio:", error.message);
-      } else {
-        console.error("Erro no envio:", error);
-      }
+      console.error("Erro no envio:", error instanceof Error ? error.message : error);
     }
   };
 
   return (
-    <div onClick={() => openModal?.(false)} className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center" >
-      <div onClick={(e) => e.stopPropagation()} className="bg-white container h-75 w-75 overflow-auto p-4 rounded shadow">
+    <div 
+      onClick={() => openModal?.(false)} 
+      className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center" 
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()} 
+        className="bg-white container h-75 w-75 overflow-auto p-4 rounded shadow d-flex flex-column"
+      >
         <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Formulário de Ativo</h2>
         
         <CustomForm 
           notButton={false}
           className="row g-3 mb-4"
-          fieldsets={formActive(activeValues, options.unit, options.departament, options.company, handleChange)}
+          fieldsets={formActive(activeValues, options.unit, options.departament, options.company, handleActiveChange)}
         />
 
         <ListAdd 
@@ -124,9 +147,13 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
           removeItem={removeItem}
         />
 
+        
+
+        
+
         <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Local da Compra</h2>
         <CustomForm
-          fieldsets={formAddress(activeValues.place_purchase, handleChange)}
+          fieldsets={formAddress(activeValues.place_purchase, handleActiveChange)}
           className="row g-3 mb-4"
           notButton={false}
         />
@@ -136,17 +163,34 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
             <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Dados do Veículo</h2>
             <CustomForm
               notButton={false}
-              fieldsets={formVehicle(vehicleValues, options.fuel, options.driver, handleChange)}
+              fieldsets={formVehicle(vehicleValues, options.fuel, options.driver, handleVehicleChange)}
               className="row g-3 mb-4"
             />
+
+            <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Dados do Seguro</h2>
+            <CustomForm
+              notButton={false}
+              fieldsets={formInsurance(insurance, handleInsuranceChange)}
+              className="row g-3 mb-4"
+            />
+
+            <div>
+              <ListAddFranchise 
+                insuranceValues={insurance}
+                addItem={addFranchiseItem}
+                newItemText={newItemText}
+                setNewItemText={setNewItemText}
+                removeItem={removeFranchiseItem}
+              />
+            </div>
           </React.Fragment>
         )}
-      </div>
 
-      <div className="mt-3">
-        <button className="btn color-gipp btn-lg px-5" onClick={handleSubmit}>
-          <i className="fa fa-solid fa-save text-white"></i>
-        </button>
+        <div className="mt-auto pt-3 border-top">
+          <button className="btn color-gipp btn-lg px-5" onClick={handleSubmit}>
+            <i className="fa fa-solid fa-save text-white"></i> Salvar
+          </button>
+        </div>
       </div>
     </div>
   );

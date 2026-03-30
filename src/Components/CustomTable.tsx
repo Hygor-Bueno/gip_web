@@ -137,7 +137,7 @@ export default function CustomTable(props: CustomTableProps) {
 
   const filteredItemsTable = sortedItemTable.filter((item) =>
     Object.keys(filters).every((key) =>
-      item[key]?.value?.toLowerCase().includes(filters[key].toLowerCase()) // Verificação de segurança
+      item[key]?.value?.toLowerCase().includes(filters[key].toLowerCase())
     )
   );
 

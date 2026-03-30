@@ -6,7 +6,7 @@ export function convertDate(date: string, omitTime: boolean = false): string {
         let formatTime: Intl.DateTimeFormatOptions = {
             dateStyle: "short",
             hourCycle: "h23",
-            timeZone: "UTC" // <- Isso força UTC
+            timeZone: "UTC"
         };
 
         if (!omitTime) {

@@ -1,4 +1,4 @@
-import { FormActiveProps } from "../../Interfaces/Interfaces";
+import { FormActiveProps, FormInsuranceProps } from "../../Interfaces/Interfaces";
 
 /** Esse build permite que constuimos os options de maneira organizada em uma unica função */
 export function buildOptions(apiData?: FormActiveProps["apiData"]) {
@@ -26,6 +26,17 @@ export function buildOptions(apiData?: FormActiveProps["apiData"]) {
     fuel: apiData?.fuelType?.map((f) => ({
       label: f.description,
       value: String(f.id_fuel_type),
+    })) || [],
+  };
+}
+
+
+export function buildOptionsInsurance(apiData?: FormInsuranceProps["apiData"]) {
+  console.log(apiData);
+  return {
+    franchise_list: apiData?.insurance?.franchise_list?.list?.map((c: any) => ({
+      label: c.description, 
+      value: String(c.value), 
     })) || [],
   };
 }

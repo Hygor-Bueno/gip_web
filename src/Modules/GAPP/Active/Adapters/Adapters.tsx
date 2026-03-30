@@ -26,10 +26,25 @@ function getAll(pathFile: string) {
   });
 }
 
-function getByParam(pathFile: string, param: string, value: string) {
+function getByParam(
+  pathFile: string, 
+  param: string | string[] | Record<string, string | number>, 
+  value?: string
+) {
+  let urlComplement = "";
+
+  if (typeof param === "object" && !Array.isArray(param)) {
+    urlComplement = "&" + Object.entries(param)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("&");
+  }
+  else {
+    urlComplement = `&${param}=${value}`;
+  }
+
   return fetchGet({
     pathFile,
-    urlComplement: `&${param}=${value}`
+    urlComplement
   });
 }
 
@@ -43,6 +58,10 @@ function postToApi(pathFile: string, params: {}) {
 
 export function ActivePostData(params: {}) {
   return postToApi("GAPP_V2/Active.php", params);
+}
+
+export function InsurancePostData(params: {}) {
+  return postToApi("GAPP/Insurance.php", params);
 }
 
 export function ActiveData() {
@@ -79,4 +98,12 @@ export function ActiveFuelData() {
 
 export function ActiveTypeFuelData() {
   return getAll("GAPP/TypeFuel.php");
+}
+
+export function ActiveInsuranceData(vehicle_id_fk?: number | string) {
+  return getByParam("GAPP/Insurance.php", { 
+    all: 1, 
+    status_insurance: 1, 
+    vehicle_id_fk: vehicle_id_fk || 0 
+  });
 }

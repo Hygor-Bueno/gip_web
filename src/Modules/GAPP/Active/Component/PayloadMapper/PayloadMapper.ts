@@ -1,8 +1,7 @@
-import { ActiveFormValues, VehicleFormValues } from "../../Interfaces/Interfaces";
-
+import { ActiveFormValues, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
 
 /** Esse mapeador facilita o envio do payload com os dados a serem mandados para backend. */
-export function mapFormToApi (active: ActiveFormValues, vehicle: VehicleFormValues) {
+export function mapFormToApi (active: ActiveFormValues, vehicle: VehicleFormValues, insurance?: Insurance) {
   return {
     active: {
       ...active,
@@ -13,7 +12,9 @@ export function mapFormToApi (active: ActiveFormValues, vehicle: VehicleFormValu
     vehicle: {
       ...vehicle,
       shielding: vehicle.shielding ? 1 : 0
+    },
+    insurance: {
+      ...insurance
     }
   };
 }
-

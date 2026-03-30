@@ -2,12 +2,15 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import CustomTable from "../../../../Components/CustomTable";
 import FormActive from "./FormActive/FormActive";
 
-import { ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData, ActiveVehicleData} from "../Adapters/Adapters";
+import { 
+  ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, 
+  ActiveInsuranceData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData, 
+  ActiveVehicleData 
+} from "../Adapters/Adapters";
 import { convertForTable } from "../../../../Util/Utils";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
 import { Active, ActiveTableData } from "../Interfaces/Interfaces";
 import { tItemTable } from "../../../../types/types";
-import ServicesBox from "./ServicesBox/ServicesBox";
 
 const ActiveTable: React.FC = () => {
   const [data, setData] = useState<Active[]>([]);
@@ -20,42 +23,36 @@ const ActiveTable: React.FC = () => {
     const loadAllData = async () => {
       setLoading(true);
       try {
-        const [
-          activeRes,
-          driverRes,
-          unitRes,
-          companyRes,
-          typeRes,
-          fuelRes,
-          depRes
+        const [ 
+          activeRes, 
+          driverRes, 
+          unitRes, 
+          companyRes, 
+          typeRes, 
+          fuelRes, 
+          depRes 
         ] = await Promise.all([
-          ActiveData(),
-          ActiveDriverData(),
-          ActiveUnitsData(),
+          ActiveData(), 
+          ActiveDriverData(), 
+          ActiveUnitsData(), 
           ActiveCompanyData(),
-          ActiveTypeData(),
-          ActiveTypeFuelData(),
-          ActiveDepartamentData(),
+          ActiveTypeData(), 
+          ActiveTypeFuelData(), 
+          ActiveDepartamentData()
         ]);
-
-        if (activeRes.error) throw new Error(activeRes.message);
-        if (driverRes.error) throw new Error(driverRes.message);
-        if (unitRes.error) throw new Error(unitRes.message);
-        if (companyRes.error) throw new Error(companyRes.message);
-        if (typeRes.error) throw new Error(typeRes.message);
-        if (fuelRes.error) throw new Error(fuelRes.message);
-        if (depRes.error) throw new Error(depRes.message);
-
+        
         setData(activeRes.data || []);
+
         setModalData({
-          active: {},
-          vehicle: {},
+          active: {} as any,
+          vehicle: {} as any,
           driver: driverRes.data || [],
           company: companyRes.data || [],
           unit: unitRes.data || [],
           activeType: typeRes.data || [],
           fuelType: fuelRes.data || [],
-          departament: depRes.data || []
+          departament: depRes.data || [],
+          insurance: {} as any, 
         });
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
@@ -69,23 +66,37 @@ const ActiveTable: React.FC = () => {
 
   const handleSelect = useCallback(async (item: tItemTable[]) => {
     setSelected(item);
+    if (!item?.length || !item[0]?.active_id?.value) return;
 
-    if (!item || !item[0]?.active_id?.value) return;
+    const selectedActiveId = String(item[0].active_id.value);
 
     try {
-      const vehicleRes = await ActiveVehicleData(item[0].active_id.value);
-      if (vehicleRes.error) throw new Error(vehicleRes.message);
-      setModalData((prev) => prev ? { ...prev, vehicle: vehicleRes.data[0] || {}, active: data.find(d => d.active_id === item[0].active_id.value) || {} } : null);
+      const vehicleRes = await ActiveVehicleData(selectedActiveId);
+
+      if (vehicleRes.error) {
+        throw new Error(vehicleRes.message);
+      }
+      
+      const vehicleId = vehicleRes.data?.[0]?.vehicle_id || "0";
+
+      const insuranceRes = await ActiveInsuranceData(vehicleId);
+
+      setModalData((prev) => prev ? { 
+        ...prev, 
+        vehicle: vehicleRes.data?.[0] || {}, 
+        active: data.find(d => String(d.active_id) === selectedActiveId) || {},
+        insurance: insuranceRes.data?.[0] || {} 
+      } : null);
+
     } catch (error) {
-      console.error("Erro ao buscar dados do veículo:", error);
+      console.error("Erro ao buscar dados do veículo ou seguro:", error);
     }
   }, [data]);
-
 
   const handleServicesBox = useCallback(async (item: tItemTable[]) => {
     setOpenModal(true);
     handleSelect(item);
-  }, [data]);
+  }, [handleSelect]);
 
   const tableList = useMemo(() => convertForTable(data, {
     ocultColumns: listColumnsOcult,
@@ -98,20 +109,8 @@ const ActiveTable: React.FC = () => {
 
   return (
     <div className="p-2">
-      <CustomTable
-        list={tableList}
-        onConfirmList={handleServicesBox}
-        maxSelection={1}
-      />
-
-      {/* modal para escolher entre os serviços */}
-      {/* {openModal && (
-        <ServicesBox setOpenModal={setOpenModal} />
-      )} */}
-
-      {openModal && selected && modalData && (
-        <FormActive apiData={modalData} openModal={setOpenModal} />
-      )}
+      <CustomTable list={tableList} onConfirmList={handleServicesBox} maxSelection={1} />
+      {openModal && selected.length > 0 && modalData && ( <FormActive apiData={modalData} openModal={setOpenModal} /> )}
     </div>
   );
 };
