@@ -35,7 +35,7 @@ const Infraction: React.FC = () => {
       });
       setDataStore(res?.data || []);
     } catch (err) {
-      console.error(err);
+      throw new Error('Erro ao carregar infrações: '+err);
     } finally {
       setLoading(false);
     }
@@ -94,7 +94,7 @@ const Infraction: React.FC = () => {
     const payload = {
       ...(isEdit && { infraction_id: infractionId }),
       infraction,
-      gravitity: gravity, // *Note que há um typo no campo 'gravitity' (deveria ser gravity)
+      gravitity: gravity,
       points,
       status_infractions: statusInfractions === "ativo" ? 1 : 0,
     };
@@ -121,7 +121,7 @@ const Infraction: React.FC = () => {
         resetFields();
       }
     } catch (err) {
-      console.error("Erro ao salvar:", err);
+      throw new Error('Erro ao carregar infrações: '+err);
     } finally {
       setLoading(false);
     }

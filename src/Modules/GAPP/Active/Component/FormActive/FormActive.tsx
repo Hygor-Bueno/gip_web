@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
-import { ActiveFormValues, FormActiveProps, FormInsuranceProps, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
+import { ActiveFormValues, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
 import { mapFormToApi } from "../PayloadMapper/PayloadMapper";
 import ListAdd from "../ListAddItem/ListAdd";
 import { formVehicle } from "./FormSchema/FormVehicle.schema";
@@ -118,7 +118,7 @@ export default function FormActive({ apiData, openModal }: any) {
       if (res.error) throw new Error(res.message);
       openModal?.(false); 
     } catch (error) {
-      console.error("Erro no envio:", error instanceof Error ? error.message : error);
+      throw new Error("Erro no envio:" + (error instanceof Error ? error.message : String(error)));
     }
   };
 
@@ -146,10 +146,6 @@ export default function FormActive({ apiData, openModal }: any) {
           setNewItemText={setNewItemText}
           removeItem={removeItem}
         />
-
-        
-
-        
 
         <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Local da Compra</h2>
         <CustomForm

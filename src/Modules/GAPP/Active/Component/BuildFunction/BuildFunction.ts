@@ -32,7 +32,6 @@ export function buildOptions(apiData?: FormActiveProps["apiData"]) {
 
 
 export function buildOptionsInsurance(apiData?: FormInsuranceProps["apiData"]) {
-  console.log(apiData);
   return {
     franchise_list: apiData?.insurance?.franchise_list?.list?.map((c: any) => ({
       label: c.description, 

@@ -30,7 +30,7 @@ export default function ExpensesRegister(): JSX.Element {
                     await loadExpensesType();
                     handleUrl();
                 } catch (error) {
-                    console.error(error)
+                    throw new Error('Erro ao carregar os dados '+error);
                 } finally {
                     setLoading(false);
                 }
@@ -45,7 +45,7 @@ export default function ExpensesRegister(): JSX.Element {
                     setLoading(true);
                     await loadExpenses();
                 } catch (error: any) {
-                    console.error(error)
+                    throw new Error('Erro ao carregar os dados '+error);
                 } finally {
                     setLoading(false);
                 }
