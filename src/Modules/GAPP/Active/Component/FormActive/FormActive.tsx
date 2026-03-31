@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
-import { ActiveFormValues, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
+import { ActiveFormValues, FormActiveProps, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
 import { mapFormToApi } from "../PayloadMapper/PayloadMapper";
 import ListAdd from "../ListAddItem/ListAdd";
 import { formVehicle } from "./FormSchema/FormVehicle.schema";
@@ -11,7 +11,7 @@ import { ActivePostData } from "../../Adapters/Adapters";
 import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
 
-export default function FormActive({ apiData, openModal }: any) {
+export default function FormActive({ apiData, openModal }: FormActiveProps) {
   const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
     brand: "",
     model: "",
@@ -71,7 +71,7 @@ export default function FormActive({ apiData, openModal }: any) {
       setInsurance((prev) => ({
         ...prev,
         franchise_list: {
-          list: [...(prev.franchise_list?.list || []), newItemText],
+          list: [...(prev.franchise_list?.list || []), { description: newItemText, value: '' }],
         },
       }));
       setNewItemText("");

@@ -6,8 +6,11 @@ import CustomForm from "../../../Components/CustomForm";
 import { customTagsExpense, formExpense, minWidthsExpense } from "./Configuration/ConfigExpensesRegister";
 import { IExpensesItem } from "./Interfaces/InterfaceExpensesRegister";
 import { useMyContext } from "../../../Context/MainContext";
+import { tItemTable } from "../../../types/types";
 
 interface IFormExpenses { date_start: string, date_end: string, license_plates: string, unit_id: string, exp_type_id_fk: string }
+interface IUnitItem { fantasy_name: string; unit_name: string; unit_id: string }
+interface IExpenseTypeItem { description_type: string; exp_type_id: string }
 const restartForm: IFormExpenses = { date_end: '', date_start: '', license_plates: '', unit_id: '', exp_type_id_fk: '' };
 export default function ExpensesRegister(): JSX.Element {
 
@@ -44,8 +47,8 @@ export default function ExpensesRegister(): JSX.Element {
                 try {
                     setLoading(true);
                     await loadExpenses();
-                } catch (error: any) {
-                    throw new Error('Erro ao carregar os dados '+error);
+                } catch (error: unknown) {
+                    throw new Error('Erro ao carregar os dados ' + (error instanceof Error ? error.message : String(error)));
                 } finally {
                     setLoading(false);
                 }
@@ -54,22 +57,22 @@ export default function ExpensesRegister(): JSX.Element {
     }, [urlComplement]);
 
     async function loadExpenses() {
-        const req: any = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/FiltredExpenses.php", urlComplement: `${urlComplement ? urlComplement : ''}` });
-        if (req.error && req.message.toUpperCase().includes("NO DATA") && page > 1) handleUrl(page - 1);
+        const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/FiltredExpenses.php", urlComplement: `${urlComplement ? urlComplement : ''}` });
+        if (req.error && req.message?.toUpperCase().includes("NO DATA") && page > 1) handleUrl(page - 1);
         if (req.error) throw new Error(req.message);
         setData(req.data.map((item: IExpensesItem): IExpensesItem => maskExpenses(item)));
     }
 
     async function loadUnits() {
-        const req: any = await fetchData({ method: "GET", params: null, pathFile: "GAPP/Units.php", urlComplement: `&all=1` });
+        const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP/Units.php", urlComplement: `&all=1` });
         if (req.error) throw new Error(req.message);
-        setUnitis(sortListByKey(req.data.map((item: any) => { return { label: `${item.fantasy_name} - ${item.unit_name}`, value: item.unit_id } }), "label"));
+        setUnitis(sortListByKey(req.data.map((item: IUnitItem) => ({ label: `${item.fantasy_name} - ${item.unit_name}`, value: item.unit_id })), "label"));
     }
 
     async function loadExpensesType() {
-        const req: any = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/ExpensesType.php", urlComplement: `&dashGAPP=1` });
+        const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/ExpensesType.php", urlComplement: `&dashGAPP=1` });
         if (req.error) throw new Error(req.message);
-        setExpensesType(sortListByKey(req.data.map((item: any) => { return { label: item.description_type, value: item.exp_type_id } }), "label"));
+        setExpensesType(sortListByKey(req.data.map((item: IExpenseTypeItem) => ({ label: item.description_type, value: item.exp_type_id })), "label"));
     }
 
     function maskExpenses(item: IExpensesItem): IExpensesItem {
@@ -142,7 +145,7 @@ export default function ExpensesRegister(): JSX.Element {
                             customTags: customTagsExpense,
                             minWidths: minWidthsExpense
                         })}
-                        onConfirmList={(event: any) => setEditExpenses(event[0].expen_id.value)}
+                        onConfirmList={(event: tItemTable[]) => setEditExpenses(Number(event[0].expen_id.value))}
                     />
                 }
             </div>

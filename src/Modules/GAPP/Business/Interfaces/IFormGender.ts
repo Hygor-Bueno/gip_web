@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface IFormGender {
     cnpj: string;
     name: string;
@@ -50,5 +52,5 @@ export interface IFormProps {
   ];
   resetDataStore?: () => void;
   resetForm?: () => void;
-  setData?:any;
+  setData?: Dispatch<SetStateAction<IFormData>>;
 }

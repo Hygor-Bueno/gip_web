@@ -118,7 +118,7 @@ export interface Insurance {
   equipament: string | null;
   fipe_table: string | null;
   form_payment: string;
-  franchise_list: { list: string[] };
+  franchise_list: { list: FranchiseItem[] };
   fuel_type: string;
   fuel_type_id_fk: string | number | null;
   glasses: string;
@@ -135,7 +135,7 @@ export interface Insurance {
   last_revision_date: string | null;
   last_revision_km: string | number | null;
   license_plates: string;
-  list_items: { list: any[] };
+  list_items: { list: string[] };
   model: string;
   moral_damages: number;
   next_revision_date: string | null;
@@ -190,7 +190,7 @@ export interface IListAddFranchise {
     newItemText: string,
     setNewItemText: React.Dispatch<React.SetStateAction<string>>,
     addItem: () => void,
-    insuranceValues: any,
+    insuranceValues: Partial<Insurance>,
     removeItem: (indexToRemove: number) => void
 }
 
@@ -424,12 +424,3 @@ export interface FormActiveProps {
 }
 
 
-export interface FormInsuranceProps {
-  apiData?: {
-    insurance: {
-      franchise_list: {
-        list: []
-      }
-    }
-  }
-}

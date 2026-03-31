@@ -1,4 +1,5 @@
-import { IListAddFranchise } from "../../Interfaces/Interfaces"
+import { FranchiseItem, IListAddFranchise } from "../../Interfaces/Interfaces"
+import './ListAddFranchise.css';
 
 export default function ListAddFranchise({
     newItemText,
@@ -7,6 +8,8 @@ export default function ListAddFranchise({
     insuranceValues,
     removeItem
 }: IListAddFranchise) {
+
+    const items: FranchiseItem[] = insuranceValues.franchise_list?.list ?? [];
 
     return (
         <>
@@ -19,9 +22,9 @@ export default function ListAddFranchise({
                         <p className="franchise-title">Franquias do Seguro</p>
                         <p className="franchise-subtitle">Gerencie os itens de franquia</p>
                     </div>
-                    {insuranceValues.franchise_list?.list?.length > 0 && (
+                    {items.length > 0 && (
                         <span className="badge-count">
-                            {insuranceValues.franchise_list.list.length} {insuranceValues.franchise_list.list.length === 1 ? "item" : "itens"}
+                            {items.length} {items.length === 1 ? "item" : "itens"}
                         </span>
                     )}
                 </div>
@@ -65,8 +68,8 @@ export default function ListAddFranchise({
                             </tr>
                         </thead>
                         <tbody>
-                            {insuranceValues.franchise_list?.list?.length ? (
-                                insuranceValues.franchise_list.list.map((item: any, index: number) => (
+                            {items.length ? (
+                                items.map((item, index) => (
                                     <tr key={`${item.description}-${index}`}>
                                         <td>{item.description}</td>
                                         <td className="td-value">{item.value}</td>

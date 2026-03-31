@@ -1,11 +1,11 @@
 import React from 'react';
 
-interface iServecesBox {
-    setOpenModal: any;
-    onClick: any;
+interface IServicesBox {
+    setOpenModal: (open: boolean) => void;
+    onClick: () => void;
 }
 
-const ServicesBox = ({setOpenModal, onClick}: iServecesBox) => {
+const ServicesBox = ({setOpenModal, onClick}: IServicesBox) => {
     return (
         <div onClick={() => setOpenModal?.(false)} className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center" >
             <div onClick={(e) => e.stopPropagation()} className="bg-white container h-50 w-50 overflow-auto p-4 rounded shadow">

@@ -2,7 +2,7 @@ import React from 'react';
 import CustomForm from '../../../../../Components/CustomForm';
 import { fieldsetsFormsBusiness } from '../../mock/configuration';
 import { consultingCEP, handleNotification } from '../../../../../Util/Utils';
-import { IFormProps } from '../../Interfaces/IFormGender';
+import { IFormData, IFormProps } from '../../Interfaces/IFormGender';
 import { useMyContext } from '../../../../../Context/MainContext';
 import { useConnection } from '../../../../../Context/ConnContext';
 
@@ -46,33 +46,33 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
     return consultingCEP(data?.zip_code, setData, setLoading)
   }
 
-  async function postStore(obj: any) {
+  async function postStore(obj: IFormData) {
     try {
       setLoading(true);
       const data = await fetchData({method: "POST", pathFile: "GAPP/Store.php", params: obj, urlComplement: '', exception: ["no data"]});
       if (data.error) throw new Error(data.message);
       return !data.error;
     } catch (error) {
-      handleNotification("Erro", `${error}`, "danger");
+      handleNotification("Erro", error instanceof Error ? error.message : String(error), "danger");
     } finally {
       setLoading(false);
     }
   }
 
-  async function putStore(obj: any) {
+  async function putStore(obj: IFormData) {
     try {
       setLoading(true);
       const data = await fetchData({method: "PUT", pathFile: "GAPP/Store.php", params: obj, urlComplement: '', exception: ["no data"]});
       if (data.error) throw new Error(data.message);
       return !data.error;
     } catch (error) {
-      handleNotification("Erro", `${error}`, "danger");
+      handleNotification("Erro", error instanceof Error ? error.message : String(error), "danger");
     } finally {
       setLoading(false);
     }
   }
 
-  function formatStoreData(data: any) {
+  function formatStoreData(data: IFormData) {
     return {
       cnpj: data?.cnpj.replace(/[^a-z0-9]/gi, ""),
       name: data?.name,
@@ -89,6 +89,10 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
   };
 
   const editorSendData = async () => {
+    if (!data) {
+      handleNotification("Erro", "Dados do formulário não encontrados.", "danger");
+      return;
+    }
     try {
       let result;
       if (isNewStore) {
@@ -101,7 +105,7 @@ const Form: React.FC<IFormProps> = ({ data, handleFunction, resetDataStore, rese
         if (resetForm) resetForm();
       }
     } catch (error) {
-      handleNotification("Error", String(error).toLowerCase(), "danger");
+      handleNotification("Erro", error instanceof Error ? error.message : String(error), "danger");
     }
   };
   return (
