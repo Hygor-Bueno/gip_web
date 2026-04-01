@@ -1,0 +1,204 @@
+/* ── Overlay ─────────────────────────────────────────────────────────── */
+.form-active-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 24px;
+}
+
+/* ── Modal container ─────────────────────────────────────────────────── */
+.form-active-modal {
+  background: #f8fafc;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 1045px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Modal header ────────────────────────────────────────────────────── */
+.form-active-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 28px 18px;
+  background: #ffffff;
+  border-bottom: 1.5px solid #e8eaf0;
+  flex-shrink: 0;
+}
+
+.form-active-modal-header-icon {
+  width: 40px;
+  height: 40px;
+  background: #bed989;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.form-active-modal-header-icon i {
+  color: #fff;
+  font-size: 16px;
+}
+
+.form-active-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.form-active-modal-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.form-active-modal-close {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.form-active-modal-close:hover {
+  background: #bed989;
+  filter: brightness(1.06);
+  box-shadow: 0 4px 14px rgba(190, 217, 137, 0.45);
+  transform: translateY(-1px);
+}
+
+/* ── Scrollable body ─────────────────────────────────────────────────── */
+.form-active-modal-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 24px 28px;
+}
+
+.form-active-modal-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.form-active-modal-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.form-active-modal-body::-webkit-scrollbar-thumb {
+  background: #bed989;
+  border-radius: 10px;
+}
+
+/* ── Section card ────────────────────────────────────────────────────── */
+.form-section {
+  background: #ffffff;
+  border: 1.5px solid #e8eaf0;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.form-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1.5px solid #f1f3f8;
+}
+
+.form-section-header-icon {
+  width: 32px;
+  height: 32px;
+  background: #f0f7e6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.form-section-header-icon i {
+  color: #6a9e2f;
+  font-size: 13px;
+}
+
+.form-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+  letter-spacing: -0.1px;
+}
+
+/* ── Footer / save button ────────────────────────────────────────────── */
+.form-active-modal-footer {
+  padding: 16px 28px;
+  background: #ffffff;
+  border-top: 1.5px solid #e8eaf0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-form-cancel {
+  padding: 10px 22px;
+  background: transparent;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  color: #64748b;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-form-cancel:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.btn-form-save {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 28px;
+  background: #bed989;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.btn-form-save:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 4px 14px rgba(190, 217, 137, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-form-save:active {
+  transform: translateY(0);
+}

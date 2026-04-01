@@ -68,10 +68,12 @@ export type ValueFormatter = (value: unknown, row?: ActiveRow) => string;
 export const customValueActive: Record<string, ValueFormatter> = {
   address: (_: unknown, row?: ActiveRow): string => {
     try {
-      const address = row?.address ? JSON.parse(row.address) : null;
-      return (
-        `${address?.city}, ${address?.public_place}, ${address?.zip_code}` || ""
-      );
+      if (!row?.address) return "";
+      const address = JSON.parse(row.address as string);
+      if (!address) return "";
+      const { city, public_place, zip_code } = address;
+      if (!city && !public_place && !zip_code) return "";
+      return `${city}, ${public_place}, ${zip_code}`;
     } catch {
       return "";
     }
@@ -79,6 +81,7 @@ export const customValueActive: Record<string, ValueFormatter> = {
 
   value_purchase: (value: unknown): string => {
     try {
+      if (value == null || value === "") return "";
       const number = Number(value);
       if (Number.isNaN(number)) return "";
       return new Intl.NumberFormat("pt-BR", {

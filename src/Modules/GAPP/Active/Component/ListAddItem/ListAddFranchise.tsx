@@ -4,6 +4,8 @@ import './ListAddFranchise.css';
 export default function ListAddFranchise({
     newItemText,
     setNewItemText,
+    newValueText,
+    setNewValueText,
     addItem,
     insuranceValues,
     removeItem
@@ -44,6 +46,8 @@ export default function ListAddFranchise({
                         <input
                             type="text"
                             className="franchise-input"
+                            value={newValueText}
+                            onChange={(e) => setNewValueText(e.target.value)}
                             placeholder="Ex: 500,00"
                         />
                     </div>

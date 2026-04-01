@@ -11,6 +11,7 @@ import { buildOptions, buildOptionsInsurance } from "../BuildFunction/BuildFunct
 import { ActivePutData, VehiclePutData, InsurancePutData } from "../../Adapters/Adapters";
 import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
+import "./FormActive.css";
 
 export default function FormActive({ apiData, openModal, onSave }: FormActiveProps) {
   const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
@@ -31,6 +32,11 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
   });
 
   const [newItemText, setNewItemText] = useState("");
+  const [newValueText, setNewValueText] = useState("");
+
+  const initialActive    = useRef<Partial<ActiveFormValues>>({});
+  const initialVehicle   = useRef<Partial<VehicleFormValues>>({});
+  const initialInsurance = useRef<Partial<Insurance>>({});
 
   const initialActive    = useRef<Partial<ActiveFormValues>>({});
   const initialVehicle   = useRef<Partial<VehicleFormValues>>({});
@@ -76,12 +82,13 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
       setInsurance((prev) => ({
         ...prev,
         franchise_list: {
-          list: [...(prev.franchise_list?.list || []), { description: newItemText, value: '' }],
+          list: [...(prev.franchise_list?.list || []), { description: newItemText, value: newValueText }],
         },
       }));
       setNewItemText("");
+      setNewValueText("");
     }
-  }, [newItemText]);
+  }, [newItemText, newValueText]);
 
   const addItem = useCallback(() => {
     if (newItemText.trim()) {
@@ -157,70 +164,105 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
   };
 
   return (
-    <div 
-      onClick={() => openModal?.(false)} 
-      className="position-absolute top-0 start-0 vw-100 vh-100 bg-dark bg-opacity-25 d-flex flex-column align-items-center justify-content-center" 
-    >
-      <div 
-        onClick={(e) => e.stopPropagation()} 
-        className="bg-white container h-75 w-75 overflow-auto p-4 rounded shadow d-flex flex-column"
-      >
-        <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Formulário de Ativo</h2>
-        
-        <CustomForm 
-          notButton={false}
-          className="row g-3 mb-4"
-          fieldsets={formActive(activeValues, options.unit, options.departament, options.company, handleActiveChange)}
-        />
+    <div className="form-active-overlay" onClick={() => openModal?.(false)}>
+      <div className="form-active-modal" onClick={(e) => e.stopPropagation()}>
 
-        <ListAdd 
-          activeValues={activeValues}
-          addItem={addItem}
-          newItemText={newItemText}
-          setNewItemText={setNewItemText}
-          removeItem={removeItem}
-        />
+        <div className="form-active-modal-header">
+          <div className="form-active-modal-header-icon">
+            <i className="fa fa-cube"></i>
+          </div>
+          <div>
+            <p className="form-active-modal-title">Formulário de Ativo</p>
+            <p className="form-active-modal-subtitle">Edite as informações do ativo selecionado</p>
+          </div>
+          <button className="form-active-modal-close" onClick={() => openModal?.(false)}>
+            <i className="fa fa-times"></i>
+          </button>
+        </div>
 
-        <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Local da Compra</h2>
-        <CustomForm
-          fieldsets={formAddress(activeValues.place_purchase, handleActiveChange)}
-          className="row g-3 mb-4"
-          notButton={false}
-        />
-        
-        {activeValues.is_vehicle && (
-          <React.Fragment>
-            <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Dados do Veículo</h2>
+        <div className="form-active-modal-body">
+
+          <div className="form-section">
+            <div className="form-section-header">
+              <div className="form-section-header-icon"><i className="fa fa-tag"></i></div>
+              <p className="form-section-title">Dados do Ativo</p>
+            </div>
             <CustomForm
               notButton={false}
-              fieldsets={formVehicle(vehicleValues, options.fuel, options.driver, handleVehicleChange)}
-              className="row g-3 mb-4"
+              className="row g-3"
+              fieldsets={formActive(activeValues, options.unit, options.departament, options.company, handleActiveChange)}
             />
+          </div>
 
-            <h2 className="color-gipp-head text-white p-2 rounded-top mb-2">Dados do Seguro</h2>
+          <ListAdd
+            activeValues={activeValues}
+            addItem={addItem}
+            newItemText={newItemText}
+            setNewItemText={setNewItemText}
+            removeItem={removeItem}
+          />
+
+          <div className="form-section">
+            <div className="form-section-header">
+              <div className="form-section-header-icon"><i className="fa fa-map-marker"></i></div>
+              <p className="form-section-title">Local da Compra</p>
+            </div>
             <CustomForm
+              fieldsets={formAddress(activeValues.place_purchase, handleActiveChange)}
+              className="row g-3"
               notButton={false}
-              fieldsets={formInsurance(insurance, handleInsuranceChange)}
-              className="row g-3 mb-4"
             />
+          </div>
 
-            <div>
-              <ListAddFranchise 
+          {activeValues.is_vehicle && (
+            <React.Fragment>
+              <div className="form-section">
+                <div className="form-section-header">
+                  <div className="form-section-header-icon"><i className="fa fa-car"></i></div>
+                  <p className="form-section-title">Dados do Veículo</p>
+                </div>
+                <CustomForm
+                  notButton={false}
+                  fieldsets={formVehicle(vehicleValues, options.fuel, options.driver, handleVehicleChange)}
+                  className="row g-3"
+                />
+              </div>
+
+              <div className="form-section">
+                <div className="form-section-header">
+                  <div className="form-section-header-icon"><i className="fa fa-shield"></i></div>
+                  <p className="form-section-title">Dados do Seguro</p>
+                </div>
+                <CustomForm
+                  notButton={false}
+                  fieldsets={formInsurance(insurance, handleInsuranceChange)}
+                  className="row g-3"
+                />
+              </div>
+
+              <ListAddFranchise
                 insuranceValues={insurance}
                 addItem={addFranchiseItem}
                 newItemText={newItemText}
                 setNewItemText={setNewItemText}
+                newValueText={newValueText}
+                setNewValueText={setNewValueText}
                 removeItem={removeFranchiseItem}
               />
-            </div>
-          </React.Fragment>
-        )}
+            </React.Fragment>
+          )}
 
-        <div className="mt-auto pt-3 border-top">
-          <button className="btn color-gipp btn-lg px-5" onClick={handleSubmit}>
-            <i className="fa fa-solid fa-save text-white"></i> Salvar
+        </div>
+
+        <div className="form-active-modal-footer">
+          <button className="btn-form-cancel" onClick={() => openModal?.(false)}>
+            Cancelar
+          </button>
+          <button className="btn-form-save" onClick={handleSubmit}>
+            <i className="fa fa-save"></i> Salvar
           </button>
         </div>
+
       </div>
     </div>
   );

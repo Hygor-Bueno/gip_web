@@ -47,14 +47,17 @@
 }
 
 .franchise-input-row {
-    display: grid;
-    grid-template-columns: 1fr 160px auto;
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 20px;
+    align-items: flex-end;
 }
 
 .franchise-input-wrapper {
     position: relative;
+    flex: 1 1 160px;
+    min-width: 140px;
 }
 
 .franchise-input-label {
@@ -104,8 +107,9 @@
     cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
     white-space: nowrap;
-    align-self: flex-end;
+    flex-shrink: 0;
     height: 40px;
+    align-self: flex-end;
 }
 
 .btn-add-franchise:hover {
@@ -210,18 +214,18 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #fee2e2;
+    background: transparent;
     border: none;
     border-radius: 8px;
-    color: #ef4444;
+    color: #cbd5e1;
     cursor: pointer;
-    transition: background 0.15s, transform 0.15s;
-    font-size: 12px;
+    transition: color 0.15s, transform 0.15s;
+    font-size: 14px;
 }
 
 .btn-remove:hover {
-    background: #fca5a5;
-    transform: scale(1.1);
+    color: #ef4444;
+    transform: scale(1.15);
 }
 
 .badge-count {
