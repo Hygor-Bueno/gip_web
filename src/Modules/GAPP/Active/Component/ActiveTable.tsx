@@ -9,7 +9,7 @@ import {
 } from "../Adapters/Adapters";
 import { convertForTable } from "../../../../Util/Utils";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
-import { Active, ActiveTableData } from "../Interfaces/Interfaces";
+import { Active, ActiveFormValues, ActiveTableData, Insurance, VehicleFormValues } from "../Interfaces/Interfaces";
 import { tItemTable } from "../../../../types/types";
 
 const ActiveTable: React.FC = () => {
@@ -104,13 +104,37 @@ const ActiveTable: React.FC = () => {
     customValue: customValueActive
   }), [data]);
 
+  const handleSave = useCallback(({ active, vehicle, insurance }: {
+    active?: Partial<ActiveFormValues>;
+    vehicle?: Partial<VehicleFormValues>;
+    insurance?: Partial<Insurance>;
+  }) => {
+    if (active) {
+      setData((prev) =>
+        prev.map((item) =>
+          String(item.active_id) === String(active.active_id)
+            ? { ...item, ...active } as Active
+            : item
+        )
+      );
+    }
+
+    if (vehicle || insurance) {
+      setModalData((prev) => prev ? {
+        ...prev,
+        ...(vehicle   && { vehicle }),
+        ...(insurance && { insurance: insurance as Insurance }),
+      } : null);
+    }
+  }, []);
+
   if (loading) return <div>Carregando...</div>;
   if (!data.length) return <div>Nenhum dado encontrado</div>;
 
   return (
     <div className="p-2">
       <CustomTable list={tableList} onConfirmList={handleServicesBox} maxSelection={1} />
-      {openModal && selected.length > 0 && modalData && ( <FormActive apiData={modalData} openModal={setOpenModal} /> )}
+      {openModal && selected.length > 0 && modalData && ( <FormActive apiData={modalData} openModal={setOpenModal} onSave={handleSave} /> )}
     </div>
   );
 };

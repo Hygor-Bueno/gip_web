@@ -19,6 +19,23 @@ function fetchPost({ pathFile, params = {}, urlComplement }: FetchConfig) {
   });
 }
 
+function fetchPut({ pathFile, params = {}, urlComplement }: FetchConfig) {
+  return fetchDataFull({
+    method: "PUT",
+    params,
+    pathFile,
+    urlComplement
+  });
+}
+
+function putToApi(pathFile: string, params: {}) {
+  return fetchPut({
+    params,
+    pathFile,
+    urlComplement: "&v2=1&smart=ON",
+  });
+}
+
 function getAll(pathFile: string) {
   return fetchGet({
     pathFile,
@@ -60,8 +77,20 @@ export function ActivePostData(params: {}) {
   return postToApi("GAPP_V2/Active.php", params);
 }
 
+export function ActivePutData(params: {}) {
+  return putToApi("GAPP/Active.php", params);
+}
+
+export function VehiclePutData(params: {}) {
+  return putToApi("GAPP/Vehicle.php", params);
+}
+
 export function InsurancePostData(params: {}) {
   return postToApi("GAPP/Insurance.php", params);
+}
+
+export function InsurancePutData(params: {}) {
+  return putToApi("GAPP/Insurance.php", params);
 }
 
 export function ActiveData() {
