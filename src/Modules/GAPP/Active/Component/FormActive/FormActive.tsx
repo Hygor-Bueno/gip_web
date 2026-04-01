@@ -1,17 +1,18 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
 import { ActiveFormValues, FormActiveProps, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
-import { mapFormToApi } from "../PayloadMapper/PayloadMapper";
+import { mapActiveToApi, mapVehicleToApi } from "../PayloadMapper/PayloadMapper";
+import { mapFormToApi as mapInsuranceToApi } from "../PayloadMapper/PayloadMapperInsurance";
 import ListAdd from "../ListAddItem/ListAdd";
 import { formVehicle } from "./FormSchema/FormVehicle.schema";
 import { formAddress } from "./FormSchema/FormAddress.schema";
 import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions, buildOptionsInsurance } from "../BuildFunction/BuildFunction";
-import { ActivePostData } from "../../Adapters/Adapters";
+import { ActivePutData, VehiclePutData, InsurancePutData } from "../../Adapters/Adapters";
 import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
 
-export default function FormActive({ apiData, openModal }: FormActiveProps) {
+export default function FormActive({ apiData, openModal, onSave }: FormActiveProps) {
   const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
     brand: "",
     model: "",
@@ -31,11 +32,15 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
 
   const [newItemText, setNewItemText] = useState("");
 
+  const initialActive    = useRef<Partial<ActiveFormValues>>({});
+  const initialVehicle   = useRef<Partial<VehicleFormValues>>({});
+  const initialInsurance = useRef<Partial<Insurance>>({});
+
   useEffect(() => {
     if (apiData) {
-      if (apiData.active) setActiveValues(apiData.active);
-      if (apiData.vehicle) setVehicleValues(apiData.vehicle);
-      if (apiData.insurance) setInsurance(apiData.insurance);
+      if (apiData.active)    { setActiveValues(apiData.active);       initialActive.current    = apiData.active; }
+      if (apiData.vehicle)   { setVehicleValues(apiData.vehicle);     initialVehicle.current   = apiData.vehicle; }
+      if (apiData.insurance) { setInsurance(apiData.insurance);       initialInsurance.current = apiData.insurance; }
     }
   }, [apiData]);
 
@@ -111,14 +116,43 @@ export default function FormActive({ apiData, openModal }: FormActiveProps) {
   const options = useMemo(() => buildOptions(apiData), [apiData]);
   const optionsInsurance = useMemo(() => buildOptionsInsurance(apiData), [apiData]);
 
+  const hasChanged = (current: object, initial: object): boolean =>
+    JSON.stringify(current) !== JSON.stringify(initial);
+
   const handleSubmit = async () => {
     try {
-      const payload = mapFormToApi(activeValues as ActiveFormValues,  vehicleValues as VehicleFormValues, insurance as Insurance);
-      const res = await ActivePostData(payload);
-      if (res.error) throw new Error(res.message);
-      openModal?.(false); 
+      const requests: Promise<{ error: boolean; message?: string }>[] = [];
+
+      if (hasChanged(activeValues, initialActive.current)) {
+        requests.push(ActivePutData(mapActiveToApi(activeValues as ActiveFormValues)));
+      }
+
+      if (hasChanged(vehicleValues, initialVehicle.current)) {
+        requests.push(VehiclePutData(mapVehicleToApi(vehicleValues as VehicleFormValues)));
+      }
+
+      if (hasChanged(insurance, initialInsurance.current)) {
+        requests.push(InsurancePutData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance)));
+      }
+
+      if (requests.length === 0) {
+        openModal?.(false);
+        return;
+      }
+
+      const results = await Promise.all(requests);
+      const failed  = results.find((res) => res.error);
+      if (failed) throw new Error(failed.message);
+
+      onSave?.({
+        ...(hasChanged(activeValues, initialActive.current)    && { active:    activeValues }),
+        ...(hasChanged(vehicleValues, initialVehicle.current)  && { vehicle:   vehicleValues }),
+        ...(hasChanged(insurance, initialInsurance.current)    && { insurance: insurance }),
+      });
+
+      openModal?.(false);
     } catch (error) {
-      throw new Error("Erro no envio:" + (error instanceof Error ? error.message : String(error)));
+      throw new Error("Erro no envio: " + (error instanceof Error ? error.message : String(error)));
     }
   };
 

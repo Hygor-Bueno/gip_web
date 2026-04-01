@@ -421,6 +421,7 @@ export interface FormActiveProps {
     insurance?: Insurance;
   };
   openModal?: Dispatch<SetStateAction<boolean>>;
+  onSave?: (updated: { active?: Partial<ActiveFormValues>; vehicle?: Partial<VehicleFormValues>; insurance?: Partial<Insurance> }) => void;
 }
 
 
