@@ -74,8 +74,8 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
     6: { type: null, title: "Deseja mesmo retomar a tarefa?" }
   };
 
-  const currentButton = buttonConfig[task.state_id];
-  const modalConfig = modalStateConfig[task.state_id] || {};
+  const currentButton = buttonConfig[task.state_id ?? 0];
+  const modalConfig = modalStateConfig[task.state_id ?? 0] || {};
 
   const resetPanels = () => {
     setListTask((prev) => ({
@@ -96,7 +96,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
   };
 
   const insertItemTask = async () => {
-    await handleAddTask(valueNewTask, task.id, isQuest, attachmentFile);
+    await handleAddTask(valueNewTask, String(task.id ?? 0), isQuest, attachmentFile);
     setValueNewTask("");
     setAttachmentFile("");
     setIsQuest(0);
@@ -118,7 +118,7 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
         resource = ListTask.description;
       }
 
-      stopAndToBackTask(task.id, resource, date, task);
+      stopAndToBackTask(task.id ?? 0, resource, date, task);
 
       toggleModal();
 
@@ -298,7 +298,7 @@ const ModalDefault: React.FC<TaskItem> = (props) => {
         <section className="header-modal-default my-2">
           <HeaderModal
             color="danger"
-            description={task.description}
+            description={task.description ?? ""}
             taskParam={task}
             onClick={props.close_modal}
           />

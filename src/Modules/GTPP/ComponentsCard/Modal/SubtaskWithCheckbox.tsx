@@ -114,7 +114,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   }
 
   async function updatePositionTaskItem(item: { id: number, next_or_previous: "next" | "previous" }) {
-    const value: { task_id: number, id: number, next_or_previous: "next" | "previous" } = { task_id: task.id, id: item.id, next_or_previous: item.next_or_previous };
+    const value: { task_id: number, id: number, next_or_previous: "next" | "previous" } = { task_id: task.id ?? 0, id: item.id, next_or_previous: item.next_or_previous };
     await fetchData({ method: "PUT", params: value, pathFile: "GTPP/TaskItem.php", exception: ["no data"], urlComplement: "" });
   }
   

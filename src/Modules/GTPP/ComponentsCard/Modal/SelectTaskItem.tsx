@@ -4,8 +4,8 @@ import { useConnection } from "../../../../Context/ConnContext";
 
 interface SelectTaskItemProps {
   data?: {
-    csds: { company_id: number; shop_id: number; depart_id: number }[];
-    id: number;
+    csds?: { company_id: number; shop_id: number; depart_id: number }[];
+    id?: number;
   };
 }
 
@@ -136,7 +136,7 @@ const SelectTaskItem: React.FC<SelectTaskItemProps> = ({ data }) => {
         Number(selectedCompany),
         Number(selectedShop),
         departmentId,
-        data?.id
+        data?.id ?? 0
       );
 
       if (req?.error) throw new Error(req.message);

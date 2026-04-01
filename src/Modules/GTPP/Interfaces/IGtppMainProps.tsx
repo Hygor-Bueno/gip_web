@@ -1,6 +1,6 @@
-import { Task } from "../../../Class/FileGenerator";
 import User from "../../../Class/User";
 import { iStates, iTaskReq } from "../../../Interface/iGIPP";
+import { IGtppActiveTask, IGtppTaskSummary } from "../Context/types/gtppTypes";
 import { ITheme } from "../CreateTheme/ICreateTheme";
 
 export default interface GtppMainProps {
@@ -28,10 +28,10 @@ export default interface GtppMainProps {
   themeList: ITheme[] | undefined;
   idTheme: string;
   getIdTheme: React.Dispatch<React.SetStateAction<string>>;
-  getTask: Task[];
+  getTask: IGtppTaskSummary[];
   selectedtasks: number[];
   setSelectedTasks: React.Dispatch<React.SetStateAction<number[]>>;
-  task: Task;
+  task: Partial<IGtppActiveTask>;
   taskDetails: iTaskReq;
   openCardDefault: boolean;
   openThemeModal: boolean;

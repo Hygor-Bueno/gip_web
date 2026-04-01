@@ -62,11 +62,11 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
       <div className="d-flex flex-column h-100 border p-2 my-2 rounded cardContact">
         <span className="d-flex justify-content-between">
           <strong>Data inicial:</strong>
-          <div>{`${DateConverter.formatDate(task.initial_date)}`}</div>
+          <div>{`${DateConverter.formatDate(task.initial_date ?? "")}`}</div>
         </span>
         <span className="d-flex justify-content-between">
           <strong>Data Final:</strong>
-          <div>{`${DateConverter.formatDate(task.final_date)}`}</div>
+          <div>{`${DateConverter.formatDate(task.final_date ?? "")}`}</div>
         </span>
         <span className="d-flex justify-content-between">
           <strong>Status:</strong>
@@ -79,7 +79,7 @@ const HeaderModal: React.FC<HeaderModalProps> = ({
   async function loadNameUserTask() {
     try {
       setLoading(true);
-      const user = new User({ id: task.user_id });
+      const user = new User({ id: task.user_id ?? 0 });
       await user.loadInfo(true);
       setGetUser(user);
       setUserTask(user);
