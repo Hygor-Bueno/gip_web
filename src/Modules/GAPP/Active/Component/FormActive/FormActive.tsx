@@ -37,11 +37,7 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
   const initialActive    = useRef<Partial<ActiveFormValues>>({});
   const initialVehicle   = useRef<Partial<VehicleFormValues>>({});
   const initialInsurance = useRef<Partial<Insurance>>({});
-
-  const initialActive    = useRef<Partial<ActiveFormValues>>({});
-  const initialVehicle   = useRef<Partial<VehicleFormValues>>({});
-  const initialInsurance = useRef<Partial<Insurance>>({});
-
+  
   useEffect(() => {
     if (apiData) {
       if (apiData.active)    { setActiveValues(apiData.active);       initialActive.current    = apiData.active; }
