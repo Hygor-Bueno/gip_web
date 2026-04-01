@@ -210,18 +210,18 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #fee2e2;
+    background: transparent;
     border: none;
     border-radius: 8px;
-    color: #ef4444;
+    color: #cbd5e1;
     cursor: pointer;
-    transition: background 0.15s, transform 0.15s;
-    font-size: 12px;
+    transition: color 0.15s, transform 0.15s;
+    font-size: 14px;
 }
 
 .btn-remove:hover {
-    background: #fca5a5;
-    transform: scale(1.1);
+    color: #ef4444;
+    transform: scale(1.15);
 }
 
 .badge-count {

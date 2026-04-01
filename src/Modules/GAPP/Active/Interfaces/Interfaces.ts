@@ -189,6 +189,8 @@ export interface IListAdd {
 export interface IListAddFranchise {
     newItemText: string,
     setNewItemText: React.Dispatch<React.SetStateAction<string>>,
+    newValueText: string,
+    setNewValueText: React.Dispatch<React.SetStateAction<string>>,
     addItem: () => void,
     insuranceValues: Partial<Insurance>,
     removeItem: (indexToRemove: number) => void
