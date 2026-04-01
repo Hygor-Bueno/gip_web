@@ -14,13 +14,9 @@ export default function ListAdd({ newItemText, setNewItemText, addItem, activeVa
                         <p className="listadd-subtitle">Gerencie os itens da lista</p>
                     </div>
                     
-                    {
-                    //@ts-ignore
-                    activeValues.list_items?.list?.length > 0 && (
+                    {(activeValues.list_items?.list?.length ?? 0) > 0 && (
                         <span className="listadd-badge">
-                            {
-                            //@ts-ignore
-                            activeValues.list_items.list.length} {activeValues.list_items.list.length === 1 ? "item" : "itens"}
+                            {activeValues.list_items!.list.length} {activeValues.list_items!.list.length === 1 ? "item" : "itens"}
                         </span>
                     )}
                 </div>
