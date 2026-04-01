@@ -81,8 +81,10 @@
 }
 
 .form-active-modal-close:hover {
-  background: #fee2e2;
-  color: #ef4444;
+  background: #bed989;
+  filter: brightness(1.06);
+  box-shadow: 0 4px 14px rgba(190, 217, 137, 0.45);
+  transform: translateY(-1px);
 }
 
 /* ── Scrollable body ─────────────────────────────────────────────────── */
