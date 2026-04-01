@@ -47,14 +47,17 @@
 }
 
 .franchise-input-row {
-    display: grid;
-    grid-template-columns: 1fr 160px auto;
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 20px;
+    align-items: flex-end;
 }
 
 .franchise-input-wrapper {
     position: relative;
+    flex: 1 1 160px;
+    min-width: 140px;
 }
 
 .franchise-input-label {
@@ -104,8 +107,9 @@
     cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
     white-space: nowrap;
-    align-self: flex-end;
+    flex-shrink: 0;
     height: 40px;
+    align-self: flex-end;
 }
 
 .btn-add-franchise:hover {
