@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import CustomTable from "../../../../Components/CustomTable";
 import FormActive from "./FormActive/FormActive";
 import ServicesBox from "./ServicesBox/ServicesBox";
+import InfoActive from "./InfoActive/InfoActive";
 
 import { 
   ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, 
@@ -22,6 +23,7 @@ const ActiveTable: React.FC = () => {
   const [openServicesBox, setOpenServicesBox] = useState<boolean>(false);
   const [openModal,       setOpenModal]       = useState<boolean>(false);
   const [openAdd,         setOpenAdd]         = useState<boolean>(false);
+  const [openInfo,        setOpenInfo]        = useState<boolean>(false);
 
   useEffect(() => {
     const loadAllData = async () => {
@@ -101,6 +103,11 @@ const ActiveTable: React.FC = () => {
     setOpenServicesBox(true);
     handleSelect(item);
   }, [handleSelect]);
+
+  const handleInfo = useCallback(() => {
+    setOpenServicesBox(false);
+    setOpenInfo(true);
+  }, []);
 
   const handleEdit = useCallback(() => {
     setOpenServicesBox(false);
@@ -184,9 +191,18 @@ const ActiveTable: React.FC = () => {
         <CustomTable list={tableList} onConfirmList={handleServicesBox} maxSelection={1} />
       </div>
 
+      {openInfo && modalData && (
+        <InfoActive
+          data={modalData}
+          onClose={() => setOpenInfo(false)}
+          onBack={() => { setOpenInfo(false); setOpenServicesBox(true); }}
+        />
+      )}
+
       {openServicesBox && selected.length > 0 && (
         <ServicesBox
           onClose={() => setOpenServicesBox(false)}
+          onInfo={handleInfo}
           onEdit={handleEdit}
         />
       )}

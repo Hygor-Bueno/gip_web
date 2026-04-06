@@ -168,7 +168,7 @@ export default function FormActive({ mode = "edit", apiData, openModal, onBack, 
 
         <div className="form-active-modal-header">
           <div className="form-active-modal-header-icon">
-            <i className="fa fa-cube"></i>
+            <i className="fa fa-cube text-white"></i>
           </div>
           <div>
             <p className="form-active-modal-title">Formulário de Ativo</p>
