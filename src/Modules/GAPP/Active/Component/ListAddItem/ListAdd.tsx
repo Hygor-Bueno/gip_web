@@ -13,7 +13,6 @@ export default function ListAdd({ newItemText, setNewItemText, addItem, activeVa
                         <p className="listadd-title">Itens Adicionais</p>
                         <p className="listadd-subtitle">Gerencie os itens da lista</p>
                     </div>
-                    
                     {(activeValues.list_items?.list?.length ?? 0) > 0 && (
                         <span className="listadd-badge">
                             {activeValues.list_items!.list.length} {activeValues.list_items!.list.length === 1 ? "item" : "itens"}

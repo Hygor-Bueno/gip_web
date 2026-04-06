@@ -411,6 +411,7 @@ export interface Active extends ActiveRow {
  * - Controlar abertura/fechamento de modal
  */
 export interface FormActiveProps {
+  mode?: "edit" | "add";
   apiData?: {
     active?: ActiveFormValues;
     departament?: Departament[];
@@ -423,6 +424,7 @@ export interface FormActiveProps {
     insurance?: Insurance;
   };
   openModal?: Dispatch<SetStateAction<boolean>>;
+  onBack?: () => void;
   onSave?: (updated: { active?: Partial<ActiveFormValues>; vehicle?: Partial<VehicleFormValues>; insurance?: Partial<Insurance> }) => void;
 }
 

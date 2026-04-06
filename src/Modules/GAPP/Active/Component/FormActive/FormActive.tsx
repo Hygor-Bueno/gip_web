@@ -8,12 +8,12 @@ import { formVehicle } from "./FormSchema/FormVehicle.schema";
 import { formAddress } from "./FormSchema/FormAddress.schema";
 import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions, buildOptionsInsurance } from "../BuildFunction/BuildFunction";
-import { ActivePutData, VehiclePutData, InsurancePutData } from "../../Adapters/Adapters";
+import { ActivePostData, ActivePutData, InsurancePostData, InsurancePutData, VehiclePutData } from "../../Adapters/Adapters";
 import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
 import "./FormActive.css";
 
-export default function FormActive({ apiData, openModal, onSave }: FormActiveProps) {
+export default function FormActive({ mode = "edit", apiData, openModal, onBack, onSave }: FormActiveProps) {
   const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
     brand: "",
     model: "",
@@ -126,21 +126,25 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
     try {
       const requests: Promise<{ error: boolean; message?: string }>[] = [];
 
-      if (hasChanged(activeValues, initialActive.current)) {
-        requests.push(ActivePutData(mapActiveToApi(activeValues as ActiveFormValues)));
-      }
-
-      if (hasChanged(vehicleValues, initialVehicle.current)) {
-        requests.push(VehiclePutData(mapVehicleToApi(vehicleValues as VehicleFormValues)));
-      }
-
-      if (hasChanged(insurance, initialInsurance.current)) {
-        requests.push(InsurancePutData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance)));
-      }
-
-      if (requests.length === 0) {
-        openModal?.(false);
-        return;
+      if (mode === "add") {
+        requests.push(ActivePostData(mapActiveToApi(activeValues as ActiveFormValues)));
+        if (activeValues.is_vehicle) {
+          requests.push(InsurancePostData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance)));
+        }
+      } else {
+        if (hasChanged(activeValues, initialActive.current)) {
+          requests.push(ActivePutData(mapActiveToApi(activeValues as ActiveFormValues)));
+        }
+        if (hasChanged(vehicleValues, initialVehicle.current)) {
+          requests.push(VehiclePutData(mapVehicleToApi(vehicleValues as VehicleFormValues)));
+        }
+        if (hasChanged(insurance, initialInsurance.current)) {
+          requests.push(InsurancePutData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance)));
+        }
+        if (requests.length === 0) {
+          openModal?.(false);
+          return;
+        }
       }
 
       const results = await Promise.all(requests);
@@ -148,9 +152,8 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
       if (failed) throw new Error(failed.message);
 
       onSave?.({
-        ...(hasChanged(activeValues, initialActive.current)    && { active:    activeValues }),
-        ...(hasChanged(vehicleValues, initialVehicle.current)  && { vehicle:   vehicleValues }),
-        ...(hasChanged(insurance, initialInsurance.current)    && { insurance: insurance }),
+        active:    activeValues,
+        ...(activeValues.is_vehicle && { vehicle: vehicleValues, insurance }),
       });
 
       openModal?.(false);
@@ -171,7 +174,7 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
             <p className="form-active-modal-title">Formulário de Ativo</p>
             <p className="form-active-modal-subtitle">Edite as informações do ativo selecionado</p>
           </div>
-          <button className="form-active-modal-close" onClick={() => openModal?.(false)}>
+          <button className="form-active-modal-close" onClick={() => onBack ? onBack() : openModal?.(false)}>
             <i className="fa fa-times"></i>
           </button>
         </div>
@@ -251,7 +254,7 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
         </div>
 
         <div className="form-active-modal-footer">
-          <button className="btn-form-cancel" onClick={() => openModal?.(false)}>
+          <button className="btn-form-cancel" onClick={() => onBack ? onBack() : openModal?.(false)}>
             Cancelar
           </button>
           <button className="btn-form-save" onClick={handleSubmit}>

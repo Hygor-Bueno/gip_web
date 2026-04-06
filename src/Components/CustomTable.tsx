@@ -181,7 +181,7 @@ export default function CustomTable(props: CustomTableProps) {
 
   return (
     <div className="d-flex flex-column w-100 h-100">
-      <div className="overflow-auto h-100">
+      <div className="overflow-auto flex-grow-1" style={{ minHeight: 0 }}>
         <table ref={tableRef} className="table table-bordered table-striped">
           <thead className="table-light">
             <tr>

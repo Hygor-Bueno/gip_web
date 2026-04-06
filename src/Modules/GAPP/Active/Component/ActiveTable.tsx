@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import CustomTable from "../../../../Components/CustomTable";
 import FormActive from "./FormActive/FormActive";
+import ServicesBox from "./ServicesBox/ServicesBox";
 
 import { 
   ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, 
@@ -11,13 +12,16 @@ import { convertForTable } from "../../../../Util/Utils";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
 import { Active, ActiveFormValues, ActiveTableData, Insurance, VehicleFormValues } from "../Interfaces/Interfaces";
 import { tItemTable } from "../../../../types/types";
+import "./ActiveTable.css";
 
 const ActiveTable: React.FC = () => {
   const [data, setData] = useState<Active[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<tItemTable[]>([]);
   const [modalData, setModalData] = useState<ActiveTableData | null>(null);
-  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openServicesBox, setOpenServicesBox] = useState<boolean>(false);
+  const [openModal,       setOpenModal]       = useState<boolean>(false);
+  const [openAdd,         setOpenAdd]         = useState<boolean>(false);
 
   useEffect(() => {
     const loadAllData = async () => {
@@ -94,9 +98,34 @@ const ActiveTable: React.FC = () => {
   }, [data]);
 
   const handleServicesBox = useCallback(async (item: tItemTable[]) => {
-    setOpenModal(true);
+    setOpenServicesBox(true);
     handleSelect(item);
   }, [handleSelect]);
+
+  const handleEdit = useCallback(() => {
+    setOpenServicesBox(false);
+    setOpenModal(true);
+  }, []);
+
+  const handleBackToServicesBox = useCallback(() => {
+    setOpenModal(false);
+    setOpenServicesBox(true);
+  }, []);
+
+  const handleAdd = useCallback(() => {
+    setOpenServicesBox(false);
+    setOpenAdd(true);
+  }, []);
+
+  const handleCreate = useCallback(({ active }: {
+    active?: Partial<ActiveFormValues>;
+    vehicle?: Partial<VehicleFormValues>;
+    insurance?: Partial<Insurance>;
+  }) => {
+    if (active) {
+      setData((prev) => [...prev, active as Active | any]); // any aqui!
+    }
+  }, []);
 
   const tableList = useMemo(() => convertForTable(data, {
     ocultColumns: listColumnsOcult,
@@ -132,9 +161,55 @@ const ActiveTable: React.FC = () => {
   if (!data.length) return <div>Nenhum dado encontrado</div>;
 
   return (
-    <div className="p-2">
-      <CustomTable list={tableList} onConfirmList={handleServicesBox} maxSelection={1} />
-      {openModal && selected.length > 0 && modalData && ( <FormActive apiData={modalData} openModal={setOpenModal} onSave={handleSave} /> )}
+    <div className="d-flex flex-column flex-grow-1 p-2" style={{ minWidth: 0, overflow: "hidden" }}>
+      <div className="active-toolbar">
+        <div className="active-toolbar-title">
+          <div className="active-toolbar-title-icon">
+            <i className="fa fa-cube text-white"></i>
+          </div>
+          <div>
+            <p className="active-toolbar-title-text">Gestão de Ativos</p>
+            <p className="active-toolbar-title-sub">Selecione um item para gerenciar</p>
+          </div>
+        </div>
+        <button className="btn-add-active" onClick={handleAdd} title="Adicionar novo ativo">
+          <span className="btn-add-active-icon">
+            <i className="fa fa-plus text-white"></i>
+          </span>
+          Novo Ativo
+        </button>
+      </div>
+
+      <div className="flex-grow-1" style={{ minHeight: 0 }}>
+        <CustomTable list={tableList} onConfirmList={handleServicesBox} maxSelection={1} />
+      </div>
+
+      {openServicesBox && selected.length > 0 && (
+        <ServicesBox
+          onClose={() => setOpenServicesBox(false)}
+          onEdit={handleEdit}
+        />
+      )}
+
+      {openModal && selected.length > 0 && modalData && (
+        <FormActive apiData={modalData} openModal={setOpenModal} onBack={handleBackToServicesBox} onSave={handleSave} />
+      )}
+
+      {openAdd && modalData && (
+        <FormActive
+          mode="add"
+          apiData={{
+            driver:      modalData.driver,
+            company:     modalData.company,
+            unit:        modalData.unit,
+            activeType:  modalData.activeType,
+            fuelType:    modalData.fuelType,
+            departament: modalData.departament,
+          }}
+          openModal={setOpenAdd}
+          onSave={handleCreate}
+        />
+      )}
     </div>
   );
 };
