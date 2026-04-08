@@ -21,7 +21,7 @@ const InfoActive: React.FC<InfoActiveProps> = ({ data, onBack }) => {
   const active    = data.active as any;
   const vehicle   = data.vehicle;
   const insurance = data.insurance;
-
+  
   const hasVehicle   = vehicle   && Object.keys(vehicle).length > 0;
   const hasInsurance = insurance && !!insurance.id_insurance;
   const hasItems     = active?.list_items?.list?.length > 0;
@@ -29,7 +29,6 @@ const InfoActive: React.FC<InfoActiveProps> = ({ data, onBack }) => {
   return (
     <div className="info-overlay" onClick={onBack}>
       <div className="info-modal" onClick={(e) => e.stopPropagation()}>
-
         <div className="info-modal-header">
           <div className="info-modal-header-icon">
             <i className="fa fa-file-text text-white"></i>
@@ -42,7 +41,6 @@ const InfoActive: React.FC<InfoActiveProps> = ({ data, onBack }) => {
             <i className="fa fa-times"></i>
           </button>
         </div>
-
         <div className="info-modal-body">
           <IdentificacaoSection active={active} />
           <LocalizacaoSection   active={active} />
@@ -60,7 +58,6 @@ const InfoActive: React.FC<InfoActiveProps> = ({ data, onBack }) => {
             <i className="fa fa-download text-white"></i> Baixar PDF
           </button>
         </div>
-
       </div>
     </div>
   );

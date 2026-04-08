@@ -144,19 +144,19 @@
 
 /* Edit */
 .services-btn--edit:hover {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+  background: #f0f7e6;
+  border-color: #bed989;
 }
 .services-btn--edit .services-btn-icon {
-  background: #16a34a;
+  background: #bed989;
   color: #fff;
 }
 .services-btn--edit:hover .services-btn-icon {
-  background: #15803d;
+  background: #6a9f2f;
   color: #fff;
 }
 
-/* Power */
+/* Despesas */
 .services-btn--power:hover {
   background: #fff7ed;
   border-color: #fed7aa;
@@ -164,6 +164,7 @@
 .services-btn--power .services-btn-icon {
   background: #ea580c;
   color: #fff;
+  font-size: 1rem;
 }
 .services-btn--power:hover .services-btn-icon {
   background: #c2410c;

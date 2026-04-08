@@ -6,10 +6,10 @@ import InfoActive from "./InfoActive/InfoActive";
 import Releases from "./Releases/Releases";
 import { useMyContext } from "../../../../Context/MainContext";
 
-import { 
-  ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, 
-  ActiveInsuranceData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData, 
-  ActiveVehicleData 
+import {
+  ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData,
+  ActiveInsuranceData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData,
+  ActiveVehicleData, GappUserData
 } from "../Adapters/Adapters";
 import { convertForTable } from "../../../../Util/Utils";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
@@ -19,6 +19,7 @@ import "./ActiveTable.css";
 
 const ActiveTable: React.FC = () => {
   const { userLog } = useMyContext();
+  const [gappUserId, setGappUserId] = useState<number | null>(null);
   const [data, setData] = useState<Active[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<tItemTable[]>([]);
@@ -30,24 +31,32 @@ const ActiveTable: React.FC = () => {
   const [openReleases,    setOpenReleases]    = useState<boolean>(false);
 
   useEffect(() => {
+    if (userLog?.id) {
+      GappUserData(userLog.id).then(res => {
+        if (!res.error && res.data?.length) setGappUserId(res.data[0].user_id);
+      });
+    }
+  }, [userLog?.id]);
+
+  useEffect(() => {
     const loadAllData = async () => {
       setLoading(true);
       try {
-        const [ 
-          activeRes, 
-          driverRes, 
-          unitRes, 
-          companyRes, 
-          typeRes, 
-          fuelRes, 
-          depRes 
+        const [
+          activeRes,
+          driverRes,
+          unitRes,
+          companyRes,
+          typeRes,
+          fuelRes,
+          depRes
         ] = await Promise.all([
-          ActiveData(), 
-          ActiveDriverData(), 
-          ActiveUnitsData(), 
+          ActiveData(),
+          ActiveDriverData(),
+          ActiveUnitsData(),
           ActiveCompanyData(),
-          ActiveTypeData(), 
-          ActiveTypeFuelData(), 
+          ActiveTypeData(),
+          ActiveTypeFuelData(),
           ActiveDepartamentData()
         ]);
         
@@ -224,6 +233,7 @@ const ActiveTable: React.FC = () => {
       {openAdd && modalData && (
         <FormActive
           mode="add"
+          gappUserId={gappUserId}
           apiData={{
             driver:      modalData.driver,
             company:     modalData.company,

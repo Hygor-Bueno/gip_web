@@ -17,7 +17,7 @@
 .active-toolbar-title-icon {
   width: 34px;
   height: 34px;
-  background: linear-gradient(135deg, #16a34a, #15803d);
+  background: #bed989;
   border-radius: 9px;
   display: flex;
   align-items: center;
@@ -48,27 +48,27 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.55rem 1.1rem;
-  background: linear-gradient(135deg, #16a34a, #15803d);
+  background: #bed989;
   color: #ffffff;
   font-size: 0.82rem;
   font-weight: 600;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.45);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
   white-space: nowrap;
 }
 
 .btn-add-active:hover {
-  background: linear-gradient(135deg, #15803d, #166534);
-  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.45);
+  filter: brightness(0.92);
+  box-shadow: 0 4px 16px rgba(190, 217, 137, 0.55);
   transform: translateY(-1px);
 }
 
 .btn-add-active:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);
+  box-shadow: 0 2px 6px rgba(190, 217, 137, 0.35);
 }
 
 .btn-add-active-icon {

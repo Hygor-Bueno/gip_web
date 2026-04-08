@@ -14,7 +14,7 @@ import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
 import "./FormActive.css";
 
-export default function FormActive({ mode = "edit", apiData, openModal, onBack, onSave }: FormActiveProps) {
+export default function FormActive({ mode = "edit", gappUserId, apiData, openModal, onBack, onSave }: FormActiveProps) {
   const { userLog } = useMyContext();
   const today = new Date().toISOString().split('T')[0];
 
@@ -25,7 +25,7 @@ export default function FormActive({ mode = "edit", apiData, openModal, onBack, 
     list_items: { list: [] },
     place_purchase: {},
     change_date: today,
-    user_id_fk: userLog?.id,
+    user_id_fk: gappUserId ?? userLog?.id,
   });
 
   const [vehicleValues, setVehicleValues] = useState<Partial<VehicleFormValues>>({
@@ -123,7 +123,6 @@ export default function FormActive({ mode = "edit", apiData, openModal, onBack, 
   }, []);
 
   const options = useMemo(() => buildOptions(apiData), [apiData]);
-  const optionsInsurance = useMemo(() => buildOptionsInsurance(apiData), [apiData]);
 
   const hasChanged = (current: object, initial: object): boolean =>
     JSON.stringify(current) !== JSON.stringify(initial);

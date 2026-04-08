@@ -412,6 +412,7 @@ export interface Active extends ActiveRow {
  */
 export interface FormActiveProps {
   mode?: "edit" | "add";
+  gappUserId?: number | null;
   apiData?: {
     active?: ActiveFormValues;
     departament?: Departament[];

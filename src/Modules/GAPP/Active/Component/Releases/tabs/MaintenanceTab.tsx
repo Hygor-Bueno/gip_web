@@ -74,13 +74,26 @@ const MaintenanceTab: React.FC<Props> = ({ maintenance, onChange, addPart, remov
             />
           </div>
           <div className="franchise-input-wrapper" style={{ flex: 1 }}>
-            <label className="franchise-input-label">Valor (R$)</label>
+            <label className="franchise-input-label">Valor unit. (R$)</label>
             <input
               className="franchise-input"
               type="number"
               value={newPart.value}
               onChange={e => setNewPart(p => ({ ...p, value: e.target.value }))}
               placeholder="0,00"
+            />
+          </div>
+          <div className="franchise-input-wrapper" style={{ flex: 1 }}>
+            <label className="franchise-input-label">Total (R$)</label>
+            <input
+              className="franchise-input"
+              readOnly
+              value={
+                newPart.quantity && newPart.value
+                  ? (Number(newPart.quantity) * Number(newPart.value)).toFixed(2)
+                  : "0.00"
+              }
+              style={{ background: "#f0f7e6", color: "#6a9e2f", fontWeight: 600 }}
             />
           </div>
           <button className="btn-add-franchise" type="button" onClick={handleAdd}>
@@ -94,14 +107,15 @@ const MaintenanceTab: React.FC<Props> = ({ maintenance, onChange, addPart, remov
               <tr>
                 <th>Descrição</th>
                 <th>Qtd</th>
-                <th>Subtotal (R$)</th>
+                <th>Valor Unit. (R$)</th>
+                <th>Total (R$)</th>
                 <th style={{ textAlign: "center" }}>Ação</th>
               </tr>
             </thead>
             <tbody>
               {parts.length === 0 ? (
                 <tr>
-                  <td colSpan={4}>
+                  <td colSpan={5}>
                     <div className="franchise-empty">
                       <i className="fa fa-inbox"></i>
                       <p className="franchise-empty-text">Nenhuma peça adicionada ainda.</p>
@@ -113,6 +127,7 @@ const MaintenanceTab: React.FC<Props> = ({ maintenance, onChange, addPart, remov
                   <tr key={i}>
                     <td>{p.description}</td>
                     <td>{p.quantity}</td>
+                    <td className="td-value">R$ {Number(p.value).toFixed(2)}</td>
                     <td className="td-value">
                       R$ {(Number(p.quantity) * Number(p.value)).toFixed(2)}
                     </td>
@@ -128,7 +143,7 @@ const MaintenanceTab: React.FC<Props> = ({ maintenance, onChange, addPart, remov
             {parts.length > 0 && (
               <tfoot>
                 <tr style={{ background: "#f8fafc", fontWeight: 700 }}>
-                  <td colSpan={2} style={{ padding: "11px 16px", fontSize: "12px", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <td colSpan={3} style={{ padding: "11px 16px", fontSize: "12px", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     Total peças
                   </td>
                   <td className="td-value" style={{ padding: "11px 16px" }}>

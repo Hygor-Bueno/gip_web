@@ -74,7 +74,7 @@ function postToApi(pathFile: string, params: {}) {
 }
 
 export function ActivePostData(params: {}) {
-  return postToApi("GAPP_V2/Active.php", params);
+  return postToApi("GAPP/Active.php", params);
 }
 
 export function ActivePutData(params: {}) {
@@ -130,9 +130,14 @@ export function ActiveTypeFuelData() {
 }
 
 export function ActiveInsuranceData(vehicle_id_fk?: number | string) {
-  return getByParam("GAPP/Insurance.php", { 
-    all: 1, 
-    status_insurance: 1, 
-    vehicle_id_fk: vehicle_id_fk || 0 
+  return getByParam("GAPP/Insurance.php", {
+    all: 1,
+    status_insurance: 1,
+    vehicle_id_fk: vehicle_id_fk || 0
   });
+}
+
+/** Fetch the GAPP user_id by access_code (GIPP user id) */
+export function GappUserData(accessCode: number | string) {
+  return getByParam("GAPP/Users.php", "access_code", String(accessCode));
 }

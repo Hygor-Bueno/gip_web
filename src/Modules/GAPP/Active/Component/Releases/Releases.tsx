@@ -275,7 +275,7 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, onClos
           </button>
           <div className="d-flex gap-2">
             <button className="btn-rel-clear" onClick={clearForm}>
-              <i className="fa fa-eraser"></i> Limpar
+              <i className="fa fa-eraser text-white"></i> Limpar
             </button>
             {currentTab.expTypeId !== null && (
               <button className="btn-rel-save" onClick={handleSubmit} disabled={loading}>
