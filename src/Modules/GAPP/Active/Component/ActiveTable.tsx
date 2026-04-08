@@ -3,6 +3,8 @@ import CustomTable from "../../../../Components/CustomTable";
 import FormActive from "./FormActive/FormActive";
 import ServicesBox from "./ServicesBox/ServicesBox";
 import InfoActive from "./InfoActive/InfoActive";
+import Releases from "./Releases/Releases";
+import { useMyContext } from "../../../../Context/MainContext";
 
 import { 
   ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData, 
@@ -16,6 +18,7 @@ import { tItemTable } from "../../../../types/types";
 import "./ActiveTable.css";
 
 const ActiveTable: React.FC = () => {
+  const { userLog } = useMyContext();
   const [data, setData] = useState<Active[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<tItemTable[]>([]);
@@ -24,6 +27,7 @@ const ActiveTable: React.FC = () => {
   const [openModal,       setOpenModal]       = useState<boolean>(false);
   const [openAdd,         setOpenAdd]         = useState<boolean>(false);
   const [openInfo,        setOpenInfo]        = useState<boolean>(false);
+  const [openReleases,    setOpenReleases]    = useState<boolean>(false);
 
   useEffect(() => {
     const loadAllData = async () => {
@@ -119,6 +123,11 @@ const ActiveTable: React.FC = () => {
     setOpenServicesBox(true);
   }, []);
 
+  const handleReleases = useCallback(() => {
+    setOpenServicesBox(false);
+    setOpenReleases(true);
+  }, []);
+
   const handleAdd = useCallback(() => {
     setOpenServicesBox(false);
     setOpenAdd(true);
@@ -204,6 +213,7 @@ const ActiveTable: React.FC = () => {
           onClose={() => setOpenServicesBox(false)}
           onInfo={handleInfo}
           onEdit={handleEdit}
+          onPower={handleReleases}
         />
       )}
 
@@ -224,6 +234,15 @@ const ActiveTable: React.FC = () => {
           }}
           openModal={setOpenAdd}
           onSave={handleCreate}
+        />
+      )}
+
+      {openReleases && selected.length > 0 && (
+        <Releases
+          activeId={String(selected[0]?.active_id?.value)}
+          userId={String(userLog?.id)}
+          isVehicle={Boolean(modalData?.active?.is_vehicle)}
+          onClose={() => { setOpenReleases(false); setOpenServicesBox(true); }}
         />
       )}
     </div>

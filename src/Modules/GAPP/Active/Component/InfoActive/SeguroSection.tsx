@@ -48,7 +48,7 @@ const SeguroSection: React.FC<Props> = ({ insurance }) => (
     </div>
 
     {insurance.franchise_list?.list?.length > 0 && (
-      <>
+      <React.Fragment>
         <div className="info-section-header" style={{ borderTop: '1px solid #f1f5f9' }}>
           <div className="info-section-icon" style={{ background: '#dc2626', color: '#fff' }}>
             <i className="fa fa-list text-white"></i>
@@ -64,7 +64,7 @@ const SeguroSection: React.FC<Props> = ({ insurance }) => (
             />
           ))}
         </div>
-      </>
+      </React.Fragment>
     )}
   </InfoSection>
 );

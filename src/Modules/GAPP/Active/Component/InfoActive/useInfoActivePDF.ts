@@ -50,7 +50,7 @@ export const useInfoActivePDF = (data: ActiveTableData) => {
     ], [22, 163, 74]);
 
     y = table(y, 'Localização / Organização', [
-      ['Empresa',           active?.corporate_name ?? active?.fantasy_name ?? '—'],
+      ['Empresa',           active?.corporate_name ?? active?.fantasy_name ?? 'Peg Pese'],
       ['Unidade',           active?.unit_name   ?? '—'],
       ['Departamento',      active?.dep_id_fk   ?? '—'],
       ['Grupo de Trabalho', active?.group_name  ?? '—'],

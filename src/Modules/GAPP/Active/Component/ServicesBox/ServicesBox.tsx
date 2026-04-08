@@ -55,11 +55,11 @@ const ServicesBox = ({ onClose, onEdit, onInfo, onPower }: IServicesBox) => {
 
                     <button className="services-btn services-btn--power" onClick={onPower}>
                         <div className="services-btn-icon">
-                            <i className="fa fa-power-off text-white"></i>
+                            <i className="fa fa-money text-white"></i>
                         </div>
                         <div className="services-btn-text">
-                            <span className="services-btn-label">Ativar / Inativar</span>
-                            <span className="services-btn-desc">Alterar status do ativo</span>
+                            <span className="services-btn-label">Despesas</span>
+                            <span className="services-btn-desc">Lançar e gerenciar despesas</span>
                         </div>
                         <i className="fa fa-chevron-right services-btn-arrow"></i>
                     </button>

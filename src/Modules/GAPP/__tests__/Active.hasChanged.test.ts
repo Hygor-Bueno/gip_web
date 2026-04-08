@@ -3,6 +3,7 @@
  * A função compara dois objetos via JSON.stringify e retorna true
  * se houver qualquer diferença — controlando quais PUTs são disparados.
  */
+export {};
 
 const hasChanged = (current: object, initial: object): boolean =>
   JSON.stringify(current) !== JSON.stringify(initial);

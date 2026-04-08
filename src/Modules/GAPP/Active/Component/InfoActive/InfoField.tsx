@@ -10,7 +10,7 @@ const InfoField: React.FC<InfoFieldProps> = ({ label, value }) => {
   return (
     <div className="info-field">
       <span className="info-field-label">{label}</span>
-      <span className={`info-field-value${!display ? ' empty' : ''}`}>{display || '—'}</span>
+      <span className={`info-field-value${!display ? ' empty' : ''}`}>{display || '-'}</span>
     </div>
   );
 };

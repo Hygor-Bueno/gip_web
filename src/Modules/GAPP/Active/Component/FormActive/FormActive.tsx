@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
 import { ActiveFormValues, FormActiveProps, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
-import { mapActiveToApi, mapVehicleToApi } from "../PayloadMapper/PayloadMapper";
+import { mapActiveToApi, mapActivePostToApi, mapVehicleToApi } from "../PayloadMapper/PayloadMapper";
 import { mapFormToApi as mapInsuranceToApi } from "../PayloadMapper/PayloadMapperInsurance";
 import ListAdd from "../ListAddItem/ListAdd";
 import { formVehicle } from "./FormSchema/FormVehicle.schema";
@@ -9,17 +9,23 @@ import { formAddress } from "./FormSchema/FormAddress.schema";
 import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions, buildOptionsInsurance } from "../BuildFunction/BuildFunction";
 import { ActivePostData, ActivePutData, InsurancePostData, InsurancePutData, VehiclePutData } from "../../Adapters/Adapters";
+import { useMyContext } from "../../../../../Context/MainContext";
 import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
 import "./FormActive.css";
 
 export default function FormActive({ mode = "edit", apiData, openModal, onBack, onSave }: FormActiveProps) {
+  const { userLog } = useMyContext();
+  const today = new Date().toISOString().split('T')[0];
+
   const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
     brand: "",
     model: "",
     is_vehicle: true,
     list_items: { list: [] },
-    place_purchase: {}
+    place_purchase: {},
+    change_date: today,
+    user_id_fk: userLog?.id,
   });
 
   const [vehicleValues, setVehicleValues] = useState<Partial<VehicleFormValues>>({
@@ -127,10 +133,10 @@ export default function FormActive({ mode = "edit", apiData, openModal, onBack, 
       const requests: Promise<{ error: boolean; message?: string }>[] = [];
 
       if (mode === "add") {
-        requests.push(ActivePostData(mapActiveToApi(activeValues as ActiveFormValues)));
-        if (activeValues.is_vehicle) {
-          requests.push(InsurancePostData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance)));
-        }
+        requests.push(ActivePostData(mapActivePostToApi(
+          activeValues as ActiveFormValues,
+          vehicleValues as VehicleFormValues
+        )));
       } else {
         if (hasChanged(activeValues, initialActive.current)) {
           requests.push(ActivePutData(mapActiveToApi(activeValues as ActiveFormValues)));
