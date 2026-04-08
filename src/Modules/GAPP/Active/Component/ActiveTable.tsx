@@ -8,7 +8,7 @@ import { useMyContext } from "../../../../Context/MainContext";
 
 import {
   ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData,
-  ActiveInsuranceData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData,
+  ActiveInsuranceData, ActivePutData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData,
   ActiveVehicleData, GappUserData
 } from "../Adapters/Adapters";
 import { convertForTable } from "../../../../Util/Utils";
@@ -19,7 +19,8 @@ import "./ActiveTable.css";
 
 const ActiveTable: React.FC = () => {
   const { userLog } = useMyContext();
-  const [gappUserId, setGappUserId] = useState<number | null>(null);
+  const [gappUserId,       setGappUserId]       = useState<number | null>(null);
+  const [gappWorkGroupId,  setGappWorkGroupId]  = useState<number | null>(null);
   const [data, setData] = useState<Active[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<tItemTable[]>([]);
@@ -33,7 +34,10 @@ const ActiveTable: React.FC = () => {
   useEffect(() => {
     if (userLog?.id) {
       GappUserData(userLog.id).then(res => {
-        if (!res.error && res.data?.length) setGappUserId(res.data[0].user_id);
+        if (!res.error && res.data?.length) {
+          setGappUserId(res.data[0].user_id);
+          setGappWorkGroupId(res.data[0].group_id_fk ?? null);
+        }
       });
     }
   }, [userLog?.id]);
@@ -88,25 +92,30 @@ const ActiveTable: React.FC = () => {
     if (!item?.length || !item[0]?.active_id?.value) return;
 
     const selectedActiveId = String(item[0].active_id.value);
+    const activeRecord = data.find(d => String(d.active_id) === selectedActiveId);
+    const isVehicle = Number(activeRecord?.is_vehicle) === 1;
 
     try {
-      const vehicleRes = await ActiveVehicleData(selectedActiveId);
-
-      if (vehicleRes.error) {
-        throw new Error(vehicleRes.message);
-      }
-      
-      const vehicleId = vehicleRes.data?.[0]?.vehicle_id || "0";
-
-      const insuranceRes = await ActiveInsuranceData(vehicleId);
-
-      setModalData((prev) => prev ? { 
-        ...prev, 
-        vehicle: vehicleRes.data?.[0] || {}, 
-        active: data.find(d => String(d.active_id) === selectedActiveId) || {},
-        insurance: insuranceRes.data?.[0] || {} 
+      setModalData((prev) => prev ? {
+        ...prev,
+        active:    activeRecord || ({} as any),
+        vehicle:   {},
+        insurance: {} as any,
       } : null);
 
+      if (isVehicle) {
+        const vehicleRes = await ActiveVehicleData(selectedActiveId);
+        if (vehicleRes.error) throw new Error(vehicleRes.message);
+
+        const vehicleId   = vehicleRes.data?.[0]?.vehicle_id || "0";
+        const insuranceRes = await ActiveInsuranceData(vehicleId);
+
+        setModalData((prev) => prev ? {
+          ...prev,
+          vehicle:   vehicleRes.data?.[0] || {},
+          insurance: insuranceRes.data?.[0] || {} as any,
+        } : null);
+      }
     } catch (error) {
       console.error("Erro ao buscar dados do veículo ou seguro:", error);
     }
@@ -148,7 +157,7 @@ const ActiveTable: React.FC = () => {
     insurance?: Partial<Insurance>;
   }) => {
     if (active) {
-      setData((prev) => [...prev, active as Active | any]); // any aqui!
+      setData((prev) => [...prev, active as Active | any]);
     }
   }, []);
 
@@ -157,6 +166,46 @@ const ActiveTable: React.FC = () => {
     customTags: customTagsActive,
     customValue: customValueActive
   }), [data]);
+
+  const handleToggleStatus = useCallback(async () => {
+    if (!selected.length || !selected[0]?.active_id?.value) return;
+    const activeId   = String(selected[0].active_id.value);
+    const current    = data.find(d => String(d.active_id) === activeId);
+    const newStatus  = String(current?.status_active) === "1" ? "0" : "1";
+    if (!window.confirm(`Deseja realmente ${newStatus === "1" ? "ativar" : "inativar"} este ativo?`)) return;
+
+    try {
+      const res = await ActivePutData({ active_id: activeId, status_active: newStatus });
+      if (res.error) throw new Error(res.message);
+      setData(prev => prev.map(a =>
+        String(a.active_id) === activeId ? { ...a, status_active: newStatus } : a
+      ));
+      setOpenServicesBox(false);
+    } catch (err: any) {
+      alert("Erro ao alterar status: " + err.message);
+    }
+  }, [selected, data]);
+
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Código", "Marca", "Modelo", "Tipo Ativo", "Unidade", "Valor Compra", "Data Compra"];
+    const rows = data.map(a => [
+      a.active_id,
+      a.brand,
+      a.model,
+      a.desc_active_class,
+      a.unit_name,
+      a.value_purchase,
+      a.date_purchase,
+    ]);
+    const csv  = [headers, ...rows].map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `ativos_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [data]);
 
   const handleSave = useCallback(({ active, vehicle, insurance }: {
     active?: Partial<ActiveFormValues>;
@@ -197,16 +246,25 @@ const ActiveTable: React.FC = () => {
             <p className="active-toolbar-title-sub">Selecione um item para gerenciar</p>
           </div>
         </div>
-        <button className="btn-add-active" onClick={handleAdd} title="Adicionar novo ativo">
-          <span className="btn-add-active-icon">
-            <i className="fa fa-plus text-white"></i>
-          </span>
-          Novo Ativo
-        </button>
+        <div className="d-flex gap-2">
+          <button className="btn-export-csv" onClick={handleExportCSV} title="Exportar CSV">
+            <i className="fa fa-table"></i> CSV
+          </button>
+          <button className="btn-add-active" onClick={handleAdd} title="Adicionar novo ativo">
+            <span className="btn-add-active-icon">
+              <i className="fa fa-plus text-white"></i>
+            </span>
+            Novo Ativo
+          </button>
+        </div>
       </div>
 
       <div className="flex-grow-1" style={{ minHeight: 0 }}>
-        <CustomTable list={tableList} onConfirmList={handleServicesBox} maxSelection={1} />
+        <CustomTable 
+          list={tableList} 
+          onConfirmList={handleServicesBox} 
+          maxSelection={1} 
+        />
       </div>
 
       {openInfo && modalData && (
@@ -223,6 +281,9 @@ const ActiveTable: React.FC = () => {
           onInfo={handleInfo}
           onEdit={handleEdit}
           onPower={handleReleases}
+          onToggleStatus={handleToggleStatus}
+          isVehicle={Boolean(modalData?.active?.is_vehicle)}
+          statusActive={modalData?.active?.status_active}
         />
       )}
 
@@ -234,6 +295,7 @@ const ActiveTable: React.FC = () => {
         <FormActive
           mode="add"
           gappUserId={gappUserId}
+          gappWorkGroupId={gappWorkGroupId}
           apiData={{
             driver:      modalData.driver,
             company:     modalData.company,
@@ -247,11 +309,11 @@ const ActiveTable: React.FC = () => {
         />
       )}
 
-      {openReleases && selected.length > 0 && (
+      {openReleases && selected.length > 0 && Boolean(modalData?.active?.is_vehicle) && (
         <Releases
           activeId={String(selected[0]?.active_id?.value)}
           userId={String(userLog?.id)}
-          isVehicle={Boolean(modalData?.active?.is_vehicle)}
+          isVehicle={true}
           onClose={() => { setOpenReleases(false); setOpenServicesBox(true); }}
         />
       )}

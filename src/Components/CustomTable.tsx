@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useEffect, useRef, useState } from "react";
 import { tItemTable } from "../types/types";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable'; // Importe o autoTable diretamente

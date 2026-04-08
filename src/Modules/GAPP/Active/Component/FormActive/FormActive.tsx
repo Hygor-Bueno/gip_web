@@ -14,7 +14,7 @@ import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
 import "./FormActive.css";
 
-export default function FormActive({ mode = "edit", gappUserId, apiData, openModal, onBack, onSave }: FormActiveProps) {
+export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId, apiData, openModal, onBack, onSave }: FormActiveProps) {
   const { userLog } = useMyContext();
   const today = new Date().toISOString().split('T')[0];
 
@@ -26,6 +26,7 @@ export default function FormActive({ mode = "edit", gappUserId, apiData, openMod
     place_purchase: {},
     change_date: today,
     user_id_fk: gappUserId ?? userLog?.id,
+    work_group_fk: gappWorkGroupId ?? undefined,
   });
 
   const [vehicleValues, setVehicleValues] = useState<Partial<VehicleFormValues>>({
