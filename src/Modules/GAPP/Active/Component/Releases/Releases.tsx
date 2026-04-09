@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import "./Releases.css";
+import { handleNotification } from "../../../../../Util/ui/notifications";
 import { ReleasesProps, Expense, FuelData, MaintenanceData, FinesData, SinisterData, TabKey, PartItem } from "./Interfaces";
 import { Insurance, Schema } from "../../Interfaces/Interfaces";
 import { defaultExpense, defaultFuel, defaultMaintenance, defaultFines, defaultSinister, defaultInsurance } from "./defaultValues";
@@ -137,10 +138,10 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
     const currentTab = TABS.find(t => t.key === activeTab)!;
 
     if (currentTab.showExpense && (!expense.date || !expense.hour || !expense.total_value)) {
-      alert("Preencha data, hora e valor total.");
+      handleNotification("Campos obrigatórios", "Preencha data, hora e valor total.", "warning");
       return;
     }
-    if (!currentTab.expTypeId) { alert("Aba sem funcionalidade de inserção."); return; }
+    if (!currentTab.expTypeId) { handleNotification("Aba indisponível", "Esta aba ainda não possui funcionalidade de inserção.", "info"); return; }
 
     setLoading(true);
     try {
@@ -165,11 +166,17 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
         }
         case "sinister": {
           const vehicleRes = await getVehicle(activeId);
-          let insFk = "";
-          if (!vehicleRes.error) {
-            const insRes = await getInsurance(vehicleRes.data[0].vehicle_id);
-            if (!insRes.error) insFk = insRes.data[0].id_insurance;
-          }
+          if (vehicleRes.error || !vehicleRes.data?.length)
+            throw new Error("Veículo não encontrado para este ativo.");
+
+          const insRes = await getInsurance(vehicleRes.data[0].vehicle_id);
+          if (insRes.error || !insRes.data?.length)
+            throw new Error("Nenhum seguro ativo encontrado para este veículo. Cadastre um seguro antes de registrar um sinistro.");
+
+          const insFk = insRes.data[0].id_insurance;
+          if (!insFk)
+            throw new Error("ID do seguro inválido. Verifique o cadastro do seguro.");
+
           const expenId = await insertExpenseHeader(3);
           const res = await postSinister({
             ...sinister, expen_id_fk: expenId,
@@ -195,23 +202,17 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
             ));
           }
 
+          // Seguro tem tabela própria — NÃO gera lançamento em ExpensesRegister
           const insRes = await postInsurance({ ...insurance, vehicle_id_fk: vehicleId });
           if (insRes.error) throw new Error(insRes.message);
-
-          const expRes = await postExpense({
-            ...expense, exp_type_id_fk: 5,
-            total_value: insurance.insurance_value,
-            description: "Adição/Renovação do seguro",
-          });
-          if (expRes.error) throw new Error(expRes.message);
           break;
         }
       }
 
-      alert("Registro inserido com sucesso!");
+      handleNotification("Registro salvo", "Lançamento inserido com sucesso!", "success");
       clearForm();
     } catch (err: any) {
-      alert(err.message || "Erro ao inserir.");
+      handleNotification("Erro ao inserir", err.message || "Tente novamente.", "danger");
     } finally {
       setLoading(false);
     }

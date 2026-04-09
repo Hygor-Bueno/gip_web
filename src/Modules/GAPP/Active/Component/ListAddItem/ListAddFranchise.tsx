@@ -100,7 +100,6 @@ export default function ListAddFranchise({
             </tbody>
           </table>
         </div>
-
       </div>
     </>
   )

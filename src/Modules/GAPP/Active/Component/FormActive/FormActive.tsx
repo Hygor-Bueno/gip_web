@@ -49,7 +49,12 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
   
   useEffect(() => {
     if (apiData) {
-      if (apiData.active)    { setActiveValues(apiData.active);       initialActive.current    = apiData.active; }
+      if (apiData.active)    {
+        // Normaliza is_vehicle para boolean — a API retorna 0/1 (number)
+        const normalized = { ...apiData.active, is_vehicle: Boolean(apiData.active.is_vehicle) };
+        setActiveValues(normalized);
+        initialActive.current = normalized;
+      }
       if (apiData.vehicle)   { setVehicleValues(apiData.vehicle);     initialVehicle.current   = apiData.vehicle; }
       if (apiData.insurance) { setInsurance(apiData.insurance);       initialInsurance.current = apiData.insurance; }
 
@@ -199,7 +204,7 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
 
       onSave?.({
         active:    activeValues,
-        ...(activeValues.is_vehicle && { vehicle: vehicleValues, insurance }),
+        ...(Boolean(activeValues.is_vehicle) ? { vehicle: vehicleValues, insurance } : {}),
       });
 
       openModal?.(false);
@@ -273,7 +278,7 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
               </span>
             </button>
 
-            {activeValues.is_vehicle && (
+            {Boolean(activeValues.is_vehicle) && (
               <button
                 type="button"
                 className={`btn-section-toggle ${hasInsurance ? "active" : ""}`}
@@ -289,7 +294,7 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
           </div>
 
           {/* ── Vehicle section ────────────────────────────────────── */}
-          {activeValues.is_vehicle && (
+          {Boolean(activeValues.is_vehicle) && (
             <div className="form-section">
               <div className="form-section-header">
                 <div className="form-section-header-icon"><i className="fa fa-car"></i></div>
@@ -304,7 +309,7 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
           )}
 
           {/* ── Insurance section ──────────────────────────────────── */}
-          {activeValues.is_vehicle && hasInsurance && (
+          {Boolean(activeValues.is_vehicle) && hasInsurance && (
             <React.Fragment>
               <div className="form-section">
                 <div className="form-section-header">

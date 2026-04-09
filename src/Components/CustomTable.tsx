@@ -168,7 +168,7 @@ export default function CustomTable(props: CustomTableProps) {
   };
 
   const RenderCell = (props: { value: string; isImage?: boolean }) => {
-    return props.isImage ? (
+    return props?.isImage ? (
       <img className="photoCircle rounded-circle" src={props.value ? `data:image/png;base64,${props.value}` : defaultImage} />
     ) : (
       <span>{isValidDateString(props.value) ? convertDate(props.value,true) : props.value}</span>
@@ -185,7 +185,7 @@ export default function CustomTable(props: CustomTableProps) {
         <table ref={tableRef} className="table table-bordered table-striped">
           <thead className="table-light">
             <tr>
-              {columnKeys.filter((key) => !props.list[0][key].ocultColumn).map((key) => (
+              {columnKeys.filter((key) => !props.list[0][key]?.ocultColumn).map((key) => (
                 <th key={key} className="position-relative">
                   <div style={{ minWidth: props.list[0][key].minWidth ? props.list[0][key].minWidth : "auto" }} className="d-flex justify-content-between align-items-center">
                     {activeFilter === key ? (
@@ -219,9 +219,9 @@ export default function CustomTable(props: CustomTableProps) {
                     toggleRowSelection(item);
                     props.onRowClick?.(item); // chat de vez pegar um por um quero fazer um push e eviar o proximo dado para minha lista
                   }}>
-                  {columnKeys.map((key) => !item[key].ocultColumn && (
+                  {columnKeys.map((key) => !item[key]?.ocultColumn && (
                     <td key={key} className="py-2">
-                      <RenderCell isImage={item[key].isImage} value={item[key]?.value || ""} />
+                      <RenderCell isImage={item[key]?.isImage} value={item[key]?.value || ""} />
                     </td>
                   ))}
                 </tr>

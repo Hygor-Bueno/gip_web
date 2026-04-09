@@ -19,8 +19,8 @@ export const postFines       = (params: object) => post("GAPP/Fines.php", params
 export const postSinister    = (params: object) => post("GAPP/Sinister.php", params);
 export const postInsurance   = (params: object) => post("GAPP/Insurance.php", params);
 
-export const getVehicle      = (activeId: string) => get("GAPP/Vehicle.php", `&active_id_fk=${activeId}`);
-export const getInsurance    = (vehicleId: string) => get("GAPP/Insurance.php", `&vehicle_id_fk=${vehicleId}&status_insurance=1`);
+export const getVehicle      = (activeId: string) => get("GAPP/Vehicle.php", `&all=1&active_id_fk=${activeId}`);
+export const getInsurance    = (vehicleId: string) => get("GAPP/Insurance.php", `&all=1&vehicle_id_fk=${vehicleId}&status_insurance=1`);
 export const getDrivers      = () => get("GAPP/Driver.php", "&all=1");
 export const getFuelTypes    = () => get("GAPP/TypeFuel.php", "&all=1");
 

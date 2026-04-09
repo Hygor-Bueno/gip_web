@@ -1,10 +1,13 @@
-import React from 'react';
+import React from "react";
 
 interface ConfirmModalProps {
   title: string;
   message: string;
   onConfirm: () => void;
   onClose: () => void;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  variant?: "warning" | "danger";
 }
 
 export default function ConfirmModal({
@@ -12,52 +15,143 @@ export default function ConfirmModal({
   message,
   onConfirm,
   onClose,
+  confirmLabel = "Confirmar",
+  cancelLabel  = "Cancelar",
+  variant      = "warning",
 }: ConfirmModalProps): JSX.Element {
+
+  const isWarning = variant === "warning";
+
+  const iconBg     = isWarning ? "#f0f7e6" : "#fef2f2";
+  const iconColor  = isWarning ? "#6a9e2f" : "#dc2626";
+  const iconClass  = isWarning ? "fa fa-power-off" : "fa fa-exclamation-triangle";
+  const confirmBg  = isWarning ? "#6a9e2f" : "#dc2626";
+  const confirmHov = isWarning ? "#5a8a27" : "#b91c1c";
+  const accentBar  = isWarning ? "#bed989" : "#fca5a5";
+
   return (
-    <div 
-      className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center p-3"
-      style={{ 
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-        zIndex: 1050 
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(15, 23, 42, 0.45)",
+        backdropFilter: "blur(3px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1060,
+        padding: "24px",
       }}
-      onClick={onClose} // Fecha ao clicar no fundo (overlay)
     >
-      <div 
-        className="card shadow w-100" 
-        style={{ maxWidth: '30rem' }}
-        onClick={(e) => e.stopPropagation()} // Impede que o clique no modal feche ele
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: "#ffffff",
+          borderRadius: "20px",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
+          width: "100%",
+          maxWidth: "420px",
+          overflow: "hidden",
+        }}
       >
-        {/* Header */}
-        <div className="card-header d-flex justify-content-between align-items-center bg-white border-bottom py-3">
-          <h5 className="mb-0 fw-bold">{title}</h5>
-          <button 
-            type="button" 
-            className="btn-close" 
-            onClick={onClose} 
-            aria-label="Close"
-          ></button>
-        </div>
+        {/* accent bar */}
+        <div style={{ height: "4px", background: accentBar }} />
 
-        {/* Body */}
-        <div className="card-body py-4">
-          <p className="mb-0 text-secondary">{message}</p>
-        </div>
-
-        {/* Footer */}
-        <div className="card-footer d-flex justify-content-end gap-2 bg-white border-top py-3">
-          <button 
-            type="button"
-            className="btn btn-light border px-4" 
+        {/* header */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "14px",
+          padding: "22px 24px 16px",
+          borderBottom: "1.5px solid #f1f5f9",
+        }}>
+          <div style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "12px",
+            background: iconBg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}>
+            <i className={iconClass} style={{ color: iconColor, fontSize: "16px" }} />
+          </div>
+          <p style={{ margin: 0, fontWeight: 700, fontSize: "15px", color: "#1a202c" }}>
+            {title}
+          </p>
+          <button
             onClick={onClose}
+            style={{
+              marginLeft: "auto",
+              width: "30px",
+              height: "30px",
+              borderRadius: "8px",
+              border: "none",
+              background: "transparent",
+              color: "#94a3b8",
+              cursor: "pointer",
+              fontSize: "15px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            Cancelar
+            <i className="fa fa-times" />
           </button>
-          <button 
-            type="button"
-            className="btn btn-primary px-4" 
-            onClick={onConfirm}
+        </div>
+
+        {/* body */}
+        <div style={{ padding: "20px 24px 24px" }}>
+          <p style={{ margin: 0, fontSize: "13.5px", color: "#475569", lineHeight: 1.6 }}>
+            {message}
+          </p>
+        </div>
+
+        {/* footer */}
+        <div style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "10px",
+          padding: "14px 24px 20px",
+        }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: "9px 22px",
+              borderRadius: "10px",
+              border: "1.5px solid #e2e8f0",
+              background: "transparent",
+              color: "#64748b",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
           >
-            Confirmar
+            {cancelLabel}
+          </button>
+          <button
+            onClick={onConfirm}
+            onMouseEnter={e => (e.currentTarget.style.background = confirmHov)}
+            onMouseLeave={e => (e.currentTarget.style.background = confirmBg)}
+            style={{
+              padding: "9px 26px",
+              borderRadius: "10px",
+              border: "none",
+              background: confirmBg,
+              color: "#ffffff",
+              fontSize: "13px",
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              transition: "background 0.15s",
+            }}
+          >
+            <i className={`${iconClass} text-white`} style={{ fontSize: "12px" }} />
+            {confirmLabel}
           </button>
         </div>
       </div>

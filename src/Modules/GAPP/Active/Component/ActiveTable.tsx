@@ -7,6 +7,8 @@ import Releases from "./Releases/Releases";
 import FilterPanel, { ActiveFilters, defaultFilters } from "./FilterPanel/FilterPanel";
 import { normalizeBrand } from "./FilterPanel/brandNormalization";
 import { useMyContext } from "../../../../Context/MainContext";
+import ConfirmModal from "../../../../Components/CustomConfirm";
+import { handleNotification } from "../../../../Util/ui/notifications";
 
 import {
   ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData,
@@ -32,6 +34,7 @@ const ActiveTable: React.FC = () => {
   const [openAdd,          setOpenAdd]          = useState<boolean>(false);
   const [openInfo,         setOpenInfo]         = useState<boolean>(false);
   const [openReleases,     setOpenReleases]     = useState<boolean>(false);
+  const [confirmToggle,    setConfirmToggle]    = useState<{ activeId: string; newStatus: string; label: string } | null>(null);
 
   // ── Filters ──────────────────────────────────────────────────────────────
   const [filters,   setFilters]   = useState<ActiveFilters>(defaultFilters);
@@ -85,7 +88,7 @@ const ActiveTable: React.FC = () => {
     try {
       const res = await ActiveVehicleByPlate(plate.trim());
       if (res.error || !res.data?.length) {
-        alert("Nenhum veículo encontrado para a placa informada.");
+        handleNotification("Placa não encontrada", "Nenhum veículo encontrado para a placa informada.", "warning");
         setPlateIds(new Set());
         return;
       }
@@ -104,7 +107,7 @@ const ActiveTable: React.FC = () => {
 
   // ── Filtered dataset ─────────────────────────────────────────────────────
   const filteredData = useMemo(() => {
-    let result = data;
+    let result = data ?? [];
 
     if (plateIds.size > 0)
       result = result.filter(a => plateIds.has(String(a.active_id)));
@@ -140,14 +143,14 @@ const ActiveTable: React.FC = () => {
       result = result.filter(a => (a.cnpj ?? "").trim().replace(/\D/g, "").includes(q));
     }
 
-    return result;
+    return result ?? [];
   }, [data, filters, plateIds]);
 
   const unitNames = useMemo(() => distinct(data.map(a => a.unit_name)),      [data]);
   const brands    = useMemo(() => distinct(data.map(a => normalizeBrand(a.brand?.split("-")[0] ?? ""))), [data]);
   const cnpjs     = useMemo(() => distinct(data.map(a => a.cnpj)),            [data]);
 
-  const tableList = useMemo(() => convertForTable(filteredData, {
+  const tableList = useMemo(() => convertForTable(filteredData ?? [], {
     ocultColumns: listColumnsOcult,
     customTags:   customTagsActive,
     customValue:  customValueActive,
@@ -190,21 +193,33 @@ const ActiveTable: React.FC = () => {
     if (active) setData(prev => [...prev, active as Active | any]);
   }, []);
 
-  const handleToggleStatus = useCallback(async () => {
+  const handleToggleStatus = useCallback(() => {
     if (!selected.length || !selected[0]?.active_id?.value) return;
     const activeId  = String(selected[0].active_id.value);
     const current   = data.find(d => String(d.active_id) === activeId);
     const newStatus = String(current?.status_active) === "1" ? "0" : "1";
-    if (!window.confirm(`Deseja realmente ${newStatus === "1" ? "ativar" : "inativar"} este ativo?`)) return;
+    const label     = newStatus === "1" ? "ativar" : "inativar";
+    setOpenServicesBox(false); // fecha ServicesBox antes de abrir o modal
+    setConfirmToggle({ activeId, newStatus, label });
+  }, [selected, data]);
+
+  const executeToggle = useCallback(async () => {
+    if (!confirmToggle) return;
+    const { activeId, newStatus } = confirmToggle;
+    setConfirmToggle(null);
     try {
       const res = await ActivePutData({ active_id: activeId, status_active: newStatus });
       if (res.error) throw new Error(res.message);
       setData(prev => prev.map(a => String(a.active_id) === activeId ? { ...a, status_active: newStatus } : a));
-      setOpenServicesBox(false);
+      handleNotification(
+        newStatus === "1" ? "Ativo ativado" : "Ativo inativado",
+        `O ativo foi ${newStatus === "1" ? "ativado" : "inativado"} com sucesso.`,
+        newStatus === "1" ? "success" : "warning"
+      );
     } catch (err: any) {
-      alert("Erro ao alterar status: " + err.message);
+      handleNotification("Erro ao alterar status", err.message || "Tente novamente.", "danger");
     }
-  }, [selected, data]);
+  }, [confirmToggle]);
 
   const handleExportCSV = useCallback(() => {
     const headers = ["Código", "Marca", "Modelo", "Tipo Ativo", "Unidade", "Valor Compra", "Data Compra"];
@@ -305,13 +320,25 @@ const ActiveTable: React.FC = () => {
         />
       )}
 
-      {openReleases && selected.length > 0 && Boolean(modalData?.active?.is_vehicle) && (
+      {openReleases && selected.length > 0 && Boolean(modalData?.active?.is_vehicle) && gappUserId !== null && (
         <Releases
           activeId={String(selected[0]?.active_id?.value)}
-          userId={String(gappUserId ?? userLog?.id)}
+          userId={String(gappUserId)}
           isVehicle={true}
           gappWorkGroupId={gappWorkGroupId}
           onClose={() => { setOpenReleases(false); setOpenServicesBox(true); }}
+        />
+      )}
+
+      {confirmToggle && (
+        <ConfirmModal
+          title={confirmToggle.label === "ativar" ? "Ativar ativo" : "Inativar ativo"}
+          message={`Deseja realmente ${confirmToggle.label} este ativo? Esta ação poderá ser revertida a qualquer momento.`}
+          confirmLabel={confirmToggle.label === "ativar" ? "Sim, ativar" : "Sim, inativar"}
+          cancelLabel="Cancelar"
+          variant={confirmToggle.label === "ativar" ? "warning" : "danger"}
+          onConfirm={executeToggle}
+          onClose={() => { setConfirmToggle(null); setOpenServicesBox(true); }}
         />
       )}
     </div>

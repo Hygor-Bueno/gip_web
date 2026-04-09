@@ -11,7 +11,7 @@ interface Props {
 const FinesTab: React.FC<Props> = ({ fines, onChange }) => (
   <div className="rel-section">
     <p className="rel-section-title">
-      <i className="fa fa-exclamation-triangle"></i> Multas
+      <i className="fa fa-exclamation-triangle text-white"></i> Multas
     </p>
     <CustomForm
       notButton={false}
