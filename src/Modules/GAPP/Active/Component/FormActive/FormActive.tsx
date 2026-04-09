@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
 import { ActiveFormValues, FormActiveProps, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
-import { mapActiveToApi, mapActivePostToApi, mapVehicleToApi } from "../PayloadMapper/PayloadMapper";
+import { mapActiveToApi, mapActivePostToApi, mapVehicleToApi, mapVehiclePostToApi } from "../PayloadMapper/PayloadMapper";
 import { mapFormToApi as mapInsuranceToApi } from "../PayloadMapper/PayloadMapperInsurance";
 import ListAdd from "../ListAddItem/ListAdd";
 import { formVehicle } from "./FormSchema/FormVehicle.schema";
 import { formAddress } from "./FormSchema/FormAddress.schema";
 import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions, buildOptionsInsurance } from "../BuildFunction/BuildFunction";
-import { ActivePostData, ActivePutData, InsurancePostData, InsurancePutData, VehiclePutData } from "../../Adapters/Adapters";
+import { ActivePostData, ActivePutData, InsurancePostData, InsurancePutData, VehiclePostData, VehiclePutData } from "../../Adapters/Adapters";
 import { useMyContext } from "../../../../../Context/MainContext";
 import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
@@ -38,6 +38,8 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
     risk_cep: "",
   });
 
+  const [hasInsurance, setHasInsurance] = useState(false);
+
   const [newItemText, setNewItemText] = useState("");
   const [newValueText, setNewValueText] = useState("");
 
@@ -50,6 +52,10 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
       if (apiData.active)    { setActiveValues(apiData.active);       initialActive.current    = apiData.active; }
       if (apiData.vehicle)   { setVehicleValues(apiData.vehicle);     initialVehicle.current   = apiData.vehicle; }
       if (apiData.insurance) { setInsurance(apiData.insurance);       initialInsurance.current = apiData.insurance; }
+
+      // Detecta automaticamente pelos dados carregados
+      const ins = apiData.insurance as any;
+      setHasInsurance(!!(ins?.policy_number || ins?.ins_id_fk || ins?.insurance_value));
     }
   }, [apiData]);
 
@@ -71,13 +77,39 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
   const handleVehicleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
-    setVehicleValues(prev => ({ ...prev, [name]: fieldValue }));
+
+    if (name === "fuel_type_id_fk") {
+      // Backend requires both the ID and the text label — mirror old GAPP line 210-211
+      const selectedText = (e.target as HTMLSelectElement).options[
+        (e.target as HTMLSelectElement).selectedIndex
+      ]?.text ?? "";
+      setVehicleValues(prev => ({ ...prev, fuel_type_id_fk: value, fuel_type: selectedText }));
+    } else {
+      setVehicleValues(prev => ({ ...prev, [name]: fieldValue }));
+    }
   }, []);
 
   const handleInsuranceChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
     setInsurance(prev => ({ ...prev, [name]: fieldValue }));
+  }, []);
+
+  const handleVehicleToggle = useCallback(() => {
+    const turningOff = !!activeValues.is_vehicle;
+    setActiveValues(prev => ({ ...prev, is_vehicle: !prev.is_vehicle }));
+    if (turningOff) {
+      setVehicleValues({ license_plates: "", shielding: false });
+      setInsurance({ risk_cep: "" });
+      setHasInsurance(false);
+    }
+  }, [activeValues.is_vehicle]);
+
+  const handleInsuranceToggle = useCallback(() => {
+    setHasInsurance(prev => {
+      if (prev) setInsurance({ risk_cep: "" });
+      return !prev;
+    });
   }, []);
 
   const addFranchiseItem = useCallback(() => {
@@ -142,9 +174,17 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
           requests.push(ActivePutData(mapActiveToApi(activeValues as ActiveFormValues)));
         }
         if (hasChanged(vehicleValues, initialVehicle.current)) {
-          requests.push(VehiclePutData(mapVehicleToApi(vehicleValues as VehicleFormValues)));
+          const vehicleId = (vehicleValues as VehicleFormValues).vehicle_id;
+          if (vehicleId) {
+            // Veículo já existe — atualiza com PUT (vehicle_id vem do estado carregado)
+            requests.push(VehiclePutData(mapVehicleToApi(vehicleValues as VehicleFormValues)));
+          } else {
+            // Ativo convertido para veículo — cria novo registro com POST
+            const activeId = (activeValues as any).active_id;
+            requests.push(VehiclePostData(mapVehiclePostToApi(vehicleValues as VehicleFormValues, activeId)));
+          }
         }
-        if (hasChanged(insurance, initialInsurance.current)) {
+        if (hasInsurance && hasChanged(insurance, initialInsurance.current)) {
           requests.push(InsurancePutData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance)));
         }
         if (requests.length === 0) {
@@ -219,20 +259,53 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
             />
           </div>
 
-          {activeValues.is_vehicle && (
-            <React.Fragment>
-              <div className="form-section">
-                <div className="form-section-header">
-                  <div className="form-section-header-icon"><i className="fa fa-car"></i></div>
-                  <p className="form-section-title">Dados do Veículo</p>
-                </div>
-                <CustomForm
-                  notButton={false}
-                  fieldsets={formVehicle(vehicleValues, options.fuel, options.driver, handleVehicleChange)}
-                  className="row g-3"
-                />
-              </div>
+          {/* ── Toggle buttons ─────────────────────────────────────── */}
+          <div className="section-toggle-row">
+            <button
+              type="button"
+              className={`btn-section-toggle ${activeValues.is_vehicle ? "active" : ""}`}
+              onClick={handleVehicleToggle}
+            >
+              <i className="fa fa-car"></i>
+              Este ativo é um veículo
+              <span className="toggle-track">
+                <span className="toggle-knob" />
+              </span>
+            </button>
 
+            {activeValues.is_vehicle && (
+              <button
+                type="button"
+                className={`btn-section-toggle ${hasInsurance ? "active" : ""}`}
+                onClick={handleInsuranceToggle}
+              >
+                <i className="fa fa-shield"></i>
+                Este veículo possui seguro
+                <span className="toggle-track">
+                  <span className="toggle-knob" />
+                </span>
+              </button>
+            )}
+          </div>
+
+          {/* ── Vehicle section ────────────────────────────────────── */}
+          {activeValues.is_vehicle && (
+            <div className="form-section">
+              <div className="form-section-header">
+                <div className="form-section-header-icon"><i className="fa fa-car"></i></div>
+                <p className="form-section-title">Dados do Veículo</p>
+              </div>
+              <CustomForm
+                notButton={false}
+                fieldsets={formVehicle(vehicleValues, options.fuel, options.driver, handleVehicleChange)}
+                className="row g-3"
+              />
+            </div>
+          )}
+
+          {/* ── Insurance section ──────────────────────────────────── */}
+          {activeValues.is_vehicle && hasInsurance && (
+            <React.Fragment>
               <div className="form-section">
                 <div className="form-section-header">
                   <div className="form-section-header-icon"><i className="fa fa-shield"></i></div>

@@ -26,10 +26,10 @@ const TABS: { key: TabKey; label: string; expTypeId: number | null; showExpense:
   { key: "trips",       label: "Viagens",       expTypeId: null, showExpense: false },
 ];
 
-const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, onClose }) => {
+const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWorkGroupId, onClose }) => {
   const [activeTab,    setActiveTab]    = useState<TabKey>("fuel");
   const [loading,      setLoading]      = useState(false);
-  const [expense,      setExpense]      = useState<Expense>(defaultExpense(activeId, userId));
+  const [expense,      setExpense]      = useState<Expense>(defaultExpense(activeId, userId, gappWorkGroupId));
   const [fuel,         setFuel]         = useState<FuelData>(defaultFuel);
   const [maintenance,  setMaintenance]  = useState<MaintenanceData>(defaultMaintenance);
   const [fines,        setFines]        = useState<FinesData>(defaultFines);
@@ -117,7 +117,7 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, onClos
   }, []);
 
   const clearForm = useCallback(() => {
-    setExpense(defaultExpense(activeId, userId));
+    setExpense(defaultExpense(activeId, userId, gappWorkGroupId));
     setFuel(defaultFuel);
     setMaintenance(defaultMaintenance);
     setFines(defaultFines);
@@ -125,7 +125,7 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, onClos
     setInsurance(defaultInsurance);
     setNewItemText("");
     setNewValueText("");
-  }, [activeId, userId]);
+  }, [activeId, userId, gappWorkGroupId]);
 
   const insertExpenseHeader = async (expTypeId: number): Promise<string> => {
     const res = await postExpense({ ...expense, exp_type_id_fk: expTypeId });
@@ -199,7 +199,7 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, onClos
           if (insRes.error) throw new Error(insRes.message);
 
           const expRes = await postExpense({
-            ...expense, exp_type_id_fk: "5",
+            ...expense, exp_type_id_fk: 5,
             total_value: insurance.insurance_value,
             description: "Adição/Renovação do seguro",
           });

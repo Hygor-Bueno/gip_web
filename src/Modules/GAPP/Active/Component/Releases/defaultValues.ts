@@ -1,10 +1,15 @@
 import { Expense, MaintenanceData, FuelData, FinesData, SinisterData } from "./Interfaces";
 import { Insurance } from "../../Interfaces/Interfaces";
 
-export const defaultExpense = (activeId: string, userId: string | number): Expense => ({
+export const defaultExpense = (
+  activeId: string,
+  userId: string | number,
+  workGroupId?: number | null,
+): Expense => ({
   date: "", hour: "", local: "", store_id_fk: "", description: "Outros",
   coupon_number: "", total_value: "", discount: "", exp_type_id_fk: "",
   status_expen: "1", driver_id_fk: "", active_id_fk: activeId, user_id_fk: userId,
+  ...(workGroupId != null ? { work_group_fk: workGroupId } : {}),
 });
 
 export const defaultMaintenance: MaintenanceData = {
@@ -13,7 +18,7 @@ export const defaultMaintenance: MaintenanceData = {
 };
 
 export const defaultFuel: FuelData = {
-  liter_value: "0", coupon_number: "", km_day: "",
+  liter_value: "0", km_day: "",
   liter_qtd: "", expen_id_fk: "", fuel_type_id_fk: "",
 };
 

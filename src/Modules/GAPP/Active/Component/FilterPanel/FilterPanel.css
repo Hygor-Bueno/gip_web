@@ -1,0 +1,139 @@
+/* ── Palette: #bed989 / #6a9f2f / #f0f7e6 ── */
+
+.filter-panel {
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  flex-shrink: 0;
+}
+
+/* ── Header ── */
+.filter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.filter-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.filter-panel-icon {
+  width: 26px; height: 26px;
+  background: #bed989;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
+.filter-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #f0f7e6;
+  color: #6a9f2f;
+  border-radius: 20px;
+  padding: 1px 8px;
+  margin-left: 4px;
+}
+
+.filter-btn-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
+  background: transparent;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.filter-btn-clear:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* ── Grid ── */
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.6rem 0.75rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.filter-group--plate {
+  grid-column: span 2;
+}
+
+.filter-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.filter-label .fa {
+  color: #bed989;
+  font-size: 0.68rem;
+}
+
+.filter-input {
+  height: 32px;
+  padding: 0 0.5rem;
+  font-size: 0.78rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  color: #1e293b;
+  background: #f8fafc;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+.filter-input:focus {
+  outline: none;
+  border-color: #bed989;
+  background: #fff;
+}
+
+/* ── Plate row ── */
+.filter-plate-row {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.filter-btn-search {
+  height: 32px;
+  width: 34px;
+  flex-shrink: 0;
+  background: #bed989;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.78rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: filter 0.15s;
+}
+.filter-btn-search:hover {
+  filter: brightness(0.9);
+}

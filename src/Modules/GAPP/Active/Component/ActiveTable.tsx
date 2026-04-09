@@ -4,14 +4,16 @@ import FormActive from "./FormActive/FormActive";
 import ServicesBox from "./ServicesBox/ServicesBox";
 import InfoActive from "./InfoActive/InfoActive";
 import Releases from "./Releases/Releases";
+import FilterPanel, { ActiveFilters, defaultFilters } from "./FilterPanel/FilterPanel";
+import { normalizeBrand } from "./FilterPanel/brandNormalization";
 import { useMyContext } from "../../../../Context/MainContext";
 
 import {
   ActiveCompanyData, ActiveData, ActiveDepartamentData, ActiveDriverData,
   ActiveInsuranceData, ActivePutData, ActiveTypeData, ActiveTypeFuelData, ActiveUnitsData,
-  ActiveVehicleData, GappUserData
+  ActiveVehicleByPlate, ActiveVehicleData, GappUserData
 } from "../Adapters/Adapters";
-import { convertForTable } from "../../../../Util/Utils";
+import { convertForTable, distinct } from "../../../../Util/Utils";
 import { customTagsActive, customValueActive, listColumnsOcult } from "../ConfigurationTable/ConfigurationTable";
 import { Active, ActiveFormValues, ActiveTableData, Insurance, VehicleFormValues } from "../Interfaces/Interfaces";
 import { tItemTable } from "../../../../types/types";
@@ -21,16 +23,21 @@ const ActiveTable: React.FC = () => {
   const { userLog } = useMyContext();
   const [gappUserId,       setGappUserId]       = useState<number | null>(null);
   const [gappWorkGroupId,  setGappWorkGroupId]  = useState<number | null>(null);
-  const [data, setData] = useState<Active[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<tItemTable[]>([]);
-  const [modalData, setModalData] = useState<ActiveTableData | null>(null);
-  const [openServicesBox, setOpenServicesBox] = useState<boolean>(false);
-  const [openModal,       setOpenModal]       = useState<boolean>(false);
-  const [openAdd,         setOpenAdd]         = useState<boolean>(false);
-  const [openInfo,        setOpenInfo]        = useState<boolean>(false);
-  const [openReleases,    setOpenReleases]    = useState<boolean>(false);
+  const [data,             setData]             = useState<Active[]>([]);
+  const [loading,          setLoading]          = useState(true);
+  const [selected,         setSelected]         = useState<tItemTable[]>([]);
+  const [modalData,        setModalData]        = useState<ActiveTableData | null>(null);
+  const [openServicesBox,  setOpenServicesBox]  = useState<boolean>(false);
+  const [openModal,        setOpenModal]        = useState<boolean>(false);
+  const [openAdd,          setOpenAdd]          = useState<boolean>(false);
+  const [openInfo,         setOpenInfo]         = useState<boolean>(false);
+  const [openReleases,     setOpenReleases]     = useState<boolean>(false);
 
+  // ── Filters ──────────────────────────────────────────────────────────────
+  const [filters,   setFilters]   = useState<ActiveFilters>(defaultFilters);
+  const [plateIds,  setPlateIds]  = useState<Set<string>>(new Set());
+
+  // ── GAPP user resolution ─────────────────────────────────────────────────
   useEffect(() => {
     if (userLog?.id) {
       GappUserData(userLog.id).then(res => {
@@ -42,40 +49,26 @@ const ActiveTable: React.FC = () => {
     }
   }, [userLog?.id]);
 
+  // ── Initial data load ────────────────────────────────────────────────────
   useEffect(() => {
     const loadAllData = async () => {
       setLoading(true);
       try {
-        const [
-          activeRes,
-          driverRes,
-          unitRes,
-          companyRes,
-          typeRes,
-          fuelRes,
-          depRes
-        ] = await Promise.all([
-          ActiveData(),
-          ActiveDriverData(),
-          ActiveUnitsData(),
-          ActiveCompanyData(),
-          ActiveTypeData(),
-          ActiveTypeFuelData(),
-          ActiveDepartamentData()
+        const [activeRes, driverRes, unitRes, companyRes, typeRes, fuelRes, depRes] = await Promise.all([
+          ActiveData(), ActiveDriverData(), ActiveUnitsData(), ActiveCompanyData(),
+          ActiveTypeData(), ActiveTypeFuelData(), ActiveDepartamentData()
         ]);
-        
         setData(activeRes.data || []);
-
         setModalData({
-          active: {} as any,
-          vehicle: {} as any,
-          driver: driverRes.data || [],
-          company: companyRes.data || [],
-          unit: unitRes.data || [],
-          activeType: typeRes.data || [],
-          fuelType: fuelRes.data || [],
-          departament: depRes.data || [],
-          insurance: {} as any, 
+          active:      {} as any,
+          vehicle:     {} as any,
+          driver:      driverRes.data  || [],
+          company:     companyRes.data || [],
+          unit:        unitRes.data    || [],
+          activeType:  typeRes.data    || [],
+          fuelType:    fuelRes.data    || [],
+          departament: depRes.data     || [],
+          insurance:   {} as any,
         });
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
@@ -83,36 +76,101 @@ const ActiveTable: React.FC = () => {
         setLoading(false);
       }
     };
-
     loadAllData();
   }, []);
 
+  // ── Plate search ─────────────────────────────────────────────────────────
+  const handlePlateSearch = useCallback(async (plate: string) => {
+    if (!plate.trim()) { setPlateIds(new Set()); return; }
+    try {
+      const res = await ActiveVehicleByPlate(plate.trim());
+      if (res.error || !res.data?.length) {
+        alert("Nenhum veículo encontrado para a placa informada.");
+        setPlateIds(new Set());
+        return;
+      }
+      const ids = new Set<string>(res.data.map((v: any) => String(v.active_id_fk)));
+      setPlateIds(ids);
+    } catch {
+      setPlateIds(new Set());
+    }
+  }, []);
+
+  // ── Clear all filters ────────────────────────────────────────────────────
+  const handleClearFilters = useCallback(() => {
+    setFilters(defaultFilters);
+    setPlateIds(new Set());
+  }, []);
+
+  // ── Filtered dataset ─────────────────────────────────────────────────────
+  const filteredData = useMemo(() => {
+    let result = data;
+
+    if (plateIds.size > 0)
+      result = result.filter(a => plateIds.has(String(a.active_id)));
+
+    if (filters.status !== "")
+      result = result.filter(a => String(a.status_active) === filters.status);
+
+    if (filters.dateFrom)
+      result = result.filter(a => a.date_purchase >= filters.dateFrom);
+
+    if (filters.dateTo)
+      result = result.filter(a => a.date_purchase <= filters.dateTo);
+
+    if (filters.valueMin)
+      result = result.filter(a => Number(a.value_purchase) >= Number(filters.valueMin));
+
+    if (filters.valueMax)
+      result = result.filter(a => Number(a.value_purchase) <= Number(filters.valueMax));
+
+    if (filters.address) {
+      const q = filters.address.toLowerCase();
+      result = result.filter(a => String(a.address || "").toLowerCase().includes(q));
+    }
+
+    if (filters.unitName)
+      result = result.filter(a => (a.unit_name ?? "").trim().toUpperCase() === filters.unitName);
+
+    if (filters.brand)
+      result = result.filter(a => normalizeBrand((a.brand ?? "").split("-")[0]) === filters.brand);
+
+    if (filters.cnpj) {
+      const q = filters.cnpj.replace(/\D/g, "");
+      result = result.filter(a => (a.cnpj ?? "").trim().replace(/\D/g, "").includes(q));
+    }
+
+    return result;
+  }, [data, filters, plateIds]);
+
+  const unitNames = useMemo(() => distinct(data.map(a => a.unit_name)),      [data]);
+  const brands    = useMemo(() => distinct(data.map(a => normalizeBrand(a.brand?.split("-")[0] ?? ""))), [data]);
+  const cnpjs     = useMemo(() => distinct(data.map(a => a.cnpj)),            [data]);
+
+  const tableList = useMemo(() => convertForTable(filteredData, {
+    ocultColumns: listColumnsOcult,
+    customTags:   customTagsActive,
+    customValue:  customValueActive,
+  }), [filteredData]);
+
+  // ── Handlers ─────────────────────────────────────────────────────────────
   const handleSelect = useCallback(async (item: tItemTable[]) => {
     setSelected(item);
     if (!item?.length || !item[0]?.active_id?.value) return;
-
     const selectedActiveId = String(item[0].active_id.value);
-    const activeRecord = data.find(d => String(d.active_id) === selectedActiveId);
-    const isVehicle = Number(activeRecord?.is_vehicle) === 1;
+    const activeRecord     = data.find(d => String(d.active_id) === selectedActiveId);
+    const isVehicle        = Number(activeRecord?.is_vehicle) === 1;
 
     try {
-      setModalData((prev) => prev ? {
-        ...prev,
-        active:    activeRecord || ({} as any),
-        vehicle:   {},
-        insurance: {} as any,
-      } : null);
-
+      setModalData(prev => prev ? { ...prev, active: activeRecord || ({} as any), vehicle: {}, insurance: {} as any } : null);
       if (isVehicle) {
-        const vehicleRes = await ActiveVehicleData(selectedActiveId);
+        const vehicleRes   = await ActiveVehicleData(selectedActiveId);
         if (vehicleRes.error) throw new Error(vehicleRes.message);
-
-        const vehicleId   = vehicleRes.data?.[0]?.vehicle_id || "0";
+        const vehicleId    = vehicleRes.data?.[0]?.vehicle_id || "0";
         const insuranceRes = await ActiveInsuranceData(vehicleId);
-
-        setModalData((prev) => prev ? {
+        setModalData(prev => prev ? {
           ...prev,
-          vehicle:   vehicleRes.data?.[0] || {},
+          vehicle:   vehicleRes.data?.[0]  || {},
           insurance: insuranceRes.data?.[0] || {} as any,
         } : null);
       }
@@ -121,65 +179,27 @@ const ActiveTable: React.FC = () => {
     }
   }, [data]);
 
-  const handleServicesBox = useCallback(async (item: tItemTable[]) => {
-    setOpenServicesBox(true);
-    handleSelect(item);
-  }, [handleSelect]);
+  const handleServicesBox     = useCallback((item: tItemTable[]) => { setOpenServicesBox(true); handleSelect(item); }, [handleSelect]);
+  const handleInfo            = useCallback(() => { setOpenServicesBox(false); setOpenInfo(true); }, []);
+  const handleEdit            = useCallback(() => { setOpenServicesBox(false); setOpenModal(true); }, []);
+  const handleBackToServicesBox = useCallback(() => { setOpenModal(false); setOpenServicesBox(true); }, []);
+  const handleReleases        = useCallback(() => { setOpenServicesBox(false); setOpenReleases(true); }, []);
+  const handleAdd             = useCallback(() => { setOpenServicesBox(false); setOpenAdd(true); }, []);
 
-  const handleInfo = useCallback(() => {
-    setOpenServicesBox(false);
-    setOpenInfo(true);
+  const handleCreate = useCallback(({ active }: { active?: Partial<ActiveFormValues>; vehicle?: Partial<VehicleFormValues>; insurance?: Partial<Insurance> }) => {
+    if (active) setData(prev => [...prev, active as Active | any]);
   }, []);
-
-  const handleEdit = useCallback(() => {
-    setOpenServicesBox(false);
-    setOpenModal(true);
-  }, []);
-
-  const handleBackToServicesBox = useCallback(() => {
-    setOpenModal(false);
-    setOpenServicesBox(true);
-  }, []);
-
-  const handleReleases = useCallback(() => {
-    setOpenServicesBox(false);
-    setOpenReleases(true);
-  }, []);
-
-  const handleAdd = useCallback(() => {
-    setOpenServicesBox(false);
-    setOpenAdd(true);
-  }, []);
-
-  const handleCreate = useCallback(({ active }: {
-    active?: Partial<ActiveFormValues>;
-    vehicle?: Partial<VehicleFormValues>;
-    insurance?: Partial<Insurance>;
-  }) => {
-    if (active) {
-      setData((prev) => [...prev, active as Active | any]);
-    }
-  }, []);
-
-  const tableList = useMemo(() => convertForTable(data, {
-    ocultColumns: listColumnsOcult,
-    customTags: customTagsActive,
-    customValue: customValueActive
-  }), [data]);
 
   const handleToggleStatus = useCallback(async () => {
     if (!selected.length || !selected[0]?.active_id?.value) return;
-    const activeId   = String(selected[0].active_id.value);
-    const current    = data.find(d => String(d.active_id) === activeId);
-    const newStatus  = String(current?.status_active) === "1" ? "0" : "1";
+    const activeId  = String(selected[0].active_id.value);
+    const current   = data.find(d => String(d.active_id) === activeId);
+    const newStatus = String(current?.status_active) === "1" ? "0" : "1";
     if (!window.confirm(`Deseja realmente ${newStatus === "1" ? "ativar" : "inativar"} este ativo?`)) return;
-
     try {
       const res = await ActivePutData({ active_id: activeId, status_active: newStatus });
       if (res.error) throw new Error(res.message);
-      setData(prev => prev.map(a =>
-        String(a.active_id) === activeId ? { ...a, status_active: newStatus } : a
-      ));
+      setData(prev => prev.map(a => String(a.active_id) === activeId ? { ...a, status_active: newStatus } : a));
       setOpenServicesBox(false);
     } catch (err: any) {
       alert("Erro ao alterar status: " + err.message);
@@ -188,46 +208,23 @@ const ActiveTable: React.FC = () => {
 
   const handleExportCSV = useCallback(() => {
     const headers = ["Código", "Marca", "Modelo", "Tipo Ativo", "Unidade", "Valor Compra", "Data Compra"];
-    const rows = data.map(a => [
-      a.active_id,
-      a.brand,
-      a.model,
-      a.desc_active_class,
-      a.unit_name,
-      a.value_purchase,
-      a.date_purchase,
-    ]);
-    const csv  = [headers, ...rows].map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href     = url;
-    a.download = `ativos_${new Date().toISOString().slice(0, 10)}.csv`;
+    const rows    = filteredData.map(a => [a.active_id, a.brand, a.model, a.desc_active_class, a.unit_name, a.value_purchase, a.date_purchase]);
+    const csv     = [headers, ...rows].map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";")).join("\n");
+    const blob    = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url     = URL.createObjectURL(blob);
+    const a       = document.createElement("a");
+    a.href        = url;
+    a.download    = `ativos_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [data]);
+  }, [filteredData]);
 
-  const handleSave = useCallback(({ active, vehicle, insurance }: {
-    active?: Partial<ActiveFormValues>;
-    vehicle?: Partial<VehicleFormValues>;
-    insurance?: Partial<Insurance>;
-  }) => {
+  const handleSave = useCallback(({ active, vehicle, insurance }: { active?: Partial<ActiveFormValues>; vehicle?: Partial<VehicleFormValues>; insurance?: Partial<Insurance> }) => {
     if (active) {
-      setData((prev) =>
-        prev.map((item) =>
-          String(item.active_id) === String(active.active_id)
-            ? { ...item, ...active } as Active
-            : item
-        )
-      );
+      setData(prev => prev.map(item => String(item.active_id) === String(active.active_id) ? { ...item, ...active } as Active : item));
     }
-
     if (vehicle || insurance) {
-      setModalData((prev) => prev ? {
-        ...prev,
-        ...(vehicle   && { vehicle }),
-        ...(insurance && { insurance: insurance as Insurance }),
-      } : null);
+      setModalData(prev => prev ? { ...prev, ...(vehicle && { vehicle }), ...(insurance && { insurance: insurance as Insurance }) } : null);
     }
   }, []);
 
@@ -236,6 +233,8 @@ const ActiveTable: React.FC = () => {
 
   return (
     <div className="d-flex flex-column flex-grow-1 p-2" style={{ minWidth: 0, overflow: "hidden" }}>
+
+      {/* Toolbar */}
       <div className="active-toolbar">
         <div className="active-toolbar-title">
           <div className="active-toolbar-title-icon">
@@ -251,28 +250,32 @@ const ActiveTable: React.FC = () => {
             <i className="fa fa-table"></i> CSV
           </button>
           <button className="btn-add-active" onClick={handleAdd} title="Adicionar novo ativo">
-            <span className="btn-add-active-icon">
-              <i className="fa fa-plus text-white"></i>
-            </span>
+            <span className="btn-add-active-icon"><i className="fa fa-plus text-white"></i></span>
             Novo Ativo
           </button>
         </div>
       </div>
 
+      {/* Filter panel */}
+      <FilterPanel
+        filters={filters}
+        onChange={setFilters}
+        onPlateSearch={handlePlateSearch}
+        onClear={handleClearFilters}
+        resultCount={filteredData.length}
+        unitNames={unitNames}
+        brands={brands}
+        cnpjs={cnpjs}
+      />
+
+      {/* Table */}
       <div className="flex-grow-1" style={{ minHeight: 0 }}>
-        <CustomTable 
-          list={tableList} 
-          onConfirmList={handleServicesBox} 
-          maxSelection={1} 
-        />
+        <CustomTable list={tableList} onConfirmList={handleServicesBox} maxSelection={1} />
       </div>
 
+      {/* Modals */}
       {openInfo && modalData && (
-        <InfoActive
-          data={modalData}
-          onClose={() => setOpenInfo(false)}
-          onBack={() => { setOpenInfo(false); setOpenServicesBox(true); }}
-        />
+        <InfoActive data={modalData} onClose={() => setOpenInfo(false)} onBack={() => { setOpenInfo(false); setOpenServicesBox(true); }} />
       )}
 
       {openServicesBox && selected.length > 0 && (
@@ -296,14 +299,7 @@ const ActiveTable: React.FC = () => {
           mode="add"
           gappUserId={gappUserId}
           gappWorkGroupId={gappWorkGroupId}
-          apiData={{
-            driver:      modalData.driver,
-            company:     modalData.company,
-            unit:        modalData.unit,
-            activeType:  modalData.activeType,
-            fuelType:    modalData.fuelType,
-            departament: modalData.departament,
-          }}
+          apiData={{ driver: modalData.driver, company: modalData.company, unit: modalData.unit, activeType: modalData.activeType, fuelType: modalData.fuelType, departament: modalData.departament }}
           openModal={setOpenAdd}
           onSave={handleCreate}
         />
@@ -312,8 +308,9 @@ const ActiveTable: React.FC = () => {
       {openReleases && selected.length > 0 && Boolean(modalData?.active?.is_vehicle) && (
         <Releases
           activeId={String(selected[0]?.active_id?.value)}
-          userId={String(userLog?.id)}
+          userId={String(gappUserId ?? userLog?.id)}
           isVehicle={true}
+          gappWorkGroupId={gappWorkGroupId}
           onClose={() => { setOpenReleases(false); setOpenServicesBox(true); }}
         />
       )}

@@ -81,6 +81,10 @@ export function ActivePutData(params: {}) {
   return putToApi("GAPP/Active.php", params);
 }
 
+export function VehiclePostData(params: {}) {
+  return postToApi("GAPP/Vehicle.php", params);
+}
+
 export function VehiclePutData(params: {}) {
   return putToApi("GAPP/Vehicle.php", params);
 }
@@ -140,4 +144,9 @@ export function ActiveInsuranceData(vehicle_id_fk?: number | string) {
 /** Fetch the GAPP user_id by access_code (GIPP user id) */
 export function GappUserData(accessCode: number | string) {
   return getByParam("GAPP/Users.php", "access_code", String(accessCode));
+}
+
+/** Search vehicle by license plate — returns active_id_fk */
+export function ActiveVehicleByPlate(plate: string) {
+  return getByParam("GAPP/Vehicle.php", "license_plates", `"${plate}"`);
 }

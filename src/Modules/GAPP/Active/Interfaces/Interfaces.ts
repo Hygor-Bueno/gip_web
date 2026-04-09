@@ -232,23 +232,25 @@ export interface ActiveFormValues {
  * - Mas quando é, precisa de dados como placa, chassi, revisões, etc
  */
 export interface VehicleFormValues {
-  license_plates?: string;           
-  year?: number | string;            
-  year_model?: number | string;      
-  chassi?: string;                   
-  color?: string;                    
-  renavam?: string;                  
-  fuel_type?: string;                
-  power?: number | string;           
-  cylinder?: number | string;        
-  capacity?: number | string;        
-  fipe_table?: number | string;      
+  vehicle_id?: string | number;        // PK — presente somente em registros existentes
+  active_id_fk?: string | number;      // FK para Active — obrigatório no POST de novo veículo
+  license_plates?: string;
+  year?: number | string;
+  year_model?: number | string;
+  chassi?: string;
+  color?: string;
+  renavam?: string;
+  fuel_type?: string;
+  power?: number | string;
+  cylinder?: number | string;
+  capacity?: number | string;
+  fipe_table?: number | string;
   last_revision_date?: string | null;
   last_revision_km?: number | string;
   next_revision_date?: string | null;
   next_revision_km?: number | string;
-  directed_by?: number | string | null; 
-  shielding?: boolean;               
+  directed_by?: number | string | null;
+  shielding?: boolean;
   fuel_type_id_fk?: number | string | null;
 }
 

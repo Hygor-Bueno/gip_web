@@ -13,6 +13,7 @@ export interface Expense {
   active_id_fk: string;
   user_id_fk: string | number;
   provider?: string;
+  work_group_fk?: string | number | null;
 }
 
 export interface MaintenanceData {
@@ -36,7 +37,6 @@ export interface PartItem {
 
 export interface FuelData {
   liter_value: string;
-  coupon_number: string;
   km_day: string;
   liter_qtd: string;
   expen_id_fk: string;
@@ -75,6 +75,7 @@ export interface ReleasesProps {
   activeId: string;
   userId: string | number;
   isVehicle: boolean;
+  gappWorkGroupId?: number | null;
   onClose: () => void;
 }
 
