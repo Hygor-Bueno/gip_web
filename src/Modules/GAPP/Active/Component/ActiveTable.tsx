@@ -8,7 +8,6 @@ import FilterPanel from "./FilterPanel/FilterPanel";
 import ConfirmModal from "../../../../Components/CustomConfirm";
 import { handleNotification } from "../../../../Util/ui/notifications";
 import { ActivePutData } from "../Adapters/Adapters";
-import { Active, ActiveFormValues, Insurance, VehicleFormValues } from "../Interfaces/Interfaces";
 import { tItemTable } from "../../../../types/types";
 import { useActiveData } from "./Hooks/useActiveData";
 import { useActiveFilters } from "./Hooks/useActiveFilters";
@@ -142,9 +141,9 @@ const ActiveTable: React.FC = () => {
           </div>
         </div>
         <div className="d-flex gap-2 align-items-center">
-          <button className="btn-export-csv" onClick={() => console.log('Fechar nav menu')} title={false ? "Fechar menu de navegação" : "Abrir menu de navegação"}>
+          {/* <button className="btn-export-csv" onClick={() => console.log('Fechar nav menu')} title={false ? "Fechar menu de navegação" : "Abrir menu de navegação"}>
             <i className="fa fa-solid fa-eye"></i>
-          </button>
+          </button> */}
           <button
             ref={filterBtnRef}
             className={`btn-filter-toggle${filterOpen || activeFilterCount > 0 ? " active" : ""}`}
