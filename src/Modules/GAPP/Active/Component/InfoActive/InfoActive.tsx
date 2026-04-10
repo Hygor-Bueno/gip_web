@@ -7,7 +7,7 @@ import LocationSection     from './LocationSection';
 import LocationPurchaseSection     from './LocationPurchaseSection';
 import VeicleSection         from './VeicleSection';
 import InsuranceSection          from './InsuranceSection';
-import AdditionalItemsSection from './ItensAdicionaisSection';
+import AdditionalItemsSection from './AdditionalItemsSection';
 
 interface InfoActiveProps {
   data: ActiveTableData;
