@@ -10,6 +10,7 @@ import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions, buildOptionsInsurance } from "../BuildFunction/BuildFunction";
 import { ActivePostData, ActivePutData, InsurancePostData, InsurancePutData, VehiclePostData, VehiclePutData } from "../../Adapters/Adapters";
 import { useMyContext } from "../../../../../Context/MainContext";
+import { handleNotification } from "../../../../../Util/ui/notifications";
 import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
 import "./FormActive.css";
@@ -40,8 +41,9 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
 
   const [hasInsurance, setHasInsurance] = useState(false);
 
-  const [newItemText, setNewItemText] = useState("");
-  const [newValueText, setNewValueText] = useState("");
+  const [newItemText,       setNewItemText]       = useState("");
+  const [newFranchiseText,  setNewFranchiseText]  = useState("");
+  const [newFranchiseValue, setNewFranchiseValue] = useState("");
 
   const initialActive    = useRef<Partial<ActiveFormValues>>({});
   const initialVehicle   = useRef<Partial<VehicleFormValues>>({});
@@ -118,17 +120,17 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
   }, []);
 
   const addFranchiseItem = useCallback(() => {
-    if (newItemText.trim()) {
+    if (newFranchiseText.trim()) {
       setInsurance((prev) => ({
         ...prev,
         franchise_list: {
-          list: [...(prev.franchise_list?.list || []), { description: newItemText, value: newValueText }],
+          list: [...(prev.franchise_list?.list || []), { description: newFranchiseText, value: newFranchiseValue }],
         },
       }));
-      setNewItemText("");
-      setNewValueText("");
+      setNewFranchiseText("");
+      setNewFranchiseValue("");
     }
-  }, [newItemText, newValueText]);
+  }, [newFranchiseText, newFranchiseValue]);
 
   const addItem = useCallback(() => {
     if (newItemText.trim()) {
@@ -163,7 +165,9 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
   const options = useMemo(() => buildOptions(apiData), [apiData]);
 
   const hasChanged = (current: object, initial: object): boolean =>
-    JSON.stringify(current) !== JSON.stringify(initial);
+    Object.keys({ ...current, ...initial }).some(
+      k => (current as any)[k] !== (initial as any)[k]
+    );
 
   const handleSubmit = async () => {
     try {
@@ -190,7 +194,12 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
           }
         }
         if (hasInsurance && hasChanged(insurance, initialInsurance.current)) {
-          requests.push(InsurancePutData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance)));
+          const hasExistingInsurance = !!(insurance as Insurance).id_insurance;
+          requests.push(
+            hasExistingInsurance
+              ? InsurancePutData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance))
+              : InsurancePostData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance))
+          );
         }
         if (requests.length === 0) {
           openModal?.(false);
@@ -209,7 +218,7 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
 
       openModal?.(false);
     } catch (error) {
-      throw new Error("Erro no envio: " + (error instanceof Error ? error.message : String(error)));
+      handleNotification("Save error", error instanceof Error ? error.message : "Please try again.", "danger");
     }
   };
 
@@ -326,10 +335,10 @@ export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId,
               <ListAddFranchise
                 insuranceValues={insurance}
                 addItem={addFranchiseItem}
-                newItemText={newItemText}
-                setNewItemText={setNewItemText}
-                newValueText={newValueText}
-                setNewValueText={setNewValueText}
+                newItemText={newFranchiseText}
+                setNewItemText={setNewFranchiseText}
+                newValueText={newFranchiseValue}
+                setNewValueText={setNewFranchiseValue}
                 removeItem={removeFranchiseItem}
               />
             </React.Fragment>

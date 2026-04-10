@@ -141,7 +141,11 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
       handleNotification("Campos obrigatórios", "Preencha data, hora e valor total.", "warning");
       return;
     }
-    if (!currentTab.expTypeId) { handleNotification("Aba indisponível", "Esta aba ainda não possui funcionalidade de inserção.", "info"); return; }
+    
+    if (!currentTab.expTypeId) { 
+      handleNotification("Aba indisponível", "Esta aba ainda não possui funcionalidade de inserção.", "info"); 
+      return; 
+    }
 
     setLoading(true);
     try {
@@ -241,9 +245,7 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
           ))}
         </div>
         <div className="releases-body">
-          {currentTab.showExpense && (
-            <ExpenseFields expense={expense} onChange={handleExpenseChange} drivers={drivers} />
-          )}
+          {currentTab.showExpense      && (<ExpenseFields expense={expense} onChange={handleExpenseChange} drivers={drivers} />)}
           {activeTab === "fuel"        && <FuelTab fuel={fuel} onChange={handleFuelChange} fuelTypes={fuelTypes} />}
           {activeTab === "maintenance" && <MaintenanceTab maintenance={maintenance} onChange={handleMaintenanceChange} addPart={addPart} removePart={removePart} />}
           {activeTab === "fines"       && <FinesTab fines={fines} onChange={handleFinesChange} />}
