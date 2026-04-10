@@ -5,7 +5,7 @@ import { formatDate, formatCurrency } from './helpers';
 
 interface Props { active: any; }
 
-const IdentificacaoSection: React.FC<Props> = ({ active }) => (
+const IdentificationSection: React.FC<Props> = ({ active }) => (
   <InfoSection icon="fa-cube" color="#16a34a" title="Identificação">
     <div className="info-grid">
       <InfoField label="Marca"              value={active?.brand} />
@@ -23,4 +23,4 @@ const IdentificacaoSection: React.FC<Props> = ({ active }) => (
   </InfoSection>
 );
 
-export default IdentificacaoSection;
+export default IdentificationSection;

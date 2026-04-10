@@ -2,12 +2,12 @@ import React from 'react';
 import './InfoActive.css';
 import { ActiveTableData } from '../../Interfaces/Interfaces';
 import { useInfoActivePDF } from './useInfoActivePDF';
-import IdentificacaoSection   from './IdentificacaoSection';
-import LocalizacaoSection     from './LocalizacaoSection';
-import LocalCompraSection     from './LocalCompraSection';
-import VeiculoSection         from './VeiculoSection';
-import SeguroSection          from './SeguroSection';
-import ItensAdicionaisSection from './ItensAdicionaisSection';
+import IdentificationSection   from './IdentificationSection';
+import LocationSection     from './LocationSection';
+import LocationPurchaseSection     from './LocationPurchaseSection';
+import VeicleSection         from './VeicleSection';
+import InsuranceSection          from './InsuranceSection';
+import AdditionalItemsSection from './ItensAdicionaisSection';
 
 interface InfoActiveProps {
   data: ActiveTableData;
@@ -42,12 +42,12 @@ const InfoActive: React.FC<InfoActiveProps> = ({ data, onBack }) => {
           </button>
         </div>
         <div className="info-modal-body">
-          <IdentificacaoSection active={active} />
-          <LocalizacaoSection   active={active} />
-          <LocalCompraSection   placePurchase={active?.place_purchase} />
-          {hasVehicle   && <VeiculoSection         vehicle={vehicle!} />}
-          {hasInsurance && <SeguroSection           insurance={insurance!} />}
-          {hasItems     && <ItensAdicionaisSection  items={active.list_items.list} />}
+          <IdentificationSection active={active} />
+          <LocationSection   active={active} />
+          <LocationPurchaseSection   placePurchase={active?.place_purchase} />
+          {hasVehicle   && <VeicleSection         vehicle={vehicle!} />}
+          {hasInsurance && <InsuranceSection           insurance={insurance!} />}
+          {hasItems     && <AdditionalItemsSection  items={active.list_items.list} />}
         </div>
 
         <div className="info-modal-footer">

@@ -4,7 +4,7 @@ import InfoField from './InfoField';
 
 interface Props { active: any; }
 
-const LocalizacaoSection: React.FC<Props> = ({ active }) => (
+const LocationSection: React.FC<Props> = ({ active }) => (
   <InfoSection icon="fa-building" color="#2563eb" title="Localização / Organização">
     <div className="info-grid">
       <InfoField label="Empresa"           value={active?.corporate_name ?? active?.fantasy_name} />
@@ -15,4 +15,4 @@ const LocalizacaoSection: React.FC<Props> = ({ active }) => (
   </InfoSection>
 );
 
-export default LocalizacaoSection;
+export default LocationSection;

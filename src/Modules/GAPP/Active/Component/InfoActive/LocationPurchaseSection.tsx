@@ -6,7 +6,7 @@ import { PlaceAddress } from '../../Interfaces/Interfaces';
 
 interface Props { placePurchase?: PlaceAddress | string | null; }
 
-const LocalCompraSection: React.FC<Props> = ({ placePurchase }) => {
+const LocationPurchaseSection: React.FC<Props> = ({ placePurchase }) => {
   const place = parsePlacePurchase(placePurchase);
   return (
     <InfoSection icon="fa-map-marker" color="#7c3aed" title="Local de Compra">
@@ -24,4 +24,4 @@ const LocalCompraSection: React.FC<Props> = ({ placePurchase }) => {
   );
 };
 
-export default LocalCompraSection;
+export default LocationPurchaseSection;

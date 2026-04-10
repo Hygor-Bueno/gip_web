@@ -6,7 +6,7 @@ import { VehicleFormValues } from '../../Interfaces/Interfaces';
 
 interface Props { vehicle: VehicleFormValues; }
 
-const VeiculoSection: React.FC<Props> = ({ vehicle }) => (
+const VeicleSection: React.FC<Props> = ({ vehicle }) => (
   <InfoSection icon="fa-car" color="#0891b2" title="Veículo">
     <div className="info-grid">
       <InfoField label="Placa"                  value={vehicle.license_plates} />
@@ -30,4 +30,4 @@ const VeiculoSection: React.FC<Props> = ({ vehicle }) => (
   </InfoSection>
 );
 
-export default VeiculoSection;
+export default VeicleSection;

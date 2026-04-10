@@ -6,7 +6,7 @@ import { Insurance } from '../../Interfaces/Interfaces';
 
 interface Props { insurance: Insurance; }
 
-const SeguroSection: React.FC<Props> = ({ insurance }) => (
+const InsuranceSection: React.FC<Props> = ({ insurance }) => (
   <InfoSection icon="fa-shield" color="#dc2626" title="Seguro">
     <div className="info-grid">
       <InfoField label="Seguradora"            value={insurance.ins_name} />
@@ -69,4 +69,4 @@ const SeguroSection: React.FC<Props> = ({ insurance }) => (
   </InfoSection>
 );
 
-export default SeguroSection;
+export default InsuranceSection;

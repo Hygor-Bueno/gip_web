@@ -3,7 +3,7 @@ import InfoSection from './InfoSection';
 
 interface Props { items: string[]; }
 
-const ItensAdicionaisSection: React.FC<Props> = ({ items }) => (
+const AdditionalItemsSection: React.FC<Props> = ({ items }) => (
   <InfoSection icon="fa-list" color="#ea580c" title="Itens Adicionais">
     <div className="info-tags">
       {items.map((item, i) => (
@@ -13,4 +13,4 @@ const ItensAdicionaisSection: React.FC<Props> = ({ items }) => (
   </InfoSection>
 );
 
-export default ItensAdicionaisSection;
+export default AdditionalItemsSection;
