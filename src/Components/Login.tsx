@@ -45,7 +45,7 @@ export default function Login() {
                 className="d-flex flex-column align-items-center justify-content-center col-8 col-sm-6 col-md-4 col-lg-3 col-xl-2 rounded p-2"
                 id="loginCustomForm"
             />
-            <a href="http://gigpp.com.br:72/global.html">Versão antiga</a>
+            {/* <a href="http://gigpp.com.br:72/global.html">Versão antiga</a> */}
             <ReactNotifications />
         </div>
     );
