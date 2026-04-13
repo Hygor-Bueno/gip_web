@@ -65,7 +65,7 @@ function CustomForm({ fieldsets, onAction, classRender, classButton, notButton =
           {renderField(fieldset.item.captureValue)}
         </fieldset>
       ))}
-      {notButton &&
+      {!!notButton &&
         <div>
           <button
             onClick={onAction}

@@ -202,3 +202,73 @@
 .btn-form-save:active {
   transform: translateY(0);
 }
+
+/* ── Section toggle buttons ──────────────────────────────────────────── */
+.section-toggle-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #94a3b8;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  user-select: none;
+}
+
+.btn-section-toggle:hover {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+}
+
+.btn-section-toggle.active {
+  background: #f0f7e6;
+  border-color: #6a9e2f;
+  color: #4a7a1f;
+  box-shadow: 0 2px 8px rgba(106, 158, 47, 0.15);
+}
+
+.btn-section-toggle i {
+  font-size: 14px;
+}
+
+.toggle-track {
+  width: 34px;
+  height: 19px;
+  border-radius: 10px;
+  background: #cbd5e1;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-section-toggle.active .toggle-track {
+  background: #6a9e2f;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2.5px;
+  left: 2.5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-section-toggle.active .toggle-knob {
+  transform: translateX(15px);
+}

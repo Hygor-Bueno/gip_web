@@ -1,25 +1,33 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import CustomForm from "../../../../../Components/CustomForm";
 import { ActiveFormValues, FormActiveProps, Insurance, VehicleFormValues } from "../../Interfaces/Interfaces";
-import { mapActiveToApi, mapVehicleToApi } from "../PayloadMapper/PayloadMapper";
+import { mapActiveToApi, mapActivePostToApi, mapVehicleToApi, mapVehiclePostToApi } from "../PayloadMapper/PayloadMapper";
 import { mapFormToApi as mapInsuranceToApi } from "../PayloadMapper/PayloadMapperInsurance";
 import ListAdd from "../ListAddItem/ListAdd";
 import { formVehicle } from "./FormSchema/FormVehicle.schema";
 import { formAddress } from "./FormSchema/FormAddress.schema";
 import { formActive } from "./FormSchema/FormActive.schema";
 import { buildOptions, buildOptionsInsurance } from "../BuildFunction/BuildFunction";
-import { ActivePutData, VehiclePutData, InsurancePutData } from "../../Adapters/Adapters";
+import { ActivePostData, ActivePutData, InsurancePostData, InsurancePutData, VehiclePostData, VehiclePutData } from "../../Adapters/Adapters";
+import { useMyContext } from "../../../../../Context/MainContext";
+import { handleNotification } from "../../../../../Util/ui/notifications";
 import { formInsurance } from "./FormSchema/FormInsurance.schema";
 import ListAddFranchise from "../ListAddItem/ListAddFranchise";
 import "./FormActive.css";
 
-export default function FormActive({ apiData, openModal, onSave }: FormActiveProps) {
+export default function FormActive({ mode = "edit", gappUserId, gappWorkGroupId, apiData, openModal, onBack, onSave }: FormActiveProps) {
+  const { userLog } = useMyContext();
+  const today = new Date().toISOString().split('T')[0];
+
   const [activeValues, setActiveValues] = useState<Partial<ActiveFormValues>>({
     brand: "",
     model: "",
     is_vehicle: true,
     list_items: { list: [] },
-    place_purchase: {}
+    place_purchase: {},
+    change_date: today,
+    user_id_fk: gappUserId ?? userLog?.id,
+    work_group_fk: gappWorkGroupId ?? undefined,
   });
 
   const [vehicleValues, setVehicleValues] = useState<Partial<VehicleFormValues>>({
@@ -31,18 +39,30 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
     risk_cep: "",
   });
 
-  const [newItemText, setNewItemText] = useState("");
-  const [newValueText, setNewValueText] = useState("");
+  const [hasInsurance, setHasInsurance] = useState(false);
+
+  const [newItemText,       setNewItemText]       = useState("");
+  const [newFranchiseText,  setNewFranchiseText]  = useState("");
+  const [newFranchiseValue, setNewFranchiseValue] = useState("");
 
   const initialActive    = useRef<Partial<ActiveFormValues>>({});
   const initialVehicle   = useRef<Partial<VehicleFormValues>>({});
   const initialInsurance = useRef<Partial<Insurance>>({});
-
+  
   useEffect(() => {
     if (apiData) {
-      if (apiData.active)    { setActiveValues(apiData.active);       initialActive.current    = apiData.active; }
+      if (apiData.active)    {
+        // Normaliza is_vehicle para boolean — a API retorna 0/1 (number)
+        const normalized = { ...apiData.active, is_vehicle: Boolean(apiData.active.is_vehicle) };
+        setActiveValues(normalized);
+        initialActive.current = normalized;
+      }
       if (apiData.vehicle)   { setVehicleValues(apiData.vehicle);     initialVehicle.current   = apiData.vehicle; }
       if (apiData.insurance) { setInsurance(apiData.insurance);       initialInsurance.current = apiData.insurance; }
+
+      // Detecta automaticamente pelos dados carregados
+      const ins = apiData.insurance as any;
+      setHasInsurance(!!(ins?.policy_number || ins?.ins_id_fk || ins?.insurance_value));
     }
   }, [apiData]);
 
@@ -64,7 +84,16 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
   const handleVehicleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     const fieldValue = type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
-    setVehicleValues(prev => ({ ...prev, [name]: fieldValue }));
+
+    if (name === "fuel_type_id_fk") {
+      // Backend requires both the ID and the text label — mirror old GAPP line 210-211
+      const selectedText = (e.target as HTMLSelectElement).options[
+        (e.target as HTMLSelectElement).selectedIndex
+      ]?.text ?? "";
+      setVehicleValues(prev => ({ ...prev, fuel_type_id_fk: value, fuel_type: selectedText }));
+    } else {
+      setVehicleValues(prev => ({ ...prev, [name]: fieldValue }));
+    }
   }, []);
 
   const handleInsuranceChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -73,18 +102,35 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
     setInsurance(prev => ({ ...prev, [name]: fieldValue }));
   }, []);
 
+  const handleVehicleToggle = useCallback(() => {
+    const turningOff = !!activeValues.is_vehicle;
+    setActiveValues(prev => ({ ...prev, is_vehicle: !prev.is_vehicle }));
+    if (turningOff) {
+      setVehicleValues({ license_plates: "", shielding: false });
+      setInsurance({ risk_cep: "" });
+      setHasInsurance(false);
+    }
+  }, [activeValues.is_vehicle]);
+
+  const handleInsuranceToggle = useCallback(() => {
+    setHasInsurance(prev => {
+      if (prev) setInsurance({ risk_cep: "" });
+      return !prev;
+    });
+  }, []);
+
   const addFranchiseItem = useCallback(() => {
-    if (newItemText.trim()) {
+    if (newFranchiseText.trim()) {
       setInsurance((prev) => ({
         ...prev,
         franchise_list: {
-          list: [...(prev.franchise_list?.list || []), { description: newItemText, value: newValueText }],
+          list: [...(prev.franchise_list?.list || []), { description: newFranchiseText, value: newFranchiseValue }],
         },
       }));
-      setNewItemText("");
-      setNewValueText("");
+      setNewFranchiseText("");
+      setNewFranchiseValue("");
     }
-  }, [newItemText, newValueText]);
+  }, [newFranchiseText, newFranchiseValue]);
 
   const addItem = useCallback(() => {
     if (newItemText.trim()) {
@@ -117,30 +163,48 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
   }, []);
 
   const options = useMemo(() => buildOptions(apiData), [apiData]);
-  const optionsInsurance = useMemo(() => buildOptionsInsurance(apiData), [apiData]);
 
   const hasChanged = (current: object, initial: object): boolean =>
-    JSON.stringify(current) !== JSON.stringify(initial);
+    Object.keys({ ...current, ...initial }).some(
+      k => (current as any)[k] !== (initial as any)[k]
+    );
 
   const handleSubmit = async () => {
     try {
       const requests: Promise<{ error: boolean; message?: string }>[] = [];
 
-      if (hasChanged(activeValues, initialActive.current)) {
-        requests.push(ActivePutData(mapActiveToApi(activeValues as ActiveFormValues)));
-      }
-
-      if (hasChanged(vehicleValues, initialVehicle.current)) {
-        requests.push(VehiclePutData(mapVehicleToApi(vehicleValues as VehicleFormValues)));
-      }
-
-      if (hasChanged(insurance, initialInsurance.current)) {
-        requests.push(InsurancePutData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance)));
-      }
-
-      if (requests.length === 0) {
-        openModal?.(false);
-        return;
+      if (mode === "add") {
+        requests.push(ActivePostData(mapActivePostToApi(
+          activeValues as ActiveFormValues,
+          vehicleValues as VehicleFormValues
+        )));
+      } else {
+        if (hasChanged(activeValues, initialActive.current)) {
+          requests.push(ActivePutData(mapActiveToApi(activeValues as ActiveFormValues)));
+        }
+        if (hasChanged(vehicleValues, initialVehicle.current)) {
+          const vehicleId = (vehicleValues as VehicleFormValues).vehicle_id;
+          if (vehicleId) {
+            // Veículo já existe — atualiza com PUT (vehicle_id vem do estado carregado)
+            requests.push(VehiclePutData(mapVehicleToApi(vehicleValues as VehicleFormValues)));
+          } else {
+            // Ativo convertido para veículo — cria novo registro com POST
+            const activeId = (activeValues as any).active_id;
+            requests.push(VehiclePostData(mapVehiclePostToApi(vehicleValues as VehicleFormValues, activeId)));
+          }
+        }
+        if (hasInsurance && hasChanged(insurance, initialInsurance.current)) {
+          const hasExistingInsurance = !!(insurance as Insurance).id_insurance;
+          requests.push(
+            hasExistingInsurance
+              ? InsurancePutData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance))
+              : InsurancePostData(mapInsuranceToApi(activeValues as ActiveFormValues, vehicleValues as VehicleFormValues, insurance as Insurance))
+          );
+        }
+        if (requests.length === 0) {
+          openModal?.(false);
+          return;
+        }
       }
 
       const results = await Promise.all(requests);
@@ -148,14 +212,13 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
       if (failed) throw new Error(failed.message);
 
       onSave?.({
-        ...(hasChanged(activeValues, initialActive.current)    && { active:    activeValues }),
-        ...(hasChanged(vehicleValues, initialVehicle.current)  && { vehicle:   vehicleValues }),
-        ...(hasChanged(insurance, initialInsurance.current)    && { insurance: insurance }),
+        active:    activeValues,
+        ...(Boolean(activeValues.is_vehicle) ? { vehicle: vehicleValues, insurance } : {}),
       });
 
       openModal?.(false);
     } catch (error) {
-      throw new Error("Erro no envio: " + (error instanceof Error ? error.message : String(error)));
+      handleNotification("Save error", error instanceof Error ? error.message : "Please try again.", "danger");
     }
   };
 
@@ -165,13 +228,13 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
 
         <div className="form-active-modal-header">
           <div className="form-active-modal-header-icon">
-            <i className="fa fa-cube"></i>
+            <i className="fa fa-cube text-white"></i>
           </div>
           <div>
             <p className="form-active-modal-title">Formulário de Ativo</p>
             <p className="form-active-modal-subtitle">Edite as informações do ativo selecionado</p>
           </div>
-          <button className="form-active-modal-close" onClick={() => openModal?.(false)}>
+          <button className="form-active-modal-close" onClick={() => onBack ? onBack() : openModal?.(false)}>
             <i className="fa fa-times"></i>
           </button>
         </div>
@@ -210,20 +273,53 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
             />
           </div>
 
-          {activeValues.is_vehicle && (
-            <React.Fragment>
-              <div className="form-section">
-                <div className="form-section-header">
-                  <div className="form-section-header-icon"><i className="fa fa-car"></i></div>
-                  <p className="form-section-title">Dados do Veículo</p>
-                </div>
-                <CustomForm
-                  notButton={false}
-                  fieldsets={formVehicle(vehicleValues, options.fuel, options.driver, handleVehicleChange)}
-                  className="row g-3"
-                />
-              </div>
+          {/* ── Toggle buttons ─────────────────────────────────────── */}
+          <div className="section-toggle-row">
+            <button
+              type="button"
+              className={`btn-section-toggle ${activeValues.is_vehicle ? "active" : ""}`}
+              onClick={handleVehicleToggle}
+            >
+              <i className="fa fa-car"></i>
+              Este ativo é um veículo
+              <span className="toggle-track">
+                <span className="toggle-knob" />
+              </span>
+            </button>
 
+            {Boolean(activeValues.is_vehicle) && (
+              <button
+                type="button"
+                className={`btn-section-toggle ${hasInsurance ? "active" : ""}`}
+                onClick={handleInsuranceToggle}
+              >
+                <i className="fa fa-shield"></i>
+                Este veículo possui seguro
+                <span className="toggle-track">
+                  <span className="toggle-knob" />
+                </span>
+              </button>
+            )}
+          </div>
+
+          {/* ── Vehicle section ────────────────────────────────────── */}
+          {Boolean(activeValues.is_vehicle) && (
+            <div className="form-section">
+              <div className="form-section-header">
+                <div className="form-section-header-icon"><i className="fa fa-car"></i></div>
+                <p className="form-section-title">Dados do Veículo</p>
+              </div>
+              <CustomForm
+                notButton={false}
+                fieldsets={formVehicle(vehicleValues, options.fuel, options.driver, handleVehicleChange)}
+                className="row g-3"
+              />
+            </div>
+          )}
+
+          {/* ── Insurance section ──────────────────────────────────── */}
+          {Boolean(activeValues.is_vehicle) && hasInsurance && (
+            <React.Fragment>
               <div className="form-section">
                 <div className="form-section-header">
                   <div className="form-section-header-icon"><i className="fa fa-shield"></i></div>
@@ -239,10 +335,10 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
               <ListAddFranchise
                 insuranceValues={insurance}
                 addItem={addFranchiseItem}
-                newItemText={newItemText}
-                setNewItemText={setNewItemText}
-                newValueText={newValueText}
-                setNewValueText={setNewValueText}
+                newItemText={newFranchiseText}
+                setNewItemText={setNewFranchiseText}
+                newValueText={newFranchiseValue}
+                setNewValueText={setNewFranchiseValue}
                 removeItem={removeFranchiseItem}
               />
             </React.Fragment>
@@ -251,7 +347,7 @@ export default function FormActive({ apiData, openModal, onSave }: FormActivePro
         </div>
 
         <div className="form-active-modal-footer">
-          <button className="btn-form-cancel" onClick={() => openModal?.(false)}>
+          <button className="btn-form-cancel" onClick={() => onBack ? onBack() : openModal?.(false)}>
             Cancelar
           </button>
           <button className="btn-form-save" onClick={handleSubmit}>

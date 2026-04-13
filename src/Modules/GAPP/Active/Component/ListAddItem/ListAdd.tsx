@@ -1,74 +1,78 @@
-import { IListAdd } from "../../Interfaces/Interfaces"
+import { IListAdd } from "../../Interfaces/Interfaces";
+import "./ListAddFranchise.css";
 
-/** Esse componente tem como objetivo de fazer um adicional de itens na lista para ser salvo no sistema.*/
 export default function ListAdd({ newItemText, setNewItemText, addItem, activeValues, removeItem }: IListAdd) {
+    const items = activeValues.list_items?.list ?? [];
+
     return (
-        <>
-            <div className="listadd-card">
-                <div className="listadd-header">
-                    <div className="listadd-header-icon">
-                        <i className="fa fa-list"></i>
-                    </div>
-                    <div>
-                        <p className="listadd-title">Itens Adicionais</p>
-                        <p className="listadd-subtitle">Gerencie os itens da lista</p>
-                    </div>
-                    
-                    {
-                    //@ts-ignore
-                    activeValues.list_items?.list?.length > 0 && (
-                        <span className="listadd-badge">
-                            {
-                            //@ts-ignore
-                            activeValues.list_items.list.length} {activeValues.list_items.list.length === 1 ? "item" : "itens"}
-                        </span>
-                    )}
+        <div className="franchise-card">
+            <div className="franchise-header">
+                <div className="franchise-header-icon">
+                    <i className="fa fa-list"></i>
                 </div>
-
-                {/* Input */}
-                <div className="listadd-input-row">
-                    <div className="listadd-input-wrapper">
-                        <label className="listadd-input-label">Novo item</label>
-                        <input
-                            className="listadd-input"
-                            value={newItemText}
-                            onChange={(e) => setNewItemText(e.target.value)}
-                            placeholder="Ex: Extintor, Estepe..."
-                        />
-                    </div>
-                    <button type="button" className="btn-add-listadd" onClick={addItem}>
-                        <i className="fa fa-plus"></i>
-                        Adicionar
-                    </button>
+                <div>
+                    <p className="franchise-title">Itens Adicionais</p>
+                    <p className="franchise-subtitle">Gerencie os itens da lista</p>
                 </div>
-
-                {/* Lista */}
-                {activeValues.list_items?.list?.length ? (
-                    <div className="listadd-list">
-                        {activeValues.list_items.list.map((item, index) => (
-                            <div key={`${item}-${index}`} className="listadd-item">
-                                <div className="listadd-item-left">
-                                    <span className="listadd-item-dot"></span>
-                                    <p className="listadd-item-text">{item}</p>
-                                </div>
-                                <button
-                                    className="btn-remove-listadd"
-                                    onClick={() => removeItem(index)}
-                                    title="Remover"
-                                >
-                                    <i className="fa fa-trash"></i>
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="listadd-empty">
-                        <i className="fa fa-inbox"></i>
-                        <p className="listadd-empty-text">Nenhum item adicionado ainda.</p>
-                    </div>
+                {items.length > 0 && (
+                    <span className="badge-count">
+                        {items.length} {items.length === 1 ? "item" : "itens"}
+                    </span>
                 )}
-
             </div>
-        </>
-    )
+
+            <div className="franchise-input-row">
+                <div className="franchise-input-wrapper">
+                    <label className="franchise-input-label">Novo item</label>
+                    <input
+                        className="franchise-input"
+                        value={newItemText}
+                        onChange={(e) => setNewItemText(e.target.value)}
+                        placeholder="Ex: Extintor, Estepe..."
+                    />
+                </div>
+                <button type="button" className="btn-add-franchise" onClick={addItem}>
+                    <i className="fa fa-plus"></i> Adicionar
+                </button>
+            </div>
+
+            <div className="franchise-table-wrapper">
+                <table className="franchise-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th style={{ textAlign: "center", width: 60 }}>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {items.length === 0 ? (
+                            <tr>
+                                <td colSpan={2}>
+                                    <div className="franchise-empty">
+                                        <i className="fa fa-inbox"></i>
+                                        <p className="franchise-empty-text">Nenhum item adicionado ainda.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        ) : (
+                            items.map((item, index) => (
+                                <tr key={`${item}-${index}`}>
+                                    <td>{item}</td>
+                                    <td style={{ textAlign: "center" }}>
+                                        <button
+                                            className="btn-remove"
+                                            onClick={() => removeItem(index)}
+                                            title="Remover"
+                                        >
+                                            <i className="fa fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
 }

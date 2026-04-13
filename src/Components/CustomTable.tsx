@@ -1,11 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { tItemTable } from "../types/types";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable'; // Importe o autoTable diretamente
 import { convertDate, convertTime } from "../Util/Utils";
 
 const defaultImage = require('../Assets/Image/groupCLPP.png');
+
+const RenderCell = React.memo(({ value, isImage }: { value: string; isImage?: boolean }) => {
+  const isValidDateString = (s: string) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+    const [y, m, d] = s.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+  };
+  return isImage ? (
+    <img className="photoCircle rounded-circle" src={value ? `data:image/png;base64,${value}` : defaultImage} alt="" />
+  ) : (
+    <span>{isValidDateString(value) ? convertDate(value, true) : value}</span>
+  );
+});
 
 interface CustomTableProps {
   list: tItemTable[];
@@ -23,20 +37,6 @@ export default function CustomTable(props: CustomTableProps) {
   const [filters, setFilters] = useState<{ [key: string]: string }>({});
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<tItemTable[]>(props.selectedItems || []);
-
-  function isValidDateString(dateString: string): boolean {
-    // Regex para formato YYYY-MM-DD
-    const regex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!regex.test(dateString)) return false;
-
-    const [year, month, day] = dateString.split('-').map(Number);
-    const date = new Date(year, month - 1, day);
-
-    // Verifica se a data criada bate com os números originais
-    return date.getFullYear() === year &&
-      date.getMonth() === month - 1 &&
-      date.getDate() === day;
-  }
   // Função para verificar se uma linha deve ser selecionada
   const isRowSelected = (row: tItemTable): boolean => {
     if (!props.selectionList || !props.selectionKey || !row[props.selectionKey]) return false;
@@ -52,6 +52,7 @@ export default function CustomTable(props: CustomTableProps) {
 
   // Função para gerar o PDF
   function handleDownloadPDF() {
+    setActiveFilter(null); // close any open column filter input before reading headers
     if (tableRef.current) {
       const doc = new jsPDF({
         orientation: 'landscape',
@@ -96,16 +97,19 @@ export default function CustomTable(props: CustomTableProps) {
   };
 
   // Efeito para adicionar os itens da selectionList à lista de selecionados na primeira renderização
+  const selectionListKey = props.selectionKey;
+  const selectionListStr = JSON.stringify(props.selectionList?.map(i => i[selectionListKey ?? ""]?.value));
   useEffect(() => {
     if (props.selectionList && props.selectionKey) {
       const itemsToSelect = props.list.filter(row => isRowSelected(row));
       setSelectedRows((prev) => {
-        // Evita duplicação de itens
-        const newItems = itemsToSelect.filter(item => !prev.includes(item));
-        return [...prev, ...newItems];
+        const prevKeys = new Set(prev.map(r => r[props.selectionKey!]?.value));
+        const newItems = itemsToSelect.filter(item => !prevKeys.has(item[props.selectionKey!]?.value));
+        return newItems.length ? [...prev, ...newItems] : prev;
       });
     }
-  }, [props.selectionList, props.selectionKey, props.list]); // Dependências do useEffect
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectionListStr, selectionListKey]);
 
   // Atualiza o estado selectedRows quando props.selectedItems mudar
   useEffect(() => {
@@ -114,32 +118,44 @@ export default function CustomTable(props: CustomTableProps) {
     }
   }, [props.selectedItems]);
 
-  const columnKeys = Object.keys(props.list[0]);
-  const columnHeaders = columnKeys.reduce((acc, key) => {
-    acc[key] = props.list[0][key].tag;
-    return acc;
-  }, {} as { [key: string]: string });
+  // All hooks must run unconditionally — early return comes after
+  const columnKeys = props.list?.length ? Object.keys(props.list[0]) : [];
+  const columnHeaders = useMemo(() =>
+    columnKeys.reduce((acc, key) => {
+      acc[key] = props.list[0]?.[key]?.tag ?? key;
+      return acc;
+    }, {} as { [key: string]: string }),
+  [props.list, columnKeys.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const sortedItemTable = [...props.list].sort((a, b) => {
+  const sortedItemTable = useMemo(() => [...(props.list ?? [])].sort((a, b) => {
     if (!sortConfig) return 0;
     const { key, direction } = sortConfig;
     const rawA = a[key]?.value ?? "";
     const rawB = b[key]?.value ?? "";
-
     const valueA = isNaN(Number(rawA)) ? rawA.toLowerCase() : Number(rawA);
     const valueB = isNaN(Number(rawB)) ? rawB.toLowerCase() : Number(rawB);
-
     if (valueA < valueB) return direction === "asc" ? -1 : 1;
     if (valueA > valueB) return direction === "asc" ? 1 : -1;
     return 0;
-  });
+  }), [props.list, sortConfig]);
 
+  const filteredItemsTable = useMemo(() =>
+    sortedItemTable.filter((item) =>
+      Object.keys(filters).every((key) =>
+        item[key]?.value?.toLowerCase().includes(filters[key].toLowerCase())
+      )
+    ),
+  [sortedItemTable, filters]);
 
-  const filteredItemsTable = sortedItemTable.filter((item) =>
-    Object.keys(filters).every((key) =>
-      item[key]?.value?.toLowerCase().includes(filters[key].toLowerCase())
-    )
-  );
+  if (!props.list?.length) {
+    return (
+      <div className="d-flex flex-column align-items-center justify-content-center w-100 h-100 py-5 text-muted">
+        <i className="fa fa-search fa-2x mb-3" style={{ color: "#bed989" }}></i>
+        <span style={{ fontSize: "0.9rem", fontWeight: 600 }}>Nenhum resultado encontrado</span>
+        <span style={{ fontSize: "0.78rem" }}>Tente ajustar os filtros aplicados</span>
+      </div>
+    );
+  }
 
   const handleSort = (key: string) => {
     setSortConfig((prev) => {
@@ -167,25 +183,17 @@ export default function CustomTable(props: CustomTableProps) {
     });
   };
 
-  const RenderCell = (props: { value: string; isImage?: boolean }) => {
-    return props.isImage ? (
-      <img className="photoCircle rounded-circle" src={props.value ? `data:image/png;base64,${props.value}` : defaultImage} />
-    ) : (
-      <span>{isValidDateString(props.value) ? convertDate(props.value,true) : props.value}</span>
-    );
-  };
-
   function setSelectedAllRows() {
     setSelectedRows([...props.list]);
   }
 
   return (
     <div className="d-flex flex-column w-100 h-100">
-      <div className="overflow-auto h-100">
+      <div className="overflow-auto flex-grow-1" style={{ minHeight: 0 }}>
         <table ref={tableRef} className="table table-bordered table-striped">
-          <thead className="table-light">
+          <thead className="table-light" style={{ position: "sticky", top: 0, zIndex: 1 }}>
             <tr>
-              {columnKeys.filter((key) => !props.list[0][key].ocultColumn).map((key) => (
+              {columnKeys.filter((key) => !props.list[0][key]?.ocultColumn).map((key) => (
                 <th key={key} className="position-relative">
                   <div style={{ minWidth: props.list[0][key].minWidth ? props.list[0][key].minWidth : "auto" }} className="d-flex justify-content-between align-items-center">
                     {activeFilter === key ? (
@@ -213,15 +221,16 @@ export default function CustomTable(props: CustomTableProps) {
           </thead>
           <tbody>
             {filteredItemsTable.map((item, index) => {
-              const isSelected = selectedRows.includes(item);
+              const stableKey = props.selectionKey ?? Object.keys(item)[0];
+              const isSelected = selectedRows.some(r => r[stableKey]?.value === item[stableKey]?.value);
               return (
                 <tr key={index} className={isSelected ? "table-success" : ""} onClick={() => {
                     toggleRowSelection(item);
                     props.onRowClick?.(item); // chat de vez pegar um por um quero fazer um push e eviar o proximo dado para minha lista
                   }}>
-                  {columnKeys.map((key) => !item[key].ocultColumn && (
+                  {columnKeys.map((key) => !item[key]?.ocultColumn && (
                     <td key={key} className="py-2">
-                      <RenderCell isImage={item[key].isImage} value={item[key]?.value || ""} />
+                      <RenderCell isImage={item[key]?.isImage} value={item[key]?.value || ""} />
                     </td>
                   ))}
                 </tr>
