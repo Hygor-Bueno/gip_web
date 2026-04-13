@@ -28,6 +28,12 @@ export function classToJSON(instance: object): Record<string, unknown> {
     return json;
 }
 
+// Função genérica para remover valores duplicados de um array
+// Também remove valores "falsy" como: null, undefined, "", 0, false
+export function distinct<T>(array: (T | null | undefined)[]): T[] {
+  return [...new Set(array.filter(Boolean))] as T[];
+}
+
 /**
  * Essa função recebe um objeto e converte ele para uma string no seguinte formato "@key=value ".
  * Onde o @ é o prefixo e o espaço em branco o separador.

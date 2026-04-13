@@ -106,8 +106,8 @@ export function useActiveFilters(data: Active[]): UseActiveFiltersReturn {
       .map(a => a.raw);
   }, [enrichedData, filters, plateIds]);
 
-  const unitNames = useMemo(() => distinct(data.map(a => a.unit_name)), [data]);
-  const brands    = useMemo(() => distinct(enrichedData.map(a => a.brand)), [enrichedData]);
+  const unitNames = useMemo(() => distinct(data.map(a => a.unit_name).filter(Boolean)), [data]);
+  const brands    = useMemo(() => distinct(enrichedData.map(a => a.brand).filter(Boolean)), [enrichedData]);
 
   const activeFilterCount = useMemo(() =>
     Object.entries(filters).filter(([k, v]) => k !== "plate" && v !== "").length
