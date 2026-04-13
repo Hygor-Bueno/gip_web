@@ -1,0 +1,532 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ROOT WRAPPER
+   ═══════════════════════════════════════════════════════════════════════════ */
+.settings-root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 0.5rem;
+  min-width: 0;
+  overflow: hidden;       /* desktop: each section scrolls independently */
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+.settings-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
+}
+
+.settings-toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.settings-toolbar-title-icon {
+  width: 34px;
+  height: 34px;
+  background: #bed989;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.settings-toolbar-title-icon i {
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.settings-toolbar-title-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1;
+}
+
+.settings-toolbar-title-sub {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.settings-toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* ── Nav-toggle (hidden on desktop) ─────────────────────────────────────── */
+.settings-btn-nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: #fff;
+  color: #6a9f2f;
+  font-size: 0.9rem;
+  border: 1.5px solid #bed989;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.settings-btn-nav-toggle:hover { background: #f0f7e6; }
+
+/* ── Reload button ───────────────────────────────────────────────────────── */
+.settings-btn-reload {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.48rem 0.9rem;
+  background: #fff;
+  color: #6a9f2f;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid #bed989;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.settings-btn-reload:hover {
+  background: #f0f7e6;
+  color: #4a7a1f;
+}
+
+/* ── Main page tabs ──────────────────────────────────────────────────────── */
+.settings-page-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.settings-page-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.settings-page-tab:hover {
+  background: #f0f7e6;
+  border-color: #bed989;
+  color: #4a7a1f;
+}
+
+.settings-page-tab.active {
+  background: #bed989;
+  border-color: #bed989;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.45);
+}
+
+/* ── Sub-tabs ────────────────────────────────────────────────────────────── */
+.settings-sub-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.settings-sub-tab {
+  padding: 0.38rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.settings-sub-tab:hover {
+  background: #f0f7e6;
+  border-color: #bed989;
+  color: #4a7a1f;
+}
+
+.settings-sub-tab.active {
+  background: #f0f7e6;
+  border-color: #6a9e2f;
+  color: #4a7a1f;
+}
+
+/* ── Split layout: form | table ──────────────────────────────────────────── */
+.settings-split {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.settings-form-col {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.settings-form-col::-webkit-scrollbar { width: 4px; }
+.settings-form-col::-webkit-scrollbar-track { background: transparent; }
+.settings-form-col::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+.settings-table-col {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+
+.settings-table-col::-webkit-scrollbar { width: 5px; height: 5px; }
+.settings-table-col::-webkit-scrollbar-track { background: #f1f5f9; }
+.settings-table-col::-webkit-scrollbar-thumb { background: #bed989; border-radius: 10px; }
+
+/* ── Form card ───────────────────────────────────────────────────────────── */
+.settings-form-card {
+  background: #ffffff;
+  border: 1.5px solid #e8eaf0;
+  border-radius: 16px;
+  padding: 18px 20px 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-form-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid #f1f3f8;
+}
+
+.settings-form-card-header-icon {
+  width: 30px;
+  height: 30px;
+  background: #f0f7e6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.settings-form-card-header-icon i {
+  color: #6a9e2f;
+  font-size: 12px;
+}
+
+.settings-form-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+/* ── Form fields ─────────────────────────────────────────────────────────── */
+.settings-field {
+  margin-bottom: 12px;
+}
+
+.settings-field label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 5px;
+}
+
+.settings-field input,
+.settings-field select {
+  width: 100%;
+  padding: 0.48rem 0.7rem;
+  font-size: 13px;
+  color: #1a202c;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.settings-field input:focus,
+.settings-field select:focus {
+  border-color: #bed989;
+  background: #fff;
+}
+
+/* ── Form action buttons ─────────────────────────────────────────────────── */
+.settings-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 4px;
+}
+
+.settings-btn-add,
+.settings-btn-save,
+.settings-btn-clear {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.settings-btn-add {
+  background: #bed989;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.35);
+}
+
+.settings-btn-add:hover:not(:disabled) {
+  filter: brightness(0.92);
+  transform: translateY(-1px);
+}
+
+.settings-btn-add:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.settings-btn-save {
+  background: #6a9e2f;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(106, 158, 47, 0.3);
+}
+
+.settings-btn-save:hover:not(:disabled) {
+  filter: brightness(0.92);
+  transform: translateY(-1px);
+}
+
+.settings-btn-save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.settings-btn-clear {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+  color: #94a3b8;
+  border: 1.5px solid #e2e8f0;
+}
+
+.settings-btn-clear:hover {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.settings-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.settings-empty i {
+  font-size: 1.6rem;
+  color: #cbd5e1;
+}
+
+/* ── Section wrappers (used by ActiveConfigPage / OrgConfigPage) ─────────── */
+/*    Desktop: flex column, fills remaining height                           */
+.settings-section-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+}
+
+.settings-section-content {
+  display: flex;
+  flex-grow: 1;
+  min-height: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TABLET  ≤ 960px
+   ─ Narrower form column, still side-by-side
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 960px) {
+  .settings-form-col {
+    width: 250px;
+  }
+
+  .settings-page-tab {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.78rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE  ≤ 640px
+   ─ Full column layout, page scrolls vertically
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* Root: allow vertical scroll instead of clipping */
+  .settings-root {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Show nav toggle */
+  .settings-btn-nav-toggle {
+    display: inline-flex;
+  }
+
+  /* Toolbar: wraps on small screens */
+  .settings-toolbar {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Hide subtitle to save space */
+  .settings-toolbar-title-sub {
+    display: none;
+  }
+
+  /* Reload button: icon only */
+  .settings-btn-reload-label {
+    display: none;
+  }
+
+  .settings-btn-reload {
+    padding: 0.48rem 0.65rem;
+  }
+
+  /* Page tabs: fill full width evenly */
+  .settings-page-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .settings-page-tab {
+    justify-content: center;
+    padding: 0.45rem 0.4rem;
+    font-size: 0.74rem;
+    border-radius: 8px;
+  }
+
+  /* Sub-tabs: single scrollable row, no wrapping */
+  .settings-sub-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+    margin-bottom: 0.75rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;           /* Firefox */
+  }
+
+  .settings-sub-tabs::-webkit-scrollbar {
+    display: none;                   /* Chrome/Safari */
+  }
+
+  .settings-sub-tab {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    padding: 0.32rem 0.7rem;
+  }
+
+  /* Split: stack form above table */
+  .settings-split {
+    flex-direction: column;
+    overflow: visible;               /* let .settings-root handle scrolling */
+    min-height: unset;
+    flex: unset;
+  }
+
+  .settings-form-col {
+    width: 100%;
+    overflow-y: visible;
+  }
+
+  /* Table: give it enough room to be usable */
+  .settings-table-col {
+    min-height: 280px;
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+
+  /* Form card: tighter on mobile */
+  .settings-form-card {
+    padding: 14px 14px 10px;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Slightly smaller field text */
+  .settings-field label {
+    font-size: 11px;
+  }
+
+  .settings-field input,
+  .settings-field select {
+    font-size: 12.5px;
+    padding: 0.42rem 0.6rem;
+  }
+
+  /* Action buttons */
+  .settings-btn-add,
+  .settings-btn-save {
+    font-size: 0.72rem;
+    padding: 0.42rem 0;
+  }
+
+  /* Section wrappers: let content flow naturally, no height clamping */
+  .settings-section-wrapper {
+    flex-grow: unset;
+    min-height: unset;
+  }
+
+  .settings-section-content {
+    flex-grow: unset;
+    min-height: unset;
+    display: block;
+  }
+}

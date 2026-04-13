@@ -20,6 +20,7 @@ import ProfileGIPP from './Modules/ProfileGIPP/ProfileGIPP';
 import Gepp from './Modules/GEPP/Gepp';
 import CreateTheme from './Modules/GTPP/CreateTheme/CreateTheme';
 import Active from './Modules/GAPP/Active/Active';
+import GappSettings from './Modules/GAPP/Settings/Settings';
 import EppMain from './Modules/EPP_V2/Epp';
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
           <Route path="/GIPP/GAPP/Stores" element={withPrivateProvider(<Stores />)} />
           <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
           <Route path="/GIPP/GAPP/Active" element={withPrivateProvider(<Active />)} />
+          <Route path="/GIPP/GAPP/Settings" element={withPrivateProvider(<GappSettings />)} />
           <Route path='/GIPP/GEPP' element={withPrivateProvider(<Gepp />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
