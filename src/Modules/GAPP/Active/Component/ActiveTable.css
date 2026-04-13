@@ -102,3 +102,72 @@
   font-size: 0.75rem;
   flex-shrink: 0;
 }
+
+/* ── Nav-toggle button (mobile only) ─────────────────────── */
+.btn-nav-toggle {
+  display: none; /* hidden on desktop */
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: #fff;
+  color: #6a9f2f;
+  font-size: 0.9rem;
+  border: 1.5px solid #bed989;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.btn-nav-toggle:hover {
+  background: #f0f7e6;
+  color: #4a7a1f;
+}
+
+/* ── Table wrapper (for scoped responsive overrides) ─────── */
+.gapp-table-wrapper {
+  flex-grow: 1;
+  min-height: 0;
+}
+
+/* ── Mobile responsive ───────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Show nav toggle only on mobile */
+  .btn-nav-toggle {
+    display: inline-flex;
+  }
+
+  /* Toolbar stacks when narrow */
+  .active-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Hide the subtitle hint on tiny screens */
+  .active-toolbar-title-sub {
+    display: none;
+  }
+
+  /* Compact button text / padding */
+  .btn-add-active,
+  .btn-export-csv,
+  .btn-filter-toggle {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.78rem;
+  }
+
+  /* Hide the "Novo Ativo" label, keep only the + icon */
+  .btn-add-active-label {
+    display: none;
+  }
+
+  /* Smaller table font + tighter padding */
+  .gapp-table-wrapper .table {
+    font-size: 0.72rem;
+  }
+  .gapp-table-wrapper td,
+  .gapp-table-wrapper th {
+    padding: 0.35rem 0.5rem;
+    white-space: nowrap;
+  }
+}

@@ -13,7 +13,12 @@ import { useActiveData } from "./Hooks/useActiveData";
 import { useActiveFilters } from "./Hooks/useActiveFilters";
 import "./ActiveTable.css";
 
-const ActiveTable: React.FC = () => {
+interface ActiveTableProps {
+  onToggleNav?: () => void;
+  navHidden?: boolean;
+}
+
+const ActiveTable: React.FC<ActiveTableProps> = ({ onToggleNav, navHidden }) => {
   const {
     gappUserId, gappWorkGroupId,
     data, setData,
@@ -141,9 +146,15 @@ const ActiveTable: React.FC = () => {
           </div>
         </div>
         <div className="d-flex gap-2 align-items-center">
-          {/* <button className="btn-export-csv" onClick={() => console.log('Fechar nav menu')} title={false ? "Fechar menu de navegação" : "Abrir menu de navegação"}>
-            <i className="fa fa-solid fa-eye"></i>
-          </button> */}
+          {onToggleNav && (
+            <button
+              className="btn-nav-toggle"
+              onClick={onToggleNav}
+              title={navHidden ? "Mostrar menu de navegação" : "Ocultar menu de navegação"}
+            >
+              <i className={`fa ${navHidden ? "fa-bars" : "fa-indent"}`}></i>
+            </button>
+          )}
           <button
             ref={filterBtnRef}
             className={`btn-filter-toggle${filterOpen || activeFilterCount > 0 ? " active" : ""}`}
@@ -160,7 +171,7 @@ const ActiveTable: React.FC = () => {
           </button>
           <button className="btn-add-active" onClick={handleAdd} title="Adicionar novo ativo">
             <span className="btn-add-active-icon"><i className="fa fa-plus text-white"></i></span>
-            Novo Ativo
+            <span className="btn-add-active-label">Novo Ativo</span>
           </button>
         </div>
       </div>
@@ -180,7 +191,7 @@ const ActiveTable: React.FC = () => {
       />
 
       {/* Table */}
-      <div className="flex-grow-1" style={{ minHeight: 0 }}>
+      <div className="gapp-table-wrapper" style={{ minHeight: 0 }}>
         <CustomTable list={tableList} onConfirmList={handleServicesBox} maxSelection={1} />
       </div>
 

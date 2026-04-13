@@ -227,3 +227,45 @@
   color: #94a3b8;
   transform: translateX(3px);
 }
+
+/* ── Mobile: slide-up action sheet ───────────────────────── */
+@media (max-width: 640px) {
+  .services-overlay {
+    align-items: flex-end;
+  }
+
+  .services-card {
+    border-radius: 24px 24px 0 0;
+    max-width: 100%;
+    padding: 1.25rem 1.25rem 2rem;
+    animation: sb-sheet-up 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  @keyframes sb-sheet-up {
+    from { transform: translateY(100%); opacity: 0.6; }
+    to   { transform: translateY(0);    opacity: 1;   }
+  }
+
+  /* Drag handle affordance */
+  .services-card::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin: 0 auto 1.25rem;
+  }
+
+  .services-header {
+    margin-bottom: 1rem;
+  }
+
+  .services-divider {
+    margin-bottom: 1rem;
+  }
+
+  .services-btn {
+    padding: 0.75rem 1rem;
+  }
+}
