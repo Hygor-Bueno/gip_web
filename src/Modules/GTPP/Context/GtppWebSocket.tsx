@@ -3,12 +3,12 @@ class GtppWebSocket {
   private socket!: WebSocket;
   public isConnected: boolean = false;
   private responseWebSocket: object | null = {};
-  private dataResponseWebSocket: object | null | any[] = [];
+  private dataResponseWebSocket: object | null | unknown[] = [];
   private pingIntervalRef: NodeJS.Timeout | null = null;
   private timeoutRef: NodeJS.Timeout | null = null;
   private lastSentMessage: object | null = null;
   
-  private callbacks: { [key: string]: (notify: any) => void } = {};
+  private callbacks: Record<string, (event: MessageEvent) => void> = {};
 
   private constructor() {}
 
@@ -19,7 +19,7 @@ class GtppWebSocket {
     return GtppWebSocket.instance;
   }
 
-  public setCallback(key: string, callback: (notify: any) => void) {
+  public setCallback(key: string, callback: (event: MessageEvent) => void): void {
     this.callbacks[key] = callback;
   }
 
@@ -117,7 +117,7 @@ class GtppWebSocket {
     return this.responseWebSocket;
   }
 
-  public getDataResponseWebSocket(): object | null | any[] {
+  public getDataResponseWebSocket(): object | null | unknown[] {
     return this.dataResponseWebSocket;
   }
 

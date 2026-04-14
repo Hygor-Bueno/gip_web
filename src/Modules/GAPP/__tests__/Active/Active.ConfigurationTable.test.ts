@@ -1,4 +1,4 @@
-import { customValueActive, listColumnsOcult, customTagsActive } from "../Active/ConfigurationTable/ConfigurationTable";
+import { customValueActive, listColumnsOcult, customTagsActive } from "../../Active/ConfigurationTable/ConfigurationTable";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // customValueActive — formatadores de célula da tabela

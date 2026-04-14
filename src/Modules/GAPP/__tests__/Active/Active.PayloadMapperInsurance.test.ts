@@ -1,5 +1,5 @@
-import { mapFormToApi } from "../Active/Component/PayloadMapper/PayloadMapperInsurance";
-import { ActiveFormValues, Insurance, VehicleFormValues } from "../Active/Interfaces/Interfaces";
+import { mapFormToApi } from "../../Active/Component/PayloadMapper/PayloadMapperInsurance";
+import { ActiveFormValues, Insurance, VehicleFormValues } from "../../Active/Interfaces/Interfaces";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // mapFormToApi (Insurance)

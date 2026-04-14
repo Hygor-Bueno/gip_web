@@ -1,5 +1,5 @@
-import { mapActiveToApi, mapVehicleToApi } from "../Active/Component/PayloadMapper/PayloadMapper";
-import { ActiveFormValues, VehicleFormValues } from "../Active/Interfaces/Interfaces";
+import { mapActiveToApi, mapVehicleToApi } from "../../Active/Component/PayloadMapper/PayloadMapper";
+import { ActiveFormValues, VehicleFormValues } from "../../Active/Interfaces/Interfaces";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // mapActiveToApi
@@ -27,17 +27,16 @@ describe("mapActiveToApi", () => {
     },
   };
 
-  it("deve serializar list_items como string JSON", () => {
+  it("deve retornar list_items como objeto", () => {
     const result = mapActiveToApi(baseActive);
-    expect(typeof result.list_items).toBe("string");
-    expect(JSON.parse(result.list_items as string)).toEqual({ list: ["Extintor", "Estepe"] });
+    expect(typeof result.list_items).toBe("object");
+    expect(result.list_items).toEqual({ list: ["Extintor", "Estepe"] });
   });
 
-  it("deve serializar place_purchase como string JSON", () => {
+  it("deve retornar place_purchase como objeto", () => {
     const result = mapActiveToApi(baseActive);
-    expect(typeof result.place_purchase).toBe("string");
-    const parsed = JSON.parse(result.place_purchase as string);
-    expect(parsed.city).toBe("São Paulo");
+    expect(typeof result.place_purchase).toBe("object");
+    expect((result.place_purchase as any).city).toBe("São Paulo");
   });
 
   it("deve converter is_vehicle true → 1", () => {
@@ -52,12 +51,12 @@ describe("mapActiveToApi", () => {
 
   it("deve usar list_items vazio quando não informado", () => {
     const result = mapActiveToApi({ ...baseActive, list_items: undefined });
-    expect(result.list_items).toBe(JSON.stringify({ list: [] }));
+    expect(result.list_items).toEqual({ list: [] });
   });
 
   it("deve usar place_purchase vazio quando não informado", () => {
     const result = mapActiveToApi({ ...baseActive, place_purchase: undefined });
-    expect(result.place_purchase).toBe(JSON.stringify({}));
+    expect(result.place_purchase).toEqual({});
   });
 
   it("deve manter os demais campos intactos", () => {

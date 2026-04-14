@@ -1,0 +1,219 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOVEMENT PAGE — Root, toolbar, tabs, content
+   ═══════════════════════════════════════════════════════════════════════════ */
+.mv-root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 0.5rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+.mv-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
+}
+
+.mv-toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mv-toolbar-title-icon {
+  width: 34px;
+  height: 34px;
+  background: #bed989;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mv-toolbar-title-icon i {
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.mv-toolbar-title-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1;
+}
+
+.mv-toolbar-title-sub {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.mv-toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* ── Nav-toggle (hidden on desktop) ─────────────────────────────────────── */
+.mv-btn-nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: #fff;
+  color: #6a9f2f;
+  font-size: 0.9rem;
+  border: 1.5px solid #bed989;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.mv-btn-nav-toggle:hover { background: #f0f7e6; }
+
+/* ── Reload button ───────────────────────────────────────────────────────── */
+.mv-btn-reload {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.48rem 0.9rem;
+  background: #fff;
+  color: #6a9f2f;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid #bed989;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.mv-btn-reload:hover {
+  background: #f0f7e6;
+  color: #4a7a1f;
+}
+
+/* ── Page tabs ───────────────────────────────────────────────────────────── */
+.mv-page-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.mv-page-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.mv-page-tab:hover {
+  background: #f0f7e6;
+  border-color: #bed989;
+  color: #4a7a1f;
+}
+
+.mv-page-tab.active {
+  background: #bed989;
+  border-color: #bed989;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.45);
+}
+
+/* ── Content area ────────────────────────────────────────────────────────── */
+.mv-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TABLET  ≤ 960px
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 960px) {
+  .mv-page-tab {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.78rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE  ≤ 640px
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  .mv-root {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Show nav toggle */
+  .mv-btn-nav-toggle {
+    display: inline-flex;
+  }
+
+  /* Toolbar wraps */
+  .mv-toolbar {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .mv-toolbar-title-sub {
+    display: none;
+  }
+
+  /* Reload: icon only */
+  .mv-btn-reload-label {
+    display: none;
+  }
+
+  .mv-btn-reload {
+    padding: 0.48rem 0.65rem;
+  }
+
+  /* Tabs: two-column grid */
+  .mv-page-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .mv-page-tab {
+    justify-content: center;
+    padding: 0.45rem 0.4rem;
+    font-size: 0.74rem;
+    border-radius: 8px;
+  }
+
+  /* Content: let root handle scrolling */
+  .mv-content {
+    overflow: visible;
+    flex-grow: unset;
+    min-height: unset;
+  }
+}

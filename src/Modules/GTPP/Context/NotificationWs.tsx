@@ -1,5 +1,6 @@
 import { classToJSON } from "../../../Util/Utils";
 import InformSending from "../Class/InformSending";
+import { IWsObject } from "./types/gtppTypes";
 
 // ======================
 // Tipos base
@@ -15,7 +16,7 @@ type Task = {
   percent?: number;
 };
 
-type WSMessage<T = any> = {
+type WSMessage<T = IWsObject> = {
   error: boolean;
   message?: string;
   user_id?: number;
@@ -65,7 +66,7 @@ export async function callbackOnMessage(
           setTask(prev => ({
             ...prev,
             state_id: response.object?.state_id,
-            percent: response.object?.percent
+            percent: response.object?.percent != null ? Number(response.object.percent) : prev.percent,
           }));
         }
         await loadTasks();

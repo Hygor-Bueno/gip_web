@@ -13,7 +13,7 @@ import { FilterPage } from "../Filter/FilterPage";
 import { InputCheckButton } from "../../../../Components/CustomButton";
 import GtppMainProps from "../../Interfaces/IGtppMainProps";
 import "./FlowBoard.css";
-import { generateAndDownloadCSV } from "../../../../Class/FileGenerator";
+import { generateAndDownloadCSV, Task } from "../../../../Class/FileGenerator";
 
 export default function GtppMain(props: GtppMainProps) {
   function HeaderFilters() {
@@ -64,7 +64,7 @@ export default function GtppMain(props: GtppMainProps) {
       <Col xs={12} className="d-flex flex-nowrap p-0 menu-expansivo flex-grow-1" style={{ overflowX: "auto", height: "70%" }}>
         {props.states?.map((state: any, idx) => {
           const x = props.getTask;
-          const filteredTasks = x.filter((t: {state_id: any}) => t.state_id === state.id);
+          const filteredTasks = x.filter((t) => t.state_id === state.id);
           const isFirstColumn = idx === 0;
 
           return (
@@ -81,7 +81,7 @@ export default function GtppMain(props: GtppMainProps) {
                     props.setModalPageElement(<Cardregister reloadtask={props.loadTasks} assistenceFunction={() => props.setModalPage(false)} onClose={() => props.setModalPage(false)} />);
                     props.setModalPage(true);
                   }}
-                  exportCsv={() => generateAndDownloadCSV(filteredTasks, "GTPP-documento")}
+                  exportCsv={() => generateAndDownloadCSV(filteredTasks as unknown as Task[], "GTPP-documento")}
                   exportPdf={() => {
                     props.setModalPageElement(
                       <div className="card w-75 position-relative bg-white">
@@ -89,7 +89,7 @@ export default function GtppMain(props: GtppMainProps) {
                           <button className="btn-close" onClick={() => props.setModalPage(false)}></button>
                         </div>
                         <div className="overflow-auto p-4" style={{ maxHeight: "80vh" }}>
-                          <PDFGenerator data={filteredTasks} />
+                          <PDFGenerator data={filteredTasks as unknown as Task[]} />
                         </div>
                       </div>
                     );

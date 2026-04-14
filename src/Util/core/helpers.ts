@@ -77,3 +77,20 @@ function sortList<T>(a: T, b: T, key: keyof T, ascending: boolean): number {
     const valueTwo = String(b[key]).toLowerCase();
     return (valueOne > valueTwo ? 1 : valueOne < valueTwo ? -1 : 0) * (ascending ? 1 : -1);
 }
+
+/**
+ * Returns a sorted array of unique, non-empty strings.
+ * Applies a Set to eliminate duplicates before rendering to any select/list.
+ *
+ * @param values - Raw string array (may contain duplicates or empty values).
+ * @returns Deduplicated, sorted string array.
+ */
+export function distinct(values: (string | undefined | null)[]): string[] {
+    return Array.from(
+        new Set(
+            values
+                .map(v => (v ?? "").trim().toUpperCase())
+                .filter((v): v is string => v.length > 0)
+        )
+    ).sort();
+}

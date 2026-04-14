@@ -8,7 +8,7 @@ import { ContentDefault } from "./ContentDefault";
 import { ActionModal } from "./ActionModal";
 import { fieldsetFormTheme, fieldsetFormThemeUpdate } from "./Fieldset/Fiedset";
 import { DateConverter } from "../Class/DataConvert";
-import { ISelectedTasks, ISelectItem, ITask, ITheme } from "./ICreateTheme";
+import { ISelectedTasks, ISelectItem, ITheme } from "./ICreateTheme";
 
 function CreateTheme() {
   const { fetchData } = useConnection();
@@ -56,7 +56,7 @@ function CreateTheme() {
     themeId: number | string | null,
     descriptionTheme: string | null
   ) {
-    setGetTask((prev: ITask[]) =>
+    setGetTask((prev) =>
       prev.map(task =>
         task.id === taskId
           ? {
@@ -81,11 +81,11 @@ function CreateTheme() {
 
   const formattedTaskList = useMemo(() => {
     return (
-      getTask?.map((item: ITask) => ({
+      getTask?.map((item) => ({
         id: { value: String(item.id), tag: "Numero" },
         description: { value: item.description, tag: "Nome da Tarefa" },
-        initial_date: { value: DateConverter.formatDate(item.initial_date), tag: "Início" },
-        final_date: { value: DateConverter.formatDate(item.final_date), tag: "Fim" },
+        initial_date: { value: DateConverter.formatDate(item.initial_date ?? ""), tag: "Início" },
+        final_date: { value: DateConverter.formatDate(item.final_date ?? ""), tag: "Fim" },
         state_id: { value: item.state_description, tag: "Estado" },
         theme_id_fk: { value: String(item.theme_id_fk ?? ""), tag: "Tema", ocultColumn: true },
         description_theme: { value: String(item.description_theme ?? ""), tag: "Tema" }

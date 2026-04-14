@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import ListAddFranchise from "../Active/Component/ListAddItem/ListAddFranchise";
-import { Insurance } from "../Active/Interfaces/Interfaces";
+import ListAddFranchise from "../../Active/Component/ListAddItem/ListAddFranchise";
+import { Insurance } from "../../Active/Interfaces/Interfaces";
 
 const baseInsurance: Partial<Insurance> = {
   franchise_list: {

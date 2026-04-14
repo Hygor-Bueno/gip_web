@@ -1,0 +1,587 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOVEMENT FORM — Phase 0 (selection) + Phase 1 (form)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Root ────────────────────────────────────────────────────────────────── */
+.mvform-root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Phase 0 toolbar ─────────────────────────────────────────────────────── */
+.mvform-phase0-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* Result count pill */
+.mvform-result-count {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #6a9e2f;
+  background: #f0f7e6;
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+/* ── Filter toggle button ────────────────────────────────────────────────── */
+.mvform-btn-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.48rem 0.9rem;
+  background: #fff;
+  color: #6a9f2f;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid #bed989;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mvform-btn-filter:hover   { background: #f0f7e6; color: #4a7a1f; }
+.mvform-btn-filter.active  { background: #f0f7e6; color: #4a7a1f; border-color: #6a9e2f; }
+
+.mvform-filter-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 1px 5px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── Floating filter panel ───────────────────────────────────────────────── */
+.mvform-fp-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  pointer-events: none;
+}
+
+.mvform-fp-panel {
+  pointer-events: all;
+  position: fixed;
+  top: 70px;
+  right: 1.25rem;
+  width: 360px;
+  max-width: calc(100vw - 2rem);
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.06);
+  z-index: 401;
+  animation: mvfp-drop 0.18s ease;
+}
+
+@keyframes mvfp-drop {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mvform-fp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.mvform-fp-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.mvform-fp-icon {
+  width: 26px; height: 26px;
+  background: #bed989;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 0.7rem; flex-shrink: 0;
+}
+
+.mvform-fp-badge {
+  background: #6a9f2f; color: #fff;
+  font-size: 0.65rem; font-weight: 700;
+  border-radius: 20px; padding: 1px 6px; min-width: 18px; text-align: center;
+}
+
+.mvform-fp-count {
+  font-size: 0.7rem; font-weight: 600;
+  background: #f0f7e6; color: #6a9f2f;
+  border-radius: 20px; padding: 1px 8px; white-space: nowrap;
+}
+
+.mvform-fp-header-actions { display: flex; gap: 0.4rem; align-items: center; }
+
+.mvform-fp-btn-clear {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  background: transparent; border: 1.5px solid #e2e8f0; border-radius: 8px;
+  color: #64748b; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.mvform-fp-btn-clear:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+
+.mvform-fp-btn-close {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  background: #f1f5f9; border: none; border-radius: 7px;
+  color: #64748b; font-size: 0.7rem; cursor: pointer;
+  transition: background 0.15s;
+}
+.mvform-fp-btn-close:hover { background: #e2e8f0; }
+
+.mvform-fp-grid { display: flex; flex-direction: column; gap: 0.65rem; }
+.mvform-fp-group { display: flex; flex-direction: column; gap: 4px; }
+.mvform-fp-group--full { width: 100%; }
+
+.mvform-fp-label {
+  font-size: 0.7rem; font-weight: 600; color: #64748b;
+  display: flex; align-items: center; gap: 4px;
+}
+.mvform-fp-label .fa { color: #bed989; font-size: 0.67rem; }
+
+/* Search wrap with inline clear */
+.mvform-fp-search-wrap { position: relative; }
+.mvform-fp-search-wrap .mvform-fp-input { padding-right: 2rem; }
+
+.mvform-fp-search-clear {
+  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: #94a3b8; cursor: pointer;
+  font-size: 0.75rem; padding: 2px; line-height: 1;
+}
+.mvform-fp-search-clear:hover { color: #475569; }
+
+/* Plate row */
+.mvform-fp-plate-row { display: flex; gap: 0.35rem; }
+
+.mvform-fp-input {
+  flex: 1;
+  height: 32px;
+  padding: 0 0.5rem;
+  font-size: 0.78rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  color: #1e293b;
+  background: #f8fafc;
+  transition: border-color 0.15s, background 0.15s;
+  outline: none;
+  width: 100%;
+}
+.mvform-fp-input:focus { border-color: #bed989; background: #fff; }
+
+/* Plate input — bold uppercase for readability */
+.mvform-fp-input--plate {
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.mvform-fp-input--plate::placeholder { font-weight: 400; letter-spacing: 0; }
+
+.mvform-fp-btn-clear-plate {
+  height: 32px; width: 34px; flex-shrink: 0;
+  background: #fee2e2; border: 1.5px solid #fca5a5; border-radius: 8px;
+  color: #dc2626; font-size: 0.78rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.mvform-fp-btn-clear-plate:hover { background: #fecaca; }
+
+.mvform-fp-plate-result {
+  font-size: 11px; font-weight: 600; color: #6a9e2f;
+  display: flex; align-items: center; gap: 4px; margin-top: 2px;
+}
+.mvform-fp-plate-result.none { color: #b45309; }
+
+/* ── Type toggle ─────────────────────────────────────────────────────────── */
+.mvform-type-toggle { display: flex; gap: 0.35rem; flex-shrink: 0; }
+
+.mvform-type-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.42rem 0.85rem;
+  font-size: 0.78rem; font-weight: 600;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: #f8fafc; color: #64748b; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.mvform-type-btn:hover  { background: #f0f7e6; border-color: #bed989; color: #4a7a1f; }
+.mvform-type-btn.active { background: #bed989; border-color: #bed989; color: #fff; box-shadow: 0 2px 8px rgba(190,217,137,.4); }
+
+/* ── External notice ─────────────────────────────────────────────────────── */
+.mvform-notice {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  background: #fef9ec; border: 1.5px solid #fde68a; border-radius: 9px;
+  font-size: 12px; color: #92400e;
+  margin-bottom: 0.75rem; flex-shrink: 0;
+}
+
+/* ── Body wrapper (grid + footer) ───────────────────────────────────────── */
+.mvform-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Asset grid ──────────────────────────────────────────────────────────── */
+.mvform-asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+  gap: 0.65rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding-right: 2px;
+  padding-bottom: 4px;
+}
+.mvform-asset-grid::-webkit-scrollbar { width: 4px; }
+.mvform-asset-grid::-webkit-scrollbar-track { background: transparent; }
+.mvform-asset-grid::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+.mvform-asset-card {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  padding: 0.75rem;
+  background: #fff; border: 1.5px solid #e8eaf0; border-radius: 12px;
+  cursor: pointer; user-select: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.mvform-asset-card:hover   { border-color: #bed989; box-shadow: 0 2px 8px rgba(190,217,137,.25); }
+.mvform-asset-card.selected{ border-color: #6a9e2f; background: #f0f7e6; box-shadow: 0 2px 10px rgba(106,158,47,.2); }
+
+.mvform-checkbox {
+  width: 18px; height: 18px; min-width: 18px;
+  border: 2px solid #cbd5e1; border-radius: 5px; background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.15s, background 0.15s; margin-top: 2px;
+}
+.mvform-checkbox.checked { border-color: #6a9e2f; background: #6a9e2f; }
+.mvform-checkbox.checked i { color: #fff; font-size: 9px; }
+
+.mvform-asset-card-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.mvform-asset-id   { font-size: 10px; font-weight: 700; color: #6a9e2f; text-transform: uppercase; letter-spacing: .4px; }
+.mvform-asset-name { font-size: 12.5px; font-weight: 600; color: #1a202c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mvform-asset-type { font-size: 11px; color: #64748b; }
+
+/* Plate badge on cards */
+.mvform-asset-plate {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 700; color: #fff;
+  background: #6a9e2f; border-radius: 5px; padding: 1px 6px;
+  letter-spacing: .8px; width: fit-content;
+}
+.mvform-asset-plate i { font-size: 9px; }
+
+.mvform-asset-unit {
+  font-size: 11px; color: #94a3b8;
+  display: flex; align-items: center; gap: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mvform-asset-unit i { font-size: 9px; }
+
+/* ── Phase 0 footer ──────────────────────────────────────────────────────── */
+.mvform-phase0-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 0 0.5rem;
+  border-top: 1.5px solid #f1f5f9;
+  flex-shrink: 0;
+  /* Safety padding so "Avançar" is never hidden behind a floating chat button */
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+}
+
+.mvform-selected-count {
+  font-size: 12.5px; font-weight: 600; color: #64748b; text-align: center;
+}
+
+.mvform-btn-advance {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  width: 100%; max-width: 340px;
+  padding: 0.7rem 1.2rem;
+  background: #bed989; color: #fff;
+  font-size: 0.9rem; font-weight: 700;
+  border: none; border-radius: 12px; cursor: pointer;
+  box-shadow: 0 2px 10px rgba(190,217,137,.45);
+  transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
+  letter-spacing: .2px;
+}
+.mvform-btn-advance:hover:not(:disabled) { filter: brightness(.92); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(190,217,137,.55); }
+.mvform-btn-advance:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.mvform-empty {
+  grid-column: 1 / -1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.5rem; padding: 3rem 1rem;
+  color: #94a3b8; font-size: 0.85rem;
+}
+.mvform-empty i { font-size: 1.8rem; color: #cbd5e1; }
+
+.mvform-plate-empty-clear {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  margin-top: 0.5rem; padding: 0.38rem 0.9rem;
+  font-size: 0.75rem; font-weight: 600;
+  background: #fff; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 8px;
+  cursor: pointer; transition: background 0.15s;
+}
+.mvform-plate-empty-clear:hover { background: #f1f5f9; color: #334155; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHASE 1 — Two-column layout
+   ═══════════════════════════════════════════════════════════════════════════ */
+.mvform-phase1 {
+  display: flex; gap: 1rem;
+  flex: 1; min-height: 0; overflow: hidden;
+}
+
+.mvform-phase1-left { width: 280px; flex-shrink: 0; overflow-y: auto; }
+.mvform-phase1-left::-webkit-scrollbar { width: 4px; }
+.mvform-phase1-left::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+.mvform-phase1-right { flex: 1; min-width: 0; overflow-y: auto; }
+.mvform-phase1-right::-webkit-scrollbar { width: 4px; }
+.mvform-phase1-right::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+.mvform-card {
+  background: #fff; border: 1.5px solid #e8eaf0; border-radius: 16px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  display: flex; flex-direction: column;
+}
+
+.mvform-card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1.5px solid #f1f3f8;
+}
+
+.mvform-card-header-icon {
+  width: 30px; height: 30px; background: #f0f7e6; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mvform-card-header-icon i { color: #6a9e2f; font-size: 12px; }
+
+.mvform-card-header-title { font-size: 13px; font-weight: 700; color: #1a202c; flex: 1; }
+
+.mvform-count-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 22px; height: 22px; padding: 0 6px;
+  background: #bed989; color: #fff; font-size: 11px; font-weight: 700; border-radius: 20px;
+}
+
+/* ── Chips ───────────────────────────────────────────────────────────────── */
+.mvform-chips-list {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  margin-bottom: 1rem; max-height: 320px; overflow-y: auto;
+}
+.mvform-chips-list::-webkit-scrollbar { width: 3px; }
+.mvform-chips-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+.mvform-chip {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: #f8fafc; border: 1.5px solid #e8eaf0; border-radius: 9px;
+  transition: border-color 0.15s;
+}
+.mvform-chip:hover { border-color: #bed989; }
+
+.mvform-chip-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.mvform-chip-id   { font-size: 10px; font-weight: 700; color: #6a9e2f; }
+.mvform-chip-name { font-size: 12px; font-weight: 600; color: #1a202c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mvform-chip-type { font-size: 11px; color: #94a3b8; }
+.mvform-chip-plate {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 700; color: #6a9e2f; letter-spacing: .5px;
+}
+.mvform-chip-plate i { font-size: 9px; }
+
+.mvform-chip-remove {
+  width: 22px; height: 22px; border: none; background: transparent;
+  color: #94a3b8; cursor: pointer; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.mvform-chip-remove:hover { background: #fee2e2; color: #dc2626; }
+
+.mvform-btn-back {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  width: 100%; justify-content: center;
+  padding: 0.48rem 0;
+  font-size: 0.78rem; font-weight: 600;
+  background: #fff; color: #64748b; border: 1.5px solid #e2e8f0; border-radius: 9px;
+  cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.mvform-btn-back:hover { background: #f1f5f9; color: #334155; }
+
+/* ── Form fields ─────────────────────────────────────────────────────────── */
+.mvform-fields { display: flex; flex-direction: column; gap: 0.9rem; margin-bottom: 1rem; }
+.mvform-field  { display: flex; flex-direction: column; gap: 5px; }
+
+.mvform-field label {
+  font-size: 11.5px; font-weight: 600; color: #475569;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.mvform-required { color: #dc2626; }
+.mvform-spinner  { color: #94a3b8; font-size: 11px; }
+
+.mvform-field select {
+  width: 100%; padding: 0.48rem 0.7rem;
+  font-size: 13px; color: #1a202c; background: #f8fafc;
+  border: 1.5px solid #e2e8f0; border-radius: 9px;
+  outline: none; transition: border-color 0.15s, background 0.15s;
+  appearance: none; -webkit-appearance: none; cursor: pointer;
+}
+.mvform-field select:focus    { border-color: #bed989; background: #fff; }
+.mvform-field select:disabled { opacity: .55; cursor: not-allowed; }
+
+.mvform-textarea {
+  width: 100%; padding: 0.5rem 0.7rem;
+  font-size: 13px; color: #1a202c; background: #f8fafc;
+  border: 1.5px solid #e2e8f0; border-radius: 9px;
+  outline: none; resize: vertical; min-height: 80px;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+.mvform-textarea:focus { border-color: #bed989; background: #fff; }
+
+.mvform-field-warn {
+  font-size: 11px; color: #b45309;
+  display: flex; align-items: center; gap: 4px; margin-top: 2px;
+}
+
+/* ── Actions ─────────────────────────────────────────────────────────────── */
+.mvform-actions { display: flex; gap: 0.5rem; margin-top: 4px; }
+
+.mvform-btn-cancel {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.78rem; font-weight: 600;
+  background: #fff; color: #94a3b8; border: 1.5px solid #e2e8f0; border-radius: 9px;
+  cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.mvform-btn-cancel:hover { background: #f1f5f9; color: #64748b; }
+
+.mvform-btn-submit {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem; font-weight: 600;
+  background: #6a9e2f; color: #fff; border: none; border-radius: 9px;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(106,158,47,.3);
+  transition: filter 0.15s, transform 0.15s;
+}
+.mvform-btn-submit:hover:not(:disabled) { filter: brightness(.92); transform: translateY(-1px); }
+.mvform-btn-submit:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TABLET  ≤ 900px
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .mvform-phase1-left { width: 240px; }
+  .mvform-asset-grid  { grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE  ≤ 640px
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* Root NÃO rola — o grid rola internamente dentro do flex.
+     Manter overflow:hidden do base garante que o footer
+     fique sempre visível abaixo do grid, sem rolar a página. */
+
+  /* Toolbar */
+  .mvform-phase0-header { gap: 0.5rem; }
+
+  /* Type buttons dividem a linha igualmente */
+  .mvform-type-toggle { flex: 1; }
+  .mvform-type-btn    { flex: 1; justify-content: center; }
+
+  /* Grid: 2 colunas. flex:1 + min-height:0 + overflow-y:auto
+     são herdados do base — o grid rola SÓ seus cards,
+     o footer fica fixo abaixo sem precisar de sticky. */
+  .mvform-asset-grid {
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  }
+
+  /* Footer: flex-shrink:0 herdado do base — sempre visível */
+  .mvform-phase0-footer {
+    padding-bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mvform-btn-advance { max-width: 100%; font-size: 0.88rem; padding: 0.65rem 1rem; }
+
+  /* Filter panel: bottom sheet */
+  .mvform-fp-panel {
+    top: auto;
+    bottom: 0; right: 0; left: 0;
+    width: 100%; max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 75vh;
+    overflow-y: auto;
+    animation: mvfp-slide-up 0.2s ease;
+  }
+
+  @keyframes mvfp-slide-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Phase 1: empilha as colunas */
+  .mvform-phase1 {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .mvform-phase1-left,
+  .mvform-phase1-right {
+    width: 100%;
+    overflow-y: visible;
+    flex-shrink: 0;
+  }
+
+  .mvform-chips-list { max-height: 220px; }
+
+  .mvform-card {
+    border-radius: 12px;
+    padding: 14px 14px 10px;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* ── Very narrow phones ≤ 360px ──────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .mvform-asset-grid { grid-template-columns: 1fr 1fr; }
+  .mvform-type-btn   { font-size: 0.72rem; padding: 0.38rem 0.5rem; }
+  .mvform-btn-filter { font-size: 0.72rem; padding: 0.38rem 0.6rem; }
+}
