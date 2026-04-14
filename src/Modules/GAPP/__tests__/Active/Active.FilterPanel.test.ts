@@ -4,9 +4,9 @@
  */
 export {};
 
-import { ActiveFilters, defaultFilters } from "../Active/Component/FilterPanel/FilterPanel";
-import { maskCnpj, validateCnpj } from "../Active/Component/FilterPanel/CnpjFilterInput";
-import { Active } from "../Active/Interfaces/Interfaces";
+import { ActiveFilters, defaultFilters } from "../../Active/Component/FilterPanel/FilterPanel";
+import { maskCnpj, validateCnpj } from "../../Active/Component/FilterPanel/CnpjFilterInput";
+import { Active } from "../../Active/Interfaces/Interfaces";
 
 // ─── Helper: aplica filtros sobre a lista (espelha o useMemo de ActiveTable) ──
 

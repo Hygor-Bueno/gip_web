@@ -11,16 +11,16 @@ import {
   ActiveTypeData,
   ActiveTypeFuelData,
   ActiveDepartamentData,
-} from "../Active/Adapters/Adapters";
+} from "../../Active/Adapters/Adapters";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock do fetchDataFull — intercepta todas as chamadas HTTP
 // ─────────────────────────────────────────────────────────────────────────────
-jest.mock("../../../Util/Utils", () => ({
+jest.mock("../../../../Util/Utils", () => ({
   fetchDataFull: jest.fn(),
 }));
 
-import { fetchDataFull } from "../../../Util/Utils";
+import { fetchDataFull } from "../../../../Util/Utils";
 
 const mockFetch = fetchDataFull as jest.Mock;
 

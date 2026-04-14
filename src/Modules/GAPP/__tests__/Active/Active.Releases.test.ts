@@ -8,8 +8,8 @@
  */
 export {};
 
-import { Expense, FuelData, MaintenanceData, FinesData, SinisterData, PartItem } from "../Active/Component/Releases/Interfaces";
-import { Insurance } from "../Active/Interfaces/Interfaces";
+import { Expense, FuelData, MaintenanceData, FinesData, SinisterData, PartItem } from "../../Active/Component/Releases/Interfaces";
+import { Insurance } from "../../Active/Interfaces/Interfaces";
 import {
   defaultExpense,
   defaultFuel,
@@ -17,7 +17,7 @@ import {
   defaultFines,
   defaultSinister,
   defaultInsurance,
-} from "../Active/Component/Releases/defaultValues";
+} from "../../Active/Component/Releases/defaultValues";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers (mirrors the pure logic inside Releases.tsx)

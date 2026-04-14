@@ -1,4 +1,4 @@
-import { Active, ActiveFormValues, Insurance, VehicleFormValues } from "../Active/Interfaces/Interfaces";
+import { Active, ActiveFormValues, Insurance, VehicleFormValues } from "../../Active/Interfaces/Interfaces";
 
 /**
  * Testa a lógica de handleSave do ActiveTable isolada como função pura.

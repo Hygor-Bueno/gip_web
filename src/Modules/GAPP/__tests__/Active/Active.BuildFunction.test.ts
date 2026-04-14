@@ -1,5 +1,5 @@
-import { buildOptions, buildOptionsInsurance } from "../Active/Component/BuildFunction/BuildFunction";
-import { FormActiveProps } from "../Active/Interfaces/Interfaces";
+import { buildOptions, buildOptionsInsurance } from "../../Active/Component/BuildFunction/BuildFunction";
+import { FormActiveProps } from "../../Active/Interfaces/Interfaces";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // buildOptions

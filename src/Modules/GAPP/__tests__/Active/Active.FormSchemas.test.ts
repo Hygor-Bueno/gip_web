@@ -1,7 +1,7 @@
-import { formActive } from "../Active/Component/FormActive/FormSchema/FormActive.schema";
-import { formAddress } from "../Active/Component/FormActive/FormSchema/FormAddress.schema";
-import { formVehicle } from "../Active/Component/FormActive/FormSchema/FormVehicle.schema";
-import { formInsurance } from "../Active/Component/FormActive/FormSchema/FormInsurance.schema";
+import { formActive } from "../../Active/Component/FormActive/FormSchema/FormActive.schema";
+import { formAddress } from "../../Active/Component/FormActive/FormSchema/FormAddress.schema";
+import { formVehicle } from "../../Active/Component/FormActive/FormSchema/FormVehicle.schema";
+import { formInsurance } from "../../Active/Component/FormActive/FormSchema/FormInsurance.schema";
 
 const noop = () => {};
 

@@ -4,7 +4,7 @@
  */
 export {};
 
-import { normalizeBrand } from "../Active/Component/FilterPanel/brandNormalization";
+import { normalizeBrand } from "../../Active/Component/FilterPanel/brandNormalization";
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe("normalizeBrand — Volkswagen", () => {
