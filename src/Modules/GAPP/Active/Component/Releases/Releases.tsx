@@ -1,13 +1,14 @@
 import React, { useState, useCallback, useEffect } from "react";
 import "./Releases.css";
 import { handleNotification } from "../../../../../Util/ui/notifications";
-import { ReleasesProps, Expense, FuelData, MaintenanceData, FinesData, SinisterData, TabKey, PartItem } from "./Interfaces";
+import { ReleasesProps, Expense, FuelData, MaintenanceData, FinesData, SinisterData, TabKey, PartItem, InfractionItem } from "./Interfaces";
 import { Insurance, Schema } from "../../Interfaces/Interfaces";
 import { defaultExpense, defaultFuel, defaultMaintenance, defaultFines, defaultSinister, defaultInsurance } from "./defaultValues";
 import {
   postExpense, postFuel, postMaintenance, postFines, postSinister,
   getVehicle, getInsurance, putInsurance, postInsurance,
   getFuelTypes, getDrivers, getUtilization, getInsuranceCompany, getTypeCoverage,
+  getInfractions,
 } from "./ReleasesAdapters";
 import ExpenseFields from "./ExpenseFields";
 import FuelTab from "./tabs/FuelTab";
@@ -44,6 +45,7 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
   const [utilization,      setUtilization]      = useState<Schema[]>([]);
   const [insuranceCompany, setInsuranceCompany] = useState<Schema[]>([]);
   const [typeCoverage,     setTypeCoverage]     = useState<Schema[]>([]);
+  const [infractions,      setInfractions]      = useState<InfractionItem[]>([]);
 
   // Pre-fill insurance form with the last active insurance on mount
   useEffect(() => {
@@ -83,6 +85,19 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
     getTypeCoverage().then(r => {
       if (!r.error) setTypeCoverage(r.data.map((i: any) => ({ value: String(i.cov_id), label: i.cov_name })));
     });
+    getInfractions().then(r => {
+      if (!r.error) setInfractions(r.data);
+    });
+  }, []);
+
+  const handleInfractionSelect  = useCallback((inf: InfractionItem) => {
+    setFines(prev => ({
+      ...prev,
+      infraction_id_fk: String(inf.infraction_id),
+      infraction:       String(inf.infraction),
+      points:           String(inf.points),
+      gravity:          String(inf.gravitity),
+    }));
   }, []);
 
   const handleExpenseChange     = useCallback((e: ChangeEvent) => { const { name, value } = e.target; setExpense(p    => ({ ...p, [name]: value })); }, []);
@@ -266,7 +281,7 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
           {currentTab.showExpense      && (<ExpenseFields expense={expense} onChange={handleExpenseChange} drivers={drivers} />)}
           {activeTab === "fuel"        && <FuelTab fuel={fuel} onChange={handleFuelChange} fuelTypes={fuelTypes} />}
           {activeTab === "maintenance" && <MaintenanceTab maintenance={maintenance} onChange={handleMaintenanceChange} addPart={addPart} removePart={removePart} />}
-          {activeTab === "fines"       && <FinesTab fines={fines} onChange={handleFinesChange} />}
+          {activeTab === "fines"       && <FinesTab fines={fines} onChange={handleFinesChange} infractions={infractions} onInfractionSelect={handleInfractionSelect} />}
           {activeTab === "sinister"    && <SinisterTab sinister={sinister} onChange={handleSinisterChange} />}
           {activeTab === "insurance"   && (
             <InsuranceTab

@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
 import NavBar from "../../../Components/NavBar";
 import CustomTable from "../../../Components/CustomTable";
-import EditInfraction from "./Component/EditInfraction/EditInfraction";
-import CreateInfraction from "./Component/CreateInfraction/CreateInfraction";
+import InfractionModal from "./Component/InfractionModal/InfractionModal";
 import { listPathGAPP } from "../ConfigGapp";
 import { useMyContext } from "../../../Context/MainContext";
 import { handleNotification } from "../../../Util/Utils";
 import { useConnection } from "../../../Context/ConnContext";
 import useInfractionFields from "./hook/useInfractionFields";
+import "./Infraction.css";
 require("bootstrap/dist/css/bootstrap.min.css");
 
 const Infraction: React.FC = () => {
@@ -132,7 +131,7 @@ const Infraction: React.FC = () => {
    * Adiciona valor e uma tag para cada coluna, para renderização
    */
   const tableData = dataStore.map((item: any) => ({
-    infraction_id: { value: item?.infraction_id ?? "", tag: "ID" },
+    infraction_id: { value: item?.infraction_id ?? "", tag: "ID", ocultColumn: true },
     infraction: { value: item?.infraction ?? "", tag: "Infração" },
     gravity: { value: item?.gravitity ?? "", tag: "Gravidade" }, // typo repetido aqui também
     points: { value: item?.points ?? "", tag: "Pontos" },
@@ -158,33 +157,56 @@ const Infraction: React.FC = () => {
     <React.Fragment>
       <NavBar list={listPathGAPP} />
 
-      <div className="w-100" style={{ height: "90%" }}>
-        <div className="p-2 w-100">
-          <Button variant="primary" onClick={() => { resetFields(); setCreateModalVisible(true); }}>
-            <i className="fa fa-plus text-white" />
-          </Button>
-        </div>
+      <div className="infraction-page">
 
-        {tableData.length > 0 ? (
-          <CustomTable
-            list={tableData}
-            onConfirmList={handleClick}
-            hiddenButton={false}
-            selectionKey=""
-          />
-        ) : (
-          <div className="d-flex justify-content-center align-items-center w-100" style={{ minHeight: "300px" }}>
-            <div className="text-center" role="alert">
-              <i className="fa fa-magnifying-glass fa-3x d-block mb-2" />
-              <strong>Lista vazia</strong>
-              <br />
-              Nenhum item foi encontrado.
+        {/* Toolbar */}
+        <div className="infraction-toolbar">
+          <div className="infraction-toolbar-title">
+            <div className="infraction-toolbar-title-icon">
+              <i className="fa fa-triangle-exclamation" />
+            </div>
+            <div>
+              <p className="infraction-toolbar-title-text">Infrações de Trânsito</p>
+              <p className="infraction-toolbar-title-sub">
+                {dataStore.length > 0
+                  ? `${dataStore.length} registro(s) encontrado(s)`
+                  : "Nenhum registro encontrado"}
+              </p>
             </div>
           </div>
-        )}
+          <button
+            className="btn-add-infraction"
+            onClick={() => { resetFields(); setCreateModalVisible(true); }}
+          >
+            <span className="btn-add-infraction-icon">
+              <i className="fa fa-plus" />
+            </span>
+            <span className="btn-add-infraction-label">Nova Infração</span>
+          </button>
+        </div>
+
+        {/* Table Card */}
+        <div className="infraction-card">
+          {tableData.length > 0 ? (
+            <CustomTable
+              list={tableData}
+              onConfirmList={handleClick}
+              hiddenButton={false}
+              selectionKey="infraction_id"
+            />
+          ) : (
+            <div className="infraction-empty">
+              <i className="fa fa-magnifying-glass" />
+              <strong>Nenhuma infração encontrada</strong>
+              <span>Clique em "Nova Infração" para adicionar o primeiro registro</span>
+            </div>
+          )}
+        </div>
+
       </div>
 
-      <EditInfraction
+      <InfractionModal
+        mode="edit"
         showModal={editModalVisible}
         setShowModal={setEditModalVisible}
         handleSave={() => handleSave("edit")}
@@ -195,7 +217,8 @@ const Infraction: React.FC = () => {
         {...getModalProps()}
       />
 
-      <CreateInfraction
+      <InfractionModal
+        mode="create"
         showModal={createModalVisible}
         setShowModal={setCreateModalVisible}
         handleSave={() => handleSave("create")}

@@ -181,6 +181,100 @@
 .btn-rel-back  { background: #f1f5f9; color: #475569; }
 .btn-rel-back:hover  { background: #e2e8f0; }
 
+/* ── Fines: infraction selector ──────────────────────────────── */
+.fines-select-wrap {
+  position: relative;
+}
+
+.fines-select {
+  width: 100%;
+  padding: 0.6rem 2.2rem 0.6rem 0.9rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.fines-select:focus {
+  border-color: #bed989;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(190, 217, 137, 0.22);
+}
+
+.fines-select-arrow {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 0.78rem;
+  pointer-events: none;
+}
+
+/* ── Infraction info pills ───────────────────────────────────── */
+.fines-infraction-pills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+.fines-gravity-pill,
+.fines-points-pill,
+.fines-clear-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1.5px solid transparent;
+}
+
+.fines-gravity-leve       { background: #f0fdf4; color: #16a34a; border-color: #86efac; }
+.fines-gravity-media      { background: #fefce8; color: #a16207; border-color: #fde047; }
+.fines-gravity-grave      { background: #fff7ed; color: #c2410c; border-color: #fdba74; }
+.fines-gravity-gravissima { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
+.fines-gravity-outro      { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+
+.fines-points-pill {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.fines-clear-pill {
+  background: #f8fafc;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.fines-clear-pill:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+/* ── Empty hint ──────────────────────────────────────────────── */
+.fines-empty-hint {
+  margin-top: 0.65rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 /* ── Mobile: full-screen bottom sheet ───────────────────────── */
 @media (max-width: 640px) {
   .releases-overlay {

@@ -80,3 +80,10 @@ export interface ReleasesProps {
 }
 
 export type TabKey = "fuel" | "maintenance" | "fines" | "insurance" | "sinister" | "trips";
+
+export interface InfractionItem {
+  infraction_id: string;
+  infraction: string;
+  points: string;
+  gravitity: string;
+}

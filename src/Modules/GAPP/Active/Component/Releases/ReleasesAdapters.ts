@@ -26,6 +26,7 @@ export const getFuelTypes    = () => get("GAPP/TypeFuel.php", "&all=1");
 
 export const putInsurance       = (params: object) => put("GAPP/Insurance.php", params);
 
-export const getUtilization     = () => get("GAPP/Utilization.php", "&all=1");
+export const getUtilization      = () => get("GAPP/Utilization.php", "&all=1");
 export const getInsuranceCompany = () => get("GAPP/InsuranceCompany.php", "&all=1");
-export const getTypeCoverage    = () => get("GAPP/TypeCoverage.php", "&all=1");
+export const getTypeCoverage     = () => get("GAPP/TypeCoverage.php", "&all=1");
+export const getInfractions      = () => get("GAPP/Infraction.php", "&status_infractions=1");

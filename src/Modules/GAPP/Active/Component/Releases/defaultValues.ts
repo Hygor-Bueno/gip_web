@@ -25,7 +25,7 @@ export const defaultFuel: FuelData = {
 export const defaultFines: FinesData = {
   points: "", offending_driver_date: "", offending_driver: "",
   infraction: "", gravity: "", fine_id: "", expen_id_fk: "",
-  article_ctb: "", ait: "", infraction_id_fk: "4",
+  article_ctb: "", ait: "", infraction_id_fk: "",
 };
 
 export const defaultSinister: SinisterData = {
