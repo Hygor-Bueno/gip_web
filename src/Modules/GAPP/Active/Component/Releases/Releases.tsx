@@ -45,6 +45,24 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
   const [insuranceCompany, setInsuranceCompany] = useState<Schema[]>([]);
   const [typeCoverage,     setTypeCoverage]     = useState<Schema[]>([]);
 
+  // Pre-fill insurance form with the last active insurance on mount
+  useEffect(() => {
+    if (!isVehicle) return;
+    getVehicle(activeId).then(vehicleRes => {
+      if (vehicleRes.error || !vehicleRes.data?.length) return;
+      getInsurance(String(vehicleRes.data[0].vehicle_id)).then(insRes => {
+        if (insRes.error || !insRes.data?.length) return;
+        const raw = insRes.data[0];
+        setInsurance({
+          ...raw,
+          franchise_list: typeof raw.franchise_list === "string"
+            ? (() => { try { return JSON.parse(raw.franchise_list); } catch { return { list: [] }; } })()
+            : raw.franchise_list ?? { list: [] },
+        });
+      });
+    });
+  }, [activeId, isVehicle]);
+
   useEffect(() => {
     getDrivers().then(r => {
       if (!r.error) setDrivers(
