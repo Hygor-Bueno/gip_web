@@ -138,7 +138,7 @@ const ActiveTable: React.FC<ActiveTableProps> = ({ onToggleNav, navHidden }) => 
       <div className="active-toolbar">
         <div className="active-toolbar-title">
           <div className="active-toolbar-title-icon">
-            <i className="fa fa-cube text-white"></i>
+            <i className="fa fa-cube"></i>
           </div>
           <div>
             <p className="active-toolbar-title-text">Gestão de Ativos</p>

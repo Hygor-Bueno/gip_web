@@ -179,7 +179,7 @@ const Infraction: React.FC = () => {
             onClick={() => { resetFields(); setCreateModalVisible(true); }}
           >
             <span className="btn-add-infraction-icon">
-              <i className="fa fa-plus" />
+              <i className="fa fa-plus text-white" />
             </span>
             <span className="btn-add-infraction-label">Nova Infração</span>
           </button>

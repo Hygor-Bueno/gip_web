@@ -1,143 +1,423 @@
-.colorSystem {
-    background-color: var(--vPrimaryColor);
+/* ─────────────────────────────────────────────────────────────
+   Business Module — Design System
+   Palette: primary #bed989 | dark #6a9e2f | text #0f172a
+            muted #64748b | bg #f8fafc | border #e2e8f0
+───────────────────────────────────────────────────────────── */
+
+/* ── Page wrapper ────────────────────────────────────────── */
+.bs-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1rem 1.25rem 1.5rem;
+  min-height: 0;
+  flex: 1;
 }
 
-.colorSystem:hover {
-    background-color: #555555;
-    transition: all ease .9s;
+/* ── Toolbar ─────────────────────────────────────────────── */
+.bs-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex-shrink: 0;
 }
 
-.colorSystem:hover i {
-    color: var(--vPrimaryColor) !important;
-    transition: all ease .5s;
+.bs-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
 }
 
-.colorSystemLightGray {
-    background-color: #e1e3e2;
+.bs-toolbar-icon {
+  width: 38px;
+  height: 38px;
+  background: #bed989;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(190, 217, 137, 0.4);
 }
 
-.container {
-    max-width: 100vw;
-    width: 100%;
-    margin: 0 auto;
+.bs-toolbar-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.form-style-modal {
-    height: fit-content;
+.bs-toolbar-subtitle {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1;
 }
 
-
-
-label, h1 {
-    font-size: inherit;
+.bs-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.title_business {
-    font-size: 25px;
-    font-weight: bold;
+/* ── Add button ──────────────────────────────────────────── */
+.bs-btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  background: #bed989;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.45);
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+  white-space: nowrap;
 }
 
-.button_filter {
-    width: 2.5%;
-    right: -16px;
-    top: -20%;
+.bs-btn-add:hover {
+  filter: brightness(0.94);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(190, 217, 137, 0.55);
 }
 
-/* .border_gray {
-    border: 1px solid #e1e3e2;
-} */
+.bs-btn-add:active { transform: translateY(0); }
 
-
-.border_none {
-    border: none;
+.bs-btn-add-icon {
+  width: 22px;
+  height: 22px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
 }
 
-.background_whiteGray {
-    background-color: #f8f9fa;
+/* ── Section card ────────────────────────────────────────── */
+.bs-card {
+  background: #fff;
+  border: 1px solid #e8eaf0;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
-.font_size {
-    font-size: 1.3rem;
+.bs-card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1.5px solid #f1f3f8;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
-@media screen and (min-width: 1025px ){
-    .text-card {
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-    }
-
-    .heightlite_screen {
-        max-height: 90vh;
-        flex: auto;
-    }
-
-
-    .cardTest {
-        max-width: 31%;
-        width: 100%;
-        height: fit-content;
-    }
-
+.bs-card-title i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: #bed989;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 11px;
+  flex-shrink: 0;
 }
 
-@media screen and (max-width: 1024px ){
-    .text-card {
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-    }
-
-    .cardTest {
-        max-width: 92%;
-        width: 100%;
-        height: fit-content;
-    }
-
-    .heightlite_screen {
-        max-height: 90vh;
-    }
+/* ── Form field overrides ────────────────────────────────── */
+.bs-form label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 0.25rem;
 }
 
-/* LAPTOP */
-@media screen and (max-width: 920px) {
-    .cardTest {
-        max-width: 95%;
-        width: 100%;
-        height: fit-content;
-    }
-
-    .button_filter {
-        width: 5.5%;
-    }
-
-    .heightlite_screen {
-        max-height: 94vh;
-    }
+.bs-form .form-control,
+.bs-form .form-select {
+  font-size: 0.875rem;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.5rem 0.8rem;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-/* TABLET */
-@media screen and (max-width: 720px) {
-    .button_filter {
-        width: 10.5%;
-    }
+.bs-form .form-control:focus,
+.bs-form .form-select:focus {
+  border-color: #bed989;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(190, 217, 137, 0.2);
 }
 
-/* MOBILE */
-@media screen and (max-width: 420px) {
-    .button_filter {
-        width: 10.5%;
-    }
+.bs-form .form-control::placeholder {
+  color: #b0bac7;
+}
 
-    .heightlite_screen {
-        max-height: 92vh;
-    }
+.bs-form fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
 
-    .cardTest {
-        max-width: 255px;
-        width: 100%;
-        height: fit-content;
-    }
+/* Submit button inside form */
+.bs-form .btn-success {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1.4rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: #bed989;
+  border: none;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.45);
+  transition: filter 0.15s, transform 0.15s;
+}
 
+.bs-form .btn-success:hover {
+  filter: brightness(0.93);
+  transform: translateY(-1px);
+}
 
+/* ── Empty state ─────────────────────────────────────────── */
+.bs-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  gap: 0.4rem;
+  color: #94a3b8;
+}
+
+.bs-empty i {
+  font-size: 2rem;
+  color: #cbd5e1;
+  margin-bottom: 0.25rem;
+}
+
+.bs-empty-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0;
+}
+
+.bs-empty-sub {
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+/* ── ControlItem modal ───────────────────────────────────── */
+.bs-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1.5rem;
+  animation: bs-fade 0.18s ease;
+}
+
+@keyframes bs-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.bs-modal {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+  width: 100%;
+  max-width: 420px;
+  animation: bs-slide 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+@keyframes bs-slide {
+  from { transform: translateY(20px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.bs-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.1rem 1.4rem 1rem;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+
+.bs-modal-header-icon {
+  width: 38px;
+  height: 38px;
+  background: #bed989;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.bs-modal-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  flex: 1;
+}
+
+.bs-modal-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.bs-modal-close:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.bs-modal-body {
+  padding: 1.1rem 1.4rem;
+}
+
+.bs-modal-label {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0 0 0.75rem;
+}
+
+.bs-modal-store-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+}
+
+.bs-modal-store-cnpj {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.bs-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem 1.4rem 1.1rem;
+  border-top: 1.5px solid #f1f5f9;
+}
+
+.bs-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.bs-modal-btn:hover { filter: brightness(0.93); transform: translateY(-1px); }
+.bs-modal-btn:active { transform: translateY(0); }
+
+.bs-modal-btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1.5px solid #e2e8f0;
+}
+
+.bs-modal-btn-cancel:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  filter: none;
+}
+
+.bs-modal-btn-edit {
+  background: #60a5fa;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(96, 165, 250, 0.35);
+}
+
+.bs-modal-btn-activate {
+  background: #bed989;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.4);
+}
+
+.bs-modal-btn-deactivate {
+  background: #f87171;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(248, 113, 113, 0.35);
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .bs-page {
+    padding: 0.75rem 0.75rem 1.25rem;
+  }
+
+  .bs-toolbar {
+    gap: 0.5rem;
+  }
+
+  .bs-btn-add-label {
+    display: none;
+  }
+
+  .bs-btn-add {
+    padding: 0.5rem 0.65rem;
+  }
+
+  .bs-card {
+    padding: 1rem;
+    border-radius: 14px;
+  }
+
+  .bs-modal {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .bs-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
 }
