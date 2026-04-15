@@ -13,15 +13,35 @@ interface Props {
   setUnits:    React.Dispatch<React.SetStateAction<Unit[]>>;
 }
 
+interface AddressForm {
+  city:         string;
+  state:        string;
+  complement:   string;
+  neighborhood: string;
+  public_place: string;
+  number:       string;
+  store:        string;
+  zip_code:     string;
+}
+
 interface Form {
   unit_name:   string;
   unit_number: string;
   cnpj:        string;
   comp_id_fk:  string;
   status_unit: string;
+  address:     AddressForm;
 }
 
-const empty: Form = { unit_name: "", unit_number: "", cnpj: "", comp_id_fk: "", status_unit: "1" };
+const emptyAddress: AddressForm = {
+  city: "", state: "", complement: "", neighborhood: "",
+  public_place: "", number: "", store: "", zip_code: "",
+};
+
+const empty: Form = {
+  unit_name: "", unit_number: "", cnpj: "", comp_id_fk: "", status_unit: "1",
+  address: { ...emptyAddress },
+};
 
 export default function UnitsTab({ units, companies, setUnits }: Props) {
   const [form,        setForm]        = useState<Form>(empty);
@@ -33,7 +53,11 @@ export default function UnitsTab({ units, companies, setUnits }: Props) {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    if (name in emptyAddress) {
+      setForm(prev => ({ ...prev, address: { ...prev.address, [name]: value } }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+    }
   }
 
   function clear() {
@@ -45,12 +69,17 @@ export default function UnitsTab({ units, companies, setUnits }: Props) {
     if (!rows.length) return;
     const r = rows[0];
     setSelectedId(Number(r.unit_id?.value ?? 0));
+    const raw = r.address?.value;
+    const addr: AddressForm = raw && typeof raw === "object"
+      ? { ...emptyAddress, ...(raw as Partial<AddressForm>) }
+      : { ...emptyAddress };
     setForm({
       unit_name:   String(r.unit_name?.value   ?? ""),
       unit_number: String(r.unit_number?.value ?? ""),
       cnpj:        String(r.cnpj?.value        ?? ""),
       comp_id_fk:  String(r.comp_id_fk?.value  ?? ""),
       status_unit: String(r.status_unit?.value  ?? "1"),
+      address:     addr,
     });
   }
 
@@ -69,6 +98,7 @@ export default function UnitsTab({ units, companies, setUnits }: Props) {
         comp_id_fk:   Number(form.comp_id_fk),
         status_unit:  Number(form.status_unit),
         fantasy_name: companyName,
+        address:      form.address,
       };
       const res = await postUnit(payload);
       if (res?.error) throw new Error(res.message);
@@ -103,6 +133,7 @@ export default function UnitsTab({ units, companies, setUnits }: Props) {
         comp_id_fk:   Number(form.comp_id_fk),
         status_unit:  Number(form.status_unit),
         fantasy_name: companyName,
+        address:      form.address,
       };
       const res = await putUnit(payload);
       if (res?.error) throw new Error(res.message);
@@ -172,6 +203,86 @@ export default function UnitsTab({ units, companies, setUnits }: Props) {
               value={form.cnpj}
               onChange={handleChange}
               placeholder="00.000.000/0000-00"
+            />
+          </div>
+          
+          <div className="settings-field">
+            <label>Cidade</label>
+            <input
+              name="city"
+              value={form.address.city}
+              onChange={handleChange}
+              placeholder="Ex: São Paulo"
+            />
+          </div>
+
+          <div className="settings-field">
+            <label>Estado</label>
+            <input
+              name="state"
+              value={form.address.state}
+              onChange={handleChange}
+              placeholder="Ex: SP"
+            />
+          </div>
+
+          <div className="settings-field">
+            <label>Bairro</label>
+            <input
+              name="neighborhood"
+              value={form.address.neighborhood}
+              onChange={handleChange}
+              placeholder="Ex: Centro"
+            />
+          </div>
+
+          <div className="settings-field">
+            <label>N° local</label>
+            <input
+              name="number"
+              value={form.address.number}
+              onChange={handleChange}
+              placeholder="Ex: 100"
+            />
+          </div>
+
+          <div className="settings-field">
+            <label>Loja</label>
+            <input
+              name="store"
+              value={form.address.store}
+              onChange={handleChange}
+              placeholder="Ex: Loja A"
+            />
+          </div>
+
+          <div className="settings-field">
+            <label>CEP</label>
+            <input
+              name="zip_code"
+              value={form.address.zip_code}
+              onChange={handleChange}
+              placeholder="Ex: 04421-130"
+            />
+          </div>
+
+          <div className="settings-field">
+            <label>Lugar público</label>
+            <input
+              name="public_place"
+              value={form.address.public_place}
+              onChange={handleChange}
+              placeholder="Ex: Rua das Flores"
+            />
+          </div>
+
+          <div className="settings-field">
+            <label>Complemento</label>
+            <input
+              name="complement"
+              value={form.address.complement}
+              onChange={handleChange}
+              placeholder="Ex: Sala 201"
             />
           </div>
 
