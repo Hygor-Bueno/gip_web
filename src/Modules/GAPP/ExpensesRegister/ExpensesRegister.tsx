@@ -1,172 +1,289 @@
 import React, { useState, useEffect } from "react";
 import CustomTable from "../../../Components/CustomTable";
+import NavBar from "../../../Components/NavBar";
 import { convertDate, convertForTable, maskMoney, sortListByKey } from "../../../Util/Utils";
 import { useConnection } from "../../../Context/ConnContext";
-import CustomForm from "../../../Components/CustomForm";
-import { customTagsExpense, formExpense, minWidthsExpense } from "./Configuration/ConfigExpensesRegister";
+import { customTagsExpense, minWidthsExpense } from "./Configuration/ConfigExpensesRegister";
 import { IExpensesItem } from "./Interfaces/InterfaceExpensesRegister";
 import { useMyContext } from "../../../Context/MainContext";
 import { tItemTable } from "../../../types/types";
+import { listPathGAPP } from "../ConfigGapp";
+import "./ExpensesRegister.css";
 
-interface IFormExpenses { date_start: string, date_end: string, license_plates: string, unit_id: string, exp_type_id_fk: string }
-interface IUnitItem { fantasy_name: string; unit_name: string; unit_id: string }
-interface IExpenseTypeItem { description_type: string; exp_type_id: string }
-const restartForm: IFormExpenses = { date_end: '', date_start: '', license_plates: '', unit_id: '', exp_type_id_fk: '' };
-export default function ExpensesRegister(): JSX.Element {
-
-    const { fetchData } = useConnection();
-    const [page, setPage] = useState<number>(1);
-    const [editExpenses, setEditExpenses] = useState<number>(0);
-    const [urlComplement, setUrlComplement] = useState<string>('');
-    const [data, setData] = useState<[]>([]);
-    const [formData, setFormData] = useState<IFormExpenses>(restartForm);
-    const [units, setUnitis] = useState<{ label: string, value: string }[]>([{ label: '', value: '' }]);
-    const [expensesType, setExpensesType] = useState<{ label: string, value: string }[]>([{ label: '', value: '' }]);
-    const { setLoading } = useMyContext();
-
-    useEffect(() => {
-        (
-            async () => {
-                try {
-                    setLoading(true);
-                    await loadUnits();
-                    await loadExpensesType();
-                    handleUrl();
-                } catch (error) {
-                    throw new Error('Erro ao carregar os dados '+error);
-                } finally {
-                    setLoading(false);
-                }
-            }
-        )();
-    }, []);
-
-    useEffect(() => {
-        (
-            async () => {
-                try {
-                    setLoading(true);
-                    await loadExpenses();
-                } catch (error: unknown) {
-                    throw new Error('Erro ao carregar os dados ' + (error instanceof Error ? error.message : String(error)));
-                } finally {
-                    setLoading(false);
-                }
-            }
-        )();
-    }, [urlComplement]);
-
-    async function loadExpenses() {
-        const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/FiltredExpenses.php", urlComplement: `${urlComplement ? urlComplement : ''}` });
-        if (req.error && req.message?.toUpperCase().includes("NO DATA") && page > 1) handleUrl(page - 1);
-        if (req.error) throw new Error(req.message);
-        setData(req.data.map((item: IExpensesItem): IExpensesItem => maskExpenses(item)));
-    }
-
-    async function loadUnits() {
-        const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP/Units.php", urlComplement: `&all=1` });
-        if (req.error) throw new Error(req.message);
-        setUnitis(sortListByKey(req.data.map((item: IUnitItem) => ({ label: `${item.fantasy_name} - ${item.unit_name}`, value: item.unit_id })), "label"));
-    }
-
-    async function loadExpensesType() {
-        const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/ExpensesType.php", urlComplement: `&dashGAPP=1` });
-        if (req.error) throw new Error(req.message);
-        setExpensesType(sortListByKey(req.data.map((item: IExpenseTypeItem) => ({ label: item.description_type, value: item.exp_type_id })), "label"));
-    }
-
-    function maskExpenses(item: IExpensesItem): IExpensesItem {
-        return {
-            expen_id: item.expen_id,
-            date: convertDate(item.date, true),
-            hour: item.hour,
-            description: item.description,
-            discount: maskMoney(item.discount),
-            total_value: maskMoney(item.total_value),
-            exp_type_id_fk: item.exp_type_id_fk,
-            description_type: item.description_type,
-            vehicle_id: item.vehicle_id,
-            license_plates: item.license_plates,
-            unit_id: item.unit_id,
-            unit_name: item.unit_name
-        }
-    };
-
-    function changePage(isSum: boolean) {
-        let newPage: number = page;
-        newPage = isSum ? newPage + 1 : newPage - 1;
-        if (newPage > 0) {
-            setPage(newPage);
-        }
-        handleUrl(newPage);
-    };
-
-    async function handleUrl(newPage: number = 1) {
-        setPage(newPage);
-        let result: string = `&dashGAPP=1&page_number=${newPage}`;
-        Object.keys(formData).forEach((item) => {
-            const key = item as keyof IFormExpenses;
-            if (formData[key]) result += `&${key}=${formData[key]}`;
-        });
-        setUrlComplement(result);
-    };
-
-    function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
-        const { name, value } = event.target;
-        setFormData((prevParams: IFormExpenses) => ({
-            ...prevParams,
-            [name]: value,
-        }));
-    };
-
-    return (
-        <div className="d-flex flex-column align-items-center justify-content-between overflow-hidden text-white w-100" >
-            <div className="w-100 px-2">
-                {editExpenses ? <EditExpenses expen_id={editExpenses} onClose={() => setEditExpenses(0)} />:<React.Fragment />}
-                <CustomForm
-                    onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
-                        event.preventDefault(); // ← impede o recarregamento da página
-                        handleUrl();
-                    }}
-                    notButton={false} className='row' fieldsets={formExpense(units, formData, expensesType, handleChange)} />
-
-                <div className="d-flex gap-2">
-                    <button onClick={() => handleUrl()} className="btn btn-success fa-solid fa-magnifying-glass my-2" type="button" />
-                    <button onClick={() => { setFormData(restartForm); setPage(1) }} className="btn btn-danger fa-solid fa-eraser my-2" type="button" />
-                </div>
-            </div>
-            <div className="d-flex flex-column align-items-center h-100 w-100 overflow-auto p-2">
-                {
-                    data.length > 0 &&
-                    <CustomTable
-                        maxSelection={1}
-                        list={convertForTable(data, {
-                            ocultColumns: ["exp_type_id_fk", "vehicle_id", "unit_id"],
-                            customTags: customTagsExpense,
-                            minWidths: minWidthsExpense
-                        })}
-                        onConfirmList={(event: tItemTable[]) => setEditExpenses(Number(event[0].expen_id.value))}
-                    />
-                }
-            </div>
-            <div className="d-flex my-2 gap-4">
-                <button onClick={() => changePage(false)} type="button" className="btn btn-success fa-solid fa-chevron-left" />
-                <strong className="text-dark">{page.toString().padStart(2, '0')}</strong>
-                <button onClick={() => changePage(true)} type="button" className="btn btn-danger fa-solid fa-chevron-right" />
-            </div>
-        </div>
-    );
+interface IFormExpenses {
+  date_start: string;
+  date_end: string;
+  license_plates: string;
+  unit_id: string;
+  exp_type_id_fk: string;
 }
-interface IEditExpenses { expen_id: number, onClose: () => void }
-function EditExpenses(props: IEditExpenses): JSX.Element {
-    return (
-        <div className="d-flex align-items-center justify-content-center position-absolute start-0 top-0 z-3 vw-100 vh-100 bg-dark bg-opacity-25">
-            <div className="bg-white rounded p-2">
-                <div className="d-flex justify-content-end w-100">
-                    <button className="btn btn-danger" onClick={props.onClose}> X </button>
-                </div>
-                <p className="text-black">Item: {props.expen_id}</p>
-            </div>
+
+interface IUnitItem        { fantasy_name: string; unit_name: string; unit_id: string }
+interface IExpenseTypeItem { description_type: string; exp_type_id: string }
+
+const restartForm: IFormExpenses = {
+  date_end: "", date_start: "", license_plates: "", unit_id: "", exp_type_id_fk: "",
+};
+
+export default function ExpensesRegister(): JSX.Element {
+  const { fetchData } = useConnection();
+  const { setLoading } = useMyContext();
+
+  const [page,         setPage]         = useState<number>(1);
+  const [editExpenses, setEditExpenses] = useState<number>(0);
+  const [urlComplement,setUrlComplement]= useState<string>("");
+  const [data,         setData]         = useState<IExpensesItem[]>([]);
+  const [formData,     setFormData]     = useState<IFormExpenses>(restartForm);
+  const [units,        setUnits]        = useState<{ label: string; value: string }[]>([]);
+  const [expensesType, setExpensesType] = useState<{ label: string; value: string }[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        await loadUnits();
+        await loadExpensesType();
+        handleUrl();
+      } catch (error) {
+        throw new Error("Erro ao carregar os dados " + error);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        await loadExpenses();
+      } catch (error: unknown) {
+        throw new Error("Erro ao carregar os dados " + (error instanceof Error ? error.message : String(error)));
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [urlComplement]);
+
+  async function loadExpenses() {
+    const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/FiltredExpenses.php", urlComplement: urlComplement || "" });
+    if (req.error && req.message?.toUpperCase().includes("NO DATA") && page > 1) handleUrl(page - 1);
+    if (req.error) throw new Error(req.message);
+    setData(req.data.map((item: IExpensesItem) => maskExpenses(item)));
+  }
+
+  async function loadUnits() {
+    const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP/Units.php", urlComplement: "&all=1" });
+    if (req.error) throw new Error(req.message);
+    setUnits(sortListByKey(req.data.map((i: IUnitItem) => ({ label: `${i.fantasy_name} - ${i.unit_name}`, value: i.unit_id })), "label"));
+  }
+
+  async function loadExpensesType() {
+    const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/ExpensesType.php", urlComplement: "&dashGAPP=1" });
+    if (req.error) throw new Error(req.message);
+    setExpensesType(sortListByKey(req.data.map((i: IExpenseTypeItem) => ({ label: i.description_type, value: i.exp_type_id })), "label"));
+  }
+
+  function maskExpenses(item: IExpensesItem): IExpensesItem {
+    return {
+      ...item,
+      date:        convertDate(item.date, true),
+      discount:    maskMoney(item.discount),
+      total_value: maskMoney(item.total_value),
+    };
+  }
+
+  function changePage(isNext: boolean) {
+    const next = isNext ? page + 1 : page - 1;
+    if (next > 0) handleUrl(next);
+  }
+
+  function handleUrl(newPage: number = 1) {
+    setPage(newPage);
+    let result = `&dashGAPP=1&page_number=${newPage}`;
+    Object.keys(formData).forEach((key) => {
+      const val = formData[key as keyof IFormExpenses];
+      if (val) result += `&${key}=${val}`;
+    });
+    setUrlComplement(result);
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function handleClear() {
+    setFormData(restartForm);
+    setPage(1);
+  }
+
+  return (
+    <React.Fragment>
+      <NavBar list={listPathGAPP} />
+    <div className="expenses-page">
+
+      {/* ── Edit modal ──────────────────────────────────────── */}
+      {editExpenses > 0 && (
+        <EditExpenses expen_id={editExpenses} onClose={() => setEditExpenses(0)} />
+      )}
+
+      {/* ── Toolbar ─────────────────────────────────────────── */}
+      <div className="expenses-toolbar">
+        <div className="expenses-toolbar-title">
+          <div className="expenses-toolbar-title-icon">
+            <i className="fa fa-receipt" />
+          </div>
+          <div>
+            <p className="expenses-toolbar-title-text">Relatório de Despesas</p>
+            <p className="expenses-toolbar-title-sub">Consulta e filtros de lançamentos</p>
+          </div>
         </div>
-    );
+      </div>
+
+      {/* ── Filter card ─────────────────────────────────────── */}
+      <div className="expenses-card">
+        <p className="expenses-card-title">
+          <i className="fa fa-filter" /> Filtros
+        </p>
+
+        <div className="expenses-filters">
+
+          {/* Data inicial */}
+          <div className="expenses-field">
+            <label className="expenses-label">Data Inicial</label>
+            <input className="expenses-input" type="date" name="date_start" value={formData.date_start} onChange={handleChange} />
+          </div>
+
+          {/* Data final */}
+          <div className="expenses-field">
+            <label className="expenses-label">Data Final</label>
+            <input className="expenses-input" type="date" name="date_end" value={formData.date_end} onChange={handleChange} />
+          </div>
+
+          {/* Placa */}
+          <div className="expenses-field">
+            <label className="expenses-label">Placa</label>
+            <input className="expenses-input" type="text" name="license_plates" placeholder="ABC1D23" value={formData.license_plates} onChange={handleChange} />
+          </div>
+
+          {/* Unidade */}
+          <div className="expenses-field">
+            <label className="expenses-label">Unidade</label>
+            <div className="expenses-select-wrap">
+              <select className="expenses-select" name="unit_id" value={formData.unit_id} onChange={handleChange}>
+                <option value="">Todas</option>
+                {units.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Tipo de despesa */}
+          <div className="expenses-field">
+            <label className="expenses-label">Tipo de Despesa</label>
+            <div className="expenses-select-wrap">
+              <select className="expenses-select" name="exp_type_id_fk" value={formData.exp_type_id_fk} onChange={handleChange}>
+                <option value="">Todos</option>
+                {expensesType.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="expenses-filter-actions">
+            <button className="expenses-btn-search" type="button" onClick={() => handleUrl()}>
+              <i className="fa fa-magnifying-glass" /> Buscar
+            </button>
+            <button className="expenses-btn-clear" type="button" onClick={handleClear}>
+              <i className="fa fa-eraser" /> Limpar
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── Table card ──────────────────────────────────────── */}
+      <div className="expenses-card expenses-card-table">
+        <p className="expenses-card-title">
+          <i className="fa fa-table-list" /> Resultados
+        </p>
+
+        {data.length > 0 ? (
+          <>
+            <CustomTable
+              maxSelection={1}
+              list={convertForTable(data, {
+                ocultColumns: ["exp_type_id_fk", "vehicle_id", "unit_id"],
+                customTags: customTagsExpense,
+                minWidths: minWidthsExpense,
+              })}
+              onConfirmList={(rows: tItemTable[]) => setEditExpenses(Number(rows[0].expen_id.value))}
+            />
+
+            {/* Pagination */}
+            <div className="expenses-pagination">
+              <button
+                className="expenses-page-btn"
+                type="button"
+                onClick={() => changePage(false)}
+                disabled={page <= 1}
+                title="Página anterior"
+              >
+                <i className="fa fa-chevron-left" />
+              </button>
+              <span className="expenses-page-indicator">{String(page).padStart(2, "0")}</span>
+              <button
+                className="expenses-page-btn"
+                type="button"
+                onClick={() => changePage(true)}
+                title="Próxima página"
+              >
+                <i className="fa fa-chevron-right" />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="expenses-empty">
+            <i className="fa fa-receipt" />
+            <strong>Nenhuma despesa encontrada</strong>
+            <span>Ajuste os filtros e clique em Buscar.</span>
+          </div>
+        )}
+      </div>
+
+    </div>
+    </React.Fragment>
+  );
+}
+
+/* ── Edit Expenses modal ────────────────────────────────────── */
+interface IEditExpenses { expen_id: number; onClose: () => void }
+
+function EditExpenses({ expen_id, onClose }: IEditExpenses): JSX.Element {
+  return (
+    <div className="expenses-modal-overlay" onClick={onClose}>
+      <div className="expenses-modal" onClick={(e) => e.stopPropagation()}>
+
+        <div className="expenses-modal-header">
+          <div className="expenses-modal-icon">
+            <i className="fa fa-file-invoice-dollar" />
+          </div>
+          <p className="expenses-modal-title">Detalhes da Despesa</p>
+          <button className="expenses-modal-close" onClick={onClose} title="Fechar">
+            <i className="fa fa-xmark" />
+          </button>
+        </div>
+
+        <div className="expenses-modal-body">
+          <p className="expenses-modal-id">Código do lançamento</p>
+          <strong style={{ fontSize: "1.1rem", color: "#0f172a" }}>#{expen_id}</strong>
+        </div>
+
+        <div className="expenses-modal-footer">
+          <button className="expenses-modal-btn-close" onClick={onClose}>Fechar</button>
+        </div>
+
+      </div>
+    </div>
+  );
 }

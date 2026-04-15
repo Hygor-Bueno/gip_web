@@ -1,0 +1,426 @@
+/* ── Page Layout ─────────────────────────────────────────── */
+.expenses-page {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+  padding: 0.5rem;
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────── */
+.expenses-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.25rem;
+  flex-shrink: 0;
+}
+
+.expenses-toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.expenses-toolbar-title-icon {
+  width: 34px;
+  height: 34px;
+  background: #bed989;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.expenses-toolbar-title-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1;
+}
+
+.expenses-toolbar-title-sub {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin: 0;
+  margin-top: 0.2rem;
+  line-height: 1;
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+.expenses-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  padding: 0.9rem 1rem;
+}
+
+.expenses-card-table {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0.5rem;
+}
+
+.expenses-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1.5px solid #f1f3f8;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.expenses-card-title i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #bed989;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+/* ── Filter form fields ──────────────────────────────────── */
+.expenses-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.expenses-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.expenses-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.expenses-input,
+.expenses-select {
+  width: 100%;
+  padding: 0.48rem 0.8rem;
+  font-size: 0.82rem;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.expenses-input:focus,
+.expenses-select:focus {
+  border-color: #bed989;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(190, 217, 137, 0.2);
+}
+
+.expenses-input::placeholder { color: #b0bac7; }
+
+.expenses-select-wrap {
+  position: relative;
+}
+
+.expenses-select-wrap::after {
+  content: "\f107";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  font-size: 0.75rem;
+}
+
+/* ── Filter action buttons ───────────────────────────────── */
+.expenses-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding-top: 0.1rem;
+}
+
+.expenses-btn-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.48rem 1rem;
+  background: #bed989;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.4);
+  transition: filter 0.15s, transform 0.15s;
+  white-space: nowrap;
+}
+
+.expenses-btn-search:hover {
+  filter: brightness(0.92);
+  transform: translateY(-1px);
+}
+
+.expenses-btn-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.48rem 0.9rem;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.expenses-btn-clear:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+/* ── Pagination ──────────────────────────────────────────── */
+.expenses-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0 0.25rem;
+  flex-shrink: 0;
+}
+
+.expenses-page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.expenses-page-btn:hover:not(:disabled) {
+  background: #bed989;
+  color: #fff;
+}
+
+.expenses-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.expenses-page-indicator {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+  min-width: 28px;
+  text-align: center;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.expenses-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 0.5rem;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+}
+
+.expenses-empty i {
+  font-size: 2.5rem;
+  opacity: 0.35;
+}
+
+.expenses-empty strong {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.expenses-empty span {
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+/* ── Edit modal overlay ──────────────────────────────────── */
+.expenses-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1.5rem;
+  animation: exp-fade 0.18s ease;
+}
+
+@keyframes exp-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.expenses-modal {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+  width: 100%;
+  max-width: 400px;
+  animation: exp-slide 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+@keyframes exp-slide {
+  from { transform: translateY(20px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.expenses-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.1rem 1.4rem 1rem;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+
+.expenses-modal-icon {
+  width: 36px;
+  height: 36px;
+  background: #60a5fa;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(96, 165, 250, 0.35);
+}
+
+.expenses-modal-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  flex: 1;
+}
+
+.expenses-modal-close {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.expenses-modal-close:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.expenses-modal-body {
+  padding: 1.1rem 1.4rem;
+}
+
+.expenses-modal-id {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0 0 0.25rem;
+}
+
+.expenses-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem 1.4rem 1.1rem;
+  border-top: 1.5px solid #f1f5f9;
+}
+
+.expenses-modal-btn-close {
+  padding: 0.48rem 1.2rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.expenses-modal-btn-close:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .expenses-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .expenses-toolbar-title-sub {
+    display: none;
+  }
+
+  .expenses-modal {
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .expenses-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+}

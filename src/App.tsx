@@ -16,6 +16,7 @@ import Cfpp from './Modules/CFPP/Cfpp';
 import Infraction from './Modules/GAPP/Infraction/Infraction';
 import Stores from './Modules/GAPP/Business/Stores';
 import Gapp from './Modules/GAPP/Gapp';
+import ExpensesRegister from './Modules/GAPP/ExpensesRegister/ExpensesRegister';
 import ProfileGIPP from './Modules/ProfileGIPP/ProfileGIPP';
 import Gepp from './Modules/GEPP/Gepp';
 import CreateTheme from './Modules/GTPP/CreateTheme/CreateTheme';
@@ -54,12 +55,13 @@ function App() {
           <Route path="/GIPP/GTPP/create/theme" element={withPrivateProvider(<GtppWsProvider><CreateTheme /></GtppWsProvider>)} />
           <Route path="/GIPP/CFPP" element={withPrivateProvider(<Cfpp />)} />
           <Route path='/GIPP/configuration/profile' element={withPrivateProvider(<ProfileGIPP />)} />
-          <Route path="/GIPP/GAPP" element={withPrivateProvider(<Gapp />)} />
+          <Route path="/GIPP/GAPP" element={<Navigate to="/GIPP/GAPP/Active" replace />} />
           <Route path="/GIPP/GAPP/Stores" element={withPrivateProvider(<Stores />)} />
           <Route path="/GIPP/GAPP/Infraction" element={withPrivateProvider(<Infraction />)} />
           <Route path="/GIPP/GAPP/Active" element={withPrivateProvider(<Active />)} />
           <Route path="/GIPP/GAPP/Settings" element={withPrivateProvider(<GappSettings />)} />
           <Route path="/GIPP/GAPP/Movement" element={withPrivateProvider(<GappMovement />)} />
+          <Route path="/GIPP/GAPP/ExpensesRegister" element={withPrivateProvider(<ExpensesRegister />)} />
           <Route path='/GIPP/GEPP' element={withPrivateProvider(<Gepp />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
