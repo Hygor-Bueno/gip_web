@@ -3,17 +3,44 @@ import autoTable from 'jspdf-autotable';
 import { ActiveTableData } from '../../Interfaces/Interfaces';
 import { formatDate, formatCurrency } from './helpers';
 
+const logoSrc = require('../../../../../Assets/Image/peg_pese_logo.png') as string;
+
+function loadImageAsBase64(src: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width  = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext('2d')!.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve('');
+    img.src = src;
+  });
+}
+
 export const useInfoActivePDF = (data: ActiveTableData) => {
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     const active   = data.active  as any;
     const vehicle  = data.vehicle;
     const insurance = data.insurance;
 
-    const doc   = new jsPDF({ orientation: 'landscape', format: 'a4' });
-    const today = new Date().toLocaleDateString('pt-BR');
-    const brand = active?.brand ?? 'ativo';
-    const model = active?.model ?? '';
+    const doc       = new jsPDF({ orientation: 'landscape', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const today     = new Date().toLocaleDateString('pt-BR');
+    const brand     = active?.brand ?? 'ativo';
+    const model     = active?.model ?? '';
 
+    // ── Logo ────────────────────────────────────────────────
+    const logoBase64 = await loadImageAsBase64(logoSrc);
+    if (logoBase64) {
+      const logoSize = 22;
+      doc.addImage(logoBase64, 'PNG', pageWidth - logoSize - 10, 6, logoSize, logoSize);
+    }
+
+    // ── Header text ─────────────────────────────────────────
     doc.setFontSize(16);
     doc.setTextColor(15, 23, 42);
     doc.text('Relatório de Ativo', 14, 18);
