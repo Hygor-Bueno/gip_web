@@ -29,6 +29,7 @@ interface CustomTableProps {
   selectionList?: tItemTable[];
   selectionKey?: string;
   hiddenButton?: boolean;
+  hideSelectAll?: boolean;
   onRowClick?: any;
 }
 
@@ -248,7 +249,7 @@ export default function CustomTable(props: CustomTableProps) {
             {selectedRows.length > 0 ? 'Confirmar Seleção' : 'Voltar'}
           </button>
           {
-            !props.maxSelection && <button title={"Selecionar todo o conteúdo da tabela"} className="btn btn-primary mt-3 w-25" onClick={() => { setSelectedAllRows(); }}> Selecionar tudo</button>
+            !props.maxSelection && !props.hideSelectAll && <button title={"Selecionar todo o conteúdo da tabela"} className="btn btn-primary mt-3 w-25" onClick={() => { setSelectedAllRows(); }}> Selecionar tudo</button>
           }
 
           <button title="Limpar seleção atual" className="btn btn-secondary text-white mt-3 w-25" onClick={() => setSelectedRows([])}>

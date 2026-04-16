@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
+import CustomTable from "../../../../../Components/CustomTable";
+import { tItemTable } from "../../../../../types/types";
 import { ActiveForMovement, MovementFormState } from "../../Interfaces/MovementInterfaces";
 
 interface Props {
@@ -30,6 +32,33 @@ export default function Phase0Selection({
   selectedActives, toggleActive,
   handleAdvance,
 }: Props) {
+
+  const tableList: tItemTable[] = useMemo(() =>
+    filteredActives.map(a => ({
+      active_id:         { tag: "Cód.",     value: String(a.active_id) },
+      brand:             { tag: "Marca",    value: a.brand ?? "—" },
+      model:             { tag: "Modelo",   value: a.model ?? "—" },
+      desc_active_class: { tag: "Classe",   value: a.desc_active_class ?? "—" },
+      license_plates:    { tag: "Placa",    value: a.license_plates ?? "—" },
+      unit_name:         { tag: "Unidade",  value: a.unit_name ?? "—" },
+    })),
+  [filteredActives]);
+
+  const selectedTableItems: tItemTable[] = useMemo(() =>
+    tableList.filter(row =>
+      selectedActives.some(a => String(a.active_id) === row.active_id.value)
+    ),
+  [tableList, selectedActives]);
+
+  function handleRowClick(item: tItemTable) {
+    const active = filteredActives.find(a => String(a.active_id) === item.active_id.value);
+    if (active) toggleActive(active);
+  }
+
+  function handleConfirm() {
+    handleAdvance();
+  }
+
   return (
     <>
       {/* ── Toolbar ── */}
@@ -166,66 +195,18 @@ export default function Phase0Selection({
         </div>
       )}
 
-      {/* ── Grid + Footer wrapper ── */}
+      {/* ── Table + Footer wrapper ── */}
       <div className="mvform-body">
 
-        <div className="mvform-asset-grid">
-          {filteredActives.length === 0 ? (
-            <div className="mvform-empty">
-              <i className="fa fa-search" />
-              <span>Nenhum ativo encontrado</span>
-              {activeFilterCount > 0 && (
-                <button className="mvform-plate-empty-clear" onClick={handleClearFilters}>
-                  <i className="fa fa-times" /> Limpar filtros
-                </button>
-              )}
-            </div>
-          ) : (
-            filteredActives.map(active => {
-              const checked = selectedActives.some(a => a.active_id === active.active_id);
-              return (
-                <div
-                  key={active.active_id}
-                  className={`mvform-asset-card${checked ? " selected" : ""}`}
-                  onClick={() => toggleActive(active)}
-                >
-                  <div className={`mvform-checkbox${checked ? " checked" : ""}`}>
-                    {checked && <i className="fa fa-check" />}
-                  </div>
-                  <div className="mvform-asset-card-body">
-                    <span className="mvform-asset-id">#{active.active_id}</span>
-                    <span className="mvform-asset-name">{active.brand} {active.model}</span>
-                    <span className="mvform-asset-type">{active.desc_active_class}</span>
-                    {active.license_plates && (
-                      <span className="mvform-asset-plate">
-                        <i className="fa fa-car" /> {active.license_plates}
-                      </span>
-                    )}
-                    <span className="mvform-asset-unit">
-                      <i className="fa fa-map-marker" /> {active.unit_name || "—"}
-                    </span>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* ── Footer ── */}
-        <div className="mvform-phase0-footer">
-          <span className="mvform-selected-count">
-            {selectedActives.length > 0
-              ? `${selectedActives.length} ativo(s) selecionado(s)`
-              : "Selecione ao menos 1 ativo para avançar"}
-          </span>
-          <button
-            className="mvform-btn-advance"
-            disabled={selectedActives.length === 0}
-            onClick={handleAdvance}
-          >
-            Avançar <i className="fa fa-arrow-right" />
-          </button>
-        </div>
+        <CustomTable
+          list={tableList}
+          onConfirmList={handleConfirm}
+          selectedItems={selectedTableItems}
+          selectionKey="active_id"
+          selectionList={selectedTableItems}
+          hideSelectAll
+          onRowClick={handleRowClick}
+        />
 
       </div>
     </>
