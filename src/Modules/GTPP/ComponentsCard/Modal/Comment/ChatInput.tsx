@@ -31,6 +31,9 @@ export default function ChatInput({ isLoading, isEditing, onSend }: ChatInputPro
       if (items[i].type.startsWith("image/")) {
         const blob = items[i].getAsFile();
         if (blob) {
+          const ext = blob.type.split('/')[1] || 'png';
+          const name = blob.name && !blob.name.startsWith('image.') ? blob.name : `imagem_${Date.now()}.${ext}`;
+          setFileName(name);
           const reader = new FileReader();
           reader.readAsDataURL(blob);
           reader.onload = () => {

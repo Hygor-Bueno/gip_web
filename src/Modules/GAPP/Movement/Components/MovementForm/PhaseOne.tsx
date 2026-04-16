@@ -22,7 +22,7 @@ interface Props {
   handleAdvance:      () => void;
 }
 
-export default function Phase0Selection({
+export default function PhaseOne({
   form, setForm,
   filteredActives, activeFilterCount,
   filterOpen, setFilterOpen, filterBtnRef, filterPanelRef,

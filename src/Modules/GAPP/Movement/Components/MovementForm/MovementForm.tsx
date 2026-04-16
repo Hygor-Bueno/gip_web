@@ -3,8 +3,8 @@ import ConfirmModal from "../../../../../Components/CustomConfirm";
 import { Unit } from "../../../Active/Interfaces/OrgInterfaces";
 import { ActiveForMovement } from "../../Interfaces/MovementInterfaces";
 import { useMovementForm } from "./useMovementForm";
-import Phase0Selection from "./Phase0Selection";
-import Phase1FormData from "./Phase1FormData";
+import PhaseOne from "./PhaseOne";
+import PhaseTwoFormData from "./PhaseTwoFormData";
 import "./MovementForm.css";
 
 interface Props {
@@ -20,7 +20,7 @@ export default function MovementForm({ actives, units, onSuccess }: Props) {
     <div className="mvform-root">
 
       {mv.phase === 0 && (
-        <Phase0Selection
+        <PhaseOne
           form={mv.form}                         setForm={mv.setForm}
           filteredActives={mv.filteredActives}   activeFilterCount={mv.activeFilterCount}
           filterOpen={mv.filterOpen}             setFilterOpen={mv.setFilterOpen}
@@ -34,7 +34,7 @@ export default function MovementForm({ actives, units, onSuccess }: Props) {
       )}
 
       {mv.phase === 1 && (
-        <Phase1FormData
+        <PhaseTwoFormData
           form={mv.form}                         setForm={mv.setForm}
           selectedActives={mv.selectedActives}   toggleActive={mv.toggleActive}
           setPhase={mv.setPhase}

@@ -25,7 +25,7 @@ interface Props {
   setConfirmCancel:   (v: boolean) => void;
 }
 
-export default function Phase1FormData({
+export default function PhaseTwoFormData({
   form, setForm,
   selectedActives, toggleActive, setPhase,
   units, departments, subdepartaments,

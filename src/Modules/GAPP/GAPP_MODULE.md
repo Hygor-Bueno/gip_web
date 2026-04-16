@@ -628,7 +628,7 @@ npm test -- --testPathPattern="GAPP" --watchAll=false
 | `Settings.AdaptersGet` | Funções GET de configurações | 6 |
 | `Settings.AdaptersPost` | Funções POST de configurações | 8 |
 | `Settings.TableValues` | Renderização das tabelas de config | 29 |
-| **Total** | | **416** |
+| **Total** | | **536** |
 
 > Business e Infraction não possuem cobertura de testes.
 
