@@ -149,6 +149,20 @@
   flex-shrink: 0;
 }
 
+.nf-coupon-search:focus,
+.nf-list-search:focus {
+  outline: none;
+  border-color: #bed989;
+  background: #f0f7e6;
+  box-shadow: 0 0 0 3px rgba(190, 217, 137, 0.35);
+}
+
+/* ── NF list search ──────────────────────────────────────────────────────── */
+.nf-list-search {
+  margin-bottom: 0.65rem;
+  flex-shrink: 0;
+}
+
 /* ── Coupon list ─────────────────────────────────────────────────────────── */
 .nf-coupon-list {
   flex: 1;

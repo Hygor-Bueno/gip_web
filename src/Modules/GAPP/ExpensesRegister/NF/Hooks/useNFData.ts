@@ -129,7 +129,6 @@ export function useNFData(): UseNFDataReturn {
           hr_exit: formValues.hr_exit,
           nf_key: formValues.nf_key,
           number_nf: formValues.number_nf,
-          total_liq: Number(coupon.total_value),
           expen_id_fk: coupon.expen_id_fk,
           user_id_fk: gappUserId ?? 0,
         });
@@ -190,7 +189,6 @@ export function useNFData(): UseNFDataReturn {
           hr_exit: nf.hr_exit,
           nf_key: nf.nf_key,
           number_nf: nf.number_nf,
-          total_liq: Number(coupon.total_value),
           expen_id_fk: coupon.expen_id_fk,
           user_id_fk: gappUserId ?? 0,
         });

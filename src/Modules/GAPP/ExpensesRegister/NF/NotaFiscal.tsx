@@ -18,7 +18,12 @@ const FORM_FIELDS = [
 
 export default function NotaFiscal(): JSX.Element {
   const [activeTab, setActiveTab] = useState<NFTab>("registrar");
+  const [nfSearch, setNfSearch] = useState("");
   const { coupons, nfList, formValues, setFormValues, selectedCoupons, toggleCoupon, totalSelected, couponSearch, setCouponSearch, filteredCoupons, submitting, handleSubmit, editNF, openEdit, closeEdit, loadingEdit, handleDeleteCoupon, handleAddCoupons } = useNFData();
+
+  const filteredNfList = nfSearch
+    ? nfList.filter((nf) => String(nf.number_nf).toLowerCase().includes(nfSearch.toLowerCase()))
+    : nfList;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -78,11 +83,18 @@ export default function NotaFiscal(): JSX.Element {
         {activeTab === "registradas" && (
           <div className="nf-list-root">
             <p className="nf-panel-title"><i className="fa fa-list-check" /> Notas Fiscais</p>
+            <input
+              className="expenses-input nf-list-search"
+              type="text"
+              placeholder="Buscar por número da NF..."
+              value={nfSearch}
+              onChange={(e) => setNfSearch(e.target.value)}
+            />
             {nfList.length > 0 ? (
               <div className="nf-table-wrap">
                 <table className="nf-table">
                   <thead><tr><th>Número da NF</th><th>Chave de Acesso</th><th>Valor Total</th><th></th></tr></thead>
-                  <tbody>{nfList.map((nf) => <NFRow key={nf.number_nf} nf={nf} onEdit={openEdit} />)}</tbody>
+                  <tbody>{filteredNfList.map((nf) => <NFRow key={nf.number_nf} nf={nf} onEdit={openEdit} />)}</tbody>
                 </table>
               </div>
             ) : (

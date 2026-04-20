@@ -33,7 +33,6 @@ export function postNFCoupon(params: {
   hr_exit: string;
   nf_key: string;
   number_nf: string;
-  total_liq: number;
   expen_id_fk: number;
   user_id_fk: number;
 }) {
