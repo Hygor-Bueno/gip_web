@@ -1,0 +1,563 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   NOTA FISCAL — Root, tabs, content, panels
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.nf-root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Page tabs ───────────────────────────────────────────────────────────── */
+.nf-page-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.nf-page-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.nf-page-tab:hover {
+  background: #f0f7e6;
+  border-color: #bed989;
+  color: #4a7a1f;
+}
+
+.nf-page-tab.active {
+  background: #bed989;
+  border-color: #bed989;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.45);
+}
+
+/* ── Content area ────────────────────────────────────────────────────────── */
+.nf-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REGISTRAR NF — Two-panel layout
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.nf-register-root {
+  display: flex;
+  flex-grow: 1;
+  min-height: 0;
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+/* ── Left panel: form fields ─────────────────────────────────────────────── */
+.nf-form-panel {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  padding: 0.9rem 1rem;
+}
+
+/* ── Right panel: coupon selection ──────────────────────────────────────── */
+.nf-coupon-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  padding: 0.9rem 1rem;
+
+  @media screen and (min-width: 920px) {
+    height: 630px;
+  }
+}
+
+/* ── Card title (shared) ─────────────────────────────────────────────────── */
+.nf-panel-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1.5px solid #f1f3f8;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+}
+
+.nf-panel-title i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #bed989;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+/* ── Form fields ─────────────────────────────────────────────────────────── */
+.nf-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.nf-form-actions {
+  margin-top: auto;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ── Coupon search ───────────────────────────────────────────────────────── */
+.nf-coupon-search {
+  margin-bottom: 0.65rem;
+  flex-shrink: 0;
+}
+
+/* ── Coupon list ─────────────────────────────────────────────────────────── */
+.nf-coupon-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  /* custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+.nf-coupon-list::-webkit-scrollbar { width: 4px; }
+.nf-coupon-list::-webkit-scrollbar-track { background: transparent; }
+.nf-coupon-list::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+.nf-coupon-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.12s;
+  margin: 0;
+  font-weight: 400;
+  user-select: none;
+}
+
+.nf-coupon-item:last-child {
+  border-bottom: none;
+}
+
+.nf-coupon-item:hover {
+  background: #f8fafc;
+}
+
+.nf-coupon-item--selected {
+  background: #f0f9e8;
+}
+
+.nf-coupon-item--selected:hover {
+  background: #e8f5d4;
+}
+
+.nf-coupon-checkbox {
+  accent-color: #bed989;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+  pointer-events: none; /* clique gerenciado pelo label pai */
+}
+
+.nf-coupon-code {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0f172a;
+  min-width: 80px;
+}
+
+.nf-coupon-type {
+  font-size: 0.75rem;
+  color: #64748b;
+  flex: 1;
+}
+
+.nf-coupon-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4a7c1f;
+  white-space: nowrap;
+}
+
+.nf-coupon-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: 1;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  padding: 2rem 1rem;
+  margin: 0;
+}
+
+/* ── Total row ───────────────────────────────────────────────────────────── */
+.nf-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.2rem 0;
+  margin-top: 0.55rem;
+  border-top: 1.5px solid #f1f3f8;
+  flex-shrink: 0;
+}
+
+.nf-total-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.nf-total-value {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NOTAS REGISTRADAS — Table tab
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.nf-list-root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  padding: 0.9rem 1rem;
+  overflow: hidden;
+}
+
+.nf-table-wrap {
+  overflow-x: auto;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+.nf-table-wrap::-webkit-scrollbar { width: 4px; height: 4px; }
+.nf-table-wrap::-webkit-scrollbar-track { background: transparent; }
+.nf-table-wrap::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+.nf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.nf-table th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.55rem 0.85rem;
+  text-align: left;
+  border-bottom: 1.5px solid #e2e8f0;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.nf-table td {
+  padding: 0.55rem 0.85rem;
+  color: #0f172a;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.nf-table tr:last-child td { border-bottom: none; }
+
+.nf-table tr:hover td { background: #f8fafc; }
+
+.nf-key-cell {
+  font-size: 0.72rem;
+  color: #64748b;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nf-edit-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nf-edit-btn:hover {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EDIT MODAL
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.nf-edit-modal {
+  max-width: 580px;
+}
+
+/* Body do modal de edição é scrollável para acomodar todos os campos + cupons */
+.nf-edit-modal .expenses-modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+.nf-edit-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  color: #94a3b8;
+  font-size: 1.4rem;
+}
+
+/* Grid de campos editáveis da NF no modal */
+.nf-edit-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1.5px solid #f1f3f8;
+}
+
+/* Chave da NF ocupa a linha toda */
+.nf-edit-key-field {
+  grid-column: 1 / -1;
+}
+
+/* Linha com título + botão adicionar */
+.nf-edit-add-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+.nf-edit-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nf-add-coupon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #f0f7e6;
+  color: #4a7a1f;
+  border: 1.5px solid #bed989;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.nf-add-coupon-btn:hover { background: #e0f0cc; }
+
+/* Painel de adição de cupons */
+.nf-add-coupon-panel {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.nf-add-coupon-list {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+/* Cupons já vinculados */
+.nf-edit-coupons {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+.nf-edit-coupon-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.8rem;
+}
+
+.nf-edit-coupon-row:last-child { border-bottom: none; }
+
+/* Botão remover cupom — com confirmação em 2 cliques */
+.nf-delete-btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fee2e2;
+  border: none;
+  border-radius: 7px;
+  color: #ef4444;
+  font-size: 0.72rem;
+  cursor: pointer;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nf-delete-btn:hover { background: #fca5a5; }
+
+.nf-delete-btn--confirm {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.nf-delete-btn--confirm:hover { background: #fde68a; }
+
+/* Campo obrigatório */
+.nf-required {
+  color: #ef4444;
+  margin-right: 2px;
+}
+
+/* Estado desabilitado no coupon item */
+.nf-coupon-item--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE  ≤ 640px
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .nf-root {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .nf-page-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .nf-page-tab {
+    justify-content: center;
+    padding: 0.45rem 0.4rem;
+    font-size: 0.74rem;
+    border-radius: 8px;
+  }
+
+  .nf-content {
+    overflow: visible;
+    flex-grow: unset;
+    min-height: unset;
+  }
+
+  .nf-register-root {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .nf-form-panel {
+    width: 100%;
+    overflow-y: visible;
+  }
+
+  .nf-coupon-panel {
+    min-height: 360px;
+  }
+
+  .nf-coupon-list {
+    max-height: 280px;
+  }
+
+  .nf-list-root {
+    overflow: visible;
+    min-height: 300px;
+  }
+}

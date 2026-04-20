@@ -400,6 +400,45 @@
   color: #0f172a;
 }
 
+/* ── Tab bar ─────────────────────────────────────────────── */
+.expenses-tabs {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0;
+}
+
+.expenses-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.expenses-tab:hover {
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.expenses-tab--active {
+  color: #4a7c1f;
+  border-bottom-color: #bed989;
+  background: #f8fafc;
+}
+
+
 /* ── Mobile ──────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .expenses-filters {

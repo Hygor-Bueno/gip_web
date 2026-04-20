@@ -8,6 +8,7 @@ import { IExpensesItem } from "./Interfaces/InterfaceExpensesRegister";
 import { useMyContext } from "../../../Context/MainContext";
 import { tItemTable } from "../../../types/types";
 import { listPathGAPP } from "../ConfigGapp";
+import NotaFiscal from "./NF/NotaFiscal";
 import "./ExpensesRegister.css";
 
 interface IFormExpenses {
@@ -29,6 +30,7 @@ export default function ExpensesRegister(): JSX.Element {
   const { fetchData } = useConnection();
   const { setLoading } = useMyContext();
 
+  const [activeTab, setActiveTab] = useState<"despesas" | "nf">("despesas");
   const [page,         setPage]         = useState<number>(1);
   const [editExpenses, setEditExpenses] = useState<number>(0);
   const [urlComplement,setUrlComplement]= useState<string>("");
@@ -141,7 +143,29 @@ export default function ExpensesRegister(): JSX.Element {
         </div>
       </div>
 
+      {/* ── Tab bar ─────────────────────────────────────────── */}
+      <div className="expenses-tabs">
+        <button
+          className={`expenses-tab${activeTab === "despesas" ? " expenses-tab--active" : ""}`}
+          type="button"
+          onClick={() => setActiveTab("despesas")}
+        >
+          <i className="fa fa-table-list" /> Despesas
+        </button>
+        <button
+          className={`expenses-tab${activeTab === "nf" ? " expenses-tab--active" : ""}`}
+          type="button"
+          onClick={() => setActiveTab("nf")}
+        >
+          <i className="fa fa-file-invoice" /> Nota Fiscal
+        </button>
+      </div>
+
+      {/* ── NF tab ──────────────────────────────────────────── */}
+      {activeTab === "nf" && <NotaFiscal />}
+
       {/* ── Filter card ─────────────────────────────────────── */}
+      {activeTab === "despesas" && <React.Fragment>
       <div className="expenses-card">
         <p className="expenses-card-title">
           <i className="fa fa-filter" /> Filtros
@@ -251,6 +275,8 @@ export default function ExpensesRegister(): JSX.Element {
         )}
       </div>
 
+      </React.Fragment>}
+
     </div>
     </React.Fragment>
   );
@@ -266,7 +292,7 @@ function EditExpenses({ expen_id, onClose }: IEditExpenses): JSX.Element {
 
         <div className="expenses-modal-header">
           <div className="expenses-modal-icon">
-            <i className="fa fa-file-invoice-dollar" />
+            <i className="fa fa-file-invoice-dollar text-white" />
           </div>
           <p className="expenses-modal-title">Detalhes da Despesa</p>
           <button className="expenses-modal-close" onClick={onClose} title="Fechar">
