@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useMyContext } from "../../../../../Context/MainContext";
+import { handleNotification } from "../../../../../Util/ui/notifications";
 import {
   getNFExpenses,
   getAllNFs,
@@ -113,11 +114,28 @@ export function useNFData(): UseNFDataReturn {
     if (
       !formValues.number_nf ||
       !formValues.nf_key ||
-      selectedCoupons.size === 0
-    )
+      !formValues.dt_issue ||
+      !formValues.dt_delivery ||
+      !formValues.hr_exit
+    ) {
+      handleNotification(
+        "Atenção!",
+        "Preencha todos os campos obrigatórios da NF.",
+        "warning"
+      );
       return;
+    }
+    if (selectedCoupons.size === 0) {
+      handleNotification(
+        "Atenção!",
+        "Selecione ao menos um lançamento para vincular à NF.",
+        "warning"
+      );
+      return;
+    }
 
     setSubmitting(true);
+    handleNotification("Registrando NF...", "Aguarde enquanto salvamos os dados.", "info", undefined, 2500);
     try {
       const selectedList = coupons.filter((c) =>
         selectedCoupons.has(String(c.expen_id_fk))
@@ -137,6 +155,17 @@ export function useNFData(): UseNFDataReturn {
       setSelectedCoupons(new Set());
       setCouponSearch("");
       await reload();
+      handleNotification(
+        "Sucesso!",
+        `Nota Fiscal ${formValues.number_nf} registrada com sucesso.`,
+        "success"
+      );
+    } catch (error: any) {
+      handleNotification(
+        "Erro!",
+        error?.message || "Falha ao registrar a Nota Fiscal.",
+        "danger"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -156,7 +185,11 @@ export function useNFData(): UseNFDataReturn {
           hr_exit:     item?.hr_exit     ?? "",
           cupons:      item?.cupons      ?? [],
         });
+      } else {
+        handleNotification("Erro!", "Não foi possível carregar os dados da NF.", "danger");
       }
+    } catch (error: any) {
+      handleNotification("Erro!", error?.message || "Falha ao carregar a NF.", "danger");
     } finally {
       setLoadingEdit(false);
     }
@@ -166,42 +199,65 @@ export function useNFData(): UseNFDataReturn {
 
   const handleDeleteCoupon = useCallback(
     async (expen_id_fk: number) => {
-      await deleteNFCoupon(expen_id_fk);
-      setEditNF((prev) =>
-        prev
-          ? {
-              ...prev,
-              cupons: prev.cupons.filter((c) => c.expen_id_fk !== expen_id_fk),
-            }
-          : null
-      );
-      await reload();
+      try {
+        const res = await deleteNFCoupon(expen_id_fk);
+        if (res?.error) {
+          handleNotification("Erro!", "Não foi possível desvincular o cupom.", "danger");
+          return;
+        }
+        setEditNF((prev) =>
+          prev
+            ? {
+                ...prev,
+                cupons: prev.cupons.filter((c) => c.expen_id_fk !== expen_id_fk),
+              }
+            : null
+        );
+        await reload();
+        handleNotification("Sucesso!", "Cupom desvinculado da NF.", "success");
+      } catch (error: any) {
+        handleNotification("Erro!", error?.message || "Falha ao desvincular cupom.", "danger");
+      }
     },
     [reload]
   );
 
   const handleAddCoupons = useCallback(
     async (nf: INFWithCoupons, newCoupons: IExpenseCoupon[]) => {
-      for (const coupon of newCoupons) {
-        await postNFCoupon({
-          dt_issue: nf.dt_issue,
-          dt_delivery: nf.dt_delivery,
-          hr_exit: nf.hr_exit,
-          nf_key: nf.nf_key,
-          number_nf: nf.number_nf,
-          expen_id_fk: coupon.expen_id_fk,
-          user_id_fk: gappUserId ?? 0,
-        });
+      if (!newCoupons.length) {
+        handleNotification("Atenção!", "Selecione ao menos um cupom para vincular.", "warning");
+        return;
       }
-      // Recarrega os cupons vinculados à NF (res.data é array)
-      const res = await getNFByNumber(nf.number_nf);
-      if (!res.error && res.data) {
-        const item = Array.isArray(res.data) ? res.data[0] : res.data;
-        setEditNF((prev) =>
-          prev ? { ...prev, cupons: item?.cupons ?? [] } : null
+      handleNotification("Vinculando cupons...", "Aguarde um momento.", "info", undefined, 2000);
+      try {
+        for (const coupon of newCoupons) {
+          await postNFCoupon({
+            dt_issue: nf.dt_issue,
+            dt_delivery: nf.dt_delivery,
+            hr_exit: nf.hr_exit,
+            nf_key: nf.nf_key,
+            number_nf: nf.number_nf,
+            expen_id_fk: coupon.expen_id_fk,
+            user_id_fk: gappUserId ?? 0,
+          });
+        }
+        // Recarrega os cupons vinculados à NF (res.data é array)
+        const res = await getNFByNumber(nf.number_nf);
+        if (!res.error && res.data) {
+          const item = Array.isArray(res.data) ? res.data[0] : res.data;
+          setEditNF((prev) =>
+            prev ? { ...prev, cupons: item?.cupons ?? [] } : null
+          );
+        }
+        await reload();
+        handleNotification(
+          "Sucesso!",
+          `${newCoupons.length} cupom(s) vinculado(s) à NF ${nf.number_nf}.`,
+          "success"
         );
+      } catch (error: any) {
+        handleNotification("Erro!", error?.message || "Falha ao vincular cupons.", "danger");
       }
-      await reload();
     },
     [gappUserId, reload]
   );
