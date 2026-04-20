@@ -442,6 +442,14 @@
 
 .nf-add-coupon-btn:hover { background: #e0f0cc; }
 
+.nf-cancel-delete-btn {
+  background: #fef9c3;
+  color: #ca8a04;
+  border-color: #fde68a;
+}
+
+.nf-cancel-delete-btn:hover { background: #fde68a; }
+
 /* Painel de adição de cupons */
 .nf-add-coupon-panel {
   background: #f8fafc;

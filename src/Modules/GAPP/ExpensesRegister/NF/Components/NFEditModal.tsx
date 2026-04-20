@@ -19,6 +19,26 @@ export function NFEditModal({ nf, loading, allCoupons, onClose, onDeleteCoupon, 
   const [selectedNew, setSelectedNew] = useState<Set<string>>(new Set());
   const [couponSearch, setCouponSearch] = useState("");
   const [submittingAdd, setSubmittingAdd] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  function handleRequestDelete(id: number) {
+    setPendingDelete(id);
+  }
+
+  function handleCancelDelete() {
+    setPendingDelete(null);
+  }
+
+  async function handleConfirmDelete(id: number) {
+    setDeletingId(id);
+    try {
+      await onDeleteCoupon(id);
+      setPendingDelete(null);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   useEffect(() => {
     if (nf) setFields({ dt_issue: nf.dt_issue ?? "", dt_delivery: nf.dt_delivery ?? "", hr_exit: nf.hr_exit ?? "", number_nf: nf.number_nf ?? "", nf_key: nf.nf_key ?? "" });
@@ -86,9 +106,21 @@ export function NFEditModal({ nf, loading, allCoupons, onClose, onDeleteCoupon, 
 
             <div className="nf-edit-add-row">
               <p className="nf-edit-section-title"><i className="fa fa-receipt" /> Notas Vinculadas</p>
-              <button type="button" className="nf-add-coupon-btn" onClick={() => { setAddingCoupon((v) => !v); setSelectedNew(new Set()); setCouponSearch(""); }}>
-                <i className={`fa ${addingCoupon ? "fa-xmark" : "fa-plus"}`} /> {addingCoupon ? "Cancelar" : "Adicionar"}
-              </button>
+              <div style={{ display: "flex", gap: "0.4rem" }}>
+                {pendingDelete !== null && (
+                  <button
+                    type="button"
+                    className="nf-add-coupon-btn nf-cancel-delete-btn"
+                    onClick={handleCancelDelete}
+                    title="Cancelar remoção pendente"
+                  >
+                    <i className="fa fa-rotate-left" /> Cancelar
+                  </button>
+                )}
+                <button type="button" className="nf-add-coupon-btn" onClick={() => { setAddingCoupon((v) => !v); setSelectedNew(new Set()); setCouponSearch(""); }}>
+                  <i className={`fa ${addingCoupon ? "fa-xmark" : "fa-plus"}`} /> {addingCoupon ? "Cancelar" : "Adicionar"}
+                </button>
+              </div>
             </div>
 
             {addingCoupon && (
@@ -107,7 +139,16 @@ export function NFEditModal({ nf, loading, allCoupons, onClose, onDeleteCoupon, 
             )}
 
             {nf.cupons.length > 0
-              ? <div className="nf-edit-coupons">{nf.cupons.map((c) => <LinkedCouponRow key={c.expen_id_fk} coupon={c} onDelete={onDeleteCoupon} />)}</div>
+              ? <div className="nf-edit-coupons">{nf.cupons.map((c) => (
+                  <LinkedCouponRow
+                    key={c.expen_id_fk}
+                    coupon={c}
+                    confirming={pendingDelete === c.expen_id_fk}
+                    removing={deletingId === c.expen_id_fk}
+                    onRequestDelete={handleRequestDelete}
+                    onConfirmDelete={handleConfirmDelete}
+                  />
+                ))}</div>
               : <p className="nf-coupon-empty" style={{ padding: "0.5rem 0" }}>Nenhum lançamento vinculado.</p>
             }
 

@@ -1,22 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import { INFCoupon } from "../Interfaces/InterfaceNF";
 import { formatBRL } from "../utils";
 
 interface LinkedCouponRowProps {
   coupon: INFCoupon;
-  onDelete: (expen_id_fk: number) => Promise<void>;
+  confirming: boolean;
+  removing: boolean;
+  onRequestDelete: (expen_id_fk: number) => void;
+  onConfirmDelete: (expen_id_fk: number) => void;
 }
 
-export function LinkedCouponRow({ coupon, onDelete }: LinkedCouponRowProps): JSX.Element {
-  const [confirming, setConfirming] = useState(false);
-  const [removing, setRemoving] = useState(false);
-
-  async function handleRemove() {
-    if (!confirming) { setConfirming(true); return; }
-    setRemoving(true);
-    await onDelete(coupon.expen_id_fk);
-    setRemoving(false);
-    setConfirming(false);
+export function LinkedCouponRow({ coupon, confirming, removing, onRequestDelete, onConfirmDelete }: LinkedCouponRowProps): JSX.Element {
+  function handleClick() {
+    if (removing) return;
+    if (confirming) onConfirmDelete(coupon.expen_id_fk);
+    else onRequestDelete(coupon.expen_id_fk);
   }
 
   return (
@@ -26,7 +24,7 @@ export function LinkedCouponRow({ coupon, onDelete }: LinkedCouponRowProps): JSX
       <button
         className={`nf-delete-btn${confirming ? " nf-delete-btn--confirm" : ""}`}
         type="button"
-        onClick={handleRemove}
+        onClick={handleClick}
         disabled={removing}
         title={confirming ? "Clique novamente para confirmar" : "Desvincular cupom"}
       >
