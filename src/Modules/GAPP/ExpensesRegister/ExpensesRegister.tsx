@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CustomTable from "../../../Components/CustomTable";
 import NavBar from "../../../Components/NavBar";
 import { convertDate, convertForTable, maskMoney, sortListByKey } from "../../../Util/Utils";
@@ -10,6 +10,7 @@ import { tItemTable } from "../../../types/types";
 import { listPathGAPP } from "../ConfigGapp";
 import NotaFiscal from "./NF/NotaFiscal";
 import "./ExpensesRegister.css";
+import "../Active/Component/FilterPanel/FilterPanel.css";
 import EditExpenses from "./EditExpenses/EditExpenses";
 
 interface IFormExpenses {
@@ -31,14 +32,33 @@ export default function ExpensesRegister(): JSX.Element {
   const { fetchData } = useConnection();
   const { setLoading } = useMyContext();
 
-  const [activeTab, setActiveTab] = useState<"despesas" | "nf">("despesas");
-  const [page,         setPage]         = useState<number>(1);
-  const [editExpenses, setEditExpenses] = useState<number>(0);
-  const [urlComplement,setUrlComplement]= useState<string>("");
-  const [data,         setData]         = useState<IExpensesItem[]>([]);
-  const [formData,     setFormData]     = useState<IFormExpenses>(restartForm);
-  const [units,        setUnits]        = useState<{ label: string; value: string }[]>([]);
-  const [expensesType, setExpensesType] = useState<{ label: string; value: string }[]>([]);
+  const [activeTab,      setActiveTab]      = useState<"despesas" | "nf">("despesas");
+  const [page,           setPage]           = useState<number>(1);
+  const [editExpenses,   setEditExpenses]   = useState<IExpensesItem | null>(null);
+  const [showFilters,    setShowFilters]    = useState<boolean>(false);
+  const [urlComplement,  setUrlComplement]  = useState<string>("");
+  const [rawData,        setRawData]        = useState<IExpensesItem[]>([]);
+  const [data,           setData]           = useState<IExpensesItem[]>([]);
+  const [formData,       setFormData]       = useState<IFormExpenses>(restartForm);
+  const [units,          setUnits]          = useState<{ label: string; value: string }[]>([]);
+  const [expensesType,   setExpensesType]   = useState<{ label: string; value: string }[]>([]);
+
+  const activeFilterCount = Object.values(formData).filter((v) => v).length;
+
+  const filterBtnRef = useRef<HTMLButtonElement>(null);
+  const filterPanelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showFilters) return;
+    const handler = (e: MouseEvent) => {
+      if (
+        filterPanelRef.current && !filterPanelRef.current.contains(e.target as Node) &&
+        filterBtnRef.current   && !filterBtnRef.current.contains(e.target as Node)
+      ) setShowFilters(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showFilters]);
 
   useEffect(() => {
     (async () => {
@@ -72,6 +92,7 @@ export default function ExpensesRegister(): JSX.Element {
     const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP_V2/FiltredExpenses.php", urlComplement: urlComplement || "" });
     if (req.error && req.message?.toUpperCase().includes("NO DATA") && page > 1) handleUrl(page - 1);
     if (req.error) throw new Error(req.message);
+    setRawData(req.data);
     setData(req.data.map((item: IExpensesItem) => maskExpenses(item)));
   }
 
@@ -121,28 +142,165 @@ export default function ExpensesRegister(): JSX.Element {
     setPage(1);
   }
 
+  function handleConfirmRow(rows: tItemTable[]) {
+    if (!rows.length) return;
+    const id = String(rows[0].expen_id?.value ?? "");
+    if (!id) return;
+    const raw = rawData.find((r) => String(r.expen_id) === id) ?? null;
+    if (raw) setEditExpenses(raw);
+  }
+
+  function handleApplyFilters() {
+    handleUrl();
+    setShowFilters(false);
+  }
+
+  function handleClearFilters() {
+    handleClear();
+    setUrlComplement("&dashGAPP=1&page_number=1");
+  }
+
+  function handleSaved() {
+    setEditExpenses(null);
+    loadExpenses();
+  }
+
+  function handleDeleted(id: number) {
+    setEditExpenses(null);
+    setRawData((prev) => prev.filter((r) => String(r.expen_id) !== String(id)));
+    setData((prev)    => prev.filter((r) => String(r.expen_id) !== String(id)));
+  }
+
   return (
     <React.Fragment>
       <NavBar list={listPathGAPP} />
     <div className="expenses-page">
 
       {/* ── Edit modal ──────────────────────────────────────── */}
-      {editExpenses > 0 && (
-        <EditExpenses expen_id={editExpenses} onClose={() => setEditExpenses(0)} />
+      {editExpenses && (
+        <EditExpenses
+          item={editExpenses}
+          units={units}
+          expensesType={expensesType}
+          onClose={() => setEditExpenses(null)}
+          onSaved={handleSaved}
+          onDeleted={handleDeleted}
+        />
       )}
 
       {/* ── Toolbar ─────────────────────────────────────────── */}
-      <div className="expenses-toolbar">
-        <div className="expenses-toolbar-title">
-          <div className="expenses-toolbar-title-icon">
-            <i className="fa fa-receipt" />
-          </div>
-          <div>
-            <p className="expenses-toolbar-title-text">Relatório de Despesas</p>
-            <p className="expenses-toolbar-title-sub">Consulta e filtros de lançamentos</p>
+      <div className="d-flex justify-content-between">
+        <div className="expenses-toolbar">
+          <div className="expenses-toolbar-title">
+            <div className="expenses-toolbar-title-icon">
+              <i className="fa fa-receipt" />
+            </div>
+            <div>
+              <p className="expenses-toolbar-title-text">Relatório de Despesas</p>
+              <p className="expenses-toolbar-title-sub">Consulta e filtros de lançamentos</p>
+            </div>
           </div>
         </div>
+
+        {/* ── Filters trigger button (same style as GAPP/Active) ─ */}
+        {activeTab === "despesas" && (
+          <div className="expenses-filters-trigger">
+            <button
+              ref={filterBtnRef}
+              className={`btn-filter-toggle${showFilters || activeFilterCount > 0 ? " active" : ""}`}
+              type="button"
+              onClick={() => setShowFilters((o) => !o)}
+              title="Filtros"
+            >
+              <i className="fa fa-filter" /> Filtros
+              {activeFilterCount > 0 && (
+                <span className="fp-toggle-badge">{activeFilterCount}</span>
+              )}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* ── Floating filter panel (Active pattern) ──────────── */}
+      {showFilters && (
+        <div className="fp-backdrop">
+          <div className="fp-panel" ref={filterPanelRef}>
+
+            {/* Header */}
+            <div className="fp-header">
+              <div className="fp-title">
+                <div className="fp-icon"><i className="fa fa-filter" /></div>
+                <span>Filtros</span>
+                {activeFilterCount > 0 && <span className="fp-badge">{activeFilterCount}</span>}
+                <span className="fp-count">{data.length} resultado{data.length !== 1 ? "s" : ""}</span>
+              </div>
+              <div className="fp-header-actions">
+                <button className="fp-btn-clear" type="button" onClick={handleClearFilters} title="Limpar filtros">
+                  <i className="fa fa-times" /> Limpar
+                </button>
+                <button className="fp-btn-close" type="button" onClick={() => setShowFilters(false)} title="Fechar">
+                  <i className="fa fa-chevron-up" />
+                </button>
+              </div>
+            </div>
+
+            {/* Fields */}
+            <div className="fp-grid">
+
+              <div className="fp-group">
+                <label className="fp-label"><i className="fa fa-calendar" /> Data Inicial</label>
+                <input className="fp-input" type="date" name="date_start" value={formData.date_start} onChange={handleChange} />
+              </div>
+
+              <div className="fp-group">
+                <label className="fp-label"><i className="fa fa-calendar" /> Data Final</label>
+                <input className="fp-input" type="date" name="date_end" value={formData.date_end} onChange={handleChange} />
+              </div>
+
+              <div className="fp-group fp-group--plate">
+                <label className="fp-label"><i className="fa fa-car" /> Placa</label>
+                <div className="fp-plate-row">
+                  <input
+                    className="fp-input"
+                    type="text"
+                    name="license_plates"
+                    placeholder="Ex: ABC-1234"
+                    value={formData.license_plates}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, license_plates: e.target.value.toUpperCase() }))}
+                    onKeyDown={(e) => e.key === "Enter" && handleApplyFilters()}
+                  />
+                  <button className="fp-btn-search" type="button" onClick={handleApplyFilters} title="Buscar">
+                    <i className="fa fa-search" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="fp-group">
+                <label className="fp-label"><i className="fa fa-building" /> Unidade</label>
+                <select className="fp-input" name="unit_id" value={formData.unit_id} onChange={handleChange}>
+                  <option value="">Todas</option>
+                  {units.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+                </select>
+              </div>
+
+              <div className="fp-group">
+                <label className="fp-label"><i className="fa fa-tag" /> Tipo de Despesa</label>
+                <select className="fp-input" name="exp_type_id_fk" value={formData.exp_type_id_fk} onChange={handleChange}>
+                  <option value="">Todos</option>
+                  {expensesType.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                </select>
+              </div>
+
+              <div className="fp-group" style={{ gridColumn: "span 2" }}>
+                <button className="fp-btn-search" type="button" onClick={handleApplyFilters} style={{ width: "100%", height: 34 }}>
+                  Buscar
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Tab bar ─────────────────────────────────────────── */}
       <div className="expenses-tabs">
@@ -165,118 +323,63 @@ export default function ExpensesRegister(): JSX.Element {
       {/* ── NF tab ──────────────────────────────────────────── */}
       {activeTab === "nf" && <NotaFiscal />}
 
-      {/* ── Filter card ─────────────────────────────────────── */}
-      {activeTab === "despesas" && <React.Fragment>
-      <div className="expenses-card">
-        <p className="expenses-card-title">
-          <i className="fa fa-filter" /> Filtros
-        </p>
+      {/* ── Despesas tab ────────────────────────────────────── */}
+      {activeTab === "despesas" && (
+        <React.Fragment>
 
-        <div className="expenses-filters">
+          {/* Hint */}
+          <p className="expenses-hint">
+            <i className="fa fa-circle-info text-primary" /> Selecione uma linha e clique em <strong>Confirmar Seleção</strong> para editar ou excluir a despesa.
+          </p>
 
-          {/* Data inicial */}
-          <div className="expenses-field">
-            <label className="expenses-label">Data Inicial</label>
-            <input className="expenses-input" type="date" name="date_start" value={formData.date_start} onChange={handleChange} />
+          {/* Table card */}
+          <div className="expenses-card expenses-card-table">
+            {data.length > 0 ? (
+              <>
+                <CustomTable
+                  maxSelection={1}
+                  list={convertForTable(data, {
+                    ocultColumns: ["exp_type_id_fk", "vehicle_id", "unit_id"],
+                    customTags: customTagsExpense,
+                    minWidths: minWidthsExpense,
+                  })}
+                  onConfirmList={handleConfirmRow}
+                  hiddenButton={false}
+                />
+
+                {/* Pagination */}
+                <div className="expenses-pagination">
+                  <button
+                    className="expenses-page-btn"
+                    type="button"
+                    onClick={() => changePage(false)}
+                    disabled={page <= 1}
+                    title="Página anterior"
+                  >
+                    <i className="fa fa-chevron-left" />
+                  </button>
+                  <span className="expenses-page-indicator">{String(page).padStart(2, "0")}</span>
+                  <button
+                    className="expenses-page-btn"
+                    type="button"
+                    onClick={() => changePage(true)}
+                    title="Próxima página"
+                  >
+                    <i className="fa fa-chevron-right" />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="expenses-empty">
+                <i className="fa fa-receipt" />
+                <strong>Nenhuma despesa encontrada</strong>
+                <span>Ajuste os filtros e clique em Buscar.</span>
+              </div>
+            )}
           </div>
 
-          {/* Data final */}
-          <div className="expenses-field">
-            <label className="expenses-label">Data Final</label>
-            <input className="expenses-input" type="date" name="date_end" value={formData.date_end} onChange={handleChange} />
-          </div>
-
-          {/* Placa */}
-          <div className="expenses-field">
-            <label className="expenses-label">Placa</label>
-            <input className="expenses-input" type="text" name="license_plates" placeholder="ABC1D23" value={formData.license_plates} onChange={handleChange} />
-          </div>
-
-          {/* Unidade */}
-          <div className="expenses-field">
-            <label className="expenses-label">Unidade</label>
-            <div className="expenses-select-wrap">
-              <select className="expenses-select" name="unit_id" value={formData.unit_id} onChange={handleChange}>
-                <option value="">Todas</option>
-                {units.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* Tipo de despesa */}
-          <div className="expenses-field">
-            <label className="expenses-label">Tipo de Despesa</label>
-            <div className="expenses-select-wrap">
-              <select className="expenses-select" name="exp_type_id_fk" value={formData.exp_type_id_fk} onChange={handleChange}>
-                <option value="">Todos</option>
-                {expensesType.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="expenses-filter-actions">
-            <button className="expenses-btn-search" type="button" onClick={() => handleUrl()}>
-              <i className="fa fa-magnifying-glass" /> Buscar
-            </button>
-            <button className="expenses-btn-clear" type="button" onClick={handleClear}>
-              <i className="fa fa-eraser" /> Limpar
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      {/* ── Table card ──────────────────────────────────────── */}
-      <div className="expenses-card expenses-card-table">
-        <p className="expenses-card-title">
-          <i className="fa fa-table-list" /> Resultados
-        </p>
-
-        {data.length > 0 ? (
-          <>
-            <CustomTable
-              maxSelection={1}
-              list={convertForTable(data, {
-                ocultColumns: ["exp_type_id_fk", "vehicle_id", "unit_id"],
-                customTags: customTagsExpense,
-                minWidths: minWidthsExpense,
-              })}
-              onConfirmList={(rows: tItemTable[]) => setEditExpenses(Number(rows[0].expen_id.value))}
-            />
-
-            {/* Pagination */}
-            <div className="expenses-pagination">
-              <button
-                className="expenses-page-btn"
-                type="button"
-                onClick={() => changePage(false)}
-                disabled={page <= 1}
-                title="Página anterior"
-              >
-                <i className="fa fa-chevron-left" />
-              </button>
-              <span className="expenses-page-indicator">{String(page).padStart(2, "0")}</span>
-              <button
-                className="expenses-page-btn"
-                type="button"
-                onClick={() => changePage(true)}
-                title="Próxima página"
-              >
-                <i className="fa fa-chevron-right" />
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="expenses-empty">
-            <i className="fa fa-receipt" />
-            <strong>Nenhuma despesa encontrada</strong>
-            <span>Ajuste os filtros e clique em Buscar.</span>
-          </div>
-        )}
-      </div>
-
-      </React.Fragment>}
+        </React.Fragment>
+      )}
 
     </div>
     </React.Fragment>

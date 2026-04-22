@@ -73,7 +73,7 @@ export function NFEditModal({ nf, loading, allCoupons, onClose, onDeleteCoupon, 
     <div className="expenses-modal-overlay" onClick={onClose}>
       <div className="expenses-modal nf-edit-modal" onClick={(e) => e.stopPropagation()}>
         <div className="expenses-modal-header">
-          <div className="expenses-modal-icon"><i className="fa fa-file-invoice-dollar" /></div>
+          <div className="expenses-modal-icon"><i className="fa fa-file-invoice-dollar text-white" /></div>
           <p className="expenses-modal-title">{loading ? "Carregando..." : `Edição — NF ${nf?.number_nf}`}</p>
           <button className="expenses-modal-close" onClick={onClose} title="Fechar"><i className="fa fa-xmark" /></button>
         </div>

@@ -439,6 +439,129 @@
 }
 
 
+/* ── Filters trigger wrapper (button styles come from FilterPanel.css) ── */
+.expenses-filters-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.15rem 0.1rem;
+}
+
+/* ── Hint line above table ───────────────────────────────── */
+.expenses-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.35rem 0.2rem;
+  font-size: 0.74rem;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.expenses-hint i {
+  color: #bed989;
+}
+
+/* ── Edit modal (wider) ──────────────────────────────────── */
+.expenses-modal--edit {
+  max-width: 520px;
+}
+
+.expenses-modal-id-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-left: 0.5rem;
+}
+
+.expenses-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.expenses-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.expenses-textarea {
+  resize: none;
+  font-family: inherit;
+  line-height: 1.45;
+}
+
+.expenses-modal-spacer {
+  flex: 1;
+}
+
+/* ── Delete button (ghost red) ───────────────────────────── */
+.expenses-btn-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid #fca5a5;
+  border-radius: 9px;
+  background: #fff;
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.expenses-btn-delete:hover {
+  background: #fee2e2;
+}
+
+/* ── Delete confirmation row ─────────────────────────────── */
+.expenses-confirm-delete {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.expenses-confirm-icon {
+  color: #f59e0b;
+  font-size: 0.9rem;
+}
+
+.expenses-confirm-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0f172a;
+  flex: 1;
+}
+
+/* ── Delete solid button ─────────────────────────────────── */
+.expenses-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 9px;
+  background: #dc2626;
+  color: #fff;
+  cursor: pointer;
+  transition: filter 0.15s;
+  white-space: nowrap;
+}
+
+.expenses-btn-danger:hover {
+  filter: brightness(0.9);
+}
+
 /* ── Mobile ──────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .expenses-filters {
