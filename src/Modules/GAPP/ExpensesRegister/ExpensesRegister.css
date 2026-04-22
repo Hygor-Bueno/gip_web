@@ -439,13 +439,76 @@
 }
 
 
+/* ── Toolbar row (title + actions) ───────────────────────── */
+.expenses-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  /* flex-wrap: wrap; */
+  padding: 0 0.25rem;
+}
+
+.expenses-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
 /* ── Filters trigger wrapper (button styles come from FilterPanel.css) ── */
 .expenses-filters-trigger {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
-  padding: 0.15rem 0.1rem;
+  padding: 0.15rem 0;
+}
+
+/* ── NavBar wrapper ───────────────────────────────────────
+   Default: no styles applied — NavBar renders normally.
+   Only when the user clicks the eye icon (adds --hidden) we
+   collapse the wrapper. Visible state must not interfere with
+   Bootstrap's native expand/collapse behavior. */
+.expenses-navbar-wrap--hidden {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: max-height 0.22s ease, opacity 0.18s ease;
+}
+
+/* ── Mobile-only nav toggle button ───────────────────────── */
+.expenses-mobile-nav-toggle {
+  display: none; /* hidden on desktop; @media shows it */
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #4a7a1f;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.expenses-mobile-nav-toggle:hover {
+  background: #f0f7e6;
+  border-color: #bed989;
+}
+
+/* ── Horizontal-scroll wrapper for table on narrow screens ── */
+.expenses-table-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ── Hint line above table ───────────────────────────────── */
@@ -563,15 +626,87 @@
 }
 
 /* ── Mobile ──────────────────────────────────────────────── */
-@media (max-width: 640px) {
-  .expenses-filters {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 768px) {
+  /* Show the mobile menu toggle */
+  .expenses-mobile-nav-toggle {
+    display: inline-flex;
+  }
+
+  /* Page tighter padding */
+  .expenses-page {
+    padding: 0.35rem;
+    gap: 0.55rem;
+  }
+
+  /* Toolbar: title and actions on separate lines */
+  .expenses-toolbar-row {
+    gap: 0.5rem;
+  }
+
+  .expenses-toolbar {
+    padding: 0.25rem 0;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .expenses-toolbar-title-text {
+    font-size: 0.88rem;
   }
 
   .expenses-toolbar-title-sub {
     display: none;
   }
 
+  .expenses-toolbar-actions {
+    gap: 0.4rem;
+  }
+
+  /* Filter button compact — keep icon, shrink label */
+  .btn-filter-toggle {
+    padding: 0.45rem 0.7rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  /* Tabs: allow horizontal scroll if they don't fit */
+  .expenses-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .expenses-tab {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.78rem;
+  }
+
+  /* Table card: tighter padding, fills remaining space */
+  .expenses-card-table {
+    padding: 0.5rem 0.6rem;
+  }
+
+  /* Table font + rows more compact */
+  .expenses-table-scroll table {
+    font-size: 0.72rem;
+  }
+
+  .expenses-table-scroll td,
+  .expenses-table-scroll th {
+    padding: 0.35rem 0.4rem !important;
+  }
+
+  /* Filter panel full-width on mobile */
+  .fp-panel {
+    right: 0.5rem;
+    left: 0.5rem;
+    width: auto;
+    max-width: none;
+    top: 60px;
+  }
+
+  .fp-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Edit modal slides up from the bottom */
   .expenses-modal {
     max-width: 100%;
     border-radius: 20px 20px 0 0;
@@ -584,5 +719,38 @@
   .expenses-modal-overlay {
     align-items: flex-end;
     padding: 0;
+  }
+
+  .expenses-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .expenses-modal-form {
+    max-height: 55vh;
+  }
+
+  /* Hint shorter on mobile */
+  .expenses-hint {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.1rem;
+  }
+}
+
+@media (max-width: 420px) {
+  /* Hide the "Filtros" label, show only the icon */
+  .expenses-btn-label {
+    display: none;
+  }
+
+  .btn-filter-toggle {
+    padding: 0.45rem 0.6rem !important;
+    min-width: 36px;
+    justify-content: center;
+  }
+
+  /* Pagination more compact */
+  .expenses-pagination {
+    gap: 0.4rem;
+    padding: 0.4rem 0 0.1rem;
   }
 }

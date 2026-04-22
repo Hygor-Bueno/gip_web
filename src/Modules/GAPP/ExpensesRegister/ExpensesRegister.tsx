@@ -36,6 +36,7 @@ export default function ExpensesRegister(): JSX.Element {
   const [page,           setPage]           = useState<number>(1);
   const [editExpenses,   setEditExpenses]   = useState<IExpensesItem | null>(null);
   const [showFilters,    setShowFilters]    = useState<boolean>(false);
+  const [showNav,        setShowNav]        = useState<boolean>(true);
   const [urlComplement,  setUrlComplement]  = useState<string>("");
   const [rawData,        setRawData]        = useState<IExpensesItem[]>([]);
   const [data,           setData]           = useState<IExpensesItem[]>([]);
@@ -173,7 +174,9 @@ export default function ExpensesRegister(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavBar list={listPathGAPP} />
+      <div className={`expenses-navbar-wrap${showNav ? "" : " expenses-navbar-wrap--hidden"}`}>
+        <NavBar list={listPathGAPP} />
+      </div>
     <div className="expenses-page">
 
       {/* ── Edit modal ──────────────────────────────────────── */}
@@ -189,7 +192,7 @@ export default function ExpensesRegister(): JSX.Element {
       )}
 
       {/* ── Toolbar ─────────────────────────────────────────── */}
-      <div className="d-flex justify-content-between">
+      <div className="expenses-toolbar-row">
         <div className="expenses-toolbar">
           <div className="expenses-toolbar-title">
             <div className="expenses-toolbar-title-icon">
@@ -202,23 +205,35 @@ export default function ExpensesRegister(): JSX.Element {
           </div>
         </div>
 
-        {/* ── Filters trigger button (same style as GAPP/Active) ─ */}
-        {activeTab === "despesas" && (
-          <div className="expenses-filters-trigger">
-            <button
-              ref={filterBtnRef}
-              className={`btn-filter-toggle${showFilters || activeFilterCount > 0 ? " active" : ""}`}
-              type="button"
-              onClick={() => setShowFilters((o) => !o)}
-              title="Filtros"
-            >
-              <i className="fa fa-filter" /> Filtros
-              {activeFilterCount > 0 && (
-                <span className="fp-toggle-badge">{activeFilterCount}</span>
-              )}
-            </button>
-          </div>
-        )}
+        <div className="expenses-toolbar-actions">
+          {/* Mobile-only: hide/show NavBar */}
+          <button
+            className="expenses-mobile-nav-toggle"
+            type="button"
+            onClick={() => setShowNav((o) => !o)}
+            title={showNav ? "Esconder menu" : "Mostrar menu"}
+          >
+            <i className={`fa ${showNav ? "fa-eye-slash" : "fa-bars"}`} />
+          </button>
+
+          {/* ── Filters trigger button (same style as GAPP/Active) ─ */}
+          {activeTab === "despesas" && (
+            <div className="expenses-filters-trigger">
+              <button
+                ref={filterBtnRef}
+                className={`btn-filter-toggle${showFilters || activeFilterCount > 0 ? " active" : ""}`}
+                type="button"
+                onClick={() => setShowFilters((o) => !o)}
+                title="Filtros"
+              >
+                <i className="fa fa-filter" /> <span className="expenses-btn-label">Filtros</span>
+                {activeFilterCount > 0 && (
+                  <span className="fp-toggle-badge">{activeFilterCount}</span>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Floating filter panel (Active pattern) ──────────── */}
@@ -329,23 +344,27 @@ export default function ExpensesRegister(): JSX.Element {
 
           {/* Hint */}
           <p className="expenses-hint">
-            <i className="fa fa-circle-info text-primary" /> Selecione uma linha e clique em <strong>Confirmar Seleção</strong> para editar ou excluir a despesa.
+            <i className="fa fa-circle-info text-primary" /> Selecione uma linha e clique em Confirmar Seleção para editar ou excluir a despesa.
           </p>
 
           {/* Table card */}
           <div className="expenses-card expenses-card-table">
             {data.length > 0 ? (
               <>
-                <CustomTable
-                  maxSelection={1}
-                  list={convertForTable(data, {
-                    ocultColumns: ["exp_type_id_fk", "vehicle_id", "unit_id"],
-                    customTags: customTagsExpense,
-                    minWidths: minWidthsExpense,
-                  })}
-                  onConfirmList={handleConfirmRow}
-                  hiddenButton={false}
-                />
+                <div className="expenses-table-scroll">
+                  <CustomTable
+                    maxSelection={1}
+                    list={convertForTable(data, {
+                      ocultColumns: ["exp_type_id_fk", "vehicle_id", "unit_id"],
+                      customTags: customTagsExpense,
+                      minWidths: minWidthsExpense,
+                    })}
+                    onConfirmList={handleConfirmRow}
+                    hiddenButton={false}
+                  />
+                </div>
+
+
 
                 {/* Pagination */}
                 <div className="expenses-pagination">
