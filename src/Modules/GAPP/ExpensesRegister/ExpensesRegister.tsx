@@ -10,8 +10,8 @@ import { tItemTable } from "../../../types/types";
 import { listPathGAPP } from "../ConfigGapp";
 import NotaFiscal from "./NF/NotaFiscal";
 import "./ExpensesRegister.css";
-import "../Active/Component/FilterPanel/FilterPanel.css";
 import EditExpenses from "./EditExpenses/EditExpenses";
+import FilterPanelExpenses from "./FilterPanel/FilterPanelExpenses";
 
 interface IFormExpenses {
   date_start: string;
@@ -47,19 +47,6 @@ export default function ExpensesRegister(): JSX.Element {
   const activeFilterCount = Object.values(formData).filter((v) => v).length;
 
   const filterBtnRef = useRef<HTMLButtonElement>(null);
-  const filterPanelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!showFilters) return;
-    const handler = (e: MouseEvent) => {
-      if (
-        filterPanelRef.current && !filterPanelRef.current.contains(e.target as Node) &&
-        filterBtnRef.current   && !filterBtnRef.current.contains(e.target as Node)
-      ) setShowFilters(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [showFilters]);
 
   useEffect(() => {
     (async () => {
@@ -236,86 +223,21 @@ export default function ExpensesRegister(): JSX.Element {
         </div>
       </div>
 
-      {/* ── Floating filter panel (Active pattern) ──────────── */}
-      {showFilters && (
-        <div className="fp-backdrop">
-          <div className="fp-panel" ref={filterPanelRef}>
-
-            {/* Header */}
-            <div className="fp-header">
-              <div className="fp-title">
-                <div className="fp-icon"><i className="fa fa-filter" /></div>
-                <span>Filtros</span>
-                {activeFilterCount > 0 && <span className="fp-badge">{activeFilterCount}</span>}
-                <span className="fp-count">{data.length} resultado{data.length !== 1 ? "s" : ""}</span>
-              </div>
-              <div className="fp-header-actions">
-                <button className="fp-btn-clear" type="button" onClick={handleClearFilters} title="Limpar filtros">
-                  <i className="fa fa-times" /> Limpar
-                </button>
-                <button className="fp-btn-close" type="button" onClick={() => setShowFilters(false)} title="Fechar">
-                  <i className="fa fa-chevron-up" />
-                </button>
-              </div>
-            </div>
-
-            {/* Fields */}
-            <div className="fp-grid">
-
-              <div className="fp-group">
-                <label className="fp-label"><i className="fa fa-calendar" /> Data Inicial</label>
-                <input className="fp-input" type="date" name="date_start" value={formData.date_start} onChange={handleChange} />
-              </div>
-
-              <div className="fp-group">
-                <label className="fp-label"><i className="fa fa-calendar" /> Data Final</label>
-                <input className="fp-input" type="date" name="date_end" value={formData.date_end} onChange={handleChange} />
-              </div>
-
-              <div className="fp-group fp-group--plate">
-                <label className="fp-label"><i className="fa fa-car" /> Placa</label>
-                <div className="fp-plate-row">
-                  <input
-                    className="fp-input"
-                    type="text"
-                    name="license_plates"
-                    placeholder="Ex: ABC-1234"
-                    value={formData.license_plates}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, license_plates: e.target.value.toUpperCase() }))}
-                    onKeyDown={(e) => e.key === "Enter" && handleApplyFilters()}
-                  />
-                  <button className="fp-btn-search" type="button" onClick={handleApplyFilters} title="Buscar">
-                    <i className="fa fa-search" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="fp-group">
-                <label className="fp-label"><i className="fa fa-building" /> Unidade</label>
-                <select className="fp-input" name="unit_id" value={formData.unit_id} onChange={handleChange}>
-                  <option value="">Todas</option>
-                  {units.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
-                </select>
-              </div>
-
-              <div className="fp-group">
-                <label className="fp-label"><i className="fa fa-tag" /> Tipo de Despesa</label>
-                <select className="fp-input" name="exp_type_id_fk" value={formData.exp_type_id_fk} onChange={handleChange}>
-                  <option value="">Todos</option>
-                  {expensesType.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
-              </div>
-
-              <div className="fp-group" style={{ gridColumn: "span 2" }}>
-                <button className="fp-btn-search" type="button" onClick={handleApplyFilters} style={{ width: "100%", height: 34 }}>
-                  Buscar
-                </button>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── Floating filter panel (extracted component) ─────── */}
+      <FilterPanelExpenses
+        open={showFilters}
+        formData={formData}
+        onChange={handleChange}
+        onPlateChange={(v) => setFormData((prev) => ({ ...prev, license_plates: v }))}
+        onApply={handleApplyFilters}
+        onClear={handleClearFilters}
+        onClose={() => setShowFilters(false)}
+        resultCount={data.length}
+        activeFilterCount={activeFilterCount}
+        units={units}
+        expensesType={expensesType}
+        anchorRef={filterBtnRef as React.RefObject<HTMLElement>}
+      />
 
       {/* ── Tab bar ─────────────────────────────────────────── */}
       <div className="expenses-tabs">

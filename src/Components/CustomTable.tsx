@@ -192,7 +192,7 @@ export default function CustomTable(props: CustomTableProps) {
     <div className="d-flex flex-column w-100 h-100">
       <div className="overflow-auto flex-grow-1" style={{ minHeight: 0 }}>
         <table ref={tableRef} className="table table-bordered table-striped">
-          <thead className="table-light" style={{ position: "sticky", top: 0, zIndex: 1 }}>
+          <thead className="table-light" style={{ position: "sticky", top: 0, zIndex: 0 }}>
             <tr>
               {columnKeys.filter((key) => !props.list[0][key]?.ocultColumn).map((key) => (
                 <th key={key} className="position-relative">
