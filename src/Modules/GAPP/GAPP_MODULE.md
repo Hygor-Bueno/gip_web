@@ -164,8 +164,9 @@ GAPP/
 
 Configuradas em `ConfigGapp.ts` e consumidas pelo componente `NavBar`:
 
+|-------|-----------|-----------|
 | Rota | Componente | Descrição |
-|------|-----------|-----------|
+|-------|-----------|-----------|
 | `/GIPP` | — | Home do sistema |
 | `/GIPP/GAPP` | `ExpensesRegister` | Relatório de despesas (landing padrão) |
 | `/GIPP/GAPP/Active` | `Active` | Gestão de ativos |
@@ -212,7 +213,7 @@ ActiveTable
 Acessível dentro do modal do ativo. Agrupa 5 abas de despesas vinculadas ao veículo:
 
 | Aba | Endpoint | Descrição |
-|-----|---------|-----------|
+|------|---------|-----------|
 | Combustível | `GAPP_V2/Fuel.php` | Abastecimentos |
 | Manutenção | `GAPP_V2/Maintenance.php` | Revisões e reparos |
 | Multas | `GAPP_V2/Fines.php` | Infrações vinculadas ao veículo |
@@ -405,6 +406,7 @@ Cadastro de unidades físicas/lojas da empresa com endereço completo.
 
 ### Active — Local da Compra
 
+|-------|-------------|
 | Campo | Obrigatório |
 |-------|-------------|
 | Estabelecimento | ✅ |
@@ -418,6 +420,7 @@ Cadastro de unidades físicas/lojas da empresa com endereço completo.
 
 ### Active — Veículo (somente se `is_vehicle = true`)
 
+|-------|-------------|
 | Campo | Obrigatório |
 |-------|-------------|
 | Placa | ✅ |
@@ -437,6 +440,7 @@ Cadastro de unidades físicas/lojas da empresa com endereço completo.
 
 ### Active — Seguro (somente se `is_vehicle = true`)
 
+|-------|-------------|
 | Campo | Obrigatório |
 |-------|-------------|
 | Seguradora | ✅ |
@@ -466,6 +470,7 @@ Cadastro de unidades físicas/lojas da empresa com endereço completo.
 
 ### Movement — Fase 1
 
+|-------|-------------|
 | Campo | Obrigatório |
 |-------|-------------|
 | Tipo de movimentação (interno / externo) | ✅ |
@@ -476,6 +481,7 @@ Cadastro de unidades físicas/lojas da empresa com endereço completo.
 
 ### Infraction
 
+|-------|-------------|
 | Campo | Obrigatório |
 |-------|-------------|
 | Descrição da infração | ✅ |
@@ -485,6 +491,7 @@ Cadastro de unidades físicas/lojas da empresa com endereço completo.
 
 ### Business (Stores)
 
+|-------|-------------|
 | Campo | Obrigatório |
 |-------|-------------|
 | Nome | ✅ |
@@ -503,6 +510,7 @@ Cadastro de unidades físicas/lojas da empresa com endereço completo.
 
 ### Active (`Active/Interfaces/`)
 
+|------|---------|-----------|
 | Tipo | Arquivo | Descrição |
 |------|---------|-----------|
 | `Active` | `ActiveInterfaces.ts` | Registro completo do ativo vindo da API |
@@ -526,6 +534,7 @@ Cadastro de unidades físicas/lojas da empresa com endereço completo.
 
 ### Movement (`Movement/Interfaces/MovementInterfaces.ts`)
 
+|------|-----------|
 | Tipo | Descrição |
 |------|-----------|
 | `ActiveForMovement` | Ativo enriquecido com placa (join client-side) |
@@ -536,6 +545,7 @@ Cadastro de unidades físicas/lojas da empresa com endereço completo.
 
 ### Settings (`Settings/Interfaces/SettingsInterfaces.ts`)
 
+|------|-----------|
 | Tipo | Descrição |
 |------|-----------|
 | `ActiveClass` | Classe de ativo com tipo vinculado |
@@ -604,9 +614,9 @@ O módulo Movement busca `Active.php?actplc=1` e `Vehicle.php?all=1` separadamen
 # Rodar todos os testes do GAPP
 npm test -- --testPathPattern="GAPP" --watchAll=false
 ```
-
+|------------------|-----------|--------|
 | Arquivo de teste | Cobertura | Testes |
-|-----------------|-----------|--------|
+|------------------|-----------|--------|
 | `Active.Adapters` | GET/POST/PUT de ativos, veículos e seguros | 21 |
 | `Active.BrandNormalization` | Normalização de nomes de marca | 47 |
 | `Active.BuildFunction` | Montagem de options dos selects | 10 |
@@ -635,9 +645,9 @@ npm test -- --testPathPattern="GAPP" --watchAll=false
 ---
 
 ## Dívida técnica conhecida
-
+|------|------------|-----------|
 | Item | Prioridade | Descrição |
-|------|-----------|-----------|
+|------|------------|-----------|
 | Testes do `Infraction/` | Alta | Sub-módulo sem nenhuma cobertura |
 | Testes do `Business/` | Alta | Sub-módulo sem nenhuma cobertura |
 | `parseActiveItem` no Adapter | Alta | Parse automático de `list_items` e `place_purchase` deve ser garantido no Adapter ao receber da API, não deixado para os componentes |

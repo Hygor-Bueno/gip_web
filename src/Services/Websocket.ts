@@ -7,6 +7,10 @@ interface NotifyMessage {
   message?: string;
   error?: boolean;
   send_user?: string;
+  notify?: boolean;
+  id?: number;
+  type?: number;
+  date?: string;
 }
 
 export default class WebSocketCLPP {
@@ -69,8 +73,12 @@ export default class WebSocketCLPP {
   }
 
   async onMessage(ev: MessageEvent): Promise<void> {
-    const getNotify: NotifyMessage = JSON.parse(ev.data);
-    this.callbackOnMessage(getNotify);
+    try {
+      const getNotify: NotifyMessage = JSON.parse(ev.data);
+      if (this.callbackOnMessage) await this.callbackOnMessage(getNotify);
+    } catch (error) {
+      console.error("Erro ao processar mensagem do WebSocket CLPP:", error);
+    }
   }
 
   async informPreview(idSender: string): Promise<void> {

@@ -151,16 +151,21 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     function changeListContact(user: User) {
-        let newList = contactList;
-        const myContact: boolean = newList.findIndex((item: iUser) => item.id == user.id) === -1 ? false : true;
-        if (!myContact) newList.push(user);
-
-
-        newList[newList.findIndex((item: iUser) => item.id == user.id)].notification = 0;
-        newList[newList.findIndex((item: iUser) => item.id == user.id)].yourContact = 1;
-
-        setContactList([...newList]);
-        setContNotify(newList.filter(item => item.notification == 1).length);
+        setContactList((prev) => {
+            const newList = [...prev];
+            const idx = newList.findIndex((item: iUser) => item.id == user.id);
+            if (idx === -1) {
+                const added = user as Contact;
+                added.notification = 0;
+                added.yourContact = 1;
+                newList.push(added);
+            } else {
+                newList[idx].notification = 0;
+                newList[idx].yourContact = 1;
+            }
+            setContNotify(newList.filter(item => item.notification == 1).length);
+            return newList;
+        });
     }
 
     async function buildContactList() {
@@ -175,26 +180,68 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             console.error(error)
         }
     }
+    async function resolveSenderName(sendUserId: number): Promise<{ name: string; photo?: string }> {
+        const existing = contactList.find((c) => c.id == sendUserId);
+        if (existing?.name) return { name: existing.name, photo: existing.photo };
+        try {
+            const sender = new User({ id: sendUserId });
+            await sender.loadInfo(false);
+            return { name: sender.name || `Usuário ${sendUserId}`, photo: sender.photo };
+        } catch {
+            return { name: `Usuário ${sendUserId}` };
+        }
+    }
+
+    function showBrowserNotification(title: string, body: string, photo?: string) {
+        if (typeof Notification === "undefined") return;
+        if (Notification.permission !== "granted") return;
+        if (typeof document !== "undefined" && document.visibilityState === "visible" && document.hasFocus()) return;
+        try {
+            const options: NotificationOptions = { body, tag: "CLPP", renotify: true } as NotificationOptions;
+            if (photo) options.icon = photo.startsWith("data:") ? photo : `data:image/png;base64,${photo}`;
+            new Notification(title, options);
+        } catch (error) {
+            console.error("Falha ao exibir notificação do navegador:", error);
+        }
+    }
+
     async function receivedMessage(event: any) {
         const { send_user } = event;
-        if (parseInt(send_user) == idReceived) {
-            listMessage.push({
+        const sendUserId = parseInt(send_user);
+        if (sendUserId == idReceived) {
+            setListMessage((prev) => [...prev, {
                 id: event.id,
-                "id_user": event.send_user,
-                "message": event.message,
-                "notification": 0,
-                "type": event.type,
-                "date": event.date
-            });
-            setListMessage([...listMessage]);
-            await ws.current.informPreview(send_user.toString())
+                id_user: event.send_user,
+                message: event.message,
+                notification: 0,
+                type: event.type,
+                date: event.date
+            }]);
+            await ws.current.informPreview(send_user.toString());
         } else {
             setHasNewMessage(true);
-            const upContact = contactList.map((contact) =>
-                contact.id == send_user ? updateContact(contact) : contact
+            const { name, photo } = await resolveSenderName(sendUserId);
+            const isTextType = !event.type || event.type == 1;
+            const bodyText = isTextType && event.message ? event.message : "enviou um anexo";
+            showBrowserNotification(
+                `${name} enviou uma mensagem`,
+                bodyText.length > 120 ? `${bodyText.slice(0, 117)}...` : bodyText,
+                photo
             );
-            setContactList(upContact);
-            setContNotify(upContact.filter((item: any) => item.notification == 1).length);
+            setContactList((prev) => {
+                const existing = prev.find((c) => c.id == sendUserId);
+                let nextList: Contact[];
+                if (existing) {
+                    nextList = prev.map((contact) => contact.id == sendUserId ? updateContact(contact) : contact);
+                } else {
+                    const fresh = new Contact({ id: sendUserId, yourContact: 1, notification: 1 });
+                    fresh.name = name;
+                    if (photo) fresh.photo = photo;
+                    nextList = [...prev, fresh];
+                }
+                setContNotify(nextList.filter((item: any) => item.notification == 1).length);
+                return nextList;
+            });
         }
     };
 

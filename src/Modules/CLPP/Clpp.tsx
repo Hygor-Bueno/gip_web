@@ -30,23 +30,27 @@ export default function Clpp(): JSX.Element {
     }, []);
 
     useEffect(() => {
-        if (hasNewMessage) {
-            // Reproduzir o áudio
-            // audio.play().catch((error) => {
-            //     console.error('Erro ao reproduzir o som:', error);
-            // });;
+        if (!hasNewMessage) return;
 
-            setBlink(true);
-            const timer = setInterval(() => {
-                setBlink((prev) => !prev);
-            }, 1000); // Alterna a cada 500ms
+        // audio.play().catch((error) => {
+        //     console.error('Erro ao reproduzir o som:', error);
+        // });
 
-            setTimeout(() => {
-                clearInterval(timer);
-                setBlink(false);
-                setHasNewMessage(false);
-            }, 6000); // Pisca por 3 segundos
-        }
+        setBlink(true);
+        const timer = setInterval(() => {
+            setBlink((prev) => !prev);
+        }, 1000);
+
+        const stop = setTimeout(() => {
+            clearInterval(timer);
+            setBlink(false);
+            setHasNewMessage(false);
+        }, 6000);
+
+        return () => {
+            clearInterval(timer);
+            clearTimeout(stop);
+        };
     }, [hasNewMessage, audio]);
 
 
