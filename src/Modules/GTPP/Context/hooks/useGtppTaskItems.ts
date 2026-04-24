@@ -115,7 +115,7 @@ export function useGtppTaskItems(
 
       if (res.error) throw new Error(res.message);
       if (!yes_no) taskLocal.check = checked;
-      if (yes_no) reloadPageChangeQuestion(yes_no, id);
+      if (yes_no) reloadPageChangeQuestion(yes_no, Number(id));
       reloadPagePercent(res.data, { task_id: idTask });
       await verifyChangeState(res.data.state_id, task.state_id ?? 0, { task_id: Number(idTask) }, res.data);
       infSenCheckItem(taskLocal, res.data);

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { SubTasksWithCheckboxProps } from "./Types";
 import { useWebSocket } from "../../Context/GtppWsContext";
 import { useMyContext } from "../../../../Context/MainContext";
@@ -30,9 +30,11 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   const [isObservation, setIsObservation] = useState<boolean>(false);
   const [positionTaskStates, setPositionTaskStates] = useState<{ [key: number]: boolean }>({});
   
-  const [onScrollDown, setOnScrollDown] = useState<boolean>(true);
+  const [onScrollDown, setOnScrollDown] = useState<boolean>(false);
   const [onEditTask, setOnEditTask] = useState<boolean>(false);
   const containerTaskItemsRef = useRef<HTMLDivElement>(null);
+  const isAtBottomRef = useRef<boolean>(true);
+  const hasInitializedRef = useRef<boolean>(false);
   const [isTrashDelete, setIsTrashDelete] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<any>(null);
 
@@ -47,11 +49,42 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     listUserBtn: { isGetTaskOrIncludeColaborator: false },
   });
 
+  const handleScroll = () => {
+    const el = containerTaskItemsRef.current;
+    if (!el) return;
+    const threshold = 50;
+    isAtBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+  };
+
+  useLayoutEffect(() => {
+    const el = containerTaskItemsRef.current;
+    if (!el) return;
+    const items = taskDetails?.data?.task_item;
+    if (!items || items.length === 0) return;
+
+    if (!hasInitializedRef.current) {
+      el.scrollTop = el.scrollHeight;
+      isAtBottomRef.current = true;
+      hasInitializedRef.current = true;
+      return;
+    }
+
+    if (isAtBottomRef.current) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [taskDetails]);
+
+  useEffect(() => {
+    hasInitializedRef.current = false;
+    isAtBottomRef.current = true;
+  }, [task.id]);
+
   useEffect(() => {
     if (containerTaskItemsRef.current && onScrollDown) {
       containerTaskItemsRef.current.scrollTop = containerTaskItemsRef.current.scrollHeight;
+      isAtBottomRef.current = true;
     }
-  }, [taskDetails, onScrollDown]);
+  }, [onScrollDown]);
   
   useEffect(() => {
     if (task.id) {
@@ -118,7 +151,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
   const assinatura = userState.loadingList?.listTask?.assigned_to;
 
   return (
-    <div ref={containerTaskItemsRef} className="overflow-auto rounded flex-grow-1">
+    <div ref={containerTaskItemsRef} onScroll={handleScroll} className="overflow-auto rounded flex-grow-1">
       <ModalEditTask 
         userList={listWithUser()} 
         onEditTask={onEditTask} 
