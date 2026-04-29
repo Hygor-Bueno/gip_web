@@ -24,7 +24,8 @@ export default function GtppMain(props: GtppMainProps) {
             <label className="form-label mb-1">Filtrar pelo tema:</label>
             <select className="form-select" value={props.selectedThemeIds} onChange={(e) => props.setSelectedThemeIds(e.target.value)}>
               <option value="" hidden>Selecione</option>
-              <option value="0">Todos</option>
+              <option value="">Todos</option>
+              <option value="0">Sem vinculo</option>
               {props?.themeList?.map((theme) => (
                 <option key={theme.id_theme} value={theme.id_theme}>
                   {theme.description_theme}
