@@ -181,7 +181,9 @@ const ColumnTaskState: React.FC<ColumnTaskStateProps> = ({
             <div className="columnTaskState-container">
                 <div className="columnTaskState-body">
                     <div className="task-cards-container">
-                        {filteredTasks.map((task: any) => (
+                        {filteredTasks
+                            .sort((a: any, b: any) => b.id - a.id)
+                            .map((task: any) => (
                             <div
                                 key={task.id}
                                 onClick={() => handleSelectTask(task.id)}
