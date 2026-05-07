@@ -32,6 +32,10 @@ export function buildOptions(apiData?: FormActiveProps["apiData"]) {
 
 export function buildOptionsInsurance(apiData?: FormActiveProps["apiData"]) {
   return {
+    // util_id_fk: apiData?.unit?.map((u) => {
+    //   label: u.util_id,
+
+    // }),
     franchise_list: apiData?.insurance?.franchise_list?.list?.map((c: FranchiseItem) => ({
       label: c.description,
       value: String(c.value),
