@@ -30,3 +30,5 @@ export const getUtilization      = () => get("GAPP/Utilization.php", "&all=1");
 export const getInsuranceCompany = () => get("GAPP/InsuranceCompany.php", "&all=1");
 export const getTypeCoverage     = () => get("GAPP/TypeCoverage.php", "&all=1");
 export const getInfractions      = () => get("GAPP/Infraction.php", "&status_infractions=1");
+export const getStores           = () => get("GAPP/Store.php", "&status_store=1");
+export const getStoreById        = (storeId: string | number) => get("GAPP/Store.php", `&store_id=${storeId}`);

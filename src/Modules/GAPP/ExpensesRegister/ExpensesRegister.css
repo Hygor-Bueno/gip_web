@@ -529,7 +529,8 @@
 
 /* ── Edit modal (wider) ──────────────────────────────────── */
 .expenses-modal--edit {
-  max-width: 520px;
+  max-width: 920px;
+  width: 95vw;
 }
 
 .expenses-modal-id-badge {
@@ -543,7 +544,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  max-height: 60vh;
+  max-height: 70vh;
   overflow-y: auto;
 }
 

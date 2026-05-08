@@ -23,6 +23,7 @@ interface IFormExpenses {
 
 interface IUnitItem        { fantasy_name: string; unit_name: string; unit_id: string }
 interface IExpenseTypeItem { description_type: string; exp_type_id: string }
+interface IStoreItem       { store_id: string; name: string }
 
 const restartForm: IFormExpenses = {
   date_end: "", date_start: "", license_plates: "", unit_id: "", exp_type_id_fk: "",
@@ -43,6 +44,7 @@ export default function ExpensesRegister(): JSX.Element {
   const [formData,       setFormData]       = useState<IFormExpenses>(restartForm);
   const [units,          setUnits]          = useState<{ label: string; value: string }[]>([]);
   const [expensesType,   setExpensesType]   = useState<{ label: string; value: string }[]>([]);
+  const [stores,         setStores]         = useState<{ label: string; value: string }[]>([]);
 
   const activeFilterCount = Object.values(formData).filter((v) => v).length;
 
@@ -54,6 +56,7 @@ export default function ExpensesRegister(): JSX.Element {
         setLoading(true);
         await loadUnits();
         await loadExpensesType();
+        await loadStores();
         handleUrl();
       } catch (error) {
         throw new Error("Erro ao carregar os dados " + error);
@@ -96,6 +99,12 @@ export default function ExpensesRegister(): JSX.Element {
     setExpensesType(sortListByKey(req.data.map((i: IExpenseTypeItem) => ({ label: i.description_type, value: i.exp_type_id })), "label"));
   }
 
+  async function loadStores() {
+    const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP/Store.php", urlComplement: "&status_store=1", exception: ["no data"] });
+    if (req.error) { setStores([]); return; }
+    setStores(sortListByKey((req.data || []).map((i: IStoreItem) => ({ label: i.name, value: String(i.store_id) })), "label"));
+  }
+
   function maskExpenses(item: IExpensesItem): IExpensesItem {
     return {
       ...item,
@@ -130,12 +139,33 @@ export default function ExpensesRegister(): JSX.Element {
     setPage(1);
   }
 
-  function handleConfirmRow(rows: tItemTable[]) {
+  async function handleConfirmRow(rows: tItemTable[]) {
     if (!rows.length) return;
     const id = String(rows[0].expen_id?.value ?? "");
     if (!id) return;
     const raw = rawData.find((r) => String(r.expen_id) === id) ?? null;
-    if (raw) setEditExpenses(raw);
+    if (!raw) return;
+
+    try {
+      setLoading(true);
+      const req = await fetchData({
+        method: "GET",
+        params: null,
+        pathFile: "GAPP/ExpensesRegister.php",
+        urlComplement: `&expen_id=${id}&all=1`,
+        exception: ["no data"],
+      });
+      if (!req.error && req.data?.length) {
+        const full = req.data[0];
+        setEditExpenses({ ...raw, ...full });
+      } else {
+        setEditExpenses(raw);
+      }
+    } catch {
+      setEditExpenses(raw);
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleApplyFilters() {
@@ -172,6 +202,7 @@ export default function ExpensesRegister(): JSX.Element {
           item={editExpenses}
           units={units}
           expensesType={expensesType}
+          stores={stores}
           onClose={() => setEditExpenses(null)}
           onSaved={handleSaved}
           onDeleted={handleDeleted}
@@ -277,7 +308,7 @@ export default function ExpensesRegister(): JSX.Element {
                   <CustomTable
                     maxSelection={1}
                     list={convertForTable(data, {
-                      ocultColumns: ["exp_type_id_fk", "vehicle_id", "unit_id"],
+                      ocultColumns: ["exp_type_id_fk", "vehicle_id", "unit_id", "store_id_fk", "driver_id_fk", "id_insurance_fk"],
                       customTags: customTagsExpense,
                       minWidths: minWidthsExpense,
                     })}

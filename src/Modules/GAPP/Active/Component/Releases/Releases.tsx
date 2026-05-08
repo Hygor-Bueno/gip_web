@@ -8,14 +8,18 @@ import {
   postExpense, postFuel, postMaintenance, postFines, postSinister,
   getVehicle, getInsurance, putInsurance, postInsurance,
   getFuelTypes, getDrivers, getUtilization, getInsuranceCompany, getTypeCoverage,
-  getInfractions,
+  getInfractions, getStores, getStoreById,
 } from "./ReleasesAdapters";
-import ExpenseFields from "./ExpenseFields";
+import ExpenseFields, { AddressForm } from "./ExpenseFields";
 import FuelTab from "./tabs/FuelTab";
 import MaintenanceTab from "./tabs/MaintenanceTab";
 import FinesTab from "./tabs/FinesTab";
 import SinisterTab from "./tabs/SinisterTab";
 import InsuranceTab from "./tabs/InsuranceTab";
+
+const emptyAddress: AddressForm = {
+  name: "", street: "", district: "", city: "", state: "", zip_code: "", number: "", complement: "",
+};
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 
@@ -46,6 +50,10 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
   const [insuranceCompany, setInsuranceCompany] = useState<Schema[]>([]);
   const [typeCoverage,     setTypeCoverage]     = useState<Schema[]>([]);
   const [infractions,      setInfractions]      = useState<InfractionItem[]>([]);
+  const [stores,           setStores]           = useState<Schema[]>([]);
+
+  const [addressActive, setAddressActive] = useState<boolean>(false);
+  const [addressForm,   setAddressForm]   = useState<AddressForm>(emptyAddress);
 
   // Pre-fill insurance form with the last active insurance on mount
   useEffect(() => {
@@ -88,7 +96,56 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
     getInfractions().then(r => {
       if (!r.error) setInfractions(r.data);
     });
+    getStores().then(r => {
+      if (!r.error) setStores(
+        (r.data || [])
+          .sort((a: any, b: any) => (a.name || "").localeCompare(b.name || ""))
+          .map((s: any) => ({ value: String(s.store_id), label: s.name }))
+      );
+    });
   }, []);
+
+  const handleToggleAddress = useCallback(async () => {
+    const next = !addressActive;
+    setAddressActive(next);
+    if (next && expense.store_id_fk) {
+      try {
+        const r = await getStoreById(expense.store_id_fk);
+        if (!r.error && r.data?.length) {
+          const s = r.data[0];
+          setAddressForm({
+            name: s.name ?? "", street: s.street ?? "", district: s.district ?? "",
+            city: s.city ?? "", state: s.state ?? "", zip_code: s.zip_code ?? "",
+            number: s.number ?? "", complement: s.complement ?? "",
+          });
+        }
+      } catch { /* noop */ }
+    }
+  }, [addressActive, expense.store_id_fk]);
+
+  const handleAddressChange = useCallback((e: ChangeEvent) => {
+    const { name, value } = e.target;
+    setAddressForm(p => ({ ...p, [name]: value }));
+  }, []);
+
+  // Recarrega prefill ao trocar a loja com endereço ativo
+  useEffect(() => {
+    if (!addressActive || !expense.store_id_fk) return;
+    (async () => {
+      try {
+        const r = await getStoreById(expense.store_id_fk);
+        if (!r.error && r.data?.length) {
+          const s = r.data[0];
+          setAddressForm({
+            name: s.name ?? "", street: s.street ?? "", district: s.district ?? "",
+            city: s.city ?? "", state: s.state ?? "", zip_code: s.zip_code ?? "",
+            number: s.number ?? "", complement: s.complement ?? "",
+          });
+        }
+      } catch { /* noop */ }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expense.store_id_fk]);
 
   const handleInfractionSelect  = useCallback((inf: InfractionItem) => {
     setFines(prev => ({
@@ -159,10 +216,18 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
     setInsurance(defaultInsurance);
     setNewItemText("");
     setNewValueText("");
+    setAddressActive(false);
+    setAddressForm(emptyAddress);
   }, [activeId, userId, gappWorkGroupId]);
 
+  const buildExpenseWithAddress = (expTypeId: number) => ({
+    ...expense,
+    exp_type_id_fk: expTypeId,
+    place_purchase: addressActive ? JSON.stringify(addressForm) : "",
+  });
+
   const insertExpenseHeader = async (expTypeId: number): Promise<string> => {
-    const res = await postExpense({ ...expense, exp_type_id_fk: expTypeId });
+    const res = await postExpense(buildExpenseWithAddress(expTypeId));
     if (res.error) throw new Error(res.message || "Erro ao inserir despesa.");
     return res.last_id;
   };
@@ -184,7 +249,7 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
     try {
       switch (activeTab) {
         case "fuel": {
-          const res = await postFuel({ ...expense, exp_type_id_fk: 1, ...fuel, gappProcedure: 1 });
+          const res = await postFuel({ ...buildExpenseWithAddress(1), ...fuel, gappProcedure: 1 });
           if (res.error) throw new Error(res.message);
           break;
         }
@@ -278,7 +343,18 @@ const Releases: React.FC<ReleasesProps> = ({ activeId, userId, isVehicle, gappWo
           ))}
         </div>
         <div className="releases-body">
-          {currentTab.showExpense      && (<ExpenseFields expense={expense} onChange={handleExpenseChange} drivers={drivers} />)}
+          {currentTab.showExpense      && (
+            <ExpenseFields
+              expense={expense}
+              onChange={handleExpenseChange}
+              drivers={drivers}
+              stores={stores}
+              addressActive={addressActive}
+              onToggleAddress={handleToggleAddress}
+              addressForm={addressForm}
+              onAddressChange={handleAddressChange}
+            />
+          )}
           {activeTab === "fuel"        && <FuelTab fuel={fuel} onChange={handleFuelChange} fuelTypes={fuelTypes} />}
           {activeTab === "maintenance" && <MaintenanceTab maintenance={maintenance} onChange={handleMaintenanceChange} addPart={addPart} removePart={removePart} />}
           {activeTab === "fines"       && <FinesTab fines={fines} onChange={handleFinesChange} infractions={infractions} onInfractionSelect={handleInfractionSelect} />}
