@@ -32,6 +32,15 @@ const get  = (pathFile: string, urlComplement: string) => fetchSilent("GET",  pa
 const put  = (pathFile: string, params: object)         => fetchSilent("PUT",  pathFile, "",            params);
 const post = (pathFile: string, params: object)         => fetchSilent("POST", pathFile, "",            params);
 
+/**
+ * Filtro por expen_id_fk quebra no backend PHP ("Unknown column ... in where clause").
+ * Workaround: lista TUDO e filtra client-side por expen_id_fk.
+ * Aceitável enquanto o volume de registros é baixo.
+ */
+export const getAllMaintenance = () => get("GAPP/Maintenance.php", `&all=1`);
+export const getAllFuel        = () => get("GAPP/Fuel.php",        `&all=1`);
+export const getAllFines       = () => get("GAPP/Fines.php",       `&all=1`);
+
 export const getMaintenanceByExpense = (expenId: number | string) =>
   get("GAPP/Maintenance.php", `&all=1&expen_id_fk=${expenId}`);
 
