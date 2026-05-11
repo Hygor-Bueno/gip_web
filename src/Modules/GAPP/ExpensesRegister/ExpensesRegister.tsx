@@ -45,6 +45,7 @@ export default function ExpensesRegister(): JSX.Element {
   const [units,          setUnits]          = useState<{ label: string; value: string }[]>([]);
   const [expensesType,   setExpensesType]   = useState<{ label: string; value: string }[]>([]);
   const [stores,         setStores]         = useState<{ label: string; value: string }[]>([]);
+  const [storesData,     setStoresData]     = useState<any[]>([]);
 
   const activeFilterCount = Object.values(formData).filter((v) => v).length;
 
@@ -101,8 +102,10 @@ export default function ExpensesRegister(): JSX.Element {
 
   async function loadStores() {
     const req = await fetchData({ method: "GET", params: null, pathFile: "GAPP/Store.php", urlComplement: "&status_store=1", exception: ["no data"] });
-    if (req.error) { setStores([]); return; }
-    setStores(sortListByKey((req.data || []).map((i: IStoreItem) => ({ label: i.name, value: String(i.store_id) })), "label"));
+    if (req.error) { setStores([]); setStoresData([]); return; }
+    const raw = req.data || [];
+    setStoresData(raw);
+    setStores(sortListByKey(raw.map((i: IStoreItem) => ({ label: i.name, value: String(i.store_id) })), "label"));
   }
 
   function maskExpenses(item: IExpensesItem): IExpensesItem {
@@ -203,6 +206,7 @@ export default function ExpensesRegister(): JSX.Element {
           units={units}
           expensesType={expensesType}
           stores={stores}
+          storesData={storesData}
           onClose={() => setEditExpenses(null)}
           onSaved={handleSaved}
           onDeleted={handleDeleted}
