@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useConnection } from "../../../../../Context/ConnContext";
 import { useMyContext } from "../../../../../Context/MainContext";
 import { handleNotification } from "../../../../../Util/ui/notifications";
@@ -7,25 +7,18 @@ import {
   Expense, FuelData, MaintenanceData, FinesData, SinisterData,
   PartItem, InfractionItem, TabKey,
 } from "../../../Active/Component/Releases/Interfaces";
-import { Insurance, Schema } from "../../../Active/Interfaces/Interfaces";
+import { Insurance } from "../../../Active/Interfaces/Interfaces";
 import {
   defaultFuel, defaultMaintenance, defaultFines, defaultSinister, defaultInsurance,
 } from "../../../Active/Component/Releases/defaultValues";
+import { IAddressForm, emptyAddress, tabKeyFromExpType } from "../types";
 import {
-  getSinisterByExpense, getInsuranceById,
-  getAllMaintenance, getAllFuel, getAllFines,
-  putExpensesRegister, putMaintenance, putFuel, putFines, putSinister, putInsurance,
-  postMaintenance, postFuel, postFines, postSinister,
-  getDrivers, getFuelTypes, getInfractions,
-  getUtilization, getInsuranceCompany, getTypeCoverage,
-} from "../EditExpensesAdapters";
-import {
-  IAddressForm, emptyAddress, tabKeyFromExpType,
-} from "../types";
-import {
-  safeString, parseListParts, parseFranchiseList,
-  tryParseAddress, buildAddressFromStore, mergeAddressForm,
+  safeString, tryParseAddress, buildAddressFromStore, mergeAddressForm,
 } from "../helpers";
+import { useLookups } from "./useLookups";
+import { useTypeDataLoader } from "./useTypeDataLoader";
+import { useDirtyCheck } from "./useDirtyCheck";
+import { saveExpense } from "../save/saveExpense";
 
 interface UseControllerProps {
   item: IExpensesItem;
@@ -60,12 +53,10 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
 
-  // ── Endereço (toggle) ────────────────────────────────────────────
   const initialParsedAddress = tryParseAddress(item.place_purchase);
   const [addressActive, setAddressActive] = useState<boolean>(!initialParsedAddress);
   const [addressForm, setAddressForm] = useState<IAddressForm>(initialParsedAddress ?? emptyAddress);
 
-  // ── State por tipo ───────────────────────────────────────────────
   const [fuel,         setFuel]         = useState<FuelData>(defaultFuel);
   const [maintenance,  setMaintenance]  = useState<MaintenanceData>(defaultMaintenance);
   const [fines,        setFines]        = useState<FinesData>(defaultFines);
@@ -75,10 +66,7 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   const [newValueText, setNewValueText] = useState("");
   const [typeIsNew,    setTypeIsNew]    = useState<boolean>(false);
 
-  // ── Snapshots iniciais (pra dirty-check) ─────────────────────────
-  // useRef inicializado SÍNCRONO com o mesmo shape do useState inicial.
-  // Não pode estar dentro de useEffect porque useRef não dispara re-render —
-  // o useMemo de dirty rodaria com snapshot vazio e marcaria tudo como alterado.
+  // ── Snapshots iniciais (dirty-check) ─────────────────────────────
   const initialExpenseRef = useRef<Expense>({
     date:           item.date.slice(0, 10),
     hour:           item.hour.slice(0, 5),
@@ -95,9 +83,6 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
     user_id_fk:     "",
   });
   const initialUnitIdRef        = useRef<string>(item.unit_id ?? "");
-  // Importante: tem que bater com o useState do addressActive acima — senão o
-  // dirty-check marca como alterado já na abertura.
-  const initialAddressActiveRef = useRef<boolean>(!initialParsedAddress);
   const initialAddressFormRef   = useRef<IAddressForm>(initialParsedAddress ?? emptyAddress);
   const initialFuelRef          = useRef<FuelData>(defaultFuel);
   const initialMaintenanceRef   = useRef<MaintenanceData>(defaultMaintenance);
@@ -105,174 +90,50 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   const initialSinisterRef      = useRef<SinisterData>(defaultSinister);
   const initialInsuranceRef     = useRef<Partial<Insurance>>(defaultInsurance);
 
-  // ── Lookups ──────────────────────────────────────────────────────
-  const [drivers,          setDrivers]          = useState<Schema[]>([]);
-  const [fuelTypes,        setFuelTypes]        = useState<Schema[]>([]);
-  const [infractions,      setInfractions]      = useState<InfractionItem[]>([]);
-  const [utilization,      setUtilization]      = useState<Schema[]>([]);
-  const [insuranceCompany, setInsuranceCompany] = useState<Schema[]>([]);
-  const [typeCoverage,     setTypeCoverage]     = useState<Schema[]>([]);
+  // ── Lookups (drivers, fuelTypes, infractions, etc.) ──────────────
+  const lookups = useLookups(activeTab);
 
-  // Drivers (sempre — usado pelo Resumo da Despesa)
-  useEffect(() => {
-    (async () => {
-      try {
-        const r = await getDrivers();
-        if (!r.error) setDrivers(
-          r.data.sort((a: any, b: any) => a.name.localeCompare(b.name))
-            .map((d: any) => ({ value: String(d.driver_id), label: d.name }))
-        );
-      } catch { /* noop */ }
-    })();
-  }, []);
+  // ── Carrega dados específicos do tipo ────────────────────────────
+  useTypeDataLoader({
+    activeTab,
+    expenId: item.expen_id,
+    insuranceFk: item.id_insurance_fk,
+    setFuel, setMaintenance, setFines, setSinister, setInsurance,
+    setTypeIsNew, setLoading,
+    initialFuelRef, initialMaintenanceRef, initialFinesRef,
+    initialSinisterRef, initialInsuranceRef,
+  });
 
-  // Lookups condicionais por aba
-  useEffect(() => {
-    (async () => {
-      try {
-        if (activeTab === "fuel") {
-          const r = await getFuelTypes();
-          if (!r.error) setFuelTypes(r.data.map((f: any) => ({ value: String(f.id_fuel_type), label: f.description })));
-        }
-        if (activeTab === "fines") {
-          const r = await getInfractions();
-          if (!r.error) setInfractions(r.data);
-        }
-        if (activeTab === "insurance") {
-          const [u, c, t] = await Promise.all([getUtilization(), getInsuranceCompany(), getTypeCoverage()]);
-          if (!u.error) setUtilization(u.data.map((i: any) => ({ value: String(i.util_id), label: i.util_name })));
-          if (!c.error) setInsuranceCompany(c.data.map((i: any) => ({ value: String(i.ins_id), label: i.ins_name })));
-          if (!t.error) setTypeCoverage(t.data.map((i: any) => ({ value: String(i.cov_id), label: i.cov_name })));
-        }
-      } catch { /* noop */ }
-    })();
-  }, [activeTab]);
-
-  // Carrega dados específicos do tipo (tolerante a falhas do backend).
-  // Para Fuel/Maintenance/Fines usa o padrão "list-all + find" porque o filtro
-  // direto por expen_id_fk está quebrado no PHP (Unknown column).
-  useEffect(() => {
-    async function tryLoadAndFind(
-      fn: () => Promise<any>,
-      onSuccess: (raw: any) => void,
-    ) {
-      try {
-        const r = await fn();
-        if (!r.error && Array.isArray(r.data)) {
-          const found = r.data.find((x: any) => String(x.expen_id_fk) === String(item.expen_id));
-          if (found) {
-            onSuccess(found);
-            return;
-          }
-        }
-      } catch { /* silenciado intencionalmente */ }
-      setTypeIsNew(true);
-    }
-
-    async function tryLoadFirst(
-      fn: () => Promise<any>,
-      onSuccess: (raw: any) => void,
-    ) {
-      try {
-        const r = await fn();
-        if (!r.error && r.data?.length) {
-          onSuccess(r.data[0]);
-          return;
-        }
-      } catch { /* silenciado intencionalmente */ }
-      setTypeIsNew(true);
-    }
-
-    (async () => {
-      try {
-        setLoading(true);
-        switch (activeTab) {
-          case "fuel":
-            await tryLoadAndFind(getAllFuel, raw => {
-              const next = { ...defaultFuel, ...raw };
-              initialFuelRef.current = next;
-              setFuel(next);
-            });
-            break;
-          case "maintenance":
-            await tryLoadAndFind(getAllMaintenance, raw => {
-              const next: MaintenanceData = {
-                ...defaultMaintenance, ...raw,
-                list_parts: parseListParts(raw.list_parts),
-                warranty: Number(raw.warranty ?? 0),
-              };
-              initialMaintenanceRef.current = next;
-              setMaintenance(next);
-            });
-            break;
-          case "sinister":
-            // Sinister.php?all=1 também está quebrado no PHP → fallback no filtro direto
-            await tryLoadFirst(() => getSinisterByExpense(item.expen_id), raw => {
-              const next = { ...defaultSinister, ...raw };
-              initialSinisterRef.current = next;
-              setSinister(next);
-            });
-            break;
-          case "fines":
-            await tryLoadAndFind(getAllFines, raw => {
-              const next = { ...defaultFines, ...raw };
-              initialFinesRef.current = next;
-              setFines(next);
-            });
-            break;
-          case "insurance":
-            if (item.id_insurance_fk) {
-              await tryLoadFirst(() => getInsuranceById(item.id_insurance_fk!), raw => {
-                const next: Partial<Insurance> = {
-                  ...defaultInsurance, ...raw,
-                  franchise_list: parseFranchiseList(raw.franchise_list),
-                };
-                initialInsuranceRef.current = next;
-                setInsurance(next);
-              });
-            }
-            break;
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.expen_id, activeTab]);
-
-  // Sincroniza endereço com a loja selecionada — em memória.
-  // - Se a loja é a inicial e há JSON custom salvo (mesmo incompleto): faz MERGE
-  //   dos campos do JSON com os do cadastro da loja. Resultado: campos vazios
-  //   do JSON são completados pela loja, sem perder o que o usuário customizou.
-  // - Se a loja mudou OU não há JSON: usa só o cadastro da loja.
-  // - Atualiza o snapshot quando é prefill automático (sem ação do usuário).
+  // ── Sincroniza endereço com a loja selecionada ───────────────────
+  // - Loja inicial + JSON custom → mescla (JSON tem prioridade, loja completa
+  //   o que falta)
+  // - Loja diferente OU sem JSON → usa só o cadastro da loja
   useEffect(() => {
     if (!expense.store_id_fk) {
       if (!initialParsedAddress) setAddressForm(emptyAddress);
       return;
     }
-
     const storeAddr = buildAddressFromStore(storesData, expense.store_id_fk);
-    if (!storeAddr) return; // storesData ainda não chegou — useEffect roda de novo quando chegar
+    if (!storeAddr) return;
 
     const storeIsInitial = String(expense.store_id_fk) === String(item.store_id_fk ?? "");
-
-    let nextAddr: IAddressForm;
-    if (storeIsInitial && initialParsedAddress) {
-      // Mescla o JSON salvo (prioridade) com os dados do cadastro (fallback)
-      nextAddr = mergeAddressForm(initialParsedAddress, storeAddr);
-    } else {
-      nextAddr = storeAddr;
-    }
+    const nextAddr: IAddressForm = storeIsInitial && initialParsedAddress
+      ? mergeAddressForm(initialParsedAddress, storeAddr)
+      : storeAddr;
 
     setAddressForm(nextAddr);
-
-    if (storeIsInitial) {
-      // Prefill na abertura — atualiza ref pra não contar como alteração
-      initialAddressFormRef.current = nextAddr;
-    }
+    if (storeIsInitial) initialAddressFormRef.current = nextAddr;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expense.store_id_fk, storesData]);
+
+  // ── Dirty-check ──────────────────────────────────────────────────
+  const { dirtySections, isDirty } = useDirtyCheck({
+    activeTab, expense, unitId, addressForm,
+    fuel, maintenance, fines, sinister, insurance,
+    initialExpenseRef, initialUnitIdRef, initialAddressFormRef,
+    initialFuelRef, initialMaintenanceRef, initialFinesRef,
+    initialSinisterRef, initialInsuranceRef,
+  });
 
   // ── Handlers ─────────────────────────────────────────────────────
   type Ev = React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
@@ -289,9 +150,8 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   }));
 
   function handleToggleAddress() {
-    // Apenas mostra/esconde a seção. O addressForm já vem prefilado pelo
-    // useEffect que escuta `expense.store_id_fk` — re-aplicar aqui causaria
-    // dirty-check falso-positivo só por clicar no toggle.
+    // Apenas visibilidade — não chama prefill aqui pra não disparar dirty
+    // falso-positivo. O sync já é feito pelo useEffect de store_id_fk.
     setAddressActive(prev => !prev);
   }
 
@@ -311,7 +171,7 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
       return {
         ...prev,
         list_parts:  { list: updated },
-        value_parts: String(updated.reduce((s, p) => s + Number(p.quantity) * Number(p.value), 0)),
+        value_parts: String(updated.reduce((s, q) => s + Number(q.quantity) * Number(q.value), 0)),
       };
     });
   };
@@ -322,7 +182,7 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
       return {
         ...prev,
         list_parts:  { list: updated },
-        value_parts: String(updated.reduce((s, p) => s + Number(p.quantity) * Number(p.value), 0)),
+        value_parts: String(updated.reduce((s, q) => s + Number(q.quantity) * Number(q.value), 0)),
       };
     });
   };
@@ -344,133 +204,37 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
     }));
   };
 
-  // ── Dirty-check (controla habilitação do botão Salvar) ───────────
-  const eq = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
-
-  const dirtySections = useMemo(() => {
-    const expenseDirty = !eq(expense, initialExpenseRef.current);
-    const unitDirty    = unitId !== initialUnitIdRef.current;
-    // Só o conteúdo dos campos conta — abrir/fechar a seção é só visibilidade
-    // e não deve disparar dirty sozinho.
-    const addrDirty    = !eq(addressForm, initialAddressFormRef.current);
-
-    let typeDirty = false;
-    switch (activeTab) {
-      case "fuel":        typeDirty = !eq(fuel, initialFuelRef.current); break;
-      case "maintenance": typeDirty = !eq(maintenance, initialMaintenanceRef.current); break;
-      case "sinister":    typeDirty = !eq(sinister, initialSinisterRef.current); break;
-      case "fines":       typeDirty = !eq(fines, initialFinesRef.current); break;
-      case "insurance":   typeDirty = !eq(insurance, initialInsuranceRef.current); break;
-    }
-
-    return {
-      header: expenseDirty || unitDirty || addrDirty,
-      type:   typeDirty,
-    };
-  }, [expense, unitId, addressActive, addressForm, activeTab, fuel, maintenance, fines, sinister, insurance]);
-
-  const isDirty = dirtySections.header || dirtySections.type;
-
-  // ── Save / Delete ────────────────────────────────────────────────
-  /**
-   * Salva apenas as seções alteradas (dirty-check). Erros do backend são
-   * tolerados silenciosamente — o usuário sempre recebe feedback de sucesso.
-   */
+  // ── Save / Reset / Delete ────────────────────────────────────────
   async function handleSave() {
-    let opsCount = 0;
-
     try {
       setLoadingSave(true);
       setLoading(true);
-
-      // 1. Cabeçalho (PUT em ExpensesRegister) — só se algo do cabeçalho mudou
-      if (activeTab !== "insurance" && dirtySections.header) {
-        const placePurchasePayload = addressActive ? JSON.stringify(addressForm) : "";
-        const expensePayload = {
-          expen_id:       item.expen_id,
-          date:           expense.date,
-          hour:           expense.hour,
-          description:    expense.description,
-          total_value:    expense.total_value,
-          discount:       expense.discount,
-          coupon_number:  expense.coupon_number,
-          exp_type_id_fk: expense.exp_type_id_fk,
-          driver_id_fk:   expense.driver_id_fk,
-          local:          expense.local,
-          store_id_fk:    expense.store_id_fk,
-          place_purchase: placePurchasePayload,
-          unit_id:        unitId,
-        };
-        await putExpensesRegister(expensePayload);
-        opsCount++;
-      }
-
-      // 2. Dados específicos do tipo — só se o subform mudou
-      if (dirtySections.type) {
-        switch (activeTab) {
-          case "fuel": {
-            const payload = { ...fuel, expen_id_fk: item.expen_id };
-            typeIsNew ? await postFuel(payload) : await putFuel(payload);
-            opsCount++;
-            break;
-          }
-          case "maintenance": {
-            const payload = {
-              ...maintenance,
-              list_parts: JSON.stringify(maintenance.list_parts ?? { list: [] }),
-              expen_id_fk: item.expen_id,
-            };
-            typeIsNew ? await postMaintenance(payload) : await putMaintenance(payload);
-            opsCount++;
-            break;
-          }
-          case "sinister": {
-            const payload = { ...sinister, expen_id_fk: item.expen_id };
-            typeIsNew ? await postSinister(payload) : await putSinister(payload);
-            opsCount++;
-            break;
-          }
-          case "fines": {
-            const payload = { ...fines, expen_id_fk: item.expen_id, offending_driver: expense.driver_id_fk };
-            typeIsNew ? await postFines(payload) : await putFines(payload);
-            opsCount++;
-            break;
-          }
-          case "insurance": {
-            const payload = {
-              ...insurance,
-              franchise_list: JSON.stringify(insurance.franchise_list ?? { list: [] }),
-              id_insurance:   item.id_insurance_fk,
-            };
-            await putInsurance(payload);
-            opsCount++;
-            break;
-          }
-        }
-      }
-
+      const opsCount = await saveExpense({
+        activeTab,
+        expenId: item.expen_id,
+        insuranceFk: item.id_insurance_fk,
+        typeIsNew,
+        dirtyHeader: dirtySections.header,
+        dirtyType: dirtySections.type,
+        expense, unitId, addressActive, addressForm,
+        fuel, maintenance, fines, sinister, insurance,
+      });
       if (opsCount > 0) {
         handleNotification("Salvo", "Alterações gravadas com sucesso!", "success");
       }
-
       onSaved();
     } catch {
-      // Erros silenciados — usuário não precisa ver mensagens técnicas.
+      // Silenciado — usuário não precisa ver detalhes técnicos
     } finally {
       setLoading(false);
       setLoadingSave(false);
     }
   }
 
-  /**
-   * Reverte todos os campos do form para os valores iniciais (snapshots).
-   * Usa estrutura clonada via JSON pra não compartilhar referências e
-   * permitir que o dirty-check volte a false na hora.
-   */
   function handleReset() {
     setExpense(JSON.parse(JSON.stringify(initialExpenseRef.current)));
     setUnitId(initialUnitIdRef.current);
-    setAddressActive(initialAddressActiveRef.current);
+    setAddressActive(!initialParsedAddress);
     setAddressForm(JSON.parse(JSON.stringify(initialAddressFormRef.current)));
     setFuel(JSON.parse(JSON.stringify(initialFuelRef.current)));
     setMaintenance(JSON.parse(JSON.stringify(initialMaintenanceRef.current)));
@@ -502,19 +266,14 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   }
 
   return {
-    // Tab
     activeTab,
-    // State
     expense, unitId, setUnitId,
     addressActive, addressForm,
     fuel, maintenance, fines, sinister, insurance,
     newItemText, setNewItemText, newValueText, setNewValueText,
     confirmDelete, setConfirmDelete,
-    loadingSave,
-    isDirty,
-    // Lookups
-    drivers, fuelTypes, infractions, utilization, insuranceCompany, typeCoverage,
-    // Handlers
+    loadingSave, isDirty,
+    ...lookups,
     handleExpenseChange, handleAddressChange,
     handleFuelChange, handleFinesChange, handleSinisterChange,
     handleInsuranceChange, handleMaintenanceChange,
