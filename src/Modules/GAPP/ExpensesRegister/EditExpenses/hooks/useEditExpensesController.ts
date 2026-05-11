@@ -24,7 +24,7 @@ import {
 } from "../types";
 import {
   safeString, parseListParts, parseFranchiseList,
-  tryParseAddress, buildAddressFromStore,
+  tryParseAddress, buildAddressFromStore, mergeAddressForm,
 } from "../helpers";
 
 interface UseControllerProps {
@@ -95,7 +95,9 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
     user_id_fk:     "",
   });
   const initialUnitIdRef        = useRef<string>(item.unit_id ?? "");
-  const initialAddressActiveRef = useRef<boolean>(!!initialParsedAddress);
+  // Importante: tem que bater com o useState do addressActive acima — senão o
+  // dirty-check marca como alterado já na abertura.
+  const initialAddressActiveRef = useRef<boolean>(!initialParsedAddress);
   const initialAddressFormRef   = useRef<IAddressForm>(initialParsedAddress ?? emptyAddress);
   const initialFuelRef          = useRef<FuelData>(defaultFuel);
   const initialMaintenanceRef   = useRef<MaintenanceData>(defaultMaintenance);
@@ -239,29 +241,35 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   }, [item.expen_id, activeTab]);
 
   // Sincroniza endereço com a loja selecionada — em memória.
-  // - Se a loja é a inicial E há endereço custom salvo (JSON em place_purchase),
-  //   NÃO sobrescreve. Preserva o que o usuário customizou no passado.
-  // - Se prefill automático na abertura (loja inicial, sem custom), atualiza
-  //   também o snapshot pra não disparar dirty-check falso-positivo.
+  // - Se a loja é a inicial e há JSON custom salvo (mesmo incompleto): faz MERGE
+  //   dos campos do JSON com os do cadastro da loja. Resultado: campos vazios
+  //   do JSON são completados pela loja, sem perder o que o usuário customizou.
+  // - Se a loja mudou OU não há JSON: usa só o cadastro da loja.
+  // - Atualiza o snapshot quando é prefill automático (sem ação do usuário).
   useEffect(() => {
     if (!expense.store_id_fk) {
       if (!initialParsedAddress) setAddressForm(emptyAddress);
       return;
     }
 
+    const storeAddr = buildAddressFromStore(storesData, expense.store_id_fk);
+    if (!storeAddr) return; // storesData ainda não chegou — useEffect roda de novo quando chegar
+
     const storeIsInitial = String(expense.store_id_fk) === String(item.store_id_fk ?? "");
 
-    // Endereço custom salvo + loja inicial → preserva
-    if (storeIsInitial && initialParsedAddress) return;
+    let nextAddr: IAddressForm;
+    if (storeIsInitial && initialParsedAddress) {
+      // Mescla o JSON salvo (prioridade) com os dados do cadastro (fallback)
+      nextAddr = mergeAddressForm(initialParsedAddress, storeAddr);
+    } else {
+      nextAddr = storeAddr;
+    }
 
-    const addr = buildAddressFromStore(storesData, expense.store_id_fk);
-    if (!addr) return;
-
-    setAddressForm(addr);
+    setAddressForm(nextAddr);
 
     if (storeIsInitial) {
-      // Prefill na abertura — não conta como alteração do usuário
-      initialAddressFormRef.current = addr;
+      // Prefill na abertura — atualiza ref pra não contar como alteração
+      initialAddressFormRef.current = nextAddr;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expense.store_id_fk, storesData]);
@@ -281,12 +289,10 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   }));
 
   function handleToggleAddress() {
-    const next = !addressActive;
-    setAddressActive(next);
-    if (next) {
-      const addr = buildAddressFromStore(storesData, expense.store_id_fk);
-      if (addr) setAddressForm(addr);
-    }
+    // Apenas mostra/esconde a seção. O addressForm já vem prefilado pelo
+    // useEffect que escuta `expense.store_id_fk` — re-aplicar aqui causaria
+    // dirty-check falso-positivo só por clicar no toggle.
+    setAddressActive(prev => !prev);
   }
 
   const handleInfractionSelect = (inf: InfractionItem) => {
@@ -344,9 +350,9 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   const dirtySections = useMemo(() => {
     const expenseDirty = !eq(expense, initialExpenseRef.current);
     const unitDirty    = unitId !== initialUnitIdRef.current;
-    const addrDirty    =
-      addressActive !== initialAddressActiveRef.current ||
-      !eq(addressForm, initialAddressFormRef.current);
+    // Só o conteúdo dos campos conta — abrir/fechar a seção é só visibilidade
+    // e não deve disparar dirty sozinho.
+    const addrDirty    = !eq(addressForm, initialAddressFormRef.current);
 
     let typeDirty = false;
     switch (activeTab) {

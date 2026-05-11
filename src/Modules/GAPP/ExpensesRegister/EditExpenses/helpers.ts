@@ -68,3 +68,28 @@ export function buildAddressFromStore(storesData: any[], storeId: string): IAddr
     complement: s.complement ?? "",
   };
 }
+
+/**
+ * Combina dois endereços: para cada campo, usa o valor de `primary` se não-vazio,
+ * senão cai no valor de `fallback`. Usado pra completar lacunas do JSON salvo
+ * (place_purchase) com dados do cadastro da loja.
+ */
+export function mergeAddressForm(primary: IAddressForm, fallback: IAddressForm | null): IAddressForm {
+  if (!fallback) return primary;
+  const pick = (a: string, b: string) => (a && a.trim() ? a : b);
+  return {
+    name:       pick(primary.name,       fallback.name),
+    street:     pick(primary.street,     fallback.street),
+    district:   pick(primary.district,   fallback.district),
+    city:       pick(primary.city,       fallback.city),
+    state:      pick(primary.state,      fallback.state),
+    zip_code:   pick(primary.zip_code,   fallback.zip_code),
+    number:     pick(primary.number,     fallback.number),
+    complement: pick(primary.complement, fallback.complement),
+  };
+}
+
+/** True se TODOS os campos do endereço são vazios. */
+export function isAddressEmpty(a: IAddressForm): boolean {
+  return Object.values(a).every(v => !v || (typeof v === "string" && !v.trim()));
+}

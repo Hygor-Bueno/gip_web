@@ -103,15 +103,16 @@ function EditExpenses({
             <i className="fa fa-arrow-left"></i> Voltar
           </button>
           <div style={{ display: "flex", gap: 8 }}>
-            <button
-              className="btn-rel-back"
-              type="button"
-              onClick={c.handleReset}
-              disabled={!c.isDirty}
-              title={!c.isDirty ? "Nada para restaurar" : "Voltar para os valores originais"}
-            >
-              <i className="fa fa-rotate-left"></i> Restaurar
-            </button>
+            {c.isDirty && (
+              <button
+                className="btn-rel-back"
+                type="button"
+                onClick={c.handleReset}
+                title="Voltar para os valores originais"
+              >
+                <i className="fa fa-rotate-left"></i> Restaurar
+              </button>
+            )}
             <button className="btn-rel-clear" type="button" onClick={() => c.setConfirmDelete(true)}>
               <i className="fa fa-trash text-white"></i> Excluir
             </button>
