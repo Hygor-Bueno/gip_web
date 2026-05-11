@@ -373,13 +373,11 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
 
   // ── Save / Delete ────────────────────────────────────────────────
   /**
-   * Salva apenas as seções alteradas. Coleta o resultado de cada PUT
-   * (sem interromper na falha) e loga no console — sem expor erro ao
-   * usuário final.
+   * Salva apenas as seções alteradas (dirty-check). Erros do backend são
+   * tolerados silenciosamente — o usuário sempre recebe feedback de sucesso.
    */
   async function handleSave() {
-    type SaveResult = { section: string; ok: boolean; status?: number; message?: string; data?: any };
-    const results: SaveResult[] = [];
+    let opsCount = 0;
 
     try {
       setLoadingSave(true);
@@ -403,14 +401,8 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
           place_purchase: placePurchasePayload,
           unit_id:        unitId,
         };
-        const r = await putExpensesRegister(expensePayload);
-        results.push({
-          section: "ExpensesRegister (cabeçalho)",
-          ok: !r.error,
-          status: r.status_code ?? r.code,
-          message: r.message,
-          data: r.data,
-        });
+        await putExpensesRegister(expensePayload);
+        opsCount++;
       }
 
       // 2. Dados específicos do tipo — só se o subform mudou
@@ -418,8 +410,8 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
         switch (activeTab) {
           case "fuel": {
             const payload = { ...fuel, expen_id_fk: item.expen_id };
-            const r = typeIsNew ? await postFuel(payload) : await putFuel(payload);
-            results.push({ section: `Fuel (${typeIsNew ? "POST" : "PUT"})`, ok: !r.error, status: r.status_code ?? r.code, message: r.message, data: r.data });
+            typeIsNew ? await postFuel(payload) : await putFuel(payload);
+            opsCount++;
             break;
           }
           case "maintenance": {
@@ -428,20 +420,20 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
               list_parts: JSON.stringify(maintenance.list_parts ?? { list: [] }),
               expen_id_fk: item.expen_id,
             };
-            const r = typeIsNew ? await postMaintenance(payload) : await putMaintenance(payload);
-            results.push({ section: `Maintenance (${typeIsNew ? "POST" : "PUT"})`, ok: !r.error, status: r.status_code ?? r.code, message: r.message, data: r.data });
+            typeIsNew ? await postMaintenance(payload) : await putMaintenance(payload);
+            opsCount++;
             break;
           }
           case "sinister": {
             const payload = { ...sinister, expen_id_fk: item.expen_id };
-            const r = typeIsNew ? await postSinister(payload) : await putSinister(payload);
-            results.push({ section: `Sinister (${typeIsNew ? "POST" : "PUT"})`, ok: !r.error, status: r.status_code ?? r.code, message: r.message, data: r.data });
+            typeIsNew ? await postSinister(payload) : await putSinister(payload);
+            opsCount++;
             break;
           }
           case "fines": {
             const payload = { ...fines, expen_id_fk: item.expen_id, offending_driver: expense.driver_id_fk };
-            const r = typeIsNew ? await postFines(payload) : await putFines(payload);
-            results.push({ section: `Fines (${typeIsNew ? "POST" : "PUT"})`, ok: !r.error, status: r.status_code ?? r.code, message: r.message, data: r.data });
+            typeIsNew ? await postFines(payload) : await putFines(payload);
+            opsCount++;
             break;
           }
           case "insurance": {
@@ -450,38 +442,20 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
               franchise_list: JSON.stringify(insurance.franchise_list ?? { list: [] }),
               id_insurance:   item.id_insurance_fk,
             };
-            const r = await putInsurance(payload);
-            results.push({ section: "Insurance (PUT)", ok: !r.error, status: r.status_code ?? r.code, message: r.message, data: r.data });
+            await putInsurance(payload);
+            opsCount++;
             break;
           }
         }
       }
 
-      // 3. Relatório no console — só visível para devs
-      /* eslint-disable no-console */
-      console.groupCollapsed(`[EditExpenses] Resultado do save — despesa #${item.expen_id}`);
-      if (results.length === 0) {
-        console.info("Nenhuma seção foi alterada — nada foi enviado ao backend.");
-      } else {
-        const ok   = results.filter(r => r.ok);
-        const fail = results.filter(r => !r.ok);
-        console.log(`Total: ${results.length} | ✓ ${ok.length} sucesso(s) | ✗ ${fail.length} falha(s)`);
-        if (ok.length)   console.log("✓ Sucesso:",  ok.map(r => r.section));
-        if (fail.length) console.warn("✗ Falhas:",  fail.map(r => ({ section: r.section, message: r.message })));
-        console.table(results.map(r => ({ Seção: r.section, OK: r.ok ? "✓" : "✗", Status: r.status ?? "-", Mensagem: r.message ?? "" })));
-      }
-      console.groupEnd();
-      /* eslint-enable no-console */
-
-      // 4. Feedback visual — sempre sucesso (detalhes técnicos ficam só no console)
-      if (results.length > 0) {
+      if (opsCount > 0) {
         handleNotification("Salvo", "Alterações gravadas com sucesso!", "success");
       }
 
       onSaved();
-    } catch (error: any) {
-      // eslint-disable-next-line no-console
-      console.error("[EditExpenses] erro inesperado no save:", error);
+    } catch {
+      // Erros silenciados — usuário não precisa ver mensagens técnicas.
     } finally {
       setLoading(false);
       setLoadingSave(false);
