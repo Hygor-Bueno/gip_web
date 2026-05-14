@@ -21,8 +21,9 @@ interface iSubTask {
 }
 
 const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, props }) => {
-  const { task, taskDetails, updateCommentCount, getUser, reloadPagePercent, deleteItemTaskWS, updateItemTaskFile, 
-  setTaskDetails, updatedAddUserTaskItem, getTaskInformations, checkedItem } = useWebSocket();
+  const { task, taskDetails, updateCommentCount, getUser, reloadPagePercent, deleteItemTaskWS, updateItemTaskFile,
+  setTaskDetails, updatedAddUserTaskItem, getTaskInformations, checkedItem,
+  pendingDeepLink, setPendingDeepLink } = useWebSocket();
 
   const { setLoading, userLog } = useMyContext();
   const { fetchData } = useConnection();
@@ -91,6 +92,28 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       getTaskInformations();
     }
   }, [task.id]);
+
+  useEffect(() => {
+    if (!pendingDeepLink) return;
+    if (Number(pendingDeepLink.taskId) !== Number(task.id)) return;
+    const items = taskDetails?.data?.task_item;
+    if (!items || items.length === 0) return;
+    const target = items.find(
+      (it: any) => Number(it.id) === Number(pendingDeepLink.taskItemId)
+    );
+    if (!target) return;
+
+    setEditTask(target);
+    setShowChat(true);
+    setPendingDeepLink(null);
+
+    requestAnimationFrame(() => {
+      const el = document.querySelector<HTMLElement>(
+        `[data-task-item-id="${pendingDeepLink.taskItemId}"]`
+      );
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }, [pendingDeepLink, task.id, taskDetails, setPendingDeepLink]);
 
   const [subTask, setSubtask] = useState<iSubTask>({
     isObservable: false,

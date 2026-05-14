@@ -49,7 +49,7 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
     clearAll,
   } = useNotificationHub();
 
-  const { getTask, setTask, setTaskPercent, setOpenCardDefault, task: currentTask } = useGtppWs();
+  const { getTask, setTask, setTaskPercent, setOpenCardDefault, task: currentTask, setPendingDeepLink } = useGtppWs();
 
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<SourceFilter>("all");
@@ -90,9 +90,12 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
     return unreadCount;
   }, [notifications, props.idTask, unreadCount]);
 
-  function openGtppTask(taskId: number): boolean {
+  function openGtppTask(taskId: number, taskItemId?: number): boolean {
     const found = getTask?.find((t) => Number(t.id) === Number(taskId));
     if (!found) return false;
+    if (taskItemId) {
+      setPendingDeepLink({ taskId: Number(taskId), taskItemId: Number(taskItemId) });
+    }
     if (Number(currentTask?.id) === Number(taskId)) {
       setOpenCardDefault(true);
       return true;
@@ -108,7 +111,11 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
     if (!n.read) markAsRead(n.id);
 
     if (n.source === "gtpp" && n.task_id) {
-      const opened = openGtppTask(n.task_id);
+      const taskItemId =
+        n.extra && typeof n.extra === "object" && "task_item_id" in n.extra
+          ? Number((n.extra as { task_item_id?: unknown }).task_item_id)
+          : undefined;
+      const opened = openGtppTask(n.task_id, taskItemId);
       if (opened) setOpen(false);
     }
   }

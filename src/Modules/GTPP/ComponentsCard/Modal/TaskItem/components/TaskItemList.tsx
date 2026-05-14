@@ -30,7 +30,7 @@ const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, 
         const total = Number(taskItem.total_comment) || 0;
 
         return (
-          <div key={taskItem.id} className={`d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto ${userState.loadingList.listTask?.id == taskItem.id ? 'border-mark' : ''}`}>
+          <div key={taskItem.id} data-task-item-id={taskItem.id} className={`d-flex justify-content-between align-items-center mb-1 bg-light border w-100 p-1 rounded overflow-auto ${userState.loadingList.listTask?.id == taskItem.id ? 'border-mark' : ''}`}>
             {(subTask.openDialog && subTask.idSubTask === taskItem.id && taskItem.note) && <ModalInformation onClose={closeObservation} task description={taskItem.note} />}
             {(taskItem.id && positionTaskStates[taskItem.id]) &&
               <div>

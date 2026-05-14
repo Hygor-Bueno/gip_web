@@ -16,6 +16,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [openCardDefault, setOpenCardDefault] = useState<boolean>(false);
   const [getUser, setGetUser] = useState<iUserDefaultClass | null>(null);
   const [userTaskBind] = useState<iGtppWsContextType["userTaskBind"]>([]);
+  const [pendingDeepLink, setPendingDeepLink] = useState<{ taskId: number; taskItemId: number } | null>(null);
 
   const { userLog } = useMyContext();
   const ws = useRef(GtppWebSocket.getInstance());
@@ -187,11 +188,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setOpenCardDefault, setGetTask, setOnSounds, setNotifications,
       setTaskPercent, setTask, setTaskDetails, setIsAdm, setComment,
       setThemeList, setGetUser,
+
+      pendingDeepLink, setPendingDeepLink,
     }),
     [
       task, taskDetails, taskPercent, userTaskBind, notifications, states,
       onSounds, getTask, isAdm, openCardDefault, themeList, comment, getUser,
-      getComment, sendComment, handleAddTask, updateCommentCount,
+      getComment, sendComment, handleAddTask, updateCommentCount, pendingDeepLink,
     ]
   );
 
