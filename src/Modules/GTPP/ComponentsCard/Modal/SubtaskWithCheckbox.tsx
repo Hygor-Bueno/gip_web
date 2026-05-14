@@ -103,15 +103,24 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
     );
     if (!target) return;
 
+    const targetItemId = pendingDeepLink.taskItemId;
     setEditTask(target);
     setShowChat(true);
     setPendingDeepLink(null);
 
     requestAnimationFrame(() => {
       const el = document.querySelector<HTMLElement>(
-        `[data-task-item-id="${pendingDeepLink.taskItemId}"]`
+        `[data-task-item-id="${targetItemId}"]`
       );
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.remove("gtpp-deep-link-highlight");
+      // force reflow so a sequential re-trigger replays the animation
+      void el.offsetWidth;
+      el.classList.add("gtpp-deep-link-highlight");
+      window.setTimeout(() => {
+        el.classList.remove("gtpp-deep-link-highlight");
+      }, 2600);
     });
   }, [pendingDeepLink, task.id, taskDetails, setPendingDeepLink]);
 
