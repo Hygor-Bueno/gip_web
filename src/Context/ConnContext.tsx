@@ -7,8 +7,15 @@ const ConnectionContext = createContext<ConnectionContextProps | undefined>(unde
 
 export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isLogged, setIsLogged] = useState<boolean>(true);
-    const fetchData = async (req: iReqConn) => {        
+    const fetchData = async (req: iReqConn) => {
+            const t0 = typeof performance !== "undefined" ? performance.now() : Date.now();
             const request = await fetchDataFull(req);
+            try {
+                const ms = Math.round(((typeof performance !== "undefined" ? performance.now() : Date.now()) - t0));
+                if (process.env.NODE_ENV === "development" && typeof window !== "undefined" && window.__gippPerf) {
+                    window.__gippPerf.markFetch(ms);
+                }
+            } catch { /* noop */ }
             if(request.error && request.message){
                 const tokenExpired = request.message.toLowerCase().includes('authorization denied') || request.message.toLowerCase().includes('time expired token 24rs limit');
                 if(tokenExpired && isLogged){

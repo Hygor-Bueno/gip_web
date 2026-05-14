@@ -6,6 +6,7 @@ import { classToJSON, cleanLocalStorage, fetchDataFull } from '../Util/Utils';
 import { useWebSocket } from '../Context/WsContext';
 import SendMessage from '../Modules/CLPP/Class/SendMessage';
 import { useNavigate } from 'react-router-dom';
+import PerfOverlay from './PerfOverlay';
 
 type Props = {
     children: JSX.Element; // Tipo para o children
@@ -22,6 +23,7 @@ export default function RenderedModules(props: Props): JSX.Element {
                     <React.Fragment>
                         {props.children}
                         <Clpp />
+                        <PerfOverlay />
                     </React.Fragment>
                     :
                     <div className='d-flex align-items-center justify-content-center flex-column w-100 flex-grow-1'>

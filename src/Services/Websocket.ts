@@ -18,6 +18,13 @@ export default class WebSocketCLPP {
   tokens: any;
   callbackOnMessage!: (notify: NotifyMessage) => Promise<void>;
 
+  private intentionalClose: boolean = false;
+  private reconnectAttempts: number = 0;
+  private reconnectTimeoutRef: ReturnType<typeof setTimeout> | null = null;
+
+  private static readonly RECONNECT_MAX_DELAY = 30000;
+  private static readonly RECONNECT_MAX_ATTEMPTS = 10;
+
   constructor(
     tokens: any,
     callbackOnMessage: (notify: NotifyMessage) => Promise<void>
@@ -27,11 +34,16 @@ export default class WebSocketCLPP {
   }
 
   connectWebSocket(): void {
+    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+      return;
+    }
+    this.intentionalClose = false;
     try {
       const localWs = new WebSocket(`${process.env.REACT_APP_API_GIPP_BASE_WS}:${process.env.REACT_APP_API_GIPP_PORT_SOCKET_DEFAULT}`);
       ws = localWs;
 
       localWs.onopen = () => {
+        this.reconnectAttempts = 0;
         this.onOpen(localWs);
       };
 
@@ -49,6 +61,7 @@ export default class WebSocketCLPP {
 
     } catch (error) {
       console.error(error);
+      this.scheduleReconnect();
     }
   }
 
@@ -66,10 +79,41 @@ export default class WebSocketCLPP {
   }
 
   onClose(): void {
-    setTimeout(() => {
-      this.connectWebSocket();
-    }, 1000);
     this.isConnected = false;
+    if (this.intentionalClose) return;
+    this.scheduleReconnect();
+  }
+
+  private scheduleReconnect(): void {
+    if (this.reconnectTimeoutRef) return;
+    if (this.reconnectAttempts >= WebSocketCLPP.RECONNECT_MAX_ATTEMPTS) {
+      console.warn("CLPP WS: limite de reconexões atingido");
+      return;
+    }
+    const delay = Math.min(
+      1000 * 2 ** this.reconnectAttempts,
+      WebSocketCLPP.RECONNECT_MAX_DELAY
+    );
+    this.reconnectAttempts += 1;
+    this.reconnectTimeoutRef = setTimeout(() => {
+      this.reconnectTimeoutRef = null;
+      this.connectWebSocket();
+    }, delay);
+  }
+
+  public disconnect(): void {
+    this.intentionalClose = true;
+    if (this.reconnectTimeoutRef) {
+      clearTimeout(this.reconnectTimeoutRef);
+      this.reconnectTimeoutRef = null;
+    }
+    try {
+      if (ws && ws.readyState !== WebSocket.CLOSED) ws.close();
+    } catch {
+      /* noop */
+    }
+    this.isConnected = false;
+    this.reconnectAttempts = 0;
   }
 
   async onMessage(ev: MessageEvent): Promise<void> {
@@ -86,7 +130,7 @@ export default class WebSocketCLPP {
       type: 3,
       send_id: idSender,
     };
-    ws.send(JSON.stringify(jsonString));
+    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(jsonString));
   }
 
   informSending(type: number, send_id: string, message_id: string): void {
@@ -95,7 +139,7 @@ export default class WebSocketCLPP {
       send_id,
       last_id: message_id,
     };
-    ws.send(JSON.stringify(jsonString));
+    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(jsonString));
   }
 
   informSendingGroup(type: number, group_id: string, message_id: string): void {
@@ -104,6 +148,6 @@ export default class WebSocketCLPP {
       group_id,
       last_id: message_id,
     };
-    ws.send(JSON.stringify(jsonString));
+    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(jsonString));
   }
 }

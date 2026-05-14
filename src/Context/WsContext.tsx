@@ -7,6 +7,7 @@ import { handleNotification } from '../Util/Utils';
 import { useConnection } from './ConnContext';
 import Contact from '../Class/Contact';
 import User from '../Class/User';
+import { dispatchAppNotification } from './NotificationHubContext';
 
 
 const WebSocketContext = createContext<iWebSocketContextType | undefined>(undefined);
@@ -223,11 +224,20 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const { name, photo } = await resolveSenderName(sendUserId);
             const isTextType = !event.type || event.type == 1;
             const bodyText = isTextType && event.message ? event.message : "enviou um anexo";
+            const shortBody = bodyText.length > 120 ? `${bodyText.slice(0, 117)}...` : bodyText;
             showBrowserNotification(
                 `${name} enviou uma mensagem`,
-                bodyText.length > 120 ? `${bodyText.slice(0, 117)}...` : bodyText,
+                shortBody,
                 photo
             );
+            dispatchAppNotification({
+                source: "clpp",
+                title: `${name} enviou uma mensagem`,
+                message: shortBody,
+                type: "info",
+                externalId: event.id ?? `${sendUserId}-${event.date ?? Date.now()}`,
+                extra: { sendUserId },
+            });
             setContactList((prev) => {
                 const existing = prev.find((c) => c.id == sendUserId);
                 let nextList: Contact[];
