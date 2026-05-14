@@ -112,15 +112,7 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       const el = document.querySelector<HTMLElement>(
         `[data-task-item-id="${targetItemId}"]`
       );
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.classList.remove("gtpp-deep-link-highlight");
-      // force reflow so a sequential re-trigger replays the animation
-      void el.offsetWidth;
-      el.classList.add("gtpp-deep-link-highlight");
-      window.setTimeout(() => {
-        el.classList.remove("gtpp-deep-link-highlight");
-      }, 2600);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
     });
   }, [pendingDeepLink, task.id, taskDetails, setPendingDeepLink]);
 

@@ -22,7 +22,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   const [isLoading, setIsLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const { comment, deleteComment, sendComment, getComment, editComment } = useWebSocket() as any;
+  const { comment, deleteComment, sendComment, getComment, editComment, commentHighlightId, setCommentHighlightId } = useWebSocket() as any;
 
   useEffect(() => {
     const handleStatus = () => setIsOnline(navigator.onLine);
@@ -44,6 +44,36 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   useEffect(() => {
     if (isAtBottom) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comment.data, isAtBottom]);
+
+  useEffect(() => {
+    if (!commentHighlightId) return;
+    const found = (comment?.data ?? []).some(
+      (c: any) => Number(c.id) === Number(commentHighlightId)
+    );
+    if (!found) return;
+
+    const targetId = Number(commentHighlightId);
+    const tries = [0, 60, 160, 320];
+    tries.forEach((delay) => {
+      window.setTimeout(() => {
+        const el = chatContainerRef.current?.querySelector<HTMLElement>(
+          `[data-comment-id="${targetId}"]`
+        );
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (delay === tries[tries.length - 1]) {
+          el.classList.remove("gtpp-comment-highlight");
+          void el.offsetWidth;
+          el.classList.add("gtpp-comment-highlight");
+          window.setTimeout(() => {
+            el.classList.remove("gtpp-comment-highlight");
+          }, 2600);
+        }
+      }, delay);
+    });
+
+    setCommentHighlightId(null);
+  }, [commentHighlightId, comment?.data, setCommentHighlightId]);
 
   const handleScroll = () => {
     const container = chatContainerRef.current;

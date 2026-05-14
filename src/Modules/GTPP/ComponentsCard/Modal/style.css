@@ -237,15 +237,21 @@
     }
 }
 
-/* Deep-link highlight: ao clicar em uma notificação de comentário,
-   o item alvo recebe esta classe por ~2.5s — pula 2 vezes e o fundo
-   #bed989 aparece suavemente para chamar atenção. */
-.gtpp-deep-link-highlight {
-    animation: gtpp-deep-link-highlight 2.4s ease-out 1;
-    border-color: rgba(190, 217, 137, 0.9) !important;
+/* Comment highlight: ao clicar em uma notificação de comentário, o
+   próprio balão do comentário (#bed989 transparente) pula duas vezes
+   chamando atenção do usuário para o trecho recém-comentado. */
+.gtpp-comment-highlight {
+    animation: gtpp-comment-highlight 2.4s ease-out 1;
+    border-radius: 12px;
+    will-change: transform, background-color, box-shadow;
 }
 
-@keyframes gtpp-deep-link-highlight {
+.gtpp-comment-highlight > div > div:first-child {
+    transition: box-shadow 0.2s ease;
+    box-shadow: 0 0 0 2px rgba(190, 217, 137, 0.85), 0 6px 16px rgba(190, 217, 137, 0.35) !important;
+}
+
+@keyframes gtpp-comment-highlight {
     0% {
         background-color: rgba(190, 217, 137, 0);
         transform: translateY(0);
@@ -254,22 +260,22 @@
     10% {
         background-color: rgba(190, 217, 137, 0.55);
         transform: translateY(-10px);
-        box-shadow: 0 8px 18px rgba(190, 217, 137, 0.45);
+        box-shadow: 0 10px 22px rgba(190, 217, 137, 0.45);
     }
     25% {
         background-color: rgba(190, 217, 137, 0.45);
         transform: translateY(0);
-        box-shadow: 0 2px 6px rgba(190, 217, 137, 0.3);
+        box-shadow: 0 4px 10px rgba(190, 217, 137, 0.3);
     }
     40% {
         background-color: rgba(190, 217, 137, 0.55);
         transform: translateY(-10px);
-        box-shadow: 0 8px 18px rgba(190, 217, 137, 0.45);
+        box-shadow: 0 10px 22px rgba(190, 217, 137, 0.45);
     }
     55% {
         background-color: rgba(190, 217, 137, 0.45);
         transform: translateY(0);
-        box-shadow: 0 2px 6px rgba(190, 217, 137, 0.3);
+        box-shadow: 0 4px 10px rgba(190, 217, 137, 0.3);
     }
     100% {
         background-color: rgba(190, 217, 137, 0);

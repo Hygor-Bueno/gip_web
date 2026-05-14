@@ -180,6 +180,8 @@ export interface iGtppWsContextType {
   // Deep-link (clique em notificação para abrir item específico)
   pendingDeepLink: { taskId: number; taskItemId: number } | null;
   setPendingDeepLink: Dispatch<SetStateAction<{ taskId: number; taskItemId: number } | null>>;
+  commentHighlightId: number | null;
+  setCommentHighlightId: Dispatch<SetStateAction<number | null>>;
 }
 
 export interface iWebSocketContextType {

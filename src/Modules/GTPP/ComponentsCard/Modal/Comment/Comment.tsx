@@ -15,7 +15,7 @@ interface CommentItemProps {
 
 export default function CommentItem({ item, isMe, isAdmin, userPhoto, userName, editingId, deleteComment }: CommentItemProps) {
   return (
-    <div className={`d-flex mb-3 align-items-end animate__animated animate__fadeIn ${isMe ? 'flex-row-reverse' : ''}`}>
+    <div data-comment-id={item.id} className={`d-flex mb-3 align-items-end animate__animated animate__fadeIn ${isMe ? 'flex-row-reverse' : ''}`}>
       <img src={userPhoto} alt={userName} className={`rounded-circle border border-white shadow-sm ${isMe ? 'ms-2' : 'me-2'}`} style={{ width: '38px', height: '38px', objectFit: 'cover', flexShrink: 0 }} />
       <div className={`d-flex flex-column overflow-hidden ${isMe ? 'align-items-end' : 'align-items-start'}`} style={{ maxWidth: '80%', width: editingId === item.id ? '100%' : 'auto' }}>
         <div className="p-2 px-3 shadow-sm" style={{ backgroundColor: '#2b2d42', borderRadius: isMe ? '20px 20px 2px 20px' : '20px 20px 20px 2px', border: '1px solid rgba(0,0,0,0.1)', width: '100%' }}>
