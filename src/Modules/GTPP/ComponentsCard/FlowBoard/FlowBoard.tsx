@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Col } from "react-bootstrap";
 import NavBar from "../../../../Components/NavBar";
 import { listPath } from "../../mock/configurationfile";
@@ -14,12 +14,49 @@ import { InputCheckButton } from "../../../../Components/CustomButton";
 import GtppMainProps from "../../Interfaces/IGtppMainProps";
 import "./FlowBoard.css";
 import { generateAndDownloadCSV, Task } from "../../../../Class/FileGenerator";
+import { useRegisterTourSteps } from "../../../../Context/TourContext";
+import { TourStep } from "../../../../Components/ProductTour";
 
 export default function GtppMain(props: GtppMainProps) {
+  const tourSteps: TourStep[] = useMemo(() => [
+    {
+      selector: '[data-tour="gtpp-themes"]',
+      title: 'Filtro por Tema',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Use este seletor para focar apenas tarefas de um tema específico — útil quando o quadro está cheio.',
+      placement: 'bottom',
+    },
+    {
+      selector: '[data-tour="gtpp-states"]',
+      title: 'Filtro de Estados',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aqui você ativa/desativa as colunas do Kanban para mostrar só os estados que importam agora.',
+      placement: 'bottom',
+    },
+    {
+      selector: '[data-tour="gtpp-sound"]',
+      title: 'Som das Notificações',
+      body: 'Lorem ipsum dolor sit amet. Liga ou desliga o som que toca quando chega uma notificação de tarefa ou comentário.',
+      placement: 'left',
+    },
+    {
+      selector: '[data-tour="gtpp-bell"]',
+      title: 'Central de Notificações',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sino com tudo que aconteceu nas suas tarefas e nas conversas do CLPP. Clique numa notificação de comentário para ir direto até ele.',
+      placement: 'left',
+    },
+    {
+      selector: '[data-tour="gtpp-board"]',
+      title: 'Quadro Kanban',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aqui ficam suas tarefas distribuídas pelos estados. Clique em uma tarefa para abrir o detalhe, comentar e gerenciar subtarefas.',
+      placement: 'top',
+    },
+  ], []);
+
+  useRegisterTourSteps(tourSteps, [tourSteps]);
+
   function HeaderFilters() {
     return (
       <div className="d-flex w-100 align-items-center justify-content-start gap-5 mt-3">
-        <div className="d-flex gap-4 mb-3 flex-wrap">
+        <div className="d-flex gap-4 mb-3 flex-wrap" data-tour="gtpp-themes">
           <div>
             <label className="form-label mb-1">Filtrar pelo tema:</label>
             <select className="form-select" value={props.selectedThemeIds} onChange={(e) => props.setSelectedThemeIds(e.target.value)}>
@@ -34,7 +71,7 @@ export default function GtppMain(props: GtppMainProps) {
             </select>
           </div>
         </div>
-        <div className="position-relative">
+        <div className="position-relative" data-tour="gtpp-states">
           <h1 onClick={props.handleOpenFilter} className="cursor-pointer d-inline-flex align-items-center gap-2">
             Estados <i className="fa fa-angle-down"></i>
           </h1>
@@ -63,7 +100,7 @@ export default function GtppMain(props: GtppMainProps) {
 
   function ContentDefault() {
     return (
-      <Col xs={12} className="d-flex flex-nowrap p-0 menu-expansivo flex-grow-1" style={{ overflowX: "auto", height: "70%" }}>
+      <Col xs={12} data-tour="gtpp-board" className="d-flex flex-nowrap p-0 menu-expansivo flex-grow-1" style={{ overflowX: "auto", height: "70%" }}>
         {props.states?.map((state: any, idx) => {
           const x = props.getTask;
           const filteredTasks = x.filter((t) => t.state_id === state.id);
@@ -148,11 +185,11 @@ export default function GtppMain(props: GtppMainProps) {
                   <button title={props.openMenu ? "Ocultar menu" : "Exibir menu"} onClick={() => props.setOpenMenu(!props.openMenu)} className="btn p-0 d-block d-md-none">
                     <i className={`fa-solid fa-eye${props.openMenu ? "-slash" : ""}`}></i>
                   </button>
-                  <button title={props.onSounds ? "Som ligado" : "Som desligado"} onClick={() => props.setOnSounds(!props.onSounds)} className="btn p-0">
+                  <button data-tour="gtpp-sound" title={props.onSounds ? "Som ligado" : "Som desligado"} onClick={() => props.setOnSounds(!props.onSounds)} className="btn p-0">
                     <i className={`fa-solid fa-volume-${props.onSounds ? "high" : "xmark"}`}></i>
                   </button>
                 </React.Fragment>
-                <NotificationBell />
+                <span data-tour="gtpp-bell"><NotificationBell /></span>
               </div>
             </div>
           </div>

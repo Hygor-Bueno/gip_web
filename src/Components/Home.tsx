@@ -4,7 +4,8 @@ import { useMyContext } from '../Context/MainContext';
 import NavBar from './NavBar';
 import { useNavigate } from 'react-router-dom';
 import { useConnection } from '../Context/ConnContext';
-import ProductTour, { TourStep } from './ProductTour';
+import { TourStep } from './ProductTour';
+import { useRegisterTourSteps } from '../Context/TourContext';
 const iconGTPP = require("../Assets/Image/GTTP_icon.png");
 const iconCFPP = require("../Assets/Image/CFPP_icon.png");
 const iconGAPP = require("../Assets/Image/GAPP_icon.jpg");
@@ -44,7 +45,6 @@ export default function Home(): JSX.Element {
     const { setTitleHead, userLog } = useMyContext();
     const { fetchData } = useConnection();
     const [accessList, setAccessList] = useState<any>([]);
-    const [tourOpen, setTourOpen] = useState<boolean>(false);
 
     React.useEffect(() => {
         setTitleHead({ title: 'Home - GIPP', simpleTitle: "Home", icon: 'fa fa-home' });
@@ -109,33 +109,18 @@ export default function Home(): JSX.Element {
         return steps;
     }, [accessList]);
 
+    useRegisterTourSteps(tourSteps, [tourSteps]);
+
     return (
         <div className='d-flex flex-row w-100 h-100 container-fluid p-0 m-0'>
             <NavBar list={listPath} />
             <section className='p-2 flex-grow-1 position-relative'>
-                <div className='d-flex justify-content-end align-items-center mb-2'>
-                    <button
-                        type='button'
-                        className='gipp-tour-trigger'
-                        onClick={() => setTourOpen(true)}
-                        title='Apresentação dos módulos'
-                    >
-                        <i className='fa-solid fa-circle-info' />
-                        Apresentação
-                    </button>
-                </div>
                 <div className='d-flex flex-wrap'>
                     {accessList.length > 0 && accessList.map((item: any) => (
                         <RenderModule key={item.application_id} cod={item.application_id} />
                     ))}
                 </div>
             </section>
-
-            <ProductTour
-                open={tourOpen}
-                onClose={() => setTourOpen(false)}
-                steps={tourSteps}
-            />
         </div>
     );
 }
