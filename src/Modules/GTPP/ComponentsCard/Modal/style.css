@@ -237,49 +237,33 @@
     }
 }
 
-/* Comment highlight: ao clicar em uma notificação de comentário, o
-   próprio balão do comentário (#bed989 transparente) pula duas vezes
-   chamando atenção do usuário para o trecho recém-comentado. */
-.gtpp-comment-highlight {
-    animation: gtpp-comment-highlight 2.4s ease-out 1;
-    border-radius: 12px;
-    will-change: transform, background-color, box-shadow;
+/* Destaque do task_item ao abrir via notificação: fundo #bed989
+   transparente entra e sai suavemente sem mover o card. */
+.gtpp-task-item-highlight {
+    animation: gtpp-task-item-highlight 2.6s ease-out 1;
+    border-color: rgba(190, 217, 137, 0.85) !important;
 }
 
-.gtpp-comment-highlight > div > div:first-child {
-    transition: box-shadow 0.2s ease;
-    box-shadow: 0 0 0 2px rgba(190, 217, 137, 0.85), 0 6px 16px rgba(190, 217, 137, 0.35) !important;
+@keyframes gtpp-task-item-highlight {
+    0%   { background-color: rgba(190, 217, 137, 0); }
+    15%  { background-color: rgba(190, 217, 137, 0.55); }
+    50%  { background-color: rgba(190, 217, 137, 0.45); }
+    85%  { background-color: rgba(190, 217, 137, 0.30); }
+    100% { background-color: rgba(190, 217, 137, 0); }
 }
 
-@keyframes gtpp-comment-highlight {
-    0% {
-        background-color: rgba(190, 217, 137, 0);
-        transform: translateY(0);
-        box-shadow: 0 0 0 0 rgba(190, 217, 137, 0);
-    }
-    10% {
-        background-color: rgba(190, 217, 137, 0.55);
-        transform: translateY(-10px);
-        box-shadow: 0 10px 22px rgba(190, 217, 137, 0.45);
-    }
-    25% {
-        background-color: rgba(190, 217, 137, 0.45);
-        transform: translateY(0);
-        box-shadow: 0 4px 10px rgba(190, 217, 137, 0.3);
-    }
-    40% {
-        background-color: rgba(190, 217, 137, 0.55);
-        transform: translateY(-10px);
-        box-shadow: 0 10px 22px rgba(190, 217, 137, 0.45);
-    }
-    55% {
-        background-color: rgba(190, 217, 137, 0.45);
-        transform: translateY(0);
-        box-shadow: 0 4px 10px rgba(190, 217, 137, 0.3);
-    }
-    100% {
-        background-color: rgba(190, 217, 137, 0);
-        transform: translateY(0);
-        box-shadow: 0 0 0 0 rgba(190, 217, 137, 0);
-    }
+/* Bounce no balão do comentário ao clicar na notificação. Pula duas
+   vezes; nada de mexer no fundo do balão. */
+.gtpp-comment-bubble-bounce {
+    animation: gtpp-comment-bubble-bounce 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1;
+    transform-origin: center bottom;
+}
+
+@keyframes gtpp-comment-bubble-bounce {
+    0%   { transform: translateY(0)   scale(1); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+    20%  { transform: translateY(-14px) scale(1.04); box-shadow: 0 12px 22px rgba(0,0,0,0.18); }
+    40%  { transform: translateY(0)   scale(1); box-shadow: 0 2px 6px rgba(0,0,0,0.14); }
+    60%  { transform: translateY(-10px) scale(1.03); box-shadow: 0 10px 18px rgba(0,0,0,0.16); }
+    80%  { transform: translateY(0)   scale(1); box-shadow: 0 2px 6px rgba(0,0,0,0.14); }
+    100% { transform: translateY(0)   scale(1); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
 }

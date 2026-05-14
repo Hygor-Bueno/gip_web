@@ -21,6 +21,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   const [isOnline, setIsOnline] = useState(navigator.onLine); 
   const [isLoading, setIsLoading] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [highlightedId, setHighlightedId] = useState<number | null>(null);
 
   const { comment, deleteComment, sendComment, getComment, editComment, commentHighlightId, setCommentHighlightId } = useWebSocket() as any;
 
@@ -47,32 +48,24 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
 
   useEffect(() => {
     if (!commentHighlightId) return;
-    const found = (comment?.data ?? []).some(
-      (c: any) => Number(c.id) === Number(commentHighlightId)
-    );
+    const targetId = Number(commentHighlightId);
+    const found = (comment?.data ?? []).some((c: any) => Number(c.id) === targetId);
     if (!found) return;
 
-    const targetId = Number(commentHighlightId);
-    const tries = [0, 60, 160, 320];
-    tries.forEach((delay) => {
-      window.setTimeout(() => {
-        const el = chatContainerRef.current?.querySelector<HTMLElement>(
-          `[data-comment-id="${targetId}"]`
-        );
-        if (!el) return;
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-        if (delay === tries[tries.length - 1]) {
-          el.classList.remove("gtpp-comment-highlight");
-          void el.offsetWidth;
-          el.classList.add("gtpp-comment-highlight");
-          window.setTimeout(() => {
-            el.classList.remove("gtpp-comment-highlight");
-          }, 2600);
-        }
-      }, delay);
-    });
-
+    setHighlightedId(targetId);
     setCommentHighlightId(null);
+
+    const scroll = () => {
+      const el = chatContainerRef.current?.querySelector<HTMLElement>(
+        `[data-comment-id="${targetId}"]`
+      );
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+    window.setTimeout(scroll, 80);
+    window.setTimeout(scroll, 320);
+
+    const clear = window.setTimeout(() => setHighlightedId(null), 2800);
+    return () => window.clearTimeout(clear);
   }, [commentHighlightId, comment?.data, setCommentHighlightId]);
 
   const handleScroll = () => {
@@ -141,7 +134,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
             const isAdmin = localStorage.getItem('ADM') == '1';
             
             return item.status == 1 && (
-              <CommentItem 
+              <CommentItem
                 key={item.id}
                 item={item}
                 isMe={isMe}
@@ -152,6 +145,7 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
                 setEditingId={setEditingId}
                 deleteComment={handleDeleteOrchestrator}
                 handleSaveEdit={handleSaveEditOrchestrator}
+                isHighlighted={Number(item.id) === highlightedId}
               />
             );
           })

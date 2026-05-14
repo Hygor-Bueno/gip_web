@@ -112,7 +112,14 @@ const SubTasksWithCheckbox: React.FC<SubTasksWithCheckboxProps> = ({ users, prop
       const el = document.querySelector<HTMLElement>(
         `[data-task-item-id="${targetItemId}"]`
       );
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.remove("gtpp-task-item-highlight");
+      void el.offsetWidth;
+      el.classList.add("gtpp-task-item-highlight");
+      window.setTimeout(() => {
+        el.classList.remove("gtpp-task-item-highlight");
+      }, 2800);
     });
   }, [pendingDeepLink, task.id, taskDetails, setPendingDeepLink]);
 
