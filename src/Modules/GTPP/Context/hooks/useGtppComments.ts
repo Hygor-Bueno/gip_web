@@ -3,12 +3,20 @@ import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import { handleNotification } from "../../../../Util/Utils";
 import { dispatchAppNotification } from "../../../../Context/NotificationHubContext";
-import { IApiResponse, IComment, ICommentState, IUserTaskElement } from "../types/gtppTypes";
+import { IApiResponse, IComment, ICommentState, IGtppTaskSummary, IUserTaskElement } from "../types/gtppTypes";
 import GtppWebSocket from "../GtppWebSocket";
+
+function formatTaskRef(taskId: number, taskList?: IGtppTaskSummary[]): string {
+  const found = taskList?.find((t) => Number(t.id) === Number(taskId));
+  const title = (found?.description ?? "").toString().trim();
+  if (title) return `#${taskId} ${title}`;
+  return `#${taskId}`;
+}
 
 export function useGtppComments(
   updateCommentCount: (taskItemId: number, action: "add" | "remove") => void,
-  ws: MutableRefObject<GtppWebSocket>
+  ws: MutableRefObject<GtppWebSocket>,
+  taskList?: IGtppTaskSummary[]
 ) {
   const [comment, setComment] = useState<ICommentState>({ isComment: false, data: [] });
 
@@ -170,14 +178,15 @@ export function useGtppComments(
             ? "(anexo enviado)"
             : "(comentário sem texto)";
 
+        const taskRef = formatTaskRef(taskId, taskList);
         dispatchAppNotification({
           source: "gtpp",
-          title: `${authorName} comentou`,
+          title: `${authorName} comentou em ${taskRef}`,
           message: snippet,
           type: "info",
           task_id: taskId,
           externalId: `gtpp-comment-${taskItemId}-${latest.id}`,
-          extra: { task_item_id: taskItemId, comment_id: latest.id, has_file: hasFile },
+          extra: { task_item_id: taskItemId, comment_id: latest.id, has_file: hasFile, task_ref: taskRef },
         });
       } catch (error: unknown) {
         console.error(
@@ -185,21 +194,23 @@ export function useGtppComments(
         );
       }
     },
-    [fetchData, userLog?.id]
+    [fetchData, userLog?.id, taskList]
   );
 
   const notifyDeletedComment = useCallback(
     (taskId: number, taskItemId: number, commentId?: number): void => {
+      const taskRef = formatTaskRef(taskId, taskList);
       dispatchAppNotification({
         source: "gtpp",
-        title: "Comentário removido",
+        title: `Comentário removido em ${taskRef}`,
         message: "Um comentário foi removido em uma tarefa que você acompanha.",
         type: "warning",
         task_id: taskId,
         externalId: `gtpp-comment-del-${taskItemId}-${commentId ?? Date.now()}`,
+        extra: { task_ref: taskRef },
       });
     },
-    []
+    [taskList]
   );
 
   return {

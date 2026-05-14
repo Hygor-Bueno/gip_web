@@ -26,11 +26,6 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   } = useGtppStates();
 
   const {
-    notifications, setNotifications, onSounds, setOnSounds,
-    updateNotification, requestNotificationPermission, loadInitialNotifications,
-  } = useGtppNotifications(states);
-
-  const {
     task, setTask, taskDetails, setTaskDetails, taskPercent, setTaskPercent,
     getTask, setGetTask, isAdm, setIsAdm,
     loadTasks, reqTasks, getTaskInformations, updateCommentCount,
@@ -39,11 +34,16 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   } = useGtppTasks();
 
   const {
+    notifications, setNotifications, onSounds, setOnSounds,
+    updateNotification, requestNotificationPermission, loadInitialNotifications,
+  } = useGtppNotifications(states, getTask);
+
+  const {
     comment, setComment,
     getComment, getCountComment,
     sendComment, deleteComment, editComment, notifyMentionWs,
     notifyIncomingComment, notifyDeletedComment,
-  } = useGtppComments(updateCommentCount, ws);
+  } = useGtppComments(updateCommentCount, ws, getTask);
 
   const {
     checkedItem, checkTaskComShoDepSub, handleAddTask,

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CustomNotification, iStates } from "../../../../Interface/iGIPP";
-import { IApiResponse, IWsMessage } from "../types/gtppTypes";
+import { IApiResponse, IGtppTaskSummary, IWsMessage } from "../types/gtppTypes";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import NotificationGTPP from "../../Class/NotificationGTPP";
@@ -8,7 +8,7 @@ import { handleNotification } from "../../../../Util/Utils";
 import { dispatchAppNotification } from "../../../../Context/NotificationHubContext";
 import soundFile from "../../../../Assets/Sounds/notify.mp3";
 
-export function useGtppNotifications(states: iStates[]) {
+export function useGtppNotifications(states: iStates[], taskList?: IGtppTaskSummary[]) {
   const [notifications, setNotifications] = useState<CustomNotification[]>([]);
   const [onSounds, setOnSounds] = useState<boolean>(false);
 
@@ -21,7 +21,7 @@ export function useGtppNotifications(states: iStates[]) {
         new Audio(soundFile).play().catch((e: unknown) => console.error(e));
       }
       const notify = new NotificationGTPP();
-      const req = await notify.loadNotify(items, states);
+      const req = await notify.loadNotify(items, states, taskList);
       if (req === undefined) throw new Error("No data");
       if (notify.list.length === 0) return;
       setNotifications((prev) => [...prev, ...notify.list]);
