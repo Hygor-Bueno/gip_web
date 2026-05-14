@@ -2,6 +2,7 @@ import { useState, useCallback, MutableRefObject } from "react";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 import { handleNotification } from "../../../../Util/Utils";
+import { dispatchAppNotification } from "../../../../Context/NotificationHubContext";
 import { IApiResponse, IComment, ICommentState, IUserTaskElement } from "../types/gtppTypes";
 import GtppWebSocket from "../GtppWebSocket";
 
@@ -138,9 +139,73 @@ export function useGtppComments(
     []
   );
 
+  const notifyIncomingComment = useCallback(
+    async (taskId: number, taskItemId: number, senderUserId?: number): Promise<void> => {
+      if (!taskItemId) return;
+      if (senderUserId && Number(senderUserId) === Number(userLog?.id)) return;
+      try {
+        const res = await fetchData({
+          method: "GET",
+          params: null,
+          pathFile: "GTPP/TaskItemResponse.php",
+          urlComplement: `&task_item_id=${taskItemId}`,
+          exception: ["No data"],
+        }) as IApiResponse<IComment[]>;
+
+        if (!res || res.error || !Array.isArray(res.data) || res.data.length === 0) return;
+
+        const latest = res.data.reduce<IComment>(
+          (best, cur) => (Number(cur.id) > Number(best.id) ? cur : best),
+          res.data[0]
+        );
+
+        const authorName = (latest.name && latest.name.trim()) || "Alguém";
+        const rawText = (latest.comment ?? "").toString().trim();
+        const hasFile = Boolean(latest.file);
+        const snippet = rawText
+          ? rawText.length > 140
+            ? `${rawText.slice(0, 137)}...`
+            : rawText
+          : hasFile
+            ? "(anexo enviado)"
+            : "(comentário sem texto)";
+
+        dispatchAppNotification({
+          source: "gtpp",
+          title: `${authorName} comentou`,
+          message: snippet,
+          type: "info",
+          task_id: taskId,
+          externalId: `gtpp-comment-${taskItemId}-${latest.id}`,
+          extra: { task_item_id: taskItemId, comment_id: latest.id, has_file: hasFile },
+        });
+      } catch (error: unknown) {
+        console.error(
+          `Erro ao notificar comentário recebido: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    },
+    [fetchData, userLog?.id]
+  );
+
+  const notifyDeletedComment = useCallback(
+    (taskId: number, taskItemId: number, commentId?: number): void => {
+      dispatchAppNotification({
+        source: "gtpp",
+        title: "Comentário removido",
+        message: "Um comentário foi removido em uma tarefa que você acompanha.",
+        type: "warning",
+        task_id: taskId,
+        externalId: `gtpp-comment-del-${taskItemId}-${commentId ?? Date.now()}`,
+      });
+    },
+    []
+  );
+
   return {
     comment, setComment,
     getComment, getCountComment,
     sendComment, deleteComment, editComment, notifyMentionWs,
+    notifyIncomingComment, notifyDeletedComment,
   };
 }

@@ -42,6 +42,7 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     comment, setComment,
     getComment, getCountComment,
     sendComment, deleteComment, editComment, notifyMentionWs,
+    notifyIncomingComment, notifyDeletedComment,
   } = useGtppComments(updateCommentCount, ws);
 
   const {
@@ -97,6 +98,12 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const isTargetingCurrentTask = task?.id != null && task.id === response.task_id;
 
     if (response.type === 9) {
+      if (response.object?.task_item_id) {
+        notifyDeletedComment(
+          Number(response.task_id),
+          Number(response.object.task_item_id)
+        );
+      }
       if (isTargetingCurrentTask && response.object?.task_item_id) {
         updateCommentCount(response.object.task_item_id, "remove");
         await getComment(response.object.task_item_id);
@@ -111,6 +118,13 @@ export const GtppWsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     if (response.type === 7) {
+      if (response.object?.task_item_id) {
+        void notifyIncomingComment(
+          Number(response.task_id),
+          Number(response.object.task_item_id),
+          response.send_user_id != null ? Number(response.send_user_id) : undefined
+        );
+      }
       if (isTargetingCurrentTask && response.object?.task_item_id) {
         updateCommentCount(response.object.task_item_id, "add");
         await getComment(response.object.task_item_id);
