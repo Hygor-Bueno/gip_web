@@ -18,38 +18,136 @@ import { useRegisterTourSteps } from "../../../../Context/TourContext";
 import { TourStep } from "../../../../Components/ProductTour";
 
 export default function GtppMain(props: GtppMainProps) {
+  const openNavbar = React.useCallback(() => {
+    const toggle = document.querySelector<HTMLButtonElement>('[data-tour="navbar-toggle"]');
+    const collapse = document.querySelector('#basic-navbar-nav');
+    const isOpen = collapse?.classList.contains('show');
+    if (toggle && !isOpen) toggle.click();
+  }, []);
+
   const tourSteps: TourStep[] = useMemo(() => [
+    // --- Navegação ---
     {
-      selector: '[data-tour="gtpp-themes"]',
-      title: 'Filtro por Tema',
-      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Use este seletor para focar apenas tarefas de um tema específico — útil quando o quadro está cheio.',
+      selector: '[data-tour="navbar-toggle"]',
+      title: 'Menu de Navegação',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Botão que expande o menu lateral do GTPP com os atalhos para Home, Tarefas, Temas e Sair.',
+      placement: 'right',
+    },
+    {
+      selector: '[data-tour="nav-link-/GIPP"]',
+      title: 'Menu — Home',
+      body: 'Lorem ipsum dolor sit amet. Volta para a tela inicial com a grade de módulos do GIPP.',
+      placement: 'right',
+      setup: openNavbar,
+    },
+    {
+      selector: '[data-tour="nav-link-/GIPP/GTPP"]',
+      title: 'Menu — Tarefas',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Atalho para o quadro Kanban principal do GTPP que você está vendo agora.',
+      placement: 'right',
+      setup: openNavbar,
+    },
+    {
+      selector: '[data-tour="nav-link-/GIPP/GTPP/create/theme"]',
+      title: 'Menu — Temas',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Crie e edite temas para classificar suas tarefas em categorias visuais.',
+      placement: 'right',
+      setup: openNavbar,
+    },
+    {
+      selector: '[data-tour="nav-link-/"]',
+      title: 'Menu — Sair',
+      body: 'Lorem ipsum dolor sit amet. Encerra a sessão com segurança removendo o token armazenado localmente.',
+      placement: 'right',
+      setup: openNavbar,
+    },
+
+    // --- Botões de ação no topo ---
+    {
+      selector: `[data-tour^="gtpp-btn-check_adm_"]`,
+      title: 'Modo Administrador',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Eleva sua sessão para visualizar e gerenciar tarefas de toda a equipe (disponível para usuários com perfil de administrador).',
       placement: 'bottom',
     },
     {
-      selector: '[data-tour="gtpp-states"]',
-      title: 'Filtro de Estados',
-      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aqui você ativa/desativa as colunas do Kanban para mostrar só os estados que importam agora.',
+      selector: '[data-tour="gtpp-btn-gttp_exp_ret"]',
+      title: 'Exibir Usuários',
+      body: 'Lorem ipsum dolor sit amet. Mostra ou oculta o cabeçalho com o seu cartão de usuário e informações de equipe.',
       placement: 'bottom',
+    },
+    {
+      selector: '[data-tour="gtpp-btn-check_filter"]',
+      title: 'Filtros da Página',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Abre o painel completo de filtros: busca por texto, prioridade, datas, usuário vinculado e status.',
+      placement: 'bottom',
+    },
+    {
+      selector: '[data-tour="gtpp-btn-reload_tasks"]',
+      title: 'Recarregar Tarefas',
+      body: 'Lorem ipsum dolor sit amet. Faz uma nova chamada ao servidor e limpa os filtros aplicados na tela.',
+      placement: 'bottom',
+    },
+
+    // --- Controles à direita do header ---
+    {
+      selector: '[data-tour="gtpp-menu-toggle"]',
+      title: 'Ocultar / Exibir Menu (Mobile)',
+      body: 'Lorem ipsum dolor sit amet. Em telas pequenas, este botão mostra ou esconde o menu lateral para você ter mais espaço para o quadro.',
+      placement: 'left',
     },
     {
       selector: '[data-tour="gtpp-sound"]',
       title: 'Som das Notificações',
-      body: 'Lorem ipsum dolor sit amet. Liga ou desliga o som que toca quando chega uma notificação de tarefa ou comentário.',
+      body: 'Lorem ipsum dolor sit amet. Liga ou desliga o som que toca quando chega uma notificação de tarefa, comentário ou mudança de status.',
       placement: 'left',
     },
     {
       selector: '[data-tour="gtpp-bell"]',
       title: 'Central de Notificações',
-      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sino com tudo que aconteceu nas suas tarefas e nas conversas do CLPP. Clique numa notificação de comentário para ir direto até ele.',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sino com tudo que aconteceu nas suas tarefas e nas conversas do CLPP. Clique em uma notificação de comentário para abrir direto a subtarefa correspondente.',
       placement: 'left',
     },
+
+    // --- Filtros do quadro ---
+    {
+      selector: '[data-tour="gtpp-themes"]',
+      title: 'Filtro por Tema',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Selecione um tema para ver apenas as tarefas relacionadas. "Sem vínculo" mostra as que não foram classificadas.',
+      placement: 'bottom',
+    },
+    {
+      selector: '[data-tour="gtpp-states"]',
+      title: 'Filtro de Estados',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Clique e ative ou desative as colunas do Kanban — útil quando você quer ver só "Em andamento" ou só "Concluídas".',
+      placement: 'bottom',
+    },
+
+    // --- Quadro Kanban e botões de coluna ---
     {
       selector: '[data-tour="gtpp-board"]',
       title: 'Quadro Kanban',
-      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aqui ficam suas tarefas distribuídas pelos estados. Clique em uma tarefa para abrir o detalhe, comentar e gerenciar subtarefas.',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aqui ficam suas tarefas distribuídas pelos estados ativos. Clique em uma tarefa para abrir o detalhe, gerenciar subtarefas, comentários e vincular usuários.',
       placement: 'top',
     },
-  ], []);
+    {
+      selector: '[data-tour="gtpp-add-task"]',
+      title: 'Nova Tarefa',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Abre o formulário de criação de tarefa com título, datas, prioridade, companhia, loja e departamento.',
+      placement: 'top',
+    },
+    {
+      selector: '[data-tour="gtpp-export-csv"]',
+      title: 'Exportar CSV',
+      body: 'Lorem ipsum dolor sit amet. Baixa as tarefas desta coluna em formato CSV para abrir no Excel ou em outras planilhas.',
+      placement: 'top',
+    },
+    {
+      selector: '[data-tour="gtpp-export-pdf"]',
+      title: 'Exportar PDF',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Abre o gerador de PDF com as tarefas formatadas para impressão ou compartilhamento.',
+      placement: 'top',
+    },
+  ], [openNavbar]);
 
   useRegisterTourSteps(tourSteps, [tourSteps]);
 
@@ -178,11 +276,15 @@ export default function GtppMain(props: GtppMainProps) {
             <div className="flex-grow-1 me-2 w-100">{props.isHeader ? <CardUser {...props.userLog} name={props.userLog.name} /> : null}</div>
             <div className="d-flex justify-content-between">
               <div className="d-flex flex-row mt-2 gap-2 flex-wrap">
-                {props.listButtonInputs.map((btn: any, idx: number) => (<InputCheckButton key={`btn_header_gtpp_${idx}`} {...btn} />))}
+                {props.listButtonInputs.map((btn: any, idx: number) => (
+                  <span key={`btn_header_gtpp_${idx}`} data-tour={`gtpp-btn-${btn.inputId}`}>
+                    <InputCheckButton {...btn} />
+                  </span>
+                ))}
               </div>
               <div className="d-flex gap-3 align-items-center">
                 <React.Fragment>
-                  <button title={props.openMenu ? "Ocultar menu" : "Exibir menu"} onClick={() => props.setOpenMenu(!props.openMenu)} className="btn p-0 d-block d-md-none">
+                  <button data-tour="gtpp-menu-toggle" title={props.openMenu ? "Ocultar menu" : "Exibir menu"} onClick={() => props.setOpenMenu(!props.openMenu)} className="btn p-0 d-block d-md-none">
                     <i className={`fa-solid fa-eye${props.openMenu ? "-slash" : ""}`}></i>
                   </button>
                   <button data-tour="gtpp-sound" title={props.onSounds ? "Som ligado" : "Som desligado"} onClick={() => props.setOnSounds(!props.onSounds)} className="btn p-0">

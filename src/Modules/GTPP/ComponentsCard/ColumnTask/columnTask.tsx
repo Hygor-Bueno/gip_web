@@ -209,10 +209,10 @@ const ColumnTaskState: React.FC<ColumnTaskStateProps> = ({
                 className={`columnTaskState-title rounded-bottom d-flex align-items-center justify-content-around ${buttonHeader ? 'justify-content-between' : 'justify-content-center'}`}
                 style={{ background: `#${bg_color}` }}
             >
-                <i className="fa save cursor-pointer text-white fa-file-csv" onClick={exportCsv} title="Exportar CSV" />
-                <i className="fa file cursor-pointer text-white fa-file-pdf" onClick={exportPdf} title="Exportar PDF" />
+                <i {...(is_first_column ? { 'data-tour': 'gtpp-export-csv' } : {})} className="fa save cursor-pointer text-white fa-file-csv" onClick={exportCsv} title="Exportar CSV" />
+                <i {...(is_first_column ? { 'data-tour': 'gtpp-export-pdf' } : {})} className="fa file cursor-pointer text-white fa-file-pdf" onClick={exportPdf} title="Exportar PDF" />
                 {is_first_column && (
-                    <i className="fa add cursor-pointer text-white fa-circle-plus" onClick={addTask} title="Nova tarefa" />
+                    <i data-tour="gtpp-add-task" className="fa add cursor-pointer text-white fa-circle-plus" onClick={addTask} title="Nova tarefa" />
                 )}
             </div>
 
