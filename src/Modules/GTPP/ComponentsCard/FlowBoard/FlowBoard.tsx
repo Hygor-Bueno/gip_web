@@ -16,14 +16,29 @@ import "./FlowBoard.css";
 import { generateAndDownloadCSV, Task } from "../../../../Class/FileGenerator";
 import { useRegisterTourSteps } from "../../../../Context/TourContext";
 import { TourStep } from "../../../../Components/ProductTour";
+import { useWebSocket } from "../../Context/GtppWsContext";
 
 export default function GtppMain(props: GtppMainProps) {
+  const { setTask, setTaskPercent } = useWebSocket();
+
   const openNavbar = React.useCallback(() => {
     const toggle = document.querySelector<HTMLButtonElement>('[data-tour="navbar-toggle"]');
     const collapse = document.querySelector('#basic-navbar-nav');
     const isOpen = collapse?.classList.contains('show');
     if (toggle && !isOpen) toggle.click();
   }, []);
+
+  const closeTaskModal = React.useCallback(() => {
+    props.setOpenCardDefault(false);
+  }, [props]);
+
+  const openFirstTask = React.useCallback(() => {
+    const first = props.getTask?.[0];
+    if (!first) return;
+    setTask(first);
+    setTaskPercent(Number(first.percent ?? 0));
+    props.setOpenCardDefault(true);
+  }, [props, setTask, setTaskPercent]);
 
   const tourSteps: TourStep[] = useMemo(() => [
     // --- Navegação ---
@@ -126,28 +141,83 @@ export default function GtppMain(props: GtppMainProps) {
     {
       selector: '[data-tour="gtpp-board"]',
       title: 'Quadro Kanban',
-      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aqui ficam suas tarefas distribuídas pelos estados ativos. Clique em uma tarefa para abrir o detalhe, gerenciar subtarefas, comentários e vincular usuários.',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Visão geral do quadro: aqui você enxerga rapidamente em que estado cada tarefa está e como o trabalho da equipe está distribuído.',
       placement: 'top',
+      setup: closeTaskModal,
     },
     {
       selector: '[data-tour="gtpp-add-task"]',
       title: 'Nova Tarefa',
       body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Abre o formulário de criação de tarefa com título, datas, prioridade, companhia, loja e departamento.',
       placement: 'top',
+      setup: closeTaskModal,
     },
     {
       selector: '[data-tour="gtpp-export-csv"]',
       title: 'Exportar CSV',
       body: 'Lorem ipsum dolor sit amet. Baixa as tarefas desta coluna em formato CSV para abrir no Excel ou em outras planilhas.',
       placement: 'top',
+      setup: closeTaskModal,
     },
     {
       selector: '[data-tour="gtpp-export-pdf"]',
       title: 'Exportar PDF',
       body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Abre o gerador de PDF com as tarefas formatadas para impressão ou compartilhamento.',
       placement: 'top',
+      setup: closeTaskModal,
     },
-  ], [openNavbar]);
+
+    // --- Tarefa (card individual) ---
+    {
+      selector: '#moduleGTPP .card-task-container',
+      title: 'Cartão de uma Tarefa',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cada cartão representa uma tarefa. No topo aparece o número e o título, à direita um sino com notificações específicas dessa tarefa, abaixo as datas inicial e final, e no rodapé o ícone do responsável, a barra de progresso e o selo de prioridade (baixa, média, alta).',
+      placement: 'right',
+      setup: closeTaskModal,
+    },
+    {
+      selector: '[data-tour="gtpp-modal-root"]',
+      title: 'Detalhe da Tarefa',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ao clicar em um cartão, a tarefa abre nesta visão detalhada. Aqui você gerencia tudo: descrição, equipe, subtarefas, comentários e mudança de estado.',
+      placement: 'left',
+      setup: openFirstTask,
+    },
+    {
+      selector: '[data-tour="gtpp-modal-header"]',
+      title: 'Cabeçalho da Tarefa',
+      body: 'Lorem ipsum dolor sit amet. Mostra o título da tarefa, a barra de progresso geral e o botão de fechar.',
+      placement: 'bottom',
+      setup: openFirstTask,
+    },
+    {
+      selector: '[data-tour="gtpp-modal-avatars"]',
+      title: 'Equipe Vinculada',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lista de usuários atribuídos à tarefa. Você pode adicionar ou remover colaboradores conforme o avanço do trabalho.',
+      placement: 'bottom',
+      setup: openFirstTask,
+    },
+    {
+      selector: '[data-tour="gtpp-modal-action"]',
+      title: 'Mudar Estado da Tarefa',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Botão de ação que muda o estado conforme a situação atual: parar, finalizar, retomar, solicitar mais dias, etc.',
+      placement: 'bottom',
+      setup: openFirstTask,
+    },
+    {
+      selector: '[data-tour="gtpp-modal-description"]',
+      title: 'Descrição',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Campo principal de descrição da tarefa — explica o contexto, escopo e observações relevantes.',
+      placement: 'bottom',
+      setup: openFirstTask,
+    },
+    {
+      selector: '[data-tour="gtpp-modal-body"]',
+      title: 'Subtarefas e Ferramentas',
+      body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lista de subtarefas (com checkbox, observações e perguntas), atalhos para Companhia/Loja/Departamento, expandir/retrair e comentários por subtarefa.',
+      placement: 'top',
+      setup: openFirstTask,
+    },
+  ], [openNavbar, openFirstTask, closeTaskModal]);
 
   useRegisterTourSteps(tourSteps, [tourSteps]);
 

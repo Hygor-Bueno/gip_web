@@ -132,12 +132,14 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
 
       <div className="d-flex justify-content-between align-items-center" style={{ height: "10%" }}>
 
-        <AvatarGroup
-          dataTask={task}
-          users={taskDetails.data ? taskDetails.data.task_user : []}
-        />
+        <div data-tour="gtpp-modal-avatars">
+          <AvatarGroup
+            dataTask={task}
+            users={taskDetails.data ? taskDetails.data.task_user : []}
+          />
+        </div>
 
-        <div>
+        <div data-tour="gtpp-modal-action">
 
           {ListTask.openModalQuastionTask && (
             <MessageModal
@@ -168,11 +170,13 @@ const BodyDefault: React.FC<BodyDefaultProps> = (props) => {
 
       <div className="d-flex flex-column justify-content-between" style={{ height: "90%" }}>
 
-        <FormTextAreaDefault
-          task={task}
-          details={props?.details?.data}
-          disabledForm={props.disabledForm}
-        />
+        <div data-tour="gtpp-modal-description">
+          <FormTextAreaDefault
+            task={task}
+            details={props?.details?.data}
+            disabledForm={props.disabledForm}
+          />
+        </div>
 
         <div className={expand ? "expandFullScreen" : "d-flex flex-column h-75"}>
 
@@ -293,19 +297,21 @@ const ModalDefault: React.FC<TaskItem> = (props) => {
   return (
     <div className="zIndex99 row">
 
-      <div className="col-11 col-sm-10 col-md-8 col-lg-8 col-xl-6 h-100 position-relative modal-flex">
+      <div className="col-11 col-sm-10 col-md-8 col-lg-8 col-xl-6 h-100 position-relative modal-flex" data-tour="gtpp-modal-root">
 
-        <section className="header-modal-default my-2">
+        <section className="header-modal-default my-2" data-tour="gtpp-modal-header">
           <HeaderModal
             color="danger"
             description={task.description ?? ""}
             taskParam={task}
             onClick={props.close_modal}
           />
-          <ProgressBar progressValue={taskPercent} colorBar="#006645" />
+          <div data-tour="gtpp-modal-progress">
+            <ProgressBar progressValue={taskPercent} colorBar="#006645" />
+          </div>
         </section>
 
-        <section className="body-modal-default flex-grow-1" style={{ overflow: "auto", backgroundColor: "white" }}>
+        <section className="body-modal-default flex-grow-1" data-tour="gtpp-modal-body" style={{ overflow: "auto", backgroundColor: "white" }}>
           <BodyDefault message={seNotificationMessage} details={props.details} />
         </section>
 
