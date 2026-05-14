@@ -49,7 +49,7 @@ function ensureGlobalHook(setStats: (fn: (s: PerfStats) => PerfStats) => void) {
 }
 
 export default function PerfOverlay(): JSX.Element | null {
-  if (process.env.NODE_ENV !== "development") return null;
+  const isDev = process.env.NODE_ENV === "development";
 
   const [visible, setVisible] = useState<boolean>(() => {
     return localStorage.getItem("gipp_perf_overlay") !== "hidden";
@@ -79,7 +79,7 @@ export default function PerfOverlay(): JSX.Element | null {
   }, []);
 
   useEffect(() => {
-    if (!visible) return;
+    if (!isDev || !visible) return;
 
     let frames = 0;
     let raf = 0;
@@ -132,6 +132,8 @@ export default function PerfOverlay(): JSX.Element | null {
       observer?.disconnect();
     };
   }, [visible]);
+
+  if (!isDev) return null;
 
   if (!visible) {
     return (
