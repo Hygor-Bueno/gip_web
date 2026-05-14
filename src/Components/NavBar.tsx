@@ -22,7 +22,7 @@ const NavBar: React.FC<NavBarProps> = ({ list }) => {
         <Navbar expand="" id="navGipp" className="align-items-start bg-transparent">
             <Container>
                 {/* Bug corrigido: A função agora é chamada corretamente */}
-                <Navbar.Toggle aria-controls="basic-navbar-nav" onClick={handleToggleClick} />
+                <Navbar.Toggle aria-controls="basic-navbar-nav" onClick={handleToggleClick} data-tour="navbar-toggle" />
                 
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav>
@@ -35,11 +35,12 @@ const NavBar: React.FC<NavBarProps> = ({ list }) => {
                                 };
 
                                 return (
-                                    <Nav.Link 
-                                        key={index} 
-                                        as={Link} 
+                                    <Nav.Link
+                                        key={index}
+                                        as={Link}
                                         to={item?.page || "/GIPP"}
                                         onClick={handleItemClick}
+                                        data-tour={`nav-link-${item?.page || "/GIPP"}`}
                                     >
                                         <div className="d-flex align-items-center">
                                             {item?.icon && <div className={item.icon}></div>}
