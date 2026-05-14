@@ -61,6 +61,15 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return clearChatAll();
     }, [userLog]);
 
+    useEffect(() => {
+        const wsInstance = ws.current;
+        return () => {
+            try {
+                wsInstance?.disconnect();
+            } catch { /* noop */ }
+        };
+    }, []);
+
     function clearChatAll() {
         closeChat();
         changeChat();

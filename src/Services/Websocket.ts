@@ -1,6 +1,3 @@
-let ws: WebSocket;
-
-
 interface NotifyMessage {
   objectType?: string;
   user?: string;
@@ -18,6 +15,7 @@ export default class WebSocketCLPP {
   tokens: any;
   callbackOnMessage!: (notify: NotifyMessage) => Promise<void>;
 
+  private socket: WebSocket | null = null;
   private intentionalClose: boolean = false;
   private reconnectAttempts: number = 0;
   private reconnectTimeoutRef: ReturnType<typeof setTimeout> | null = null;
@@ -34,13 +32,19 @@ export default class WebSocketCLPP {
   }
 
   connectWebSocket(): void {
-    if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+    if (
+      this.socket &&
+      (this.socket.readyState === WebSocket.OPEN ||
+        this.socket.readyState === WebSocket.CONNECTING)
+    ) {
       return;
     }
     this.intentionalClose = false;
     try {
-      const localWs = new WebSocket(`${process.env.REACT_APP_API_GIPP_BASE_WS}:${process.env.REACT_APP_API_GIPP_PORT_SOCKET_DEFAULT}`);
-      ws = localWs;
+      const localWs = new WebSocket(
+        `${process.env.REACT_APP_API_GIPP_BASE_WS}:${process.env.REACT_APP_API_GIPP_PORT_SOCKET_DEFAULT}`
+      );
+      this.socket = localWs;
 
       localWs.onopen = () => {
         this.reconnectAttempts = 0;
@@ -58,7 +62,6 @@ export default class WebSocketCLPP {
       localWs.onmessage = (ev: MessageEvent) => {
         this.onMessage(ev);
       };
-
     } catch (error) {
       console.error(error);
       this.scheduleReconnect();
@@ -108,10 +111,11 @@ export default class WebSocketCLPP {
       this.reconnectTimeoutRef = null;
     }
     try {
-      if (ws && ws.readyState !== WebSocket.CLOSED) ws.close();
+      if (this.socket && this.socket.readyState !== WebSocket.CLOSED) this.socket.close();
     } catch {
       /* noop */
     }
+    this.socket = null;
     this.isConnected = false;
     this.reconnectAttempts = 0;
   }
@@ -125,29 +129,21 @@ export default class WebSocketCLPP {
     }
   }
 
+  private sendIfOpen(payload: object): void {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify(payload));
+    }
+  }
+
   async informPreview(idSender: string): Promise<void> {
-    const jsonString: { type: number; send_id: string } = {
-      type: 3,
-      send_id: idSender,
-    };
-    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(jsonString));
+    this.sendIfOpen({ type: 3, send_id: idSender });
   }
 
   informSending(type: number, send_id: string, message_id: string): void {
-    const jsonString: { type: number; send_id: string; last_id: string } = {
-      type,
-      send_id,
-      last_id: message_id,
-    };
-    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(jsonString));
+    this.sendIfOpen({ type, send_id, last_id: message_id });
   }
 
   informSendingGroup(type: number, group_id: string, message_id: string): void {
-    const jsonString: { type: number; group_id: string; last_id: string } = {
-      type,
-      group_id,
-      last_id: message_id,
-    };
-    if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(jsonString));
+    this.sendIfOpen({ type, group_id, last_id: message_id });
   }
 }
