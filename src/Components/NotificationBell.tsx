@@ -4,6 +4,7 @@ import {
   NotificationSource,
   useNotificationHub,
 } from "../Context/NotificationHubContext";
+import { useWebSocket as useGtppWs } from "../Modules/GTPP/Context/GtppWsContext";
 import "./NotificationBell.css";
 
 type SourceFilter = "all" | NotificationSource;
@@ -48,6 +49,8 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
     clearAll,
   } = useNotificationHub();
 
+  const { getTask, setTask, setTaskPercent, setOpenCardDefault, task: currentTask } = useGtppWs();
+
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<SourceFilter>("all");
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -87,9 +90,27 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
     return unreadCount;
   }, [notifications, props.idTask, unreadCount]);
 
+  function openGtppTask(taskId: number): boolean {
+    const found = getTask?.find((t) => Number(t.id) === Number(taskId));
+    if (!found) return false;
+    if (Number(currentTask?.id) === Number(taskId)) {
+      setOpenCardDefault(true);
+      return true;
+    }
+    setTask(found);
+    setTaskPercent(Number(found.percent ?? 0));
+    setOpenCardDefault(true);
+    return true;
+  }
+
   function handleItemClick(n: HubNotification, e: React.MouseEvent) {
     e.stopPropagation();
     if (!n.read) markAsRead(n.id);
+
+    if (n.source === "gtpp" && n.task_id) {
+      const opened = openGtppTask(n.task_id);
+      if (opened) setOpen(false);
+    }
   }
 
   return (
