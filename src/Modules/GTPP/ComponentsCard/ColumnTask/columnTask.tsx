@@ -167,7 +167,10 @@ const ColumnTaskState: React.FC<ColumnTaskStateProps> = ({
                     {/* Painel de filtro */}
                     <div style={{ position: 'relative' }}>
                         {filterHandler && (
-                            <MinimalFilterModel>
+                            <MinimalFilterModel
+                                title={`Filtros — ${title}`}
+                                onClose={() => setFilterHandler(false)}
+                            >
                                 <div ref={filterRef}>
                                     <ContentFilter filter={filterHandlers} />
                                 </div>

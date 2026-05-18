@@ -1,0 +1,158 @@
+/* ── Painel de filtro minimalista ─────────────────────────────────── */
+
+.gipp-min-filter {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 260px;
+  max-width: 340px;
+  background: #ffffff;
+  color: #212529;
+  border-radius: 12px;
+  border: 1px solid #e6e8ec;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.05),
+    0 12px 32px rgba(16, 24, 40, 0.12);
+  z-index: 1080;
+  font-size: 0.82rem;
+  overflow: hidden;
+  animation: gipp-min-filter-in 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top right;
+}
+
+@keyframes gipp-min-filter-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Seta apontando para o botão de filtro */
+.gipp-min-filter::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-top: 1px solid #e6e8ec;
+  border-left: 1px solid #e6e8ec;
+  transform: rotate(45deg);
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
+
+.gipp-min-filter__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #fafbfc 0%, #f4f6f8 100%);
+  border-bottom: 1px solid #eef0f3;
+}
+
+.gipp-min-filter__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #344054;
+  letter-spacing: 0.01em;
+}
+
+.gipp-min-filter__title i {
+  color: #6c757d;
+  font-size: 0.75rem;
+}
+
+.gipp-min-filter__close {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #98a2b3;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.gipp-min-filter__close:hover {
+  background: rgba(220, 53, 69, 0.08);
+  color: #dc3545;
+}
+
+/* ── Body ─────────────────────────────────────────────────────────── */
+
+.gipp-min-filter__body {
+  padding: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Estilo coeso para inputs/labels comuns dentro do painel.
+   Não force: classes mais específicas dos children continuam ganhando. */
+.gipp-min-filter__body label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #475467;
+  margin-bottom: 4px;
+  margin-top: 8px;
+  letter-spacing: 0.02em;
+}
+
+.gipp-min-filter__body label:first-child {
+  margin-top: 0;
+}
+
+.gipp-min-filter__body input,
+.gipp-min-filter__body select,
+.gipp-min-filter__body textarea {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.gipp-min-filter__body input:focus,
+.gipp-min-filter__body select:focus,
+.gipp-min-filter__body textarea:focus {
+  outline: none;
+  border-color: var(--vThirdColor, #d66a2b);
+  box-shadow: 0 0 0 3px rgba(214, 106, 43, 0.12);
+}
+
+/* Scroll mais discreto */
+.gipp-min-filter__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gipp-min-filter__body::-webkit-scrollbar-thumb {
+  background: #d0d5dd;
+  border-radius: 3px;
+}
+
+.gipp-min-filter__body::-webkit-scrollbar-thumb:hover {
+  background: #98a2b3;
+}
+
+/* ── Mobile ───────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .gipp-min-filter {
+    right: -8px;
+    min-width: 240px;
+    max-width: calc(100vw - 24px);
+  }
+}
