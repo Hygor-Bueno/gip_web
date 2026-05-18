@@ -242,6 +242,7 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
         dirtyType: dirtySections.type,
         expense: { ...expense, local: resolvedLocal },
         unitId, addressActive, addressForm,
+        storeName: storeName ?? undefined,
         fuel, maintenance, fines, sinister, insurance,
       });
       if (opsCount > 0) {

@@ -25,7 +25,7 @@ function buildFuelPayload(expense: Expense, fuel: FuelData) {
 function buildMaintenancePayload(maintenance: MaintenanceData, expenId: string) {
   return {
     ...maintenance,
-    list_parts: JSON.stringify(maintenance.list_parts ?? { list: [] }),
+    list_parts: maintenance.list_parts ?? { list: [] },
     expen_id_fk: expenId,
   };
 }
@@ -152,10 +152,9 @@ describe("POST Maintenance — payload de manutenção", () => {
     expect(payload.warranty).toBe(6);
   });
 
-  it("deve conter list_parts com 2 peças (string JSON)", () => {
-    expect(typeof payload.list_parts).toBe("string");
-    const parsed = JSON.parse(payload.list_parts);
-    expect(parsed.list).toHaveLength(2);
+  it("deve conter list_parts com 2 peças (objeto)", () => {
+    expect(typeof payload.list_parts).toBe("object");
+    expect(payload.list_parts.list).toHaveLength(2);
   });
 
   it("deve conter value_parts calculado corretamente (45 + 4*28.50 = 159)", () => {
@@ -163,9 +162,8 @@ describe("POST Maintenance — payload de manutenção", () => {
   });
 
   it("deve conter descrição correta das peças", () => {
-    const parsed = JSON.parse(payload.list_parts);
-    expect(parsed.list[0].description).toBe("Filtro de óleo");
-    expect(parsed.list[1].description).toBe("Pastilha de freio");
+    expect(payload.list_parts.list[0].description).toBe("Filtro de óleo");
+    expect(payload.list_parts.list[1].description).toBe("Pastilha de freio");
   });
 });
 

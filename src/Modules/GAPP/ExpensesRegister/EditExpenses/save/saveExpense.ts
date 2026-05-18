@@ -8,6 +8,7 @@ import {
   putMaintenance, putFuel, putFines, putSinister, putInsurance,
   postMaintenance, postFuel, postFines, postSinister,
 } from "../EditExpensesAdapters";
+import { buildLocalPayload } from "./buildLocalPayload";
 
 interface SaveParams {
   activeTab: TabKey;
@@ -21,6 +22,7 @@ interface SaveParams {
   unitId: string;
   addressActive: boolean;
   addressForm: IAddressForm;
+  storeName?: string;
   fuel: FuelData;
   maintenance: MaintenanceData;
   fines: FinesData;
@@ -40,7 +42,12 @@ export async function saveExpense(p: SaveParams): Promise<number> {
 
   // 1. Cabeçalho (PUT em ExpensesRegister) — só se algo do cabeçalho mudou
   if (p.activeTab !== "insurance" && p.dirtyHeader) {
-    const placePurchasePayload = p.addressActive ? JSON.stringify(p.addressForm) : "";
+    const localPayload = buildLocalPayload({
+      freeText: p.expense.local,
+      addressActive: p.addressActive,
+      addressForm: p.addressForm,
+      storeName: p.storeName,
+    });
     const expensePayload = {
       expen_id:       p.expenId,
       date:           p.expense.date,
@@ -51,9 +58,8 @@ export async function saveExpense(p: SaveParams): Promise<number> {
       coupon_number:  p.expense.coupon_number,
       exp_type_id_fk: p.expense.exp_type_id_fk,
       driver_id_fk:   p.expense.driver_id_fk,
-      local:          p.expense.local,
+      local:          localPayload,
       store_id_fk:    p.expense.store_id_fk,
-      place_purchase: placePurchasePayload,
       unit_id:        p.unitId,
     };
     await putExpensesRegister(expensePayload);
@@ -72,7 +78,7 @@ export async function saveExpense(p: SaveParams): Promise<number> {
       case "maintenance": {
         const payload = {
           ...p.maintenance,
-          list_parts: JSON.stringify(p.maintenance.list_parts ?? { list: [] }),
+          list_parts: p.maintenance.list_parts ?? { list: [] },
           expen_id_fk: p.expenId,
         };
         p.typeIsNew ? await postMaintenance(payload) : await putMaintenance(payload);
@@ -94,7 +100,7 @@ export async function saveExpense(p: SaveParams): Promise<number> {
       case "insurance": {
         const payload = {
           ...p.insurance,
-          franchise_list: JSON.stringify(p.insurance.franchise_list ?? { list: [] }),
+          franchise_list: p.insurance.franchise_list ?? { list: [] },
           id_insurance:   p.insuranceFk,
         };
         await putInsurance(payload);

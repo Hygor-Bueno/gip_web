@@ -17,6 +17,7 @@ import {
 } from "../ReleasesAdapters";
 import { AddressForm } from "../ExpenseFields";
 import { TABS, emptyAddress } from "../constants";
+import { buildLocalPayload } from "../../../../ExpensesRegister/EditExpenses/save/buildLocalPayload";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 
@@ -211,11 +212,22 @@ export function useReleasesController({ activeId, userId, isVehicle, gappWorkGro
   }, [activeId, userId, gappWorkGroupId]);
 
   // ── Save ─────────────────────────────────────────────────────────
-  const buildExpenseWithAddress = (expTypeId: number) => ({
-    ...expense,
-    exp_type_id_fk: expTypeId,
-    place_purchase: addressActive ? JSON.stringify(addressForm) : "",
-  });
+  // O backend espera `local` como um objeto (não string) com 8 chaves
+  // já mapeadas (store / public_place / neighborhood / city / ...).
+  // `place_purchase` foi removido — o objeto `local` carrega o endereço.
+  const buildExpenseWithAddress = (expTypeId: number) => {
+    const { local: freeText, ...rest } = expense;
+    return {
+      ...rest,
+      exp_type_id_fk: expTypeId,
+      local: buildLocalPayload({
+        freeText,
+        addressActive,
+        addressForm,
+        storeName: undefined,
+      }),
+    };
+  };
 
   const insertExpenseHeader = async (expTypeId: number): Promise<string> => {
     const res = await postExpense(buildExpenseWithAddress(expTypeId));
@@ -248,7 +260,7 @@ export function useReleasesController({ activeId, userId, isVehicle, gappWorkGro
           const expenId = await insertExpenseHeader(2);
           const res = await postMaintenance({
             ...maintenance,
-            list_parts: JSON.stringify(maintenance.list_parts ?? { list: [] }),
+            list_parts: maintenance.list_parts ?? { list: [] },
             expen_id_fk: expenId,
           });
           if (res.error) throw new Error(res.message);
@@ -300,7 +312,7 @@ export function useReleasesController({ activeId, userId, isVehicle, gappWorkGro
 
           const insRes = await postInsurance({
             ...insurance,
-            franchise_list: JSON.stringify(insurance.franchise_list ?? { list: [] }),
+            franchise_list: insurance.franchise_list ?? { list: [] },
             vehicle_id_fk: vehicleId,
           });
           if (insRes.error) throw new Error(insRes.message);
