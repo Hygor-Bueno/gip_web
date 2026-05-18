@@ -77,16 +77,6 @@ const MinimalFilterModel: React.FC<MinimalFilterModelProps> = ({
           <i className="fa fa-filter" />
           <span>{title}</span>
         </div>
-        {onClose && (
-          <button
-            type="button"
-            className="gipp-min-filter__close"
-            onClick={(e) => { e.stopPropagation(); onClose(); }}
-            aria-label="Fechar filtros"
-          >
-            <i className="fa fa-times" />
-          </button>
-        )}
       </header>
       <div className="gipp-min-filter__body">{children}</div>
     </div>

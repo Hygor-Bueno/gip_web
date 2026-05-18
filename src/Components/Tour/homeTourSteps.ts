@@ -24,17 +24,19 @@ export const MODULE_DESCRIPTIONS: Record<string, { title: string; body: string }
   "3": {
     title: "GTPP — Gerenciador de Tarefas",
     body:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aqui o usuário cria, acompanha e fecha tarefas com subtarefas, comentários e quadro Kanban em tempo real. Lorem ipsum dolor sit amet.",
+      "Sistema baseado na metodologia Kanban para organização e acompanhamento de tarefas. Permite maior controle das demandas, produtividade e visualização do fluxo de trabalho.",
   },
+
   "19": {
-    title: "CFPP — Configurações",
+    title: "CFPP — RH",
     body:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Centro de configurações do sistema: permissões, departamentos, parâmetros gerais. Lorem ipsum dolor sit amet.",
+      "Modulo responsavel pelo RH - Vendas de folgas de ferias",
   },
+
   "15": {
-    title: "GAPP — Gestão de Ativos",
+    title: "GAPP — Gestão de Ativos PegPese",
     body:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cadastro e movimentação de ativos, infrações, despesas de loja, controle financeiro. Lorem ipsum dolor sit amet.",
+      "Sistema voltado ao controle e gerenciamento de ativos da empresa, incluindo movimentações, despesas, infrações e acompanhamento financeiro operacional.",
   },
 };
 
@@ -43,17 +45,17 @@ export const NAV_DESCRIPTIONS: Record<string, { title: string; body: string }> =
   "/GIPP": {
     title: "Menu — Home",
     body:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Retorna para a tela inicial com a grade de módulos disponíveis para o seu usuário.",
+      "Responsavel para navegar até a pagina onde se localiza os modulos",
   },
   "/GIPP/configuration/profile": {
     title: "Menu — Perfil",
     body:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Edite seus dados pessoais, foto de perfil e preferências de conta.",
+      "Resposavel para navegar até a pagina de perfil do usuário.",
   },
   "/": {
     title: "Menu — Sair",
     body:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Encerra a sessão atual com segurança, removendo o token armazenado.",
+      "Encerra a sessão e volta para pagina de login",
   },
 };
 
@@ -70,7 +72,7 @@ export function buildHomeTourSteps({
     selector: '[data-tour="navbar-toggle"]',
     title: "Menu de Navegação",
     body:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aqui você expande o menu lateral com as opções principais do GIPP: voltar à Home, perfil e sair. Use sempre que precisar trocar de contexto.",
+      "Aqui você expande o menu lateral com as opções principais do GIPP: voltar à Home, perfil e sair. Use sempre que precisar trocar de contexto.",
     placement: "right",
   };
 

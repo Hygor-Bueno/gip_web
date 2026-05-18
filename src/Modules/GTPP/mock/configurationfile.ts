@@ -161,7 +161,7 @@ export const fildsetsFilters = (
             className: 'w-100', 
         },
         item: {
-            label: 'Filtrar por',
+            label: 'Filtrar por titulo',
             mandatory: false,
             captureValue: {
                 type: 'text',
@@ -259,7 +259,7 @@ export const fildsetsFilters = (
             className: 'w-100', 
         },
         item: {
-            label: 'Filtrar por',
+            label: 'Filtrar por categoria',
             mandatory: false,
             captureValue: {
                 type: 'select',
