@@ -48,8 +48,15 @@ function ensureGlobalHook(setStats: (fn: (s: PerfStats) => PerfStats) => void) {
   return api;
 }
 
+/**
+ * Feature gate — overlay de perf desativado até a feature ser liberada.
+ * Para reativar: troque para `true`. As métricas (markFetch/markWs/bumpRender)
+ * continuam sendo instrumentadas mesmo com o overlay oculto.
+ */
+const PERF_OVERLAY_ENABLED = false;
+
 export default function PerfOverlay(): JSX.Element | null {
-  const isDev = process.env.NODE_ENV === "development";
+  const isDev = process.env.NODE_ENV === "development" && PERF_OVERLAY_ENABLED;
 
   const [visible, setVisible] = useState<boolean>(() => {
     return localStorage.getItem("gipp_perf_overlay") !== "hidden";
