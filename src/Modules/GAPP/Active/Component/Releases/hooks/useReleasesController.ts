@@ -246,7 +246,11 @@ export function useReleasesController({ activeId, userId, isVehicle, gappWorkGro
         }
         case "maintenance": {
           const expenId = await insertExpenseHeader(2);
-          const res = await postMaintenance({ ...maintenance, expen_id_fk: expenId });
+          const res = await postMaintenance({
+            ...maintenance,
+            list_parts: JSON.stringify(maintenance.list_parts ?? { list: [] }),
+            expen_id_fk: expenId,
+          });
           if (res.error) throw new Error(res.message);
           break;
         }

@@ -72,7 +72,11 @@ function buildFuelPayload(expense: Expense, fuel: FuelData) {
 }
 
 function buildMaintenancePayload(maintenance: MaintenanceData, expenId: string) {
-  return { ...maintenance, expen_id_fk: expenId };
+  return {
+    ...maintenance,
+    list_parts: JSON.stringify(maintenance.list_parts ?? { list: [] }),
+    expen_id_fk: expenId,
+  };
 }
 
 function buildFinesPayload(fines: FinesData, expenId: string, driverId: string) {
@@ -310,10 +314,13 @@ describe("buildMaintenancePayload — manutenção", () => {
     expect(payload.expen_id_fk).toBe("77");
   });
 
-  it("deve incluir list_parts no payload", () => {
+  it("deve incluir list_parts no payload (serializado como string JSON)", () => {
     let m = addPart(defaultMaintenance, { description: "Filtro", quantity: "2", value: "50" });
     const payload = buildMaintenancePayload(m, "77");
-    expect(payload.list_parts.list).toHaveLength(1);
+    expect(typeof payload.list_parts).toBe("string");
+    const parsed = JSON.parse(payload.list_parts);
+    expect(parsed.list).toHaveLength(1);
+    expect(parsed.list[0].description).toBe("Filtro");
   });
 
   it("deve preservar todos os campos de manutenção", () => {
