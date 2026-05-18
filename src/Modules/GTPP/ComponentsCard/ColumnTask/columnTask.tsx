@@ -158,9 +158,11 @@ const ColumnTaskState: React.FC<ColumnTaskStateProps> = ({
                             title="Limpar filtros"
                         />
                         <button
-                            className="btn fas fa-filter text-white"
+                            className={`btn fas fa-filter text-white gipp-filter-trigger${filterHandler ? " is-open" : ""}`}
                             onClick={handleFilterToggle}
-                            title="Filtrar"
+                            disabled={filterHandler}
+                            aria-pressed={filterHandler}
+                            title={filterHandler ? "Painel já aberto — clique fora para fechar" : "Filtrar"}
                         />
                     </div>
 
