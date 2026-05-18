@@ -42,7 +42,7 @@ const FormTextAreaDefault: React.FC<FormTextAreaDefaultProps> = ({
   };
 
   return (
-    <div className="d-flex align-items-end flex-column position-relative h-25">
+    <div className="d-flex align-items-end flex-column position-relative h-100">
       <textarea
         style={{ resize: "none", margin: "0px", padding: "0px" }}
         onChange={handleTextChange}

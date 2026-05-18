@@ -179,15 +179,15 @@ export function useGtppComments(
             : "(comentário sem texto)";
 
         const taskRef = formatTaskRef(taskId, taskList);
-        dispatchAppNotification({
-          source: "gtpp",
-          title: `${authorName} comentou em ${taskRef}`,
-          message: snippet,
-          type: "info",
-          task_id: taskId,
-          externalId: `gtpp-comment-${taskItemId}-${latest.id}`,
-          extra: { task_item_id: taskItemId, comment_id: latest.id, has_file: hasFile, task_ref: taskRef },
-        });
+        // dispatchAppNotification({
+        //   source: "gtpp",
+        //   title: `${authorName} comentou em ${taskRef}`,
+        //   message: snippet,
+        //   type: "info",
+        //   task_id: taskId,
+        //   externalId: `gtpp-comment-${taskItemId}-${latest.id}`,
+        //   extra: { task_item_id: taskItemId, comment_id: latest.id, has_file: hasFile, task_ref: taskRef },
+        // });
       } catch (error: unknown) {
         console.error(
           `Erro ao notificar comentário recebido: ${error instanceof Error ? error.message : String(error)}`

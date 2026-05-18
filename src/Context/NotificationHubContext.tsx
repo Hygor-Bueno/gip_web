@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 
-export type NotificationSource = "gtpp" | "clpp";
+export type NotificationSource = "gtpp" ; // | "clpp"
 export type NotificationType =
   | "success"
   | "danger"
@@ -196,7 +196,7 @@ export const NotificationHubProvider: React.FC<{ children: React.ReactNode }> = 
   );
 
   const unreadBySource = useMemo<Record<NotificationSource, number>>(() => {
-    const acc: Record<NotificationSource, number> = { gtpp: 0, clpp: 0 };
+    const acc: Record<NotificationSource, number> = { gtpp: 0}; //, clpp: 0 
     for (const n of notifications) {
       if (!n.read) acc[n.source] = (acc[n.source] ?? 0) + 1;
     }

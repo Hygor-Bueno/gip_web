@@ -15,7 +15,7 @@ interface NotificationBellProps {
 
 const SOURCE_LABEL: Record<NotificationSource, string> = {
   gtpp: "GTPP",
-  clpp: "CLPP",
+  // clpp: "CLPP",
 };
 
 const TYPE_ACCENT: Record<HubNotification["type"], string> = {
@@ -177,7 +177,7 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
           </header>
 
           <div className="gipp-bell-tabs">
-            <button
+            {/* <button
               type="button"
               className={`gipp-bell-tab ${filter === "all" ? "active" : ""}`}
               onClick={() => setFilter("all")}
@@ -191,15 +191,7 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
             >
               GTPP{" "}
               {unreadBySource.gtpp > 0 && <span>{unreadBySource.gtpp}</span>}
-            </button>
-            <button
-              type="button"
-              className={`gipp-bell-tab ${filter === "clpp" ? "active" : ""}`}
-              onClick={() => setFilter("clpp")}
-            >
-              CLPP{" "}
-              {unreadBySource.clpp > 0 && <span>{unreadBySource.clpp}</span>}
-            </button>
+            </button> */}
           </div>
 
           <ul className="gipp-bell-list">

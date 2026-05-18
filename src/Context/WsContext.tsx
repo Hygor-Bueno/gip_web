@@ -239,14 +239,14 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 shortBody,
                 photo
             );
-            dispatchAppNotification({
-                source: "clpp",
-                title: `${name} enviou uma mensagem`,
-                message: shortBody,
-                type: "info",
-                externalId: event.id ?? `${sendUserId}-${event.date ?? Date.now()}`,
-                extra: { sendUserId },
-            });
+            // dispatchAppNotification({
+            //     source: "clpp",
+            //     title: `${name} enviou uma mensagem`,
+            //     message: shortBody,
+            //     type: "info",
+            //     externalId: event.id ?? `${sendUserId}-${event.date ?? Date.now()}`,
+            //     extra: { sendUserId },
+            // });
             setContactList((prev) => {
                 const existing = prev.find((c) => c.id == sendUserId);
                 let nextList: Contact[];
