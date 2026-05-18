@@ -298,7 +298,11 @@ export function useReleasesController({ activeId, userId, isVehicle, gappWorkGro
             ));
           }
 
-          const insRes = await postInsurance({ ...insurance, vehicle_id_fk: vehicleId });
+          const insRes = await postInsurance({
+            ...insurance,
+            franchise_list: JSON.stringify(insurance.franchise_list ?? { list: [] }),
+            vehicle_id_fk: vehicleId,
+          });
           if (insRes.error) throw new Error(insRes.message);
           break;
         }
