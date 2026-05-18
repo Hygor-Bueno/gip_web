@@ -2,11 +2,10 @@ import React from "react";
 import { useTour } from "../Context/TourContext";
 
 /**
- * Feature gate — botão de tour desativado até a feature ser liberada.
- * Para reativar: troque para `true`. Toda a engenharia do tour fica
- * intacta e os steps continuam registrados; só o ponto de entrada some.
+ * Feature gate — ativado nesta branch para demonstração com o chefe.
+ * Se aprovado, o flag pode ser propagado para a main mantendo `true`.
  */
-const TOUR_ENABLED = false;
+const TOUR_ENABLED = true;
 
 export default function TourTrigger(): JSX.Element | null {
   const { open, hasSteps } = useTour();
