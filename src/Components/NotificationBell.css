@@ -61,6 +61,24 @@
   animation: gipp-bell-fade-in 0.14s ease-out;
 }
 
+/* Versão renderizada via portal no <body>: posiciona via JS (top/left
+   inline). Posição fixed para nunca ser clipada pelo overflow:hidden
+   das colunas do Kanban. */
+.gipp-bell-panel--portal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: auto;
+  max-height: min(70vh, 480px);
+  z-index: 2000;
+}
+
+/* A "setinha" do balão (::before) é desativada no modo portal porque
+   ela ficaria desalinhada — o painel não é mais filho do trigger. */
+.gipp-bell-panel--portal::before {
+  display: none;
+}
+
 @keyframes gipp-bell-fade-in {
   from {
     opacity: 0;

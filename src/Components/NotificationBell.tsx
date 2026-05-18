@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import ReactDOM from "react-dom";
 import {
   HubNotification,
   NotificationSource,
@@ -6,6 +7,10 @@ import {
 } from "../Context/NotificationHubContext";
 import { useWebSocket as useGtppWs } from "../Modules/GTPP/Context/GtppWsContext";
 import "./NotificationBell.css";
+
+const PANEL_WIDTH = 360;
+const PANEL_GAP = 8;
+const VIEWPORT_MARGIN = 8;
 
 type SourceFilter = "all" | NotificationSource;
 
@@ -53,25 +58,64 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
 
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<SourceFilter>("all");
+  const [panelPos, setPanelPos] = useState<{ top: number; left: number } | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Posiciona o painel via `position: fixed` no viewport, baseado no
+   * rect do botão do sino. Necessário porque o card-task-container fica
+   * dentro de uma coluna com overflow-y:auto / overflow-x:hidden — se
+   * o painel ficasse posicionado relativo ao wrapper, seria clipado.
+   */
+  const computePosition = useCallback(() => {
+    const trigger = wrapperRef.current?.querySelector<HTMLButtonElement>(".gipp-bell-trigger");
+    if (!trigger) return;
+    const rect = trigger.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let left = rect.right - PANEL_WIDTH;
+    let top = rect.bottom + PANEL_GAP;
+    // Não passa da borda direita
+    if (left + PANEL_WIDTH > vw - VIEWPORT_MARGIN) left = vw - PANEL_WIDTH - VIEWPORT_MARGIN;
+    // Não passa da borda esquerda
+    if (left < VIEWPORT_MARGIN) left = VIEWPORT_MARGIN;
+    // Se cabe acima e o espaço abaixo está apertado, abre pra cima
+    const spaceBelow = vh - rect.bottom;
+    if (spaceBelow < 280 && rect.top > 280) {
+      top = rect.top - PANEL_GAP - 280;
+    }
+    if (top < VIEWPORT_MARGIN) top = VIEWPORT_MARGIN;
+    setPanelPos({ top, left });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (open) computePosition();
+  }, [open, computePosition]);
 
   useEffect(() => {
     if (!open) return;
     function onDoc(e: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      const t = e.target as Node;
+      const insideWrapper = wrapperRef.current?.contains(t);
+      const insidePanel = panelRef.current?.contains(t);
+      if (!insideWrapper && !insidePanel) setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
     }
+    function onResize() { computePosition(); }
     document.addEventListener("mousedown", onDoc);
     document.addEventListener("keydown", onKey);
+    window.addEventListener("resize", onResize);
+    window.addEventListener("scroll", onResize, true);
     return () => {
       document.removeEventListener("mousedown", onDoc);
       document.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("scroll", onResize, true);
     };
-  }, [open]);
+  }, [open, computePosition]);
 
   const filtered = useMemo(() => {
     const base = props.idTask
@@ -152,8 +196,16 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
         )}
       </button>
 
-      {open && (
-        <div className="gipp-bell-panel" role="dialog" aria-label="Notificações">
+      {open && panelPos && ReactDOM.createPortal(
+        <div
+          ref={panelRef}
+          className="gipp-bell-panel gipp-bell-panel--portal"
+          role="dialog"
+          aria-label="Notificações"
+          style={{ top: panelPos.top, left: panelPos.left, width: PANEL_WIDTH }}
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
           <header className="gipp-bell-header">
             <div className="gipp-bell-title">Notificações</div>
             <div className="gipp-bell-actions">
@@ -232,7 +284,8 @@ export default function NotificationBell(props: NotificationBellProps): JSX.Elem
               ))
             )}
           </ul>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
