@@ -96,9 +96,10 @@ export default function ChatInput({ isLoading, isEditing, onSend }: ChatInputPro
   };
 
   return (
-    <div className="p-3 bg-white border-top" style={{ borderColor: '#f0f0f0' }}>
+    <div data-tour="gtpp-comments-input" className="p-3 bg-white border-top" style={{ borderColor: '#f0f0f0' }}>
       <div className="d-flex align-items-center">
         <div
+          data-tour="gtpp-comments-attach"
           className={`rounded-circle me-2 d-flex justify-content-center align-items-center flex-shrink-0 bg-light ${isLoading || isEditing ? 'opacity-50' : ''}`}
           style={{ width: '40px', height: '40px', pointerEvents: isLoading || isEditing ? 'none' : 'auto' }} >
           <AttachmentFile
@@ -111,7 +112,7 @@ export default function ChatInput({ isLoading, isEditing, onSend }: ChatInputPro
             onClose={(result: any) => setAttachmentBase64(result || "")}
           />
         </div>
-        <div className="flex-grow-1 rounded-pill px-3 py-1 d-flex align-items-center position-relative" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
+        <div data-tour="gtpp-comments-textbox" className="flex-grow-1 rounded-pill px-3 py-1 d-flex align-items-center position-relative" style={{ backgroundColor: '#f3f4f6', border: '1px solid #e5e7eb' }}>
           <input
             ref={inputRef}
             type="text"
@@ -126,7 +127,7 @@ export default function ChatInput({ isLoading, isEditing, onSend }: ChatInputPro
           />
           <small className={`${text.length === MAX_CARACTERES ? 'text-danger' : 'text-muted'}`}>{text.length}/{MAX_CARACTERES}</small>
         </div>
-        <button className="btn btn-success rounded-circle ms-2 shadow-sm d-flex justify-content-center align-items-center flex-shrink-0" style={{ width: '45px', height: '45px', backgroundColor: '#198754' }} onClick={submitForm} disabled={(!text.trim() && !attachmentBase64) || isLoading || isEditing}>
+        <button data-tour="gtpp-comments-send" className="btn btn-success rounded-circle ms-2 shadow-sm d-flex justify-content-center align-items-center flex-shrink-0" style={{ width: '45px', height: '45px', backgroundColor: '#198754' }} onClick={submitForm} disabled={(!text.trim() && !attachmentBase64) || isLoading || isEditing}>
           {isLoading ? <span className="spinner-border spinner-border-sm"></span> : <i className="fa fa-solid fa-paper-plane text-white" style={{ marginLeft: '-2px' }}></i>}
         </button>
       </div>

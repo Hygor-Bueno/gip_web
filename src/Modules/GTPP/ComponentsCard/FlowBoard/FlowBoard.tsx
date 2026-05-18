@@ -40,9 +40,25 @@ export default function GtppMain(props: GtppMainProps) {
     props.setOpenCardDefault(true);
   }, [props, setTask, setTaskPercent]);
 
+  /**
+   * Para o tour cobrir o painel de comentários, precisamos:
+   * 1) Abrir a primeira tarefa (que carrega taskDetails com os items)
+   * 2) Esperar o item-comentário aparecer no DOM
+   * 3) Disparar click no ícone que abre o SocialCommentFeed
+   * Tudo dentro de setTimeouts encadeados — o measure() do ProductTour
+   * já tem retries internos para acomodar elementos que ainda não pintaram.
+   */
+  const openFirstTaskComments = React.useCallback(() => {
+    openFirstTask();
+    setTimeout(() => {
+      const btn = document.querySelector<HTMLElement>('[data-tour="gtpp-comments-trigger"]');
+      if (btn) btn.click();
+    }, 400);
+  }, [openFirstTask]);
+
   const tourSteps = useMemo(
-    () => buildGtppTourSteps({ openNavbar, openFirstTask, closeTaskModal }),
-    [openNavbar, openFirstTask, closeTaskModal]
+    () => buildGtppTourSteps({ openNavbar, openFirstTask, openFirstTaskComments, closeTaskModal }),
+    [openNavbar, openFirstTask, openFirstTaskComments, closeTaskModal]
   );
 
   useRegisterTourSteps(tourSteps, [tourSteps]);

@@ -105,8 +105,9 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
   };
 
   return (
-    <div 
-      className={`d-flex flex-column shadow-lg animate__animated ${isMobile ? 'animate__fadeInUp' : 'animate__fadeInRight'}`} 
+    <div
+      data-tour="gtpp-comments-panel"
+      className={`d-flex flex-column shadow-lg animate__animated ${isMobile ? 'animate__fadeInUp' : 'animate__fadeInRight'}`}
       style={{ height: isMobile ? '100dvh' : window.innerHeight > 1500 ? 'calc(100% - 80px)' : 'calc(100% - 36px)', width: isMobile ? '100%' : '450px', zIndex: 2000, left: isMobile ? '0' : '20px', top: isMobile ? '0' : '4vh', position: 'fixed', backgroundColor: '#fafafafa', borderRadius: isMobile ? '0' : '20px', border: '1px solid #e0e0e0', overflow: 'hidden' }}
     >
       {!isOnline && (
@@ -116,15 +117,15 @@ export default function SocialCommentFeed({ userList, editTask, onClose }: Comme
         </div>
       )}
 
-      <div className="p-3 d-flex justify-content-between align-items-center bg-white border-bottom">
+      <div data-tour="gtpp-comments-header" className="p-3 d-flex justify-content-between align-items-center bg-white border-bottom">
         <div className="overflow-hidden pe-2">
           <h6 className="m-0 fw-bold"><i className="fa-solid fa-comments me-2 text-success"></i> Comentários</h6>
           <small className='m-0 fw-bold text-secondary text-truncate d-block'>Item: {editTask.description}</small>
         </div>
-        <button className="btn btn-sm btn-light border-0 rounded-circle" onClick={onClose}><i className="fa-solid fa-xmark fs-5 text-danger"></i></button>
+        <button data-tour="gtpp-comments-close" className="btn btn-sm btn-light border-0 rounded-circle" onClick={onClose}><i className="fa-solid fa-xmark fs-5 text-danger"></i></button>
       </div>
 
-      <div ref={chatContainerRef} onScroll={handleScroll} className="flex-grow-1 p-3 overflow-auto" style={{ backgroundColor: '#f8f9fa' }}>
+      <div ref={chatContainerRef} onScroll={handleScroll} data-tour="gtpp-comments-list" className="flex-grow-1 p-3 overflow-auto" style={{ backgroundColor: '#f8f9fa' }}>
         {comment.data && comment.data.length > 0 ? (
           comment.data.map((item: any) => {
             const userData = userList?.find((u: any) => Number(u.user_id) === Number(item.user.id));

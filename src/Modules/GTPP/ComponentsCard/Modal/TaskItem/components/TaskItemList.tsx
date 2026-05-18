@@ -114,6 +114,7 @@ const TaskItemList: React.FC<ITaskItemList> = ({ taskDetails, users, isMissing, 
                   </div>
                   <React.Fragment>
                     <i
+                      {...(index === 0 ? { 'data-tour': 'gtpp-comments-trigger' } : {})}
                       style={{
                         pointerEvents: showChat ? 'none' : 'auto',
                         cursor: showChat ? 'not-allowed' : 'pointer',

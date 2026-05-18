@@ -11,57 +11,52 @@ export interface HomeAccessItem {
 }
 
 export interface BuildHomeTourStepsDeps {
-  /** Lista de itens do navbar lateral (Home, Perfil, Sair). */
   listPath: HomeNavItem[];
-  /** Lista de módulos aos quais o usuário tem acesso (vinda do backend). */
   accessList: HomeAccessItem[];
-  /** Abre o navbar collapsed antes de medir um nav-link. */
   openNavbar: () => void;
 }
 
-/** Descrições dos módulos exibidas no tour. Editar à vontade. */
+/** Descrições reais dos módulos do GIPP. */
 export const MODULE_DESCRIPTIONS: Record<string, { title: string; body: string }> = {
   "3": {
     title: "GTPP — Gerenciador de Tarefas",
     body:
-      "Sistema baseado na metodologia Kanban para organização e acompanhamento de tarefas. Permite maior controle das demandas, produtividade e visualização do fluxo de trabalho.",
+      "Sistema baseado na metodologia Kanban para organização e acompanhamento de tarefas. Permite maior controle das demandas, produtividade e visualização do fluxo de trabalho da equipe.",
   },
-
   "19": {
     title: "CFPP — RH",
     body:
-      "Modulo responsavel pelo RH - Vendas de folgas de ferias",
+      "Módulo responsável pela área de Recursos Humanos. Atualmente cobre o fluxo de vendas de folgas de férias dos colaboradores.",
   },
-
   "15": {
-    title: "GAPP — Gestão de Ativos PegPese",
+    title: "GAPP — Gestão de Ativos Peg Pese",
     body:
-      "Sistema voltado ao controle e gerenciamento de ativos da empresa, incluindo movimentações, despesas, infrações e acompanhamento financeiro operacional.",
+      "Sistema voltado ao controle e gerenciamento de ativos da empresa, incluindo movimentações, despesas, infrações de trânsito, sinistros e acompanhamento financeiro operacional dos veículos.",
   },
 };
 
-/** Descrições dos itens do menu lateral exibidas no tour. */
+/** Descrições reais dos itens do menu lateral. */
 export const NAV_DESCRIPTIONS: Record<string, { title: string; body: string }> = {
   "/GIPP": {
-    title: "Menu — Home",
+    title: "Home",
     body:
-      "Responsavel para navegar até a pagina onde se localiza os modulos",
+      "Volta para a tela inicial com os blocos coloridos de cada módulo que você tem acesso. É de lá que você escolhe entre GTPP (tarefas), GAPP (ativos), CFPP (RH), etc.",
   },
   "/GIPP/configuration/profile": {
-    title: "Menu — Perfil",
+    title: "Perfil",
     body:
-      "Resposavel para navegar até a pagina de perfil do usuário.",
+      "Acessa a página do seu perfil para editar dados pessoais, foto e preferências da conta. É também onde você pode atualizar sua senha quando necessário.",
   },
   "/": {
-    title: "Menu — Sair",
+    title: "Sair",
     body:
-      "Encerra a sessão e volta para pagina de login",
+      "Encerra a sessão com segurança, remove o token armazenado no navegador e redireciona para a tela de login. Sempre use este botão em computadores compartilhados.",
   },
 };
 
 /**
- * Passos do tour da Home: navbar + cada item do menu + cada módulo
- * disponível no accessList do usuário.
+ * Tour da Home: navegação lateral + módulos disponíveis ao usuário.
+ * Cada item entra como um nó da árvore agrupado por categoria.
  */
 export function buildHomeTourSteps({
   listPath,
@@ -70,16 +65,17 @@ export function buildHomeTourSteps({
 }: BuildHomeTourStepsDeps): TourStep[] {
   const navbarStep: TourStep = {
     selector: '[data-tour="navbar-toggle"]',
-    title: "Menu de Navegação",
+    title: "Botão do Menu",
     body:
-      "Aqui você expande o menu lateral com as opções principais do GIPP: voltar à Home, perfil e sair. Use sempre que precisar trocar de contexto.",
+      "Esse é o botão hambúrguer que expande ou recolhe o menu lateral. Em telas grandes ele já fica aberto; em celulares aparece recolhido. Reúne atalhos para Home, Perfil e Sair.",
     placement: "right",
+    category: "Navegação Lateral",
   };
 
   const navLinkSteps: TourStep[] = listPath.map((item) => {
     const meta = NAV_DESCRIPTIONS[item.page] ?? {
-      title: `Menu — ${item.children}`,
-      body: "Lorem ipsum dolor sit amet.",
+      title: item.children,
+      body: `Atalho para ${item.children}.`,
     };
     return {
       selector: `[data-tour="nav-link-${item.page}"]`,
@@ -87,6 +83,7 @@ export function buildHomeTourSteps({
       body: meta.body,
       placement: "right",
       setup: openNavbar,
+      category: "Navegação Lateral",
     };
   });
 
@@ -99,6 +96,7 @@ export function buildHomeTourSteps({
         title: meta.title,
         body: meta.body,
         placement: "bottom",
+        category: "Módulos disponíveis",
       };
     })
     .filter((s): s is TourStep => s !== null);
