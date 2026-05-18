@@ -1,5 +1,5 @@
-import React, { useState } from "react";
 import "./style.css";
+import React, { useState } from "react";
 import AvatarGroup from "../Avatar/AvatarGroup/AvatarGroup";
 import { TaskItem } from "./Types";
 import HeaderModal from "./Header";
