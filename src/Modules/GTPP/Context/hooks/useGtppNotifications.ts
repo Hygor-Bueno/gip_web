@@ -25,16 +25,16 @@ export function useGtppNotifications(states: iStates[], taskList?: IGtppTaskSumm
       if (req === undefined) throw new Error("No data");
       if (notify.list.length === 0) return;
       setNotifications((prev) => [...prev, ...notify.list]);
-      // for (const item of notify.list) {
-      //   dispatchAppNotification({
-      //     source: "gtpp",
-      //     title: item.title,
-      //     message: item.message,
-      //     type: item.typeNotify,
-      //     task_id: item.task_id,
-      //     externalId: `${item.task_id}-${item.id}-${item.title}`,
-      //   });
-      // }
+      for (const item of notify.list) {
+        dispatchAppNotification({
+          source: "gtpp",
+          title: item.title,
+          message: item.message,
+          type: item.typeNotify,
+          task_id: item.task_id,
+          externalId: `${item.task_id}-${item.id}-${item.title}`,
+        });
+      }
       handleNotification(notify.list[0]["title"], notify.list[0]["message"], notify.list[0]["typeNotify"]);
     } catch (error: unknown) {
       console.error(`Erro ao atualizar notificações: ${error instanceof Error ? error.message : String(error)}`);
