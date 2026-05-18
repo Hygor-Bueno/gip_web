@@ -11,21 +11,38 @@ export type NavBarProps = {
 };
 
 /**
- * Marca um item como ativo quando a URL atual bate com o `page` do item.
- * - "/" (logout) só ativa em rota exatamente "/" para não casar todas as paths.
- * - "/GIPP" só ativa na home exata (não acende em /GIPP/GAPP/...).
- * - Demais itens ativam por prefixo, então sub-rotas (ex.: /GIPP/GTPP/create/theme)
- *   ainda destacam o pai (Tarefas).
+ * Verifica se um item candidata-se ao destaque para a rota atual.
+ * - "/" (logout) e "/GIPP" (home) só batem por match exato.
+ * - Demais batem por prefixo (ex.: /GIPP/GTPP destaca em /GIPP/GTPP/foo).
+ * Múltiplos itens podem ser candidatos; o mais específico é escolhido depois.
  */
-function isItemActive(itemPage: string | undefined, currentPath: string): boolean {
+function isItemCandidate(itemPage: string | undefined, currentPath: string): boolean {
     if (!itemPage) return false;
     if (itemPage === "/" || itemPage === "/GIPP") return currentPath === itemPage;
     return currentPath === itemPage || currentPath.startsWith(itemPage + "/");
 }
 
+/**
+ * Entre os itens candidatos, retorna o índice do match mais específico
+ * (o item.page mais longo). Garante que sub-rotas tipo
+ * /GIPP/GTPP/create/theme acendam só "Temas", não "Tarefas + Temas".
+ */
+function pickActiveIndex(list: any[] | undefined, currentPath: string): number {
+    if (!list?.length) return -1;
+    let best = -1;
+    let bestLen = -1;
+    list.forEach((item, idx) => {
+        if (!isItemCandidate(item?.page, currentPath)) return;
+        const len = String(item.page ?? "").length;
+        if (len > bestLen) { best = idx; bestLen = len; }
+    });
+    return best;
+}
+
 const NavBar: React.FC<NavBarProps> = ({ list }) => {
     const [isBgListActive, setIsBgListActive] = useState(false);
     const { pathname } = useLocation();
+    const activeIndex = pickActiveIndex(list, pathname);
 
     const handleToggleClick = () => {
         setIsBgListActive((prev) => !prev);
@@ -44,7 +61,7 @@ const NavBar: React.FC<NavBarProps> = ({ list }) => {
                                     if (item?.actionAdd) item.actionAdd();
                                 };
 
-                                const active = isItemActive(item?.page, pathname);
+                                const active = index === activeIndex;
 
                                 return (
                                     <Nav.Link

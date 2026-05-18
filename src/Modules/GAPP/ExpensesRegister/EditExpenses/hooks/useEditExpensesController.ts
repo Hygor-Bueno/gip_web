@@ -213,10 +213,19 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
 
   // ── Save / Reset / Delete ────────────────────────────────────────
   async function handleSave() {
-    if (activeTab !== "insurance" && dirtySections.header && !expense.local?.trim()) {
+    // Na tela de edição, o usuário só vê o select de loja como
+    // "Estabelecimento" (não há input de texto livre como na criação).
+    // Para a guarda obrigatória, aceitamos `local` digitado OU o nome
+    // da loja selecionada como valor efetivo.
+    const storeName = expense.store_id_fk
+      ? storesData.find((s: any) => String(s.store_id) === String(expense.store_id_fk))?.name
+      : "";
+    const resolvedLocal = (expense.local?.trim() || (storeName ?? "").trim());
+
+    if (activeTab !== "insurance" && dirtySections.header && !resolvedLocal) {
       handleNotification(
         "Campo obrigatório",
-        "Preencha o estabelecimento antes de salvar.",
+        "Selecione um estabelecimento (loja) antes de salvar.",
         "warning"
       );
       return;
@@ -231,7 +240,8 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
         typeIsNew,
         dirtyHeader: dirtySections.header,
         dirtyType: dirtySections.type,
-        expense, unitId, addressActive, addressForm,
+        expense: { ...expense, local: resolvedLocal },
+        unitId, addressActive, addressForm,
         fuel, maintenance, fines, sinister, insurance,
       });
       if (opsCount > 0) {
