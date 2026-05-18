@@ -3,6 +3,9 @@ import CustomForm from "../../../../Components/CustomForm";
 import { fieldsetsRegister } from "../../mock/configurationfile";
 import { useConnection } from "../../../../Context/ConnContext";
 import { useMyContext } from "../../../../Context/MainContext";
+import {
+  getCompanies, getShops, getDepartments,
+} from "../../Class/lookupsCache";
 
 type Cardregister = {
   assistenceFunction?: any;
@@ -61,29 +64,29 @@ const Cardregister: React.FC<Cardregister> = (props) => {
       console.error(error);
     }
   };
-  useEffect(() => {
-    loadCompany();
-  }, []);
 
-  async function loadCompany() {
-    try {
-      setLoading(true);
-      const req: any = await fetchData({ method: "GET", params: null, pathFile: "CCPP/Company.php" });
-      if (req.data) setCompany(req.data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  useEffect(() => {
+    // Consome o cache (pré-aquecido pelo Gtpp.tsx no mount do módulo).
+    // Se já está warm, a lista aparece sem nova chamada à API.
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await getCompanies(fetchData);
+        if (!cancelled) setCompany(data);
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function loadStore(idCompany: number) {
     try {
       setLoading(true);
       clearLists();
-      const req: any = await fetchData({ method: "GET", params: null, pathFile: "CCPP/Shop.php", urlComplement: `&company_id=${idCompany}` });
-      if (req.error) throw new Error(req.message);
-      setStore(req.data);
+      const data = await getShops(fetchData, idCompany);
+      setStore(data);
     } catch (error) {
       console.error(error);
     } finally {
@@ -100,18 +103,16 @@ const Cardregister: React.FC<Cardregister> = (props) => {
     try {
       setLoading(true);
       setDepartament([]);
-      if (idStore) {
-        const req: any = await fetchData({ method: "GET", params: null, pathFile: "CCPP/Department.php", urlComplement: `&shop_id=${idStore}` });
-        if (req.error) throw new Error(req.message);
-        setDepartament(req.data);
-      }
+      if (!idStore) return;
+      const data = await getDepartments(fetchData, idStore);
+      setDepartament(data);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
   }
-  
+
   return (
     <div className="card bodyCard">
       <div className="d-flex justify-content-end align-items-center">

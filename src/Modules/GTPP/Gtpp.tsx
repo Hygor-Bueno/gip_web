@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useMyContext } from "../../Context/MainContext";
 import { useWebSocket } from "./Context/GtppWsContext";
+import { useConnection } from "../../Context/ConnContext";
 import { iPropsInputCheckButton } from "../../Interface/iGTPP";
 import FlowBoard from "./ComponentsCard/FlowBoard/FlowBoard";
+import { getCompanies } from "./Class/lookupsCache";
 
 export default function Gtpp(): JSX.Element {
   const { setTitleHead, setModalPage, setModalPageElement, userLog } = useMyContext();
   const { clearGtppWsContext, setOnSounds, updateStates, setOpenCardDefault, loadTasks, reqTasks, openCardDefault, taskDetails, states, onSounds, themeList, task, getTask, setIsAdm, isAdm } = useWebSocket();
+  const { fetchData } = useConnection();
 
   const [openFilter, setOpenFilter] = useState(false);
   const [openFilterGolbal, setOpenFilterGolbal] = useState(false);
@@ -31,6 +34,13 @@ export default function Gtpp(): JSX.Element {
       icon: "fa fa-home",
     });
   }, [setTitleHead]);
+
+  // Pré-aquece o cache de Companies — quando o usuário clicar em
+  // "Nova Tarefa", o Cardregister já encontra a lista pronta no cache
+  // e abre instantaneamente, sem disparar uma nova chamada à API.
+  useEffect(() => {
+    getCompanies(fetchData).catch((err) => console.warn("Prefetch companies falhou", err));
+  }, [fetchData]);
 
   const handleCheckboxChange = (stateId: number) => {
     const newStates:any  = [...states];
