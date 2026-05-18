@@ -206,6 +206,14 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
 
   // ── Save / Reset / Delete ────────────────────────────────────────
   async function handleSave() {
+    if (activeTab !== "insurance" && dirtySections.header && !expense.local?.trim()) {
+      handleNotification(
+        "Campo obrigatório",
+        "Preencha o estabelecimento antes de salvar.",
+        "warning"
+      );
+      return;
+    }
     try {
       setLoadingSave(true);
       setLoading(true);

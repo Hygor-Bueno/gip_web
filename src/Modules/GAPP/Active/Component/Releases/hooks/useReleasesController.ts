@@ -226,8 +226,8 @@ export function useReleasesController({ activeId, userId, isVehicle, gappWorkGro
   const handleSubmit = async () => {
     const currentTab = TABS.find(t => t.key === activeTab)!;
 
-    if (currentTab.showExpense && (!expense.date || !expense.hour || !expense.total_value)) {
-      handleNotification("Campos obrigatórios", "Preencha data, hora e valor total.", "warning");
+    if (currentTab.showExpense && (!expense.date || !expense.hour || !expense.total_value || !expense.local?.trim())) {
+      handleNotification("Campos obrigatórios", "Preencha data, hora, valor total e estabelecimento.", "warning");
       return;
     }
 
