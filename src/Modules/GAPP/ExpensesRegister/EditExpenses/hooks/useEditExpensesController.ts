@@ -33,11 +33,20 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
 
   const activeTab: TabKey = tabKeyFromExpType(String(item.exp_type_id_fk));
 
+  // place_purchase pode chegar como JSON serializado (quando endereço
+  // customizado foi ativado) ou plain text (nome do estabelecimento).
+  // Só usamos como `local` quando NÃO é JSON — caso contrário cai pro
+  // name do endereço parseado, mantendo o campo legível ao usuário.
+  const initialParsedAddress = tryParseAddress(item.place_purchase);
+  const initialLocal = initialParsedAddress
+    ? safeString((initialParsedAddress as any).name ?? "")
+    : safeString(item.place_purchase);
+
   // ── State principal ──────────────────────────────────────────────
   const [expense, setExpense] = useState<Expense>({
     date:           item.date.slice(0, 10),
     hour:           item.hour.slice(0, 5),
-    local:          safeString(item.place_purchase),
+    local:          initialLocal,
     store_id_fk:    item.store_id_fk ? String(item.store_id_fk) : "",
     description:    safeString(item.description),
     coupon_number:  safeString(item.coupon_number),
@@ -52,8 +61,6 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   const [unitId, setUnitId] = useState<string>(item.unit_id ?? "");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [loadingSave, setLoadingSave] = useState(false);
-
-  const initialParsedAddress = tryParseAddress(item.place_purchase);
   const [addressActive, setAddressActive] = useState<boolean>(!initialParsedAddress);
   const [addressForm, setAddressForm] = useState<IAddressForm>(initialParsedAddress ?? emptyAddress);
 
@@ -70,7 +77,7 @@ export function useEditExpensesController({ item, storesData, onSaved, onDeleted
   const initialExpenseRef = useRef<Expense>({
     date:           item.date.slice(0, 10),
     hour:           item.hour.slice(0, 5),
-    local:          safeString(item.place_purchase),
+    local:          initialLocal,
     store_id_fk:    item.store_id_fk ? String(item.store_id_fk) : "",
     description:    safeString(item.description),
     coupon_number:  safeString(item.coupon_number),
