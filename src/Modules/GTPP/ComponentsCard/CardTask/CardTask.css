@@ -146,3 +146,9 @@
   border-color: #3700ff !important;
   transform: translateZ(0);
 }
+
+/* Realce de card com prazo vencido em modo admin */
+.card-task--overdue {
+  border-left: 4px solid #dc3545;
+  box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.2);
+}

@@ -18,6 +18,61 @@ import { useRegisterTourSteps } from "../../../../Context/TourContext";
 import { useWebSocket } from "../../Context/GtppWsContext";
 import { buildGtppTourSteps } from "../../Tour/gtppTourSteps";
 
+type PeriodPreset = "week" | "month" | "overdue";
+
+function isoDate(d: Date): string {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function buildPeriodPreset(kind: PeriodPreset): { from: string; to: string } {
+  const today = new Date();
+  if (kind === "week") {
+    const day = today.getDay();
+    const monday = new Date(today); monday.setDate(today.getDate() - ((day + 6) % 7));
+    const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+    return { from: isoDate(monday), to: isoDate(sunday) };
+  }
+  if (kind === "month") {
+    const first = new Date(today.getFullYear(), today.getMonth(), 1);
+    const last = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    return { from: isoDate(first), to: isoDate(last) };
+  }
+  // Vencidas: do início dos tempos até ontem
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+  return { from: "", to: isoDate(yesterday) };
+}
+
+function computeAdminKpis(tasks: Array<{ final_date?: string; percent?: number; user_id?: number }>) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const in7Days = new Date(today); in7Days.setDate(today.getDate() + 7);
+  let overdue = 0;
+  let dueSoon = 0;
+  let orphan = 0;
+  let percentSum = 0;
+  let percentCount = 0;
+  tasks.forEach((t) => {
+    const pct = Number(t.percent ?? 0);
+    if (!t.user_id) orphan++;
+    percentSum += pct;
+    percentCount++;
+    if (!t.final_date || pct >= 100) return;
+    const d = new Date(t.final_date); d.setHours(0, 0, 0, 0);
+    if (Number.isNaN(d.getTime())) return;
+    if (d < today) overdue++;
+    else if (d <= in7Days) dueSoon++;
+  });
+  return {
+    total: tasks.length,
+    overdue,
+    dueSoon,
+    orphan,
+    avgPercent: percentCount ? Math.round(percentSum / percentCount) : 0,
+  };
+}
+
 export default function GtppMain(props: GtppMainProps) {
   const { setTask, setTaskPercent, isAdm } = useWebSocket();
 
@@ -72,6 +127,35 @@ export default function GtppMain(props: GtppMainProps) {
 
   useRegisterTourSteps(tourSteps, [tourSteps]);
 
+  function AdminKpiPanel() {
+    if (!isAdm) return null;
+    const k = useMemo(() => computeAdminKpis(props.getTask), [props.getTask]);
+    const cards: Array<{ label: string; value: string | number; color: string; icon: string }> = [
+      { label: "Total", value: k.total, color: "secondary", icon: "fa-list" },
+      { label: "Atrasadas", value: k.overdue, color: "danger", icon: "fa-triangle-exclamation" },
+      { label: "Vencem em 7d", value: k.dueSoon, color: "warning", icon: "fa-clock" },
+      { label: "Sem responsável", value: k.orphan, color: "info", icon: "fa-user-slash" },
+      { label: "% média", value: `${k.avgPercent}%`, color: "success", icon: "fa-percent" },
+    ];
+    return (
+      <div className="w-100 d-flex gap-2 flex-wrap mt-2" data-tour="gtpp-admin-kpis">
+        {cards.map((c) => (
+          <div
+            key={c.label}
+            className={`d-flex align-items-center gap-2 px-3 py-2 border rounded bg-light border-${c.color}`}
+            style={{ minWidth: "140px" }}
+          >
+            <i className={`fa-solid ${c.icon} text-${c.color}`}></i>
+            <div className="d-flex flex-column">
+              <span className="fw-bold" style={{ lineHeight: 1, fontSize: "1.15rem" }}>{c.value}</span>
+              <small className="text-muted" style={{ fontSize: "0.7rem" }}>{c.label}</small>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   function HeaderFilters() {
     const hasDateFilter = !!(props.dateFrom || props.dateTo);
     return (
@@ -121,6 +205,29 @@ export default function GtppMain(props: GtppMainProps) {
                   <i className="fa-solid fa-xmark"></i>
                 </button>
               )}
+            </div>
+            <div className="d-flex gap-1 mt-2 flex-wrap" data-tour="gtpp-date-presets">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary"
+                onClick={() => { const r = buildPeriodPreset("week"); props.setDateFrom(r.from); props.setDateTo(r.to); }}
+              >
+                Esta semana
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary"
+                onClick={() => { const r = buildPeriodPreset("month"); props.setDateFrom(r.from); props.setDateTo(r.to); }}
+              >
+                Este mês
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => { const r = buildPeriodPreset("overdue"); props.setDateFrom(r.from); props.setDateTo(r.to); }}
+              >
+                Vencidas
+              </button>
             </div>
           </div>
           )}
@@ -264,6 +371,7 @@ export default function GtppMain(props: GtppMainProps) {
               </div>
             </div>
           </div>
+          <AdminKpiPanel />
           <HeaderFilters />
           <ContentDefault />
         </div>
