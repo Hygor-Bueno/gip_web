@@ -12,7 +12,6 @@ export const listPath = [
     }
 ];
 
-
 export const listPathCFPP = [
     { page: '/GIPP', children: 'Home', icon: 'fa fa-home', },
     {
@@ -22,8 +21,6 @@ export const listPathCFPP = [
         }
     }
 ];
-
-
 
 export const fieldsetsRegister = (
     optionsCompay: [{ value: string, label: string }],
