@@ -160,7 +160,7 @@ h1 {
 }
 
 #navGipp a:hover {
-  color: var(--vThirdColor) !important;
+  color: #778360 !important;
 }
 
 /* Destaque do item de navegação correspondente à rota atual.
@@ -175,8 +175,8 @@ h1 {
 }
 
 #navGipp .gipp-nav-item--active {
-  background-color: rgba(214, 106, 43, 0.14);
-  color: var(--vThirdColor) !important;
+  background-color: #bed98954;
+  color: #96a778 !important;
   font-weight: 600;
 }
 
@@ -188,11 +188,11 @@ h1 {
   bottom: 6px;
   width: 4px;
   border-radius: 4px;
-  background: var(--vThirdColor, #d66a2b);
+  background: #96a778;
 }
 
 #navGipp .gipp-nav-item--active > div > div:first-child {
-  color: var(--vThirdColor, #d66a2b);
+  color: var(#96a778, #d66a2b);
 }
 
 .App>footer {

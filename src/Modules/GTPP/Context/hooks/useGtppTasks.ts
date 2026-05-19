@@ -32,7 +32,17 @@ export function useGtppTasks() {
         urlComplement: isAdm ? "&administrator=1" : "",
       }) as IApiResponse<IGtppTaskSummary[]>;
       if (res.error) throw new Error(res.message);
-      setGetTask(res.data ?? []);
+      // Backend pode retornar a mesma tarefa N vezes quando ela tem múltiplos
+      // colaboradores atribuídos (JOIN sem DISTINCT). Dedup defensivo por id.
+      const raw = res.data ?? [];
+      const seen = new Set<number>();
+      const unique = raw.filter((t) => {
+        const id = Number(t.id);
+        if (Number.isNaN(id) || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+      setGetTask(unique);
     } catch (error: unknown) {
       console.error(`Erro ao requisitar tarefas: ${error instanceof Error ? error.message : String(error)}`);
     } finally {

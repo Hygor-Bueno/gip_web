@@ -120,12 +120,34 @@
     background-color: #fff;
     border: 1px solid #e9ecef;
     border-radius: 6px;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
 }
 
 .gtpp-kpi-card:hover {
     border-color: #ced4da;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+
+.gtpp-kpi-card:focus-visible {
+    outline: 2px solid rgba(13, 110, 253, 0.45);
+    outline-offset: 2px;
+}
+
+.gtpp-kpi-card--active {
+    border-color: #a3c66a;
+    background-color: rgba(190, 217, 137, 0.12);
+    box-shadow: 0 2px 8px rgba(163, 198, 106, 0.2);
+}
+
+.gtpp-kpi-card--active.gtpp-kpi-card--alert {
+    border-color: rgba(220, 53, 69, 0.55);
+    background-color: rgba(220, 53, 69, 0.06);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.12);
 }
 
 .gtpp-kpi-icon {
@@ -215,8 +237,6 @@
     list-style: none;
     margin: 0;
     padding: 0.2rem 0;
-    max-height: 240px;
-    overflow-y: auto;
 }
 
 .gtpp-states-list li {
@@ -259,4 +279,579 @@
 .gtpp-states-name {
     flex: 1;
     line-height: 1.2;
+}
+
+/* === FAB que abre o painel flutuante de filtros === */
+
+.gtpp-floating-filter-fab {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(163, 198, 106, 0.5);
+    background: rgba(190, 217, 137, 0.18);
+    color: #5a8a30;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+
+.gtpp-floating-filter-fab:hover {
+    background: rgba(190, 217, 137, 0.32);
+    border-color: rgba(163, 198, 106, 0.8);
+    color: #3f6420;
+}
+
+.gtpp-floating-filter-fab:focus-visible {
+    outline: 2px solid rgba(13, 110, 253, 0.45);
+    outline-offset: 2px;
+}
+
+.gtpp-floating-filter-fab--active {
+    background: #bed989;
+    border-color: #a3c66a;
+    color: #2c3e1f;
+}
+
+/* === Painel flutuante arrastável === */
+
+.gtpp-floating-filter {
+    position: fixed;
+    width: 360px;
+    max-width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    box-shadow:
+        0 1px 3px rgba(16, 24, 40, 0.06),
+        0 12px 32px rgba(16, 24, 40, 0.15);
+    z-index: 1080;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: gtpp-floating-filter-in 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gtpp-floating-filter--dragging {
+    animation: none;
+    transition: none;
+    user-select: none;
+    will-change: transform;
+    box-shadow:
+        0 1px 3px rgba(16, 24, 40, 0.08),
+        0 18px 44px rgba(16, 24, 40, 0.2);
+}
+
+@keyframes gtpp-floating-filter-in {
+    from { opacity: 0; transform: scale(0.98) translateY(-4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.gtpp-floating-filter__header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 10px 14px;
+    background: #fafbfc;
+    border-bottom: 1px solid #eef0f3;
+    cursor: grab;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+/* Indicador discreto de "arrastável" — 2 linhas finas no topo */
+.gtpp-floating-filter__handle {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 3px;
+    border-radius: 2px;
+    background: #dee2e6;
+}
+
+.gtpp-floating-filter--dragging .gtpp-floating-filter__header {
+    cursor: grabbing;
+}
+
+.gtpp-floating-filter__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.gtpp-floating-filter__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    background: rgba(190, 217, 137, 0.35);
+    color: #5a8a30;
+    font-size: 0.7rem;
+}
+
+.gtpp-floating-filter__close {
+    background: transparent;
+    border: none;
+    color: #adb5bd;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.gtpp-floating-filter__close:hover {
+    background: rgba(220, 53, 69, 0.08);
+    color: #dc3545;
+}
+
+.gtpp-floating-filter__body {
+    padding: 14px;
+    overflow-y: auto;
+    background: #fff;
+}
+
+/* Selects dentro do painel: largura cheia, sem min-width fixo */
+.gtpp-floating-filter__body .gtpp-filters {
+    margin-bottom: 0;
+}
+
+.gtpp-floating-filter__body .gtpp-theme-select,
+.gtpp-floating-filter__body .gtpp-states-trigger,
+.gtpp-floating-filter__body .gtpp-date-input {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+}
+
+.gtpp-floating-filter__body .gtpp-date-input {
+    flex: 1 1 0;
+}
+
+.gtpp-floating-filter__body [data-tour="gtpp-date-presets"] {
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.gtpp-floating-filter__body .gtpp-preset-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* === Mobile: vira bottom-sheet ancorado embaixo === */
+@media (max-width: 600px) {
+    .gtpp-floating-filter {
+        top: auto !important;
+        left: 0 !important;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        max-height: 80vh;
+        border-radius: 14px 14px 0 0;
+        animation: gtpp-floating-filter-slide-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes gtpp-floating-filter-slide-up {
+        from { transform: translateY(100%); }
+        to   { transform: translateY(0); }
+    }
+
+    .gtpp-floating-filter__header {
+        padding-top: 14px;
+        cursor: default;
+    }
+
+    .gtpp-floating-filter__handle {
+        top: 6px;
+        width: 40px;
+        height: 4px;
+    }
+
+    /* No mobile, aumenta touch targets levemente */
+    .gtpp-floating-filter__body .gtpp-theme-select,
+    .gtpp-floating-filter__body .gtpp-states-trigger,
+    .gtpp-floating-filter__body .gtpp-date-input,
+    .gtpp-floating-filter__body .gtpp-preset-btn {
+        height: 40px;
+        font-size: 0.9rem;
+    }
+
+    .gtpp-floating-filter__close {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+}
+
+/* === Painel lateral de drill-down dos KPIs (múltiplos, drag, resize, minimize) === */
+
+.gtpp-drill-panel {
+    position: fixed;
+    max-width: calc(100vw - 16px);
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    box-shadow:
+        0 1px 3px rgba(16, 24, 40, 0.06),
+        0 18px 48px rgba(16, 24, 40, 0.18);
+    z-index: 1090;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: gtpp-drill-panel-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gtpp-drill-panel--dragging,
+.gtpp-drill-panel--resizing {
+    animation: none;
+    transition: none;
+    user-select: none;
+    will-change: transform, width, height;
+}
+
+.gtpp-drill-panel--dragging .gtpp-drill-panel__header { cursor: grabbing; }
+
+@keyframes gtpp-drill-panel-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.gtpp-drill-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eef0f3;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    flex-shrink: 0;
+    cursor: grab;
+    user-select: none;
+}
+
+.gtpp-drill-panel--minimized .gtpp-drill-panel__header {
+    border-bottom: none;
+}
+
+.gtpp-drill-panel__actions {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.gtpp-drill-panel__minimize,
+.gtpp-drill-panel__close {
+    background: transparent;
+    border: none;
+    color: #adb5bd;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.gtpp-drill-panel__minimize:hover {
+    background: rgba(13, 110, 253, 0.08);
+    color: #0d6efd;
+}
+
+.gtpp-drill-panel__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gtpp-drill-panel__icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(190, 217, 137, 0.45), rgba(163, 198, 106, 0.25));
+    color: #4d7826;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.gtpp-drill-panel--alert .gtpp-drill-panel__icon {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.14), rgba(220, 53, 69, 0.06));
+    color: #a52232;
+}
+
+.gtpp-drill-panel__heading {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #1f2937;
+    letter-spacing: -0.005em;
+}
+
+.gtpp-drill-panel__count {
+    font-size: 0.72rem;
+    color: #6c757d;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+.gtpp-drill-panel__close:hover {
+    background: rgba(220, 53, 69, 0.08);
+    color: #dc3545;
+}
+
+.gtpp-drill-panel__list {
+    list-style: none;
+    margin: 0;
+    padding: 4px 6px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.gtpp-drill-panel__empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #adb5bd;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.gtpp-drill-panel__item {
+    position: relative;
+    padding: 12px 14px 12px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 2px;
+    border-left: 2px solid transparent;
+    transition: background 0.15s ease, border-left-color 0.15s ease, transform 0.12s ease;
+}
+
+.gtpp-drill-panel__item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 56px;
+    right: 14px;
+    bottom: -1px;
+    height: 1px;
+    background: #eef0f3;
+    pointer-events: none;
+}
+
+.gtpp-drill-panel__item:hover {
+    background: #f8f9fa;
+    border-left-color: #a3c66a;
+}
+
+.gtpp-drill-panel--alert .gtpp-drill-panel__item:hover {
+    border-left-color: rgba(220, 53, 69, 0.5);
+}
+
+.gtpp-drill-panel__item:hover::after {
+    opacity: 0;
+}
+
+.gtpp-drill-panel__item:active {
+    transform: scale(0.995);
+}
+
+.gtpp-drill-panel__item-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.gtpp-drill-panel__item-main {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Avatar do responsável — com anel sutil e sombra leve */
+.gtpp-drill-panel__avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f1f3f5, #dee2e6);
+    color: #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    font-size: 0.82rem;
+    font-weight: 700;
+    box-shadow:
+        0 0 0 2px #fff,
+        0 0 0 3px #eef0f3,
+        0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.18s ease;
+}
+
+.gtpp-drill-panel__item:hover .gtpp-drill-panel__avatar {
+    box-shadow:
+        0 0 0 2px #fff,
+        0 0 0 3px #d4dde4,
+        0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.gtpp-drill-panel__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gtpp-drill-panel__avatar .is-empty {
+    color: #ced4da;
+    font-weight: 500;
+}
+
+.gtpp-drill-panel__item-user {
+    font-size: 0.74rem;
+    color: #6c757d;
+    font-weight: 500;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.gtpp-drill-panel__item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 0.72rem;
+    color: #6c757d;
+    gap: 8px;
+}
+
+.gtpp-drill-panel__item-id {
+    font-weight: 700;
+    color: #4d7826;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.01em;
+}
+
+.gtpp-drill-panel__item-date {
+    font-weight: 500;
+    color: #868e96;
+    white-space: nowrap;
+}
+
+.gtpp-drill-panel__item-date.is-overdue {
+    color: #a52232;
+    font-weight: 700;
+    background: rgba(220, 53, 69, 0.06);
+    padding: 1px 7px;
+    border-radius: 4px;
+    border: 1px solid rgba(220, 53, 69, 0.12);
+}
+
+.gtpp-drill-panel__item-title {
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 8px;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.gtpp-drill-panel__item-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gtpp-drill-panel__bar {
+    flex: 1;
+    height: 5px;
+    background: #eef0f3;
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.03);
+}
+
+.gtpp-drill-panel__bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #bed989, #87b048);
+    border-radius: 999px;
+    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 4px rgba(135, 176, 72, 0.3);
+}
+
+.gtpp-drill-panel__pct {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #495057;
+    min-width: 36px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.gtpp-drill-panel__list::-webkit-scrollbar { width: 6px; }
+.gtpp-drill-panel__list::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 3px; }
+
+/* Handle de resize no canto inferior direito */
+.gtpp-drill-panel__resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 16px;
+    height: 16px;
+    cursor: nwse-resize;
+    background:
+        linear-gradient(135deg, transparent 50%, #ced4da 50%, #ced4da 60%, transparent 60%, transparent 75%, #ced4da 75%, #ced4da 85%, transparent 85%);
+    opacity: 0.7;
+    transition: opacity 0.15s ease;
+    z-index: 2;
+}
+
+.gtpp-drill-panel__resize-handle:hover {
+    opacity: 1;
+}
+
+/* Mobile: vira bottom-sheet também */
+@media (max-width: 600px) {
+    .gtpp-drill-panel {
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        max-height: 75vh;
+        border-radius: 14px 14px 0 0;
+        animation: gtpp-drill-panel-slide-up 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes gtpp-drill-panel-slide-up {
+        from { transform: translateY(100%); }
+        to   { transform: translateY(0); }
+    }
 }
