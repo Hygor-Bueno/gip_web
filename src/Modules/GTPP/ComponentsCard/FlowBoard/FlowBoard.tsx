@@ -128,8 +128,8 @@ export default function GtppMain(props: GtppMainProps) {
   useRegisterTourSteps(tourSteps, [tourSteps]);
 
   function AdminKpiPanel() {
-    if (!isAdm) return null;
     const k = useMemo(() => computeAdminKpis(props.getTask), [props.getTask]);
+    if (!isAdm) return null;
     const cards: Array<{ label: string; value: string | number; color: string; icon: string }> = [
       { label: "Total", value: k.total, color: "secondary", icon: "fa-list" },
       { label: "Atrasadas", value: k.overdue, color: "danger", icon: "fa-triangle-exclamation" },
