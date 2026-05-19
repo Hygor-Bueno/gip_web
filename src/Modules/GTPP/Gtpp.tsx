@@ -37,12 +37,13 @@ export default function Gtpp(): JSX.Element {
     });
   }, [setTitleHead]);
 
-  // Pré-aquece o cache de Companies — quando o usuário clicar em
-  // "Nova Tarefa", o Cardregister já encontra a lista pronta no cache
-  // e abre instantaneamente, sem disparar uma nova chamada à API.
+  // Reseta "Elevar como administrador" ao sair da página: ao voltar, começa
+  // sempre desligado (evita que o usuário continue como admin sem perceber).
   useEffect(() => {
-    getCompanies(fetchData).catch((err) => console.warn("Prefetch companies falhou", err));
-  }, [fetchData]);
+    return () => {
+      setIsAdm(false);
+    };
+  }, [setIsAdm]);
 
   const handleCheckboxChange = (stateId: number) => {
     const newStates:any  = [...states];
