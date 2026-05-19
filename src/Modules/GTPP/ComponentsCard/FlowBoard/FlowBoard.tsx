@@ -130,25 +130,25 @@ export default function GtppMain(props: GtppMainProps) {
   function AdminKpiPanel() {
     const k = useMemo(() => computeAdminKpis(props.getTask), [props.getTask]);
     if (!isAdm) return null;
-    const cards: Array<{ label: string; value: string | number; color: string; icon: string }> = [
-      { label: "Total", value: k.total, color: "secondary", icon: "fa-list" },
-      { label: "Atrasadas", value: k.overdue, color: "danger", icon: "fa-triangle-exclamation" },
-      { label: "Vencem em 7d", value: k.dueSoon, color: "warning", icon: "fa-clock" },
-      { label: "Sem responsável", value: k.orphan, color: "info", icon: "fa-user-slash" },
-      { label: "% média", value: `${k.avgPercent}%`, color: "success", icon: "fa-percent" },
+    type KpiCard = { label: string; value: string | number; icon: string; alert?: boolean };
+    const cards: KpiCard[] = [
+      { label: "Total", value: k.total, icon: "fa-list" },
+      { label: "Atrasadas", value: k.overdue, icon: "fa-triangle-exclamation", alert: k.overdue > 0 },
+      { label: "Vencem em 7d", value: k.dueSoon, icon: "fa-clock", alert: k.dueSoon > 0 },
+      { label: "Sem responsável", value: k.orphan, icon: "fa-user-slash" },
+      { label: "% média", value: `${k.avgPercent}%`, icon: "fa-percent" },
     ];
     return (
-      <div className="w-100 d-flex gap-2 flex-wrap mt-2" data-tour="gtpp-admin-kpis">
+      <div className="gtpp-kpi-panel w-100 d-flex gap-2 flex-wrap mt-2" data-tour="gtpp-admin-kpis">
         {cards.map((c) => (
           <div
             key={c.label}
-            className={`d-flex align-items-center gap-2 px-3 py-2 border rounded bg-light border-${c.color}`}
-            style={{ minWidth: "140px" }}
+            className={`gtpp-kpi-card${c.alert ? " gtpp-kpi-card--alert" : ""}`}
           >
-            <i className={`fa-solid ${c.icon} text-${c.color}`}></i>
-            <div className="d-flex flex-column">
-              <span className="fw-bold" style={{ lineHeight: 1, fontSize: "1.15rem" }}>{c.value}</span>
-              <small className="text-muted" style={{ fontSize: "0.7rem" }}>{c.label}</small>
+            <i className={`fa-solid ${c.icon} gtpp-kpi-icon`}></i>
+            <div className="gtpp-kpi-body">
+              <span className="gtpp-kpi-value">{c.value}</span>
+              <span className="gtpp-kpi-label">{c.label}</span>
             </div>
           </div>
         ))}
@@ -158,47 +158,75 @@ export default function GtppMain(props: GtppMainProps) {
 
   function HeaderFilters() {
     const hasDateFilter = !!(props.dateFrom || props.dateTo);
+    const activeStatesCount = props.states?.filter((s: any) => s.active).length ?? 0;
+    const totalStates = props.states?.length ?? 0;
     return (
-      <div className="d-flex w-100 align-items-center justify-content-start gap-5 mt-3">
-        <div className="d-flex gap-4 mb-3 flex-wrap" data-tour="gtpp-themes">
-          <div>
-            <label className="form-label mb-1">Filtrar pelo tema:</label>
-            <select className="form-select" value={props.selectedThemeIds} onChange={(e) => props.setSelectedThemeIds(e.target.value)}>
-              <option value="" hidden>Selecione</option>
-              <option value="">Todos</option>
-              <option value="0">Sem vinculo</option>
-              {props?.themeList?.map((theme) => (
-                <option key={theme.id_theme} value={theme.id_theme}>
-                  {theme.description_theme}
-                </option>
-              ))}
-            </select>
-          </div>
-          {isAdm && (
+      <div className="gtpp-filters d-flex w-100 align-items-end gap-3 mt-3 flex-wrap">
+        <div data-tour="gtpp-themes">
+          <label className="form-label gtpp-filter-label">Filtrar pelo tema:</label>
+          <select
+            className="form-select gtpp-theme-select"
+            value={props.selectedThemeIds}
+            onChange={(e) => props.setSelectedThemeIds(e.target.value)}
+          >
+            <option value="" hidden>Selecione</option>
+            <option value="">Todos</option>
+            <option value="0">Sem vínculo</option>
+            {props?.themeList?.map((theme) => (
+              <option key={theme.id_theme} value={theme.id_theme}>
+                {theme.description_theme}
+              </option>
+            ))}
+          </select>
+        </div>
+        {isAdm && (
           <div data-tour="gtpp-date-range">
-            <label className="form-label mb-1">Prazo entre:</label>
-            <div className="d-flex align-items-center gap-2">
+            <label className="form-label gtpp-filter-label">Prazo entre:</label>
+            <div className="d-flex align-items-center gap-2 flex-wrap">
               <input
                 type="date"
-                className="form-control"
+                className="form-control gtpp-date-input"
                 value={props.dateFrom}
                 max={props.dateTo || undefined}
                 onChange={(e) => props.setDateFrom(e.target.value)}
                 aria-label="Data inicial do prazo"
               />
-              <span>—</span>
+              <span className="text-muted">—</span>
               <input
                 type="date"
-                className="form-control"
+                className="form-control gtpp-date-input"
                 value={props.dateTo}
                 min={props.dateFrom || undefined}
                 onChange={(e) => props.setDateTo(e.target.value)}
                 aria-label="Data final do prazo"
               />
+              <div className="d-inline-flex gap-1" data-tour="gtpp-date-presets">
+                <button
+                  type="button"
+                  className="btn btn-sm gtpp-preset-btn"
+                  onClick={() => { const r = buildPeriodPreset("week"); props.setDateFrom(r.from); props.setDateTo(r.to); }}
+                >
+                  Semana
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm gtpp-preset-btn"
+                  onClick={() => { const r = buildPeriodPreset("month"); props.setDateFrom(r.from); props.setDateTo(r.to); }}
+                >
+                  Mês
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-sm gtpp-preset-btn gtpp-preset-btn--alert"
+                  onClick={() => { const r = buildPeriodPreset("overdue"); props.setDateFrom(r.from); props.setDateTo(r.to); }}
+                >
+                  Vencidas
+                </button>
+              </div>
               {hasDateFilter && (
                 <button
                   type="button"
-                  className="btn btn-sm btn-outline-secondary"
+                  className="btn btn-sm gtpp-preset-btn"
                   title="Limpar filtro de prazo"
                   onClick={() => { props.setDateFrom(""); props.setDateTo(""); }}
                 >
@@ -206,54 +234,57 @@ export default function GtppMain(props: GtppMainProps) {
                 </button>
               )}
             </div>
-            <div className="d-flex gap-1 mt-2 flex-wrap" data-tour="gtpp-date-presets">
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-primary"
-                onClick={() => { const r = buildPeriodPreset("week"); props.setDateFrom(r.from); props.setDateTo(r.to); }}
-              >
-                Esta semana
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-primary"
-                onClick={() => { const r = buildPeriodPreset("month"); props.setDateFrom(r.from); props.setDateTo(r.to); }}
-              >
-                Este mês
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-danger"
-                onClick={() => { const r = buildPeriodPreset("overdue"); props.setDateFrom(r.from); props.setDateTo(r.to); }}
-              >
-                Vencidas
-              </button>
-            </div>
           </div>
-          )}
-        </div>
-        <div className="position-relative" data-tour="gtpp-states">
-          <h1 onClick={props.handleOpenFilter} className="cursor-pointer d-inline-flex align-items-center gap-2">
-            Estados <i className="fa fa-angle-down"></i>
-          </h1>
-          {props.openFilter && (
-            <div className="position-absolute bg-white shadow rounded border p-3 mt-2 z-10" style={{ minWidth: "220px", zIndex: "1" }}>
-              {props.states?.map((state: any) => (
-                <div key={state.id} className="d-flex align-items-center mb-2">
-                  <input
-                    id={`filter_state_${state.id}`}
-                    className="form-check-input me-2"
-                    type="checkbox"
-                    checked={state.active}
-                    onChange={() => props.handleCheckboxChange(state.id)}
-                  />
-                  <label htmlFor={`filter_state_${state.id}`} className="form-check-label">
-                    {state.description}
-                  </label>
+        )}
+        <div data-tour="gtpp-states">
+          <label className="form-label gtpp-filter-label">Filtrar pelo estado:</label>
+          <div className="position-relative">
+            <button
+              type="button"
+              onClick={props.handleOpenFilter}
+              className="gtpp-states-trigger form-select text-start d-inline-flex align-items-center justify-content-between"
+              aria-expanded={props.openFilter}
+              aria-haspopup="listbox"
+            >
+              <span className="text-truncate">
+                {activeStatesCount === totalStates
+                  ? "Todos"
+                  : activeStatesCount === 0
+                  ? "Nenhum"
+                  : `${activeStatesCount} de ${totalStates} selecionados`}
+              </span>
+            </button>
+            {props.openFilter && (
+              <div
+                className="gtpp-states-panel position-absolute bg-white rounded border mt-1"
+                style={{ minWidth: "200px", zIndex: 1050 }}
+              >
+                <div className="gtpp-states-panel-header d-flex justify-content-between align-items-center">
+                  <span>Estados visíveis</span>
+                  <span className="gtpp-states-panel-count">{activeStatesCount}/{totalStates}</span>
                 </div>
-              ))}
-            </div>
-          )}
+                <ul className="gtpp-states-list">
+                  {props.states?.map((state: any) => (
+                    <li key={state.id}>
+                      <label className="gtpp-states-row">
+                        <input
+                          type="checkbox"
+                          checked={state.active}
+                          onChange={() => props.handleCheckboxChange(state.id)}
+                        />
+                        <span
+                          className="gtpp-states-dot"
+                          style={{ backgroundColor: state.color || "#adb5bd" }}
+                          aria-hidden="true"
+                        ></span>
+                        <span className="gtpp-states-name">{state.description}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -343,7 +374,7 @@ export default function GtppMain(props: GtppMainProps) {
 
   return (
     <div id="moduleGTPP" className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0">
-      {props.openThemeModal && <ModalThemeRegisterTask />}      
+      {props.openThemeModal && ModalThemeRegisterTask()}      
       {props.openMenu && <NavBar list={listPath} />}
       {props.openFilterGolbal && <FilterPage />}
       <div className="h-100 d-flex overflow-hidden px-3 flex-grow-1">
@@ -371,9 +402,9 @@ export default function GtppMain(props: GtppMainProps) {
               </div>
             </div>
           </div>
-          <AdminKpiPanel />
-          <HeaderFilters />
-          <ContentDefault />
+          {AdminKpiPanel()}
+          {HeaderFilters()}
+          {ContentDefault()}
         </div>
         {props.openCardDefault && (
           <ModalDefault

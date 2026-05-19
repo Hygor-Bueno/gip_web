@@ -21,3 +21,242 @@
 .flowboard-head * {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
+
+/* === Filtros do GTPP — padrão único === */
+
+.gtpp-filters {
+    margin-bottom: 0.75rem;
+}
+
+.gtpp-filter-label {
+    margin-bottom: 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.gtpp-theme-select,
+.gtpp-states-trigger,
+.gtpp-date-input {
+    min-width: 160px;
+    height: 34px;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.65rem;
+    background-color: #fff;
+    border-color: #dee2e6;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gtpp-theme-select,
+.gtpp-states-trigger {
+    padding-right: 2rem;
+    cursor: pointer;
+}
+
+.gtpp-date-input {
+    min-width: 140px;
+    max-width: 160px;
+}
+
+.gtpp-theme-select:hover,
+.gtpp-states-trigger:hover,
+.gtpp-date-input:hover {
+    border-color: #adb5bd;
+}
+
+.gtpp-theme-select:focus,
+.gtpp-theme-select:focus-visible,
+.gtpp-states-trigger:focus,
+.gtpp-states-trigger:focus-visible,
+.gtpp-date-input:focus,
+.gtpp-date-input:focus-visible {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.12);
+    background-color: #fff;
+}
+
+/* Atalhos de período — discretos, mesma altura dos inputs */
+.gtpp-preset-btn {
+    height: 34px;
+    font-size: 0.78rem;
+    padding: 0 0.65rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+.gtpp-preset-btn:hover {
+    background-color: #f5f7fa;
+    border-color: #adb5bd;
+    color: #212529;
+}
+
+.gtpp-preset-btn--alert {
+    color: #b02a37;
+}
+
+.gtpp-preset-btn--alert:hover {
+    background-color: #fdf2f3;
+    border-color: rgba(220, 53, 69, 0.4);
+    color: #842029;
+}
+
+/* === Dashboard KPI (admin) — neutro e elegante === */
+
+.gtpp-kpi-panel {
+    margin-bottom: 0.5rem;
+}
+
+.gtpp-kpi-card {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 130px;
+    padding: 0.5rem 0.85rem;
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gtpp-kpi-card:hover {
+    border-color: #ced4da;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.gtpp-kpi-icon {
+    font-size: 0.85rem;
+    color: #adb5bd;
+    flex-shrink: 0;
+}
+
+.gtpp-kpi-body {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.gtpp-kpi-value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.gtpp-kpi-label {
+    font-size: 0.68rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 2px;
+}
+
+/* Estado de alerta — só quando o KPI tem valor relevante (> 0) */
+.gtpp-kpi-card--alert {
+    border-left: 2px solid rgba(220, 53, 69, 0.55);
+}
+
+.gtpp-kpi-card--alert .gtpp-kpi-icon {
+    color: #b02a37;
+}
+
+.gtpp-states-trigger:hover {
+    border-color: #adb5bd;
+}
+
+.gtpp-states-trigger:focus,
+.gtpp-states-trigger:focus-visible {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+}
+
+.gtpp-states-trigger[aria-expanded="true"] {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.1);
+}
+
+/* Painel dropdown — compacto e elegante */
+.gtpp-states-panel {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    border-color: #dee2e6 !important;
+    animation: gtpp-states-fade-in 0.1s ease-out;
+    overflow: hidden;
+}
+
+@keyframes gtpp-states-fade-in {
+    from { opacity: 0; transform: translateY(-3px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.gtpp-states-panel-header {
+    padding: 0.35rem 0.65rem;
+    background-color: #fafbfc;
+    border-bottom: 1px solid #eef0f2;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.gtpp-states-panel-count {
+    font-weight: 500;
+    color: #adb5bd;
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.7rem;
+}
+
+.gtpp-states-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.2rem 0;
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.gtpp-states-list li {
+    margin: 0;
+}
+
+.gtpp-states-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.65rem;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: #343a40;
+    margin: 0;
+    transition: background-color 0.08s ease;
+}
+
+.gtpp-states-row:hover {
+    background-color: #f5f7fa;
+}
+
+.gtpp-states-row input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #0d6efd;
+    flex-shrink: 0;
+}
+
+.gtpp-states-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.gtpp-states-name {
+    flex: 1;
+    line-height: 1.2;
+}
