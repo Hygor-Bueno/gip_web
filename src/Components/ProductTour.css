@@ -10,8 +10,7 @@
 }
 
 /* Backdrop é puramente decorativo agora — sem onClick. Mantém pointer
-   events apenas para "pegar" cliques fora do painel e evitar que o
-   usuário interaja com elementos abaixo sem querer. */
+   events apenas para "pegar" cliques fora do painel. */
 .gipp-tour-backdrop {
   position: fixed;
   inset: 0;
@@ -25,13 +24,13 @@
   border-radius: 10px;
   background: transparent;
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.78),
-    0 0 0 3px rgba(255, 255, 255, 0.6),
-    0 0 24px rgba(255, 255, 255, 0.18);
+    0 0 0 3px rgba(190, 217, 137, 0.65),
+    0 0 24px rgba(190, 217, 137, 0.22);
   transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
   pointer-events: none;
 }
 
-/* ── Painel grande (árvore + conteúdo) ─────────────────────────── */
+/* ── Painel grande (árvore + conteúdo) — paleta verde #bed989 ───── */
 
 .gipp-tour-panel {
   position: fixed;
@@ -99,9 +98,9 @@
 .gipp-tour-counter {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #6c757d;
+  color: #2c3e1f;
   letter-spacing: 0.04em;
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(190, 217, 137, 0.35);
   padding: 3px 8px;
   border-radius: 999px;
 }
@@ -151,7 +150,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #6b7280;
+  color: #5a8a30;
   padding: 6px 10px;
   margin-top: 4px;
 }
@@ -167,7 +166,7 @@
 
 .gipp-tour-tree__list--nested {
   margin-left: 10px;
-  border-left: 1px dashed #d0d5dd;
+  border-left: 1px dashed #c5d8a1;
   padding-left: 6px;
   margin-top: 2px;
 }
@@ -185,18 +184,19 @@
 }
 
 .gipp-tour-tree__item:hover {
-  background: #eef2ff;
-  color: #1f2937;
+  background: rgba(190, 217, 137, 0.25);
+  color: #2c3e1f;
 }
 
 .gipp-tour-tree__item.active {
-  background: #0d6efd;
-  color: #fff;
-  font-weight: 600;
+  background: linear-gradient(135deg, #bed989, #a3c66a);
+  color: #2c3e1f;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(190, 217, 137, 0.45);
 }
 
 .gipp-tour-tree__item.active .gipp-tour-tree__bullet {
-  background: #fff;
+  background: #2c3e1f;
 }
 
 .gipp-tour-tree__bullet {
@@ -215,14 +215,14 @@
 .gipp-tour-tree__subgroup-title {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #475467;
+  color: #5a8a30;
   padding: 4px 10px 2px;
 }
 
 /* Scrollbar discreta */
 .gipp-tour-tree::-webkit-scrollbar { width: 6px; }
-.gipp-tour-tree::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 3px; }
-.gipp-tour-tree::-webkit-scrollbar-thumb:hover { background: #98a2b3; }
+.gipp-tour-tree::-webkit-scrollbar-thumb { background: #c5d8a1; border-radius: 3px; }
+.gipp-tour-tree::-webkit-scrollbar-thumb:hover { background: #a3c66a; }
 
 /* ── Conteúdo do step ──────────────────────────────────────────── */
 
@@ -238,7 +238,7 @@
 .gipp-tour-content__crumbs {
   font-size: 0.7rem;
   font-weight: 600;
-  color: #6b7280;
+  color: #5a8a30;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   display: flex;
@@ -255,7 +255,7 @@
   margin: 0 0 8px 0;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #0d6efd;
+  color: #5a8a30;
   letter-spacing: -0.01em;
 }
 
@@ -270,7 +270,7 @@
 }
 
 .gipp-tour-content__body::-webkit-scrollbar { width: 6px; }
-.gipp-tour-content__body::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 3px; }
+.gipp-tour-content__body::-webkit-scrollbar-thumb { background: #c5d8a1; border-radius: 3px; }
 
 .gipp-tour-content__missing {
   background: rgba(253, 126, 20, 0.1);
@@ -306,7 +306,7 @@
   padding: 7px 14px;
   font-size: 0.82rem;
   font-weight: 600;
-  transition: background 0.15s, transform 0.15s, opacity 0.15s;
+  transition: background 0.15s, transform 0.15s, opacity 0.15s, box-shadow 0.15s;
 }
 
 .gipp-tour-arrow:hover:not(:disabled) {
@@ -319,36 +319,37 @@
 }
 
 .gipp-tour-arrow.primary {
-  background: #0d6efd;
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+  background: linear-gradient(135deg, #bed989, #a3c66a);
+  color: #2c3e1f;
+  box-shadow: 0 2px 6px rgba(190, 217, 137, 0.45);
 }
 
-.gipp-tour-arrow.primary:hover {
-  background: #0a58ca;
+.gipp-tour-arrow.primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(190, 217, 137, 0.55);
 }
 
-/* ── Trigger pill ────────────────────────────────────────────── */
+/* ── Trigger pill (botão "Apresentação" no header) ─────────────── */
 
 .gipp-tour-trigger {
-  background: linear-gradient(135deg, #0d6efd, #0a58ca);
-  color: #fff;
+  background: linear-gradient(135deg, #bed989, #a3c66a);
+  color: #2c3e1f;
   border: none;
   border-radius: 999px;
   padding: 8px 16px;
   cursor: pointer;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+  box-shadow: 0 4px 12px rgba(190, 217, 137, 0.45);
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
 .gipp-tour-trigger:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(13, 110, 253, 0.35);
+  box-shadow: 0 6px 16px rgba(190, 217, 137, 0.55);
 }
 
 /* ── Responsivo ───────────────────────────────────────────────── */
