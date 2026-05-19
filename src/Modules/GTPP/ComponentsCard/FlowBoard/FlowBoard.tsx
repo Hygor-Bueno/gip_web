@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Col } from "react-bootstrap";
 import NavBar from "../../../../Components/NavBar";
 import { listPath } from "../../mock/configurationfile";
@@ -19,7 +19,16 @@ import { useWebSocket } from "../../Context/GtppWsContext";
 import { buildGtppTourSteps } from "../../Tour/gtppTourSteps";
 
 export default function GtppMain(props: GtppMainProps) {
-  const { setTask, setTaskPercent } = useWebSocket();
+  const { setTask, setTaskPercent, isAdm } = useWebSocket();
+
+  // Filtro de prazo é recurso de auditoria: só vive enquanto o admin está ligado.
+  // Ao desligar, limpa para o board não exibir resultados parciais sem o controle visível.
+  useEffect(() => {
+    if (!isAdm && (props.dateFrom || props.dateTo)) {
+      props.setDateFrom("");
+      props.setDateTo("");
+    }
+  }, [isAdm]);
 
   const openNavbar = React.useCallback(() => {
     const toggle = document.querySelector<HTMLButtonElement>('[data-tour="navbar-toggle"]');
@@ -48,6 +57,7 @@ export default function GtppMain(props: GtppMainProps) {
   useRegisterTourSteps(tourSteps, [tourSteps]);
 
   function HeaderFilters() {
+    const hasDateFilter = !!(props.dateFrom || props.dateTo);
     return (
       <div className="d-flex w-100 align-items-center justify-content-start gap-5 mt-3">
         <div className="d-flex gap-4 mb-3 flex-wrap" data-tour="gtpp-themes">
@@ -64,6 +74,40 @@ export default function GtppMain(props: GtppMainProps) {
               ))}
             </select>
           </div>
+          {isAdm && (
+          <div data-tour="gtpp-date-range">
+            <label className="form-label mb-1">Prazo entre:</label>
+            <div className="d-flex align-items-center gap-2">
+              <input
+                type="date"
+                className="form-control"
+                value={props.dateFrom}
+                max={props.dateTo || undefined}
+                onChange={(e) => props.setDateFrom(e.target.value)}
+                aria-label="Data inicial do prazo"
+              />
+              <span>—</span>
+              <input
+                type="date"
+                className="form-control"
+                value={props.dateTo}
+                min={props.dateFrom || undefined}
+                onChange={(e) => props.setDateTo(e.target.value)}
+                aria-label="Data final do prazo"
+              />
+              {hasDateFilter && (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  title="Limpar filtro de prazo"
+                  onClick={() => { props.setDateFrom(""); props.setDateTo(""); }}
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              )}
+            </div>
+          </div>
+          )}
         </div>
         <div className="position-relative" data-tour="gtpp-states">
           <h1 onClick={props.handleOpenFilter} className="cursor-pointer d-inline-flex align-items-center gap-2">
@@ -93,11 +137,24 @@ export default function GtppMain(props: GtppMainProps) {
   }
 
   function ContentDefault() {
+    // Recorta a lista pelo intervalo de prazo (final_date) quando algum extremo está preenchido.
+    // Tarefas sem final_date ficam ocultas durante a vigência do filtro — auditoria pede um prazo definido.
+    const fromTs = props.dateFrom ? new Date(props.dateFrom + "T00:00:00").getTime() : null;
+    const toTs = props.dateTo ? new Date(props.dateTo + "T23:59:59").getTime() : null;
+    const tasksInRange = (fromTs === null && toTs === null)
+      ? props.getTask
+      : props.getTask.filter((t) => {
+          if (!t.final_date) return false;
+          const ts = new Date(t.final_date).getTime();
+          if (Number.isNaN(ts)) return false;
+          if (fromTs !== null && ts < fromTs) return false;
+          if (toTs !== null && ts > toTs) return false;
+          return true;
+        });
     return (
       <Col xs={12} data-tour="gtpp-board" className="d-flex flex-nowrap p-0 menu-expansivo flex-grow-1" style={{ overflowX: "auto", height: "70%" }}>
         {props.states?.map((state: any, idx) => {
-          const x = props.getTask;
-          const filteredTasks = x.filter((t) => t.state_id === state.id);
+          const filteredTasks = tasksInRange.filter((t) => t.state_id === state.id);
           const isFirstColumn = idx === 0;
 
           return (
