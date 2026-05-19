@@ -25,6 +25,10 @@ export default interface GtppMainProps {
   setOnSounds: (value: boolean) => void;
   selectedThemeIds: string;
   setSelectedThemeIds: React.Dispatch<React.SetStateAction<string>>;
+  dateFrom: string;
+  setDateFrom: React.Dispatch<React.SetStateAction<string>>;
+  dateTo: string;
+  setDateTo: React.Dispatch<React.SetStateAction<string>>;
   themeList: ITheme[] | undefined;
   idTheme: string;
   getIdTheme: React.Dispatch<React.SetStateAction<string>>;

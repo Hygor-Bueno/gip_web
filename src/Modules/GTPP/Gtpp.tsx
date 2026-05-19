@@ -19,6 +19,8 @@ export default function Gtpp(): JSX.Element {
   const [selectedThemeIds, setSelectedThemeIds] = useState<string>("");
   const [isOpenTheme, setIsOpenTheme] = useState<boolean>(false);
   const [idTheme, getIdTheme] = useState<string>("");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
 
   const listButtonInputs: iPropsInputCheckButton[] = [
     { inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: (e) => setIsAdm(e), labelIcon: "fa-solid fa-user-tie", highlight: true },
@@ -55,6 +57,8 @@ export default function Gtpp(): JSX.Element {
     setSelectedThemeIds("");
     getIdTheme("");
     setSelectedTasks([]);
+    setDateFrom("");
+    setDateTo("");
   };
 
   return (
@@ -69,6 +73,10 @@ export default function Gtpp(): JSX.Element {
         states={states}
         onSounds={onSounds}
         selectedThemeIds={selectedThemeIds}
+        dateFrom={dateFrom}
+        setDateFrom={setDateFrom}
+        dateTo={dateTo}
+        setDateTo={setDateTo}
         themeList={themeList}
         idTheme={idTheme}
         getTask={getTask}
