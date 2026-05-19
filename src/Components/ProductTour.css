@@ -73,13 +73,13 @@
   width: 28px;
   height: 28px;
   border-radius: 7px;
-  background: linear-gradient(135deg, #0d6efd, #0a58ca);
-  color: #fff;
+  background: linear-gradient(135deg, #bed989, #a3c66a);
+  color: #2c3e1f;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
-  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.3);
+  box-shadow: 0 2px 6px rgba(190, 217, 137, 0.45);
 }
 
 .gipp-tour-panel__title {
