@@ -36,10 +36,10 @@ function buildDeadlineBadge(finalDate?: string, percent: number = 0): DeadlineBa
     const diffDays = Math.round((deadline.getTime() - today.getTime()) / 86400000);
     if (diffDays < 0) {
         const overdueBy = Math.abs(diffDays);
-        return { label: `ATRASADA ${overdueBy}d`, className: "bg-danger text-white", icon: "fa-triangle-exclamation" };
+        return { label: `Atrasada ${overdueBy}d`, className: "gtpp-deadline-badge gtpp-deadline-badge--overdue", icon: "fa-triangle-exclamation" };
     }
-    if (diffDays === 0) return { label: "VENCE HOJE", className: "bg-warning text-dark", icon: "fa-clock" };
-    if (diffDays <= 3) return { label: `VENCE EM ${diffDays}d`, className: "bg-warning text-dark", icon: "fa-clock" };
+    if (diffDays === 0) return { label: "Vence hoje", className: "gtpp-deadline-badge gtpp-deadline-badge--soon", icon: "fa-clock" };
+    if (diffDays <= 3) return { label: `Vence em ${diffDays}d`, className: "gtpp-deadline-badge gtpp-deadline-badge--soon", icon: "fa-clock" };
     return null;
 }
 
@@ -74,11 +74,11 @@ const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
                     <h1 className="fw-bold card-text">#{props.id}</h1>
                     {deadlineBadge && (
                         <span
-                            className={`badge ${deadlineBadge.className} d-inline-flex align-items-center gap-1`}
+                            className={deadlineBadge.className}
                             title={`Prazo: ${DateConverter.formatDate(props.final_date || "")}`}
                         >
                             <i className={`fa-solid ${deadlineBadge.icon}`}></i>
-                            {deadlineBadge.label}
+                            <span>{deadlineBadge.label}</span>
                         </span>
                     )}
                 </div>
