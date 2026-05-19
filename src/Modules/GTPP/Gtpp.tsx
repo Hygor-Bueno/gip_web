@@ -32,6 +32,14 @@ export default function Gtpp(): JSX.Element {
     });
   }, [setTitleHead]);
 
+  // Reseta "Elevar como administrador" ao sair da página: ao voltar, começa
+  // sempre desligado (evita que o usuário continue como admin sem perceber).
+  useEffect(() => {
+    return () => {
+      setIsAdm(false);
+    };
+  }, [setIsAdm]);
+
   const handleCheckboxChange = (stateId: number) => {
     const newStates:any  = [...states];
     const idx = newStates.findIndex((s:any) => s.id === stateId);
