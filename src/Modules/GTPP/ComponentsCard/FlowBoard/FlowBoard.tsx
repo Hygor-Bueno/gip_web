@@ -127,19 +127,19 @@ export default function GtppMain(props: GtppMainProps) {
         <div className="flex-grow-1 d-flex flex-column justify-content-between align-items-start h-100 overflow-hidden">
           <div className="d-flex flex-column justify-content-between w-100">
             <div className="flex-grow-1 me-2 w-100">{props.isHeader ? <CardUser {...props.userLog} name={props.userLog.name} /> : null}</div>
-            <div className="d-flex justify-content-between">
-              <div className="d-flex flex-row mt-2 gap-2 flex-wrap">
+            <div className="d-flex justify-content-between align-items-center">
+              <div className="gtpp-tool-group d-flex flex-row mt-2 gap-2 flex-wrap">
                 {props.listButtonInputs.map((btn: any, idx: number) => (
                   <span key={`btn_header_gtpp_${idx}`} data-tour={`gtpp-btn-${btn.inputId}`}>
                     <InputCheckButton {...btn} />
                   </span>
                 ))}
               </div>
-              <div className="d-flex gap-3 align-items-center">
-                <button data-tour="gtpp-menu-toggle" title={props.openMenu ? "Ocultar menu" : "Exibir menu"} onClick={() => props.setOpenMenu(!props.openMenu)} className="btn p-0 d-block d-md-none">
+              <div className="gtpp-tool-group d-flex gap-2 align-items-center mt-2">
+                <button data-tour="gtpp-menu-toggle" title={props.openMenu ? "Ocultar menu" : "Exibir menu"} onClick={() => props.setOpenMenu(!props.openMenu)} className="gtpp-icon-btn d-flex d-md-none">
                   <i className={`fa-solid fa-eye${props.openMenu ? "-slash" : ""}`}></i>
                 </button>
-                <button data-tour="gtpp-sound" title={props.onSounds ? "Som ligado" : "Som desligado"} onClick={() => props.setOnSounds(!props.onSounds)} className="btn p-0">
+                <button data-tour="gtpp-sound" title={props.onSounds ? "Som ligado" : "Som desligado"} onClick={() => props.setOnSounds(!props.onSounds)} className={`gtpp-icon-btn${props.onSounds ? " gtpp-icon-btn--active" : ""}`}>
                   <i className={`fa-solid fa-volume-${props.onSounds ? "high" : "xmark"}`}></i>
                 </button>
                 <button

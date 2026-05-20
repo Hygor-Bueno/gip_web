@@ -281,6 +281,78 @@
     line-height: 1.2;
 }
 
+/* === Grupo de botões-ícone do cabeçalho (toolbar) === */
+/* Idioma visual único: botão circular 34px, borda sutil, hover com
+   leve elevação. Ativos usam a paleta verde da marca (#bed989). */
+
+.gtpp-tool-group > span > button,
+.gtpp-icon-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0 !important;
+  border-radius: 50%;
+  border: 1px solid #e2e5ea;
+  background: #f7f8fa;
+  color: #495866;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.82rem;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  transition: background 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+/* O InputCheckButton renderiza um <label> com o ícone dentro do button.
+   Zeramos o padding herdado e centralizamos o ícone. */
+.gtpp-tool-group > span > button > label {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.gtpp-tool-group > span > button:hover,
+.gtpp-icon-btn:hover {
+  background: #eef0f3;
+  border-color: #cdd2da;
+  color: #1f2937;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(16, 24, 40, 0.1);
+}
+
+.gtpp-tool-group > span > button:focus-visible,
+.gtpp-icon-btn:focus-visible {
+  outline: 2px solid rgba(163, 198, 106, 0.6);
+  outline-offset: 2px;
+}
+
+/* Estado ativo — botões de toggle (admin, filtros) ganham o
+   btn-success do Bootstrap; aqui sobrescrevemos para a paleta verde. */
+.gtpp-tool-group > span > button.btn-success,
+.gtpp-icon-btn--active {
+  background: linear-gradient(135deg, #bed989, #a3c66a);
+  border-color: #a3c66a;
+  color: #2c3e1f !important;
+  box-shadow: 0 2px 8px rgba(190, 217, 137, 0.5);
+}
+
+.gtpp-tool-group > span > button.btn-success > label {
+  color: #2c3e1f !important;
+}
+
+.gtpp-tool-group > span > button.btn-success:hover,
+.gtpp-icon-btn--active:hover {
+  background: linear-gradient(135deg, #b2d178, #97bb5c);
+  color: #2c3e1f;
+}
+
 /* === FAB que abre o painel flutuante de filtros === */
 
 .gtpp-floating-filter-fab {
