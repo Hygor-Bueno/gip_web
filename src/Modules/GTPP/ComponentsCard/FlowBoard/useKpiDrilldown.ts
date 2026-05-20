@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useConnection } from "../../../../Context/ConnContext";
 import { ensureEmployees, EmployeeInfo, getCachedEmployees, isEmployeesLoaded } from "../../Class/userLookupCache";
+import { isTerminalState } from "./flowBoardUtils";
 
 export type DrillKey = "total" | "overdue" | "dueSoon" | "orphan" | "lowPercent";
 
@@ -40,13 +41,15 @@ export function useKpiDrilldown(isAdm: boolean) {
   return { drillKpis, toggleDrill, userMap, loadingUsers };
 }
 
-export function tasksForKpi<T extends { final_date?: string; percent?: number; user_id?: number }>(
+export function tasksForKpi<T extends { final_date?: string; percent?: number; user_id?: number; state_description?: string }>(
   kpi: DrillKey,
   source: T[]
 ): T[] {
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const in7Days = new Date(today); in7Days.setDate(today.getDate() + 7);
   const filtered = source.filter((t) => {
+    // Tarefas canceladas não aparecem em nenhum drill-down do dashboard.
+    if (isTerminalState(t.state_description)) return false;
     const pct = Number(t.percent ?? 0);
     if (kpi === "total") return true;
     if (kpi === "orphan") return !t.user_id;

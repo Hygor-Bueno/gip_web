@@ -201,6 +201,7 @@ const ColumnTaskState: React.FC<ColumnTaskStateProps> = ({
                                     priority_card={task.priority}
                                     percent={task.percent}
                                     create_by={task.user_id}
+                                    state_description={task.state_description ?? title}
                                     onClick={() => handleTaskClick(task)}
                                 />
                             </div>

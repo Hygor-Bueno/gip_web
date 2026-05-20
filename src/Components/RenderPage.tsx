@@ -22,7 +22,7 @@ export default function RenderPage(props: Props): JSX.Element {
             <h1 className='mx-2 d-none d-md-block'>{titleHead.title}</h1>
             <h1 className='mx-2 d-md-none'>{titleHead.simpleTitle}</h1>
           </div>
-          <div className='d-flex align-items-center justify-content-end'>
+          <div className='d-flex align-items-center justify-content-end gap-2'>
             {isLogged && <TourTrigger />}
             {isLogged && <SessionTimer expirationDate={token.expiration_date} loggedAt={token.logged_at} />}
           </div>

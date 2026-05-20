@@ -24,15 +24,28 @@ export function buildPeriodPreset(kind: PeriodPreset): { from: string; to: strin
   return { from: "", to: isoDate(yesterday) };
 }
 
-export function computeAdminKpis(tasks: Array<{ final_date?: string; percent?: number; user_id?: number }>) {
+/**
+ * Estados "terminais" onde a tarefa foi encerrada e não tem mais valor
+ * de auditoria (não conta atraso, não entra no dashboard). Case-insensitive.
+ */
+export function isTerminalState(stateDescription?: string): boolean {
+  const s = (stateDescription || "").trim().toLowerCase();
+  return s === "cancelado" || s === "cancelada";
+}
+
+export function computeAdminKpis(
+  tasks: Array<{ final_date?: string; percent?: number; user_id?: number; state_description?: string }>
+) {
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const in7Days = new Date(today); in7Days.setDate(today.getDate() + 7);
+  // Tarefas canceladas não entram em nenhum indicador do dashboard.
+  const relevant = tasks.filter((t) => !isTerminalState(t.state_description));
   let overdue = 0;
   let dueSoon = 0;
   let orphan = 0;
   let percentSum = 0;
   let percentCount = 0;
-  tasks.forEach((t) => {
+  relevant.forEach((t) => {
     const pct = Number(t.percent ?? 0);
     if (!t.user_id) orphan++;
     percentSum += pct;
@@ -44,7 +57,7 @@ export function computeAdminKpis(tasks: Array<{ final_date?: string; percent?: n
     else if (d <= in7Days) dueSoon++;
   });
   return {
-    total: tasks.length,
+    total: relevant.length,
     overdue,
     dueSoon,
     orphan,

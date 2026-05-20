@@ -14,6 +14,16 @@ type CardTaskProps = {
     final_date?: string;
     percent?:number;
     create_by:number;
+    state_description?: string;
+}
+
+/**
+ * Estados "terminais" onde prazo perde o sentido: tarefa cancelada não
+ * está "atrasada" — ela foi encerrada. Comparação case-insensitive.
+ */
+export function isTerminalState(stateDescription?: string): boolean {
+    const s = (stateDescription || "").trim().toLowerCase();
+    return s === "cancelado" || s === "cancelada";
 }
 
 type DeadlineBadge = {
@@ -64,8 +74,9 @@ const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
     }
 
     let { color, title } = colorPriorityCard(props.priority_card);
-    const deadlineBadge = isAdm ? buildDeadlineBadge(props.final_date, props.percent) : null;
-    const isOverdue = deadlineBadge?.label.startsWith("ATRASADA");
+    const cancelled = isTerminalState(props.state_description);
+    const deadlineBadge = isAdm && !cancelled ? buildDeadlineBadge(props.final_date, props.percent) : null;
+    const isOverdue = deadlineBadge?.label.startsWith("Atrasada");
 
     return (
         <div title={`Tarefa: ${props.title_card}`} {...props} className={`card-task-container modal-container modal-Xsmall cursor-pointer p-2${isOverdue ? " card-task--overdue" : ""}`}>

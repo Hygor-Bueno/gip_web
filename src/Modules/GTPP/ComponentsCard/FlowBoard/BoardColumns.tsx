@@ -5,6 +5,7 @@ import Cardregister from "../CardRegister/Cardregister";
 import PDFGenerator from "../../../../Class/TaskExporter/TaskExporter";
 import { generateAndDownloadCSV, Task } from "../../../../Class/FileGenerator";
 import GtppMainProps from "../../Interfaces/IGtppMainProps";
+import "./BoardColumns.css";
 
 interface Props {
   props: GtppMainProps;
@@ -31,7 +32,7 @@ export default function BoardColumns({ props }: Props) {
         const isFirstColumn = idx === 0;
         return (
           state.active && (
-            <div key={state.id} className="column-task-container p-2 flex-shrink-0">
+            <div key={state.id} className="column-task-container spacing-state flex-shrink-0">
               <ColumnTaskState
                 theme_id_fk={props.selectedThemeIds}
                 setSelectedTasks={props.setSelectedTasks}
