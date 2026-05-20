@@ -285,28 +285,43 @@
 /* Idioma visual único: botão circular 34px, borda sutil, hover com
    leve elevação. Ativos usam a paleta verde da marca (#bed989). */
 
+.gtpp-tool-group { align-items: center; }
+.gtpp-tool-group > span { display: inline-flex; }
+
 .gtpp-tool-group > span > button,
 .gtpp-icon-btn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
   padding: 0 !important;
+  margin: 0 !important;
   border-radius: 50%;
-  border: 1px solid #e2e5ea;
-  background: #f7f8fa;
-  color: #495866;
+  border: 1px solid #dde1e7;
+  background: #eef1f5;
+  color: #475866;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.82rem;
   line-height: 1;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
   transition: background 0.15s ease, border-color 0.15s ease,
     color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
 }
 
+/* Normaliza o tamanho de QUALQUER ícone dentro dos botões da toolbar
+   (font-awesome tem larguras intrínsecas diferentes) e centraliza. */
+.gtpp-tool-group > span > button i,
+.gtpp-icon-btn i {
+  font-size: 0.9rem;
+  line-height: 1;
+  width: 1em;
+  text-align: center;
+  display: inline-block;
+}
+
 /* O InputCheckButton renderiza um <label> com o ícone dentro do button.
-   Zeramos o padding herdado e centralizamos o ícone. */
+   Zeramos espaçamentos herdados e ocupamos o botão inteiro centralizado. */
 .gtpp-tool-group > span > button > label {
   margin: 0 !important;
   padding: 0 !important;
@@ -315,6 +330,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -356,8 +372,9 @@
 /* === FAB que abre o painel flutuante de filtros === */
 
 .gtpp-floating-filter-fab {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
     border-radius: 50%;
     border: 1px solid rgba(163, 198, 106, 0.5);
     background: rgba(190, 217, 137, 0.18);
@@ -366,7 +383,8 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 0.82rem;
+    font-size: 0.9rem;
+    line-height: 1;
     transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
 }
 
