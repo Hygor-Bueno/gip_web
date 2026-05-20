@@ -49,10 +49,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const open = useCallback((id: string) => {
-    setTourMap((prev) => {
-      if (prev[id] && prev[id].steps.length > 0) setOpenId(id);
-      return prev;
-    });
+    setOpenId(id);
   }, []);
 
   const close = useCallback(() => setOpenId(null), []);
@@ -84,16 +81,30 @@ export function useTour(): TourContextValue {
 }
 
 /**
- * Registra um tour nomeado quando o componente monta e limpa no unmount.
- * @param id    identificador único do tour (ex.: "gtpp", "gtpp-admin")
+ * Registra um tour nomeado e mantém seus steps atualizados.
+ *
+ * IMPORTANTE: a atualização (deps muda) e a remoção (unmount) são efeitos
+ * SEPARADOS de propósito. Se fossem o mesmo efeito, cada mudança de deps
+ * dispararia unregister→register, e o unregister zerava o `openId` — o
+ * que fechava o tour sozinho assim que um `setup` mexia em algum estado
+ * que recompõe os steps (ex.: abrir o painel de filtros, ligar admin).
+ *
+ * @param id    identificador único (ex.: "gtpp", "gtpp-admin")
  * @param meta  { label, icon, steps }
- * @param deps  dependências que disparam re-registro
+ * @param deps  dependências que disparam a atualização dos steps
  */
 export function useRegisterTour(id: string, meta: TourMeta, deps: React.DependencyList): void {
   const { registerTour, unregisterTour } = useTour();
+
+  // Atualiza/registra sempre que os deps mudam — sem remover.
   useEffect(() => {
     registerTour(id, meta);
-    return () => unregisterTour(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
+
+  // Remove apenas no unmount real do componente dono do tour.
+  useEffect(() => {
+    return () => unregisterTour(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
