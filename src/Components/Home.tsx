@@ -4,7 +4,7 @@ import { useMyContext } from '../Context/MainContext';
 import NavBar from './NavBar';
 import { useNavigate } from 'react-router-dom';
 import { useConnection } from '../Context/ConnContext';
-import { useRegisterTourSteps } from '../Context/TourContext';
+import { useRegisterTour } from '../Context/TourContext';
 import { buildHomeTourSteps } from './Tour/homeTourSteps';
 const iconGTPP = require("../Assets/Image/GTTP_icon.png");
 const iconCFPP = require("../Assets/Image/CFPP_icon.png");
@@ -52,7 +52,7 @@ export default function Home(): JSX.Element {
         [accessList]
     );
 
-    useRegisterTourSteps(tourSteps, [tourSteps]);
+    useRegisterTour('home', { label: 'Apresentação', icon: 'fa-solid fa-book', steps: tourSteps }, [tourSteps]);
 
     return (
         <div className='d-flex flex-row w-100 h-100 container-fluid p-0 m-0'>

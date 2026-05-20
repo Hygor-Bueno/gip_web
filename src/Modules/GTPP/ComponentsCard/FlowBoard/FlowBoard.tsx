@@ -8,9 +8,9 @@ import { FilterPage } from "../Filter/FilterPage";
 import { InputCheckButton } from "../../../../Components/CustomButton";
 import GtppMainProps from "../../Interfaces/IGtppMainProps";
 import "./FlowBoard.css";
-import { useRegisterTourSteps } from "../../../../Context/TourContext";
+import { useRegisterTour } from "../../../../Context/TourContext";
 import { useWebSocket } from "../../Context/GtppWsContext";
-import { buildGtppTourSteps } from "../../Tour/gtppTourSteps";
+import { buildGtppTourSteps, buildGtppAdminTourSteps } from "../../Tour/gtppTourSteps";
 import DrillPanel from "./DrillPanel";
 import AdminKpiPanel from "./AdminKpiPanel";
 import HeaderFilters from "./HeaderFilters";
@@ -21,7 +21,7 @@ import { useFilterPanelDrag } from "./useFilterPanelDrag";
 import { useKpiDrilldown, drillMeta, tasksForKpi } from "./useKpiDrilldown";
 
 export default function GtppMain(props: GtppMainProps) {
-  const { setTask, setTaskPercent, isAdm } = useWebSocket();
+  const { setTask, setTaskPercent, isAdm, setIsAdm } = useWebSocket();
 
   // Filtro de prazo é recurso de auditoria: só vive enquanto o admin está ligado.
   useEffect(() => {
@@ -82,6 +82,10 @@ export default function GtppMain(props: GtppMainProps) {
     if (filterPanelOpen) setFilterPanelOpen(false);
   }, [filterPanelOpen, setFilterPanelOpen]);
 
+  const enableAdminMode = React.useCallback(() => {
+    if (!isAdm) setIsAdm(true);
+  }, [isAdm, setIsAdm]);
+
   const tourSteps = useMemo(
     () => buildGtppTourSteps({
       openNavbar, openFirstTask, openFirstTaskComments, closeTaskModal,
@@ -89,7 +93,19 @@ export default function GtppMain(props: GtppMainProps) {
     }),
     [openNavbar, openFirstTask, openFirstTaskComments, closeTaskModal, openFilterPanelForTour, closeFilterPanelForTour]
   );
-  useRegisterTourSteps(tourSteps, [tourSteps]);
+  useRegisterTour("gtpp", { label: "Apresentação", icon: "fa-solid fa-book", steps: tourSteps }, [tourSteps]);
+
+  // Tour exclusivo para administradores — só registra se o usuário tem
+  // permissão de admin (userLog.administrator). Para os demais, fica vazio
+  // e o botão não aparece.
+  const isAdminUser = Number(props.userLog?.administrator) === 1;
+  const adminTourSteps = useMemo(
+    () => isAdminUser
+      ? buildGtppAdminTourSteps({ enableAdminMode, openFilterPanelForTour, closeFilterPanelForTour })
+      : [],
+    [isAdminUser, enableAdminMode, openFilterPanelForTour, closeFilterPanelForTour]
+  );
+  useRegisterTour("gtpp-admin", { label: "Novidades Admin", icon: "fa-solid fa-user-tie", steps: adminTourSteps }, [adminTourSteps]);
 
   return (
     <div id="moduleGTPP" className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0">

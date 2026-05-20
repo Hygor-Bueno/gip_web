@@ -1,4 +1,5 @@
 import { TourStep } from "../ProductTour";
+// (helper de steps da Home — registrado via useRegisterTour em Home.tsx)
 
 export interface HomeNavItem {
   page: string;

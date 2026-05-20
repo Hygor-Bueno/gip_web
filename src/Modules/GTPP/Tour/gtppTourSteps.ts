@@ -178,36 +178,6 @@ export function buildGtppTourSteps({
       placement: "right",
       setup: openFilterPanelForTour,
     },
-    {
-      category: "Filtros do Quadro",
-      subcategory: "Modo Administrador",
-      selector: '[data-tour="gtpp-date-range"]',
-      title: "Filtro por Prazo",
-      body:
-        "Disponível apenas no Modo Administrador. Permite filtrar as tarefas por uma faixa de datas de prazo (data inicial e final), ajudando o gestor a focar no que vence em determinado período. Ao desligar o modo admin, o filtro é limpo automaticamente.",
-      placement: "right",
-      setup: openFilterPanelForTour,
-    },
-    {
-      category: "Filtros do Quadro",
-      subcategory: "Modo Administrador",
-      selector: '[data-tour="gtpp-date-presets"]',
-      title: "Atalhos de Período",
-      body:
-        "Botões de atalho que preenchem o filtro de prazo automaticamente: 'Esta semana' (segunda a domingo), 'Este mês' (do dia 1 ao último) e 'Vencidas' (tudo com prazo até ontem). Aceleram a análise sem precisar digitar datas manualmente.",
-      placement: "right",
-      setup: openFilterPanelForTour,
-    },
-    {
-      category: "Filtros do Quadro",
-      subcategory: "Modo Administrador",
-      selector: '[data-tour="gtpp-admin-kpis"]',
-      title: "Indicadores (KPIs)",
-      body:
-        "Painel de cartões-resumo exibido apenas para administradores: total de tarefas, atrasadas, que vencem em 7 dias, sem responsável e percentual médio de conclusão. Clique em um cartão para abrir o drill-down com a lista detalhada das tarefas daquele indicador.",
-      placement: "bottom",
-      setup: closeFilterPanelForTour,
-    },
 
     // ════ Quadro Kanban ════════════════════════════════════════════════
     {
@@ -412,6 +382,88 @@ export function buildGtppTourSteps({
         "Botão verde de envio (avião de papel). Fica desabilitado se não houver texto nem anexo. Ao clicar, o comentário é enviado, sincronizado via WebSocket para os demais usuários, e o sino dos colegas que acompanham essa tarefa pisca com a notificação correspondente.",
       placement: "top",
       setup: openFirstTaskComments,
+    },
+  ];
+}
+
+// ════════════════════════════════════════════════════════════════════
+// TOUR DO ADMINISTRADOR — recursos exclusivos do Modo Administrador
+// ════════════════════════════════════════════════════════════════════
+
+export interface BuildGtppAdminTourStepsDeps {
+  /** Liga o Modo Administrador para os elementos admin aparecerem. */
+  enableAdminMode: () => void;
+  /** Abre o painel flutuante de filtros (onde vive o filtro de prazo). */
+  openFilterPanelForTour: () => void;
+  /** Fecha o painel flutuante de filtros. */
+  closeFilterPanelForTour: () => void;
+}
+
+/**
+ * Tour separado, voltado a quem tem perfil de administrador. Apresenta
+ * as funcionalidades novas que só aparecem com o Modo Administrador
+ * ligado: KPIs, drill-down, e filtro por prazo com atalhos de período.
+ *
+ * Todos os steps ligam o Modo Administrador via setup `enableAdminMode`
+ * para garantir que os elementos existam no DOM durante a demonstração.
+ */
+export function buildGtppAdminTourSteps({
+  enableAdminMode,
+  openFilterPanelForTour,
+  closeFilterPanelForTour,
+}: BuildGtppAdminTourStepsDeps): TourStep[] {
+  const enableAndClosePanel = () => { enableAdminMode(); closeFilterPanelForTour(); };
+  const enableAndOpenPanel = () => { enableAdminMode(); openFilterPanelForTour(); };
+
+  return [
+    {
+      category: "Modo Administrador",
+      selector: '[data-tour^="gtpp-btn-check_adm_"]',
+      title: "Ativar o Modo Administrador",
+      body:
+        "Este é o ponto de partida. Ao ligar o Modo Administrador, o quadro deixa de mostrar só as suas tarefas e passa a exibir as de toda a equipe — além de desbloquear o painel de indicadores e o filtro por prazo. Os próximos passos deste tour ligam o modo automaticamente para você ver os recursos em ação.",
+      placement: "bottom",
+      setup: enableAndClosePanel,
+    },
+    {
+      category: "Modo Administrador",
+      subcategory: "Indicadores",
+      selector: '[data-tour="gtpp-admin-kpis"]',
+      title: "Painel de Indicadores (KPIs)",
+      body:
+        "Cartões-resumo que aparecem só no Modo Administrador, dando uma leitura rápida da saúde do quadro: total de tarefas, quantas estão atrasadas, quantas vencem nos próximos 7 dias, quantas estão sem responsável e o percentual médio de conclusão da equipe.",
+      placement: "bottom",
+      setup: enableAndClosePanel,
+    },
+    {
+      category: "Modo Administrador",
+      subcategory: "Indicadores",
+      selector: '[data-tour="gtpp-admin-kpis"]',
+      title: "Drill-down dos Indicadores",
+      body:
+        "Cada cartão é clicável. Ao clicar, abre um painel lateral (drill-down) com a lista detalhada das tarefas que compõem aquele número — por exemplo, exatamente quais tarefas estão atrasadas e de quem são. Você pode abrir vários drill-downs ao mesmo tempo e clicar em uma tarefa para ir direto ao detalhe dela.",
+      placement: "bottom",
+      setup: enableAndClosePanel,
+    },
+    {
+      category: "Modo Administrador",
+      subcategory: "Filtro por Prazo",
+      selector: '[data-tour="gtpp-date-range"]',
+      title: "Filtro por Prazo",
+      body:
+        "Dentro do painel de filtros (exclusivo do admin). Define uma faixa de datas — prazo inicial e final — para focar nas tarefas que vencem em determinado período. Combina com os filtros de tema e estado. Ao desligar o Modo Administrador, esse filtro é limpo automaticamente para não deixar o quadro com resultado parcial.",
+      placement: "right",
+      setup: enableAndOpenPanel,
+    },
+    {
+      category: "Modo Administrador",
+      subcategory: "Filtro por Prazo",
+      selector: '[data-tour="gtpp-date-presets"]',
+      title: "Atalhos de Período",
+      body:
+        "Botões que preenchem o filtro de prazo num clique: 'Esta semana' (segunda a domingo), 'Este mês' (do dia 1 ao último dia) e 'Vencidas' (tudo com prazo até ontem). Aceleram a rotina de auditoria do gestor sem precisar digitar datas manualmente.",
+      placement: "right",
+      setup: enableAndOpenPanel,
     },
   ];
 }

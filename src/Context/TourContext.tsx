@@ -1,36 +1,78 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import ProductTour, { TourStep } from "../Components/ProductTour";
 
-interface TourContextValue {
+export interface TourMeta {
+  /** Rótulo exibido no botão do header. */
+  label: string;
+  /** Classe Font Awesome do ícone (ex.: "fa-solid fa-book"). */
+  icon: string;
   steps: TourStep[];
-  setSteps: (steps: TourStep[]) => void;
-  open: () => void;
+}
+
+interface RegisteredTour extends TourMeta {
+  id: string;
+}
+
+interface TourContextValue {
+  /** Tours registrados atualmente (ordem de registro). */
+  tours: RegisteredTour[];
+  /** Registra/atualiza um tour por id. */
+  registerTour: (id: string, meta: TourMeta) => void;
+  /** Remove um tour por id. */
+  unregisterTour: (id: string) => void;
+  /** Abre um tour específico pelo id. */
+  open: (id: string) => void;
   close: () => void;
-  isOpen: boolean;
-  hasSteps: boolean;
+  openId: string | null;
 }
 
 const TourContext = createContext<TourContextValue | undefined>(undefined);
 
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [steps, setStepsState] = useState<TourStep[]>([]);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [tourMap, setTourMap] = useState<Record<string, RegisteredTour>>({});
+  const [order, setOrder] = useState<string[]>([]);
+  const [openId, setOpenId] = useState<string | null>(null);
 
-  const setSteps = useCallback((next: TourStep[]) => setStepsState(next), []);
-  const open = useCallback(() => {
-    if (steps.length > 0) setIsOpen(true);
-  }, [steps.length]);
-  const close = useCallback(() => setIsOpen(false), []);
+  const registerTour = useCallback((id: string, meta: TourMeta) => {
+    setTourMap((prev) => ({ ...prev, [id]: { id, ...meta } }));
+    setOrder((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  }, []);
+
+  const unregisterTour = useCallback((id: string) => {
+    setTourMap((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    setOrder((prev) => prev.filter((x) => x !== id));
+    setOpenId((cur) => (cur === id ? null : cur));
+  }, []);
+
+  const open = useCallback((id: string) => {
+    setTourMap((prev) => {
+      if (prev[id] && prev[id].steps.length > 0) setOpenId(id);
+      return prev;
+    });
+  }, []);
+
+  const close = useCallback(() => setOpenId(null), []);
+
+  const tours = useMemo(
+    () => order.map((id) => tourMap[id]).filter(Boolean),
+    [order, tourMap]
+  );
+
+  const activeSteps = openId ? tourMap[openId]?.steps ?? [] : [];
 
   const value = useMemo<TourContextValue>(
-    () => ({ steps, setSteps, open, close, isOpen, hasSteps: steps.length > 0 }),
-    [steps, setSteps, open, close, isOpen]
+    () => ({ tours, registerTour, unregisterTour, open, close, openId }),
+    [tours, registerTour, unregisterTour, open, close, openId]
   );
 
   return (
     <TourContext.Provider value={value}>
       {children}
-      <ProductTour open={isOpen} steps={steps} onClose={close} />
+      <ProductTour open={!!openId} steps={activeSteps} onClose={close} />
     </TourContext.Provider>
   );
 };
@@ -41,12 +83,17 @@ export function useTour(): TourContextValue {
   return ctx;
 }
 
-/** Registra os steps quando o componente monta e limpa no unmount. */
-export function useRegisterTourSteps(steps: TourStep[], deps: React.DependencyList): void {
-  const { setSteps } = useTour();
+/**
+ * Registra um tour nomeado quando o componente monta e limpa no unmount.
+ * @param id    identificador único do tour (ex.: "gtpp", "gtpp-admin")
+ * @param meta  { label, icon, steps }
+ * @param deps  dependências que disparam re-registro
+ */
+export function useRegisterTour(id: string, meta: TourMeta, deps: React.DependencyList): void {
+  const { registerTour, unregisterTour } = useTour();
   useEffect(() => {
-    setSteps(steps);
-    return () => setSteps([]);
+    registerTour(id, meta);
+    return () => unregisterTour(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }
