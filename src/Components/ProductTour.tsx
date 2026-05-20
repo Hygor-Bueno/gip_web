@@ -134,6 +134,7 @@ export default function ProductTour({ open, steps, onClose, startIndex = 0, spot
   const [index, setIndex] = useState<number>(startIndex);
   const [targetRect, setTargetRect] = useState<Rect | null>(null);
   const rafRef = useRef<number | null>(null);
+  const activeItemRef = useRef<HTMLLIElement | null>(null);
 
   const total = steps.length;
   const step = steps[index];
@@ -194,6 +195,16 @@ export default function ProductTour({ open, steps, onClose, startIndex = 0, spot
     return () => document.removeEventListener("keydown", onKey);
   }, [open, total]);
 
+  // Mantém o item ativo da árvore sempre visível: quando o índice muda
+  // (setas, teclado ou clique), rola a sidebar para o step atual.
+  useEffect(() => {
+    if (!open) return;
+    const id = window.requestAnimationFrame(() => {
+      activeItemRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [open, index]);
+
   const panelPos = useMemo(() => computePanelPosition(targetRect), [targetRect]);
 
   if (!open || total === 0 || !step) return null;
@@ -251,6 +262,7 @@ export default function ProductTour({ open, steps, onClose, startIndex = 0, spot
                   {node.steps.map(({ step: s, index: i }) => (
                     <li
                       key={i}
+                      ref={i === index ? activeItemRef : undefined}
                       className={`gipp-tour-tree__item ${i === index ? "active" : ""}`}
                       onClick={() => goTo(i)}
                       title={s.title}
@@ -265,6 +277,7 @@ export default function ProductTour({ open, steps, onClose, startIndex = 0, spot
                         {sub.steps.map(({ step: s, index: i }) => (
                           <li
                             key={i}
+                            ref={i === index ? activeItemRef : undefined}
                             className={`gipp-tour-tree__item ${i === index ? "active" : ""}`}
                             onClick={() => goTo(i)}
                             title={s.title}

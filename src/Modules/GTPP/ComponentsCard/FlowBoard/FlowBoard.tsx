@@ -71,9 +71,23 @@ export default function GtppMain(props: GtppMainProps) {
     }, 400);
   }, [openFirstTask]);
 
+  // Abre o painel flutuante de filtros para o tour conseguir mostrar
+  // os controles que vivem dentro dele (tema, estados, prazo, atalhos).
+  const openFilterPanelForTour = React.useCallback(() => {
+    props.setOpenCardDefault(false);
+    if (!filterPanelOpen) openFilterPanel();
+  }, [filterPanelOpen, openFilterPanel, props]);
+
+  const closeFilterPanelForTour = React.useCallback(() => {
+    if (filterPanelOpen) setFilterPanelOpen(false);
+  }, [filterPanelOpen, setFilterPanelOpen]);
+
   const tourSteps = useMemo(
-    () => buildGtppTourSteps({ openNavbar, openFirstTask, openFirstTaskComments, closeTaskModal }),
-    [openNavbar, openFirstTask, openFirstTaskComments, closeTaskModal]
+    () => buildGtppTourSteps({
+      openNavbar, openFirstTask, openFirstTaskComments, closeTaskModal,
+      openFilterPanelForTour, closeFilterPanelForTour,
+    }),
+    [openNavbar, openFirstTask, openFirstTaskComments, closeTaskModal, openFilterPanelForTour, closeFilterPanelForTour]
   );
   useRegisterTourSteps(tourSteps, [tourSteps]);
 

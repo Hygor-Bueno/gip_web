@@ -9,6 +9,10 @@ export interface BuildGtppTourStepsDeps {
   openFirstTaskComments: () => void;
   /** Fecha o modal de detalhe da tarefa se estiver aberto. */
   closeTaskModal: () => void;
+  /** Abre o painel flutuante de filtros (tema/estados/prazo/atalhos). */
+  openFilterPanelForTour: () => void;
+  /** Fecha o painel flutuante de filtros. */
+  closeFilterPanelForTour: () => void;
 }
 
 /**
@@ -31,6 +35,8 @@ export function buildGtppTourSteps({
   openFirstTask,
   openFirstTaskComments,
   closeTaskModal,
+  openFilterPanelForTour,
+  closeFilterPanelForTour,
 }: BuildGtppTourStepsDeps): TourStep[] {
   return [
     // ════ Navegação Lateral ════════════════════════════════════════════
@@ -147,11 +153,21 @@ export function buildGtppTourSteps({
     // ════ Filtros do Quadro ════════════════════════════════════════════
     {
       category: "Filtros do Quadro",
+      selector: '[data-tour="gtpp-floating-filter-trigger"]',
+      title: "Botão de Filtros",
+      body:
+        "O ícone de funil no cabeçalho abre o painel flutuante de filtros. Esse painel pode ser arrastado pela tela e reúne todos os controles de filtragem do quadro num só lugar: tema, estados visíveis e (para administradores) filtro por prazo.",
+      placement: "left",
+      setup: closeFilterPanelForTour,
+    },
+    {
+      category: "Filtros do Quadro",
       selector: '[data-tour="gtpp-themes"]',
       title: "Filtro por Tema",
       body:
-        'Mostra apenas as tarefas com o tema selecionado. "Todos" exibe tudo; "Sem vínculo" mostra só as tarefas que ainda não foram classificadas. Útil quando o quadro está cheio e você quer focar em um projeto específico.',
-      placement: "bottom",
+        'Dentro do painel de filtros. Mostra apenas as tarefas com o tema selecionado. "Todos" exibe tudo; "Sem vínculo" mostra só as tarefas que ainda não foram classificadas. Útil quando o quadro está cheio e você quer focar em um projeto específico.',
+      placement: "right",
+      setup: openFilterPanelForTour,
     },
     {
       category: "Filtros do Quadro",
@@ -159,7 +175,38 @@ export function buildGtppTourSteps({
       title: "Filtro de Estados",
       body:
         'Controla quais colunas do Kanban aparecem. Por padrão todas estão visíveis; se você quer ver apenas "Em andamento" e "Concluído", por exemplo, desmarque as outras aqui. A configuração fica salva no seu navegador.',
+      placement: "right",
+      setup: openFilterPanelForTour,
+    },
+    {
+      category: "Filtros do Quadro",
+      subcategory: "Modo Administrador",
+      selector: '[data-tour="gtpp-date-range"]',
+      title: "Filtro por Prazo",
+      body:
+        "Disponível apenas no Modo Administrador. Permite filtrar as tarefas por uma faixa de datas de prazo (data inicial e final), ajudando o gestor a focar no que vence em determinado período. Ao desligar o modo admin, o filtro é limpo automaticamente.",
+      placement: "right",
+      setup: openFilterPanelForTour,
+    },
+    {
+      category: "Filtros do Quadro",
+      subcategory: "Modo Administrador",
+      selector: '[data-tour="gtpp-date-presets"]',
+      title: "Atalhos de Período",
+      body:
+        "Botões de atalho que preenchem o filtro de prazo automaticamente: 'Esta semana' (segunda a domingo), 'Este mês' (do dia 1 ao último) e 'Vencidas' (tudo com prazo até ontem). Aceleram a análise sem precisar digitar datas manualmente.",
+      placement: "right",
+      setup: openFilterPanelForTour,
+    },
+    {
+      category: "Filtros do Quadro",
+      subcategory: "Modo Administrador",
+      selector: '[data-tour="gtpp-admin-kpis"]',
+      title: "Indicadores (KPIs)",
+      body:
+        "Painel de cartões-resumo exibido apenas para administradores: total de tarefas, atrasadas, que vencem em 7 dias, sem responsável e percentual médio de conclusão. Clique em um cartão para abrir o drill-down com a lista detalhada das tarefas daquele indicador.",
       placement: "bottom",
+      setup: closeFilterPanelForTour,
     },
 
     // ════ Quadro Kanban ════════════════════════════════════════════════
@@ -231,6 +278,16 @@ export function buildGtppTourSteps({
       title: "Título e Progresso Geral",
       body:
         "Exibe o nome da tarefa no topo, uma barra verde indicando o percentual de conclusão geral (calculado a partir das subtarefas marcadas), e o botão de fechar à direita. A barra atualiza em tempo real conforme você marca itens como concluídos.",
+      placement: "bottom",
+      setup: openFirstTask,
+    },
+    {
+      category: "Detalhe da Tarefa",
+      subcategory: "Cabeçalho",
+      selector: '[data-tour="gtpp-modal-progress"]',
+      title: "Barra de Progresso",
+      body:
+        "Barra verde logo abaixo do título que mostra o percentual de conclusão geral da tarefa. É calculada automaticamente a partir das subtarefas marcadas como concluídas e atualiza em tempo real conforme você avança o trabalho.",
       placement: "bottom",
       setup: openFirstTask,
     },
