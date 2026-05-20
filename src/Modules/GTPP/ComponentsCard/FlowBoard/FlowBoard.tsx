@@ -82,8 +82,19 @@ export default function GtppMain(props: GtppMainProps) {
     if (filterPanelOpen) setFilterPanelOpen(false);
   }, [filterPanelOpen, setFilterPanelOpen]);
 
+  // Aciona o PRÓPRIO botão "Elevar como administrador" (clicando no
+  // checkbox real) em vez de só setIsAdm — assim o toggle fica visualmente
+  // marcado e o usuário consegue desmarcá-lo após o tour para voltar às
+  // suas tarefas. Fallback para setIsAdm se o DOM não for encontrado.
   const enableAdminMode = React.useCallback(() => {
-    if (!isAdm) setIsAdm(true);
+    const input = document.querySelector<HTMLInputElement>(
+      '[data-tour^="gtpp-btn-check_adm_"] input[type="checkbox"]'
+    );
+    if (input) {
+      if (!input.checked) input.click();
+    } else if (!isAdm) {
+      setIsAdm(true);
+    }
   }, [isAdm, setIsAdm]);
 
   const tourSteps = useMemo(
