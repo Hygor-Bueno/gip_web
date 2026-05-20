@@ -320,8 +320,10 @@
   display: inline-block;
 }
 
-/* O InputCheckButton renderiza um <label> com o ícone dentro do button.
-   Zeramos espaçamentos herdados e ocupamos o botão inteiro centralizado. */
+/* O InputCheckButton aplica a classe do ícone (Font Awesome) NO PRÓPRIO
+   <label>, que renderiza o glifo via ::before — não há <i>. Por isso
+   normalizamos tamanho/centralização aqui também, senão o funil/chevron
+   ficam com baseline diferente do resto. */
 .gtpp-tool-group > span > button > label {
   margin: 0 !important;
   padding: 0 !important;
@@ -330,8 +332,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.9rem;
   line-height: 1;
   cursor: pointer;
+}
+
+.gtpp-tool-group > span > button > label::before {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+  line-height: 1;
 }
 
 .gtpp-tool-group > span > button:hover,
