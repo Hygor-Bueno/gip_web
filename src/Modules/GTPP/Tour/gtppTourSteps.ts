@@ -116,15 +116,6 @@ export function buildGtppTourSteps({
     {
       category: "Cabeçalho do Quadro",
       subcategory: "Controles laterais",
-      selector: '[data-tour="gtpp-menu-toggle"]',
-      title: "Ocultar/Exibir Menu (Mobile)",
-      body:
-        "Botão visível apenas em telas pequenas. Esconde o menu lateral para deixar mais espaço ao quadro Kanban. Em desktop o menu fica sempre aberto.",
-      placement: "left",
-    },
-    {
-      category: "Cabeçalho do Quadro",
-      subcategory: "Controles laterais",
       selector: '[data-tour="gtpp-sound"]',
       title: "Som das Notificações",
       body:

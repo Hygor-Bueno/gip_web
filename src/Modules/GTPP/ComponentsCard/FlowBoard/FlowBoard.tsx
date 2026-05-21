@@ -136,9 +136,6 @@ export default function GtppMain(props: GtppMainProps) {
                 ))}
               </div>
               <div className="gtpp-tool-group d-flex gap-2 align-items-center mt-2">
-                <button data-tour="gtpp-menu-toggle" title={props.openMenu ? "Ocultar menu" : "Exibir menu"} onClick={() => props.setOpenMenu(!props.openMenu)} className="gtpp-icon-btn d-flex d-md-none">
-                  <i className={`fa-solid fa-eye${props.openMenu ? "-slash" : ""}`}></i>
-                </button>
                 <button data-tour="gtpp-sound" title={props.onSounds ? "Som ligado" : "Som desligado"} onClick={() => props.setOnSounds(!props.onSounds)} className={`gtpp-icon-btn${props.onSounds ? " gtpp-icon-btn--active" : ""}`}>
                   <i className={`fa-solid fa-volume-${props.onSounds ? "high" : "xmark"}`}></i>
                 </button>

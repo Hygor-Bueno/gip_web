@@ -52,6 +52,22 @@ export default function HeaderFilters({ props, isAdm }: Props) {
 
   return (
     <div className="gtpp-filters d-flex flex-column gap-3">
+      {/* Toggle do menu lateral — só no mobile. Movido pra cá para
+          liberar espaço no toolbar do cabeçalho em telas pequenas. */}
+      <div className="d-md-none" data-tour="gtpp-menu-toggle">
+        <label className="form-label gtpp-filter-label">Menu lateral:</label>
+        <button
+          type="button"
+          className="gtpp-states-trigger form-select text-start d-inline-flex align-items-center justify-content-between"
+          onClick={() => props.setOpenMenu(!props.openMenu)}
+          title={props.openMenu ? "Ocultar menu lateral" : "Exibir menu lateral"}
+        >
+          <span className="text-truncate">
+            <i className={`fa-solid fa-eye${props.openMenu ? "-slash" : ""} me-2 text-muted`}></i>
+            {props.openMenu ? "Ocultar menu lateral" : "Exibir menu lateral"}
+          </span>
+        </button>
+      </div>
       <div data-tour="gtpp-themes">
         <label className="form-label gtpp-filter-label">Filtrar pelo tema:</label>
         <select
