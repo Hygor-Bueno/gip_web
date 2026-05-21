@@ -85,8 +85,7 @@ export default function HeaderFilters({ props, isAdm }: Props) {
           ))}
         </select>
       </div>
-      {isAdm && (
-        <div data-tour="gtpp-date-range">
+      <div data-tour="gtpp-date-range">
           <label className="form-label gtpp-filter-label">Prazo entre:</label>
           <div className="d-flex align-items-center gap-2 flex-wrap">
             <input
@@ -141,7 +140,6 @@ export default function HeaderFilters({ props, isAdm }: Props) {
             )}
           </div>
         </div>
-      )}
       {isAdm && (
         <div data-tour="gtpp-collab-filter">
           <label className="form-label gtpp-filter-label">Filtrar por colaborador:</label>

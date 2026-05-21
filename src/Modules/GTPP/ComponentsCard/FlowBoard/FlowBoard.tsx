@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import NavBar from "../../../../Components/NavBar";
 import { listPath } from "../../mock/configurationfile";
 import CardUser from "../../../CLPP/Components/CardUser";
@@ -22,14 +22,6 @@ import { useKpiDrilldown, drillMeta, tasksForKpi } from "./useKpiDrilldown";
 
 export default function GtppMain(props: GtppMainProps) {
   const { setTask, setTaskPercent, isAdm, setIsAdm } = useWebSocket();
-
-  // Filtro de prazo é recurso de auditoria: só vive enquanto o admin está ligado.
-  useEffect(() => {
-    if (!isAdm && (props.dateFrom || props.dateTo)) {
-      props.setDateFrom("");
-      props.setDateTo("");
-    }
-  }, [isAdm]);
 
   const {
     filterPanelOpen, setFilterPanelOpen, panelPos, dragging, panelRef,

@@ -3,7 +3,6 @@ import "./CardTask.css";
 import NotificationBell from "../../../../Components/NotificationBell";
 import ProgressBar from "../Modal/Progressbar";
 import { useMyContext } from "../../../../Context/MainContext";
-import { useWebSocket } from "../../Context/GtppWsContext";
 import { DateConverter } from "../../Class/DataConvert";
 
 
@@ -62,7 +61,6 @@ type PriorityCardResult = {
 
 const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
     const {userLog} = useMyContext();
-    const { isAdm } = useWebSocket();
 
     const colorPriorityCard = (numberKey: Number | string = 0): PriorityCardResult => {
         switch (numberKey) {
@@ -75,7 +73,9 @@ const CardTask: React.FC<CardTaskProps & CardTaskAllPropsHTML> = (props) => {
 
     let { color, title } = colorPriorityCard(props.priority_card);
     const cancelled = isTerminalState(props.state_description);
-    const deadlineBadge = isAdm && !cancelled ? buildDeadlineBadge(props.final_date, props.percent) : null;
+    // Aviso de prazo visível para TODOS os usuários — não só admin —
+    // para que cada um veja que sua tarefa está perto de vencer.
+    const deadlineBadge = !cancelled ? buildDeadlineBadge(props.final_date, props.percent) : null;
     const isOverdue = deadlineBadge?.label.startsWith("Atrasada");
 
     return (

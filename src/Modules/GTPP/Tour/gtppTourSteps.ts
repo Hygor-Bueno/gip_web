@@ -138,7 +138,7 @@ export function buildGtppTourSteps({
       selector: '[data-tour="gtpp-floating-filter-trigger"]',
       title: "Botão de Filtros",
       body:
-        "O ícone de funil no cabeçalho abre o painel flutuante de filtros. Esse painel pode ser arrastado pela tela e reúne todos os controles de filtragem do quadro num só lugar: tema, estados visíveis e (para administradores) filtro por prazo.",
+        "O ícone de funil no cabeçalho abre o painel flutuante de filtros. Esse painel pode ser arrastado pela tela e reúne os controles de filtragem do quadro num só lugar: tema, estados visíveis e prazo.",
       placement: "left",
       setup: closeFilterPanelForTour,
     },
@@ -157,6 +157,24 @@ export function buildGtppTourSteps({
       title: "Filtro de Estados",
       body:
         'Controla quais colunas do Kanban aparecem. Por padrão todas estão visíveis; se você quer ver apenas "Em andamento" e "Concluído", por exemplo, desmarque as outras aqui. A configuração fica salva no seu navegador.',
+      placement: "right",
+      setup: openFilterPanelForTour,
+    },
+    {
+      category: "Filtros do Quadro",
+      selector: '[data-tour="gtpp-date-range"]',
+      title: "Filtro por Prazo",
+      body:
+        "Define uma faixa de datas (prazo inicial e final) para focar nas tarefas que vencem em determinado período. Combina com os filtros de tema e estado. Disponível para todos os usuários.",
+      placement: "right",
+      setup: openFilterPanelForTour,
+    },
+    {
+      category: "Filtros do Quadro",
+      selector: '[data-tour="gtpp-date-presets"]',
+      title: "Atalhos de Período",
+      body:
+        "Botões que preenchem o filtro de prazo num clique: 'Semana' (segunda a domingo), 'Mês' (do dia 1 ao último) e 'Vencidas' (tudo com prazo até ontem). Acelera a consulta sem precisar digitar datas manualmente.",
       placement: "right",
       setup: openFilterPanelForTour,
     },
@@ -426,26 +444,6 @@ export function buildGtppAdminTourSteps({
         "Cada cartão é clicável. Ao clicar, abre um painel lateral (drill-down) com a lista detalhada das tarefas que compõem aquele número — por exemplo, exatamente quais tarefas estão atrasadas e de quem são. Você pode abrir vários drill-downs ao mesmo tempo e clicar em uma tarefa para ir direto ao detalhe dela.",
       placement: "bottom",
       setup: enableAndClosePanel,
-    },
-    {
-      category: "Modo Administrador",
-      subcategory: "Filtro por Prazo",
-      selector: '[data-tour="gtpp-date-range"]',
-      title: "Filtro por Prazo",
-      body:
-        "Dentro do painel de filtros (exclusivo do admin). Define uma faixa de datas — prazo inicial e final — para focar nas tarefas que vencem em determinado período. Combina com os filtros de tema e estado. Ao desligar o Modo Administrador, esse filtro é limpo automaticamente para não deixar o quadro com resultado parcial.",
-      placement: "right",
-      setup: enableAndOpenPanel,
-    },
-    {
-      category: "Modo Administrador",
-      subcategory: "Filtro por Prazo",
-      selector: '[data-tour="gtpp-date-presets"]',
-      title: "Atalhos de Período",
-      body:
-        "Botões que preenchem o filtro de prazo num clique: 'Esta semana' (segunda a domingo), 'Este mês' (do dia 1 ao último dia) e 'Vencidas' (tudo com prazo até ontem). Aceleram a rotina de auditoria do gestor sem precisar digitar datas manualmente.",
-      placement: "right",
-      setup: enableAndOpenPanel,
     },
     {
       category: "Modo Administrador",
