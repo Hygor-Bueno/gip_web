@@ -139,11 +139,10 @@ const ColumnTaskState: React.FC<ColumnTaskStateProps> = ({
     ) ?? [];
 
     // ─────────────────────────────────────────────────────────────────────────
-
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-            {/* Header */}
+            
             <div
                 className={`columnTaskState-title rounded-top d-flex align-items-center ${buttonHeader ? 'justify-content-between' : 'justify-content-center'}`}
                 style={{ background: `#${bg_color}` }}
