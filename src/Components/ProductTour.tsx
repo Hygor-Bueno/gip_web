@@ -133,6 +133,7 @@ function buildTree(steps: TourStep[]): TreeNode[] {
 export default function ProductTour({ open, steps, onClose, startIndex = 0, spotlightPadding = 8 }: ProductTourProps): JSX.Element | null {
   const [index, setIndex] = useState<number>(startIndex);
   const [targetRect, setTargetRect] = useState<Rect | null>(null);
+  const [mobileTreeOpen, setMobileTreeOpen] = useState<boolean>(false);
   const rafRef = useRef<number | null>(null);
   const activeItemRef = useRef<HTMLLIElement | null>(null);
 
@@ -214,7 +215,7 @@ export default function ProductTour({ open, steps, onClose, startIndex = 0, spot
     if (index >= total - 1) onClose();
     else setIndex((i) => Math.min(total - 1, i + 1));
   };
-  const goTo = (i: number) => setIndex(i);
+  const goTo = (i: number) => { setIndex(i); setMobileTreeOpen(false); };
 
   return (
     <div className="gipp-tour-root" role="dialog" aria-modal="true">
@@ -232,13 +233,23 @@ export default function ProductTour({ open, steps, onClose, startIndex = 0, spot
         />
       )}
       <div
-        className="gipp-tour-panel"
+        className={`gipp-tour-panel${mobileTreeOpen ? " gipp-tour-panel--tree-open" : ""}`}
         style={{ top: panelPos.top, left: panelPos.left, width: PANEL_WIDTH, maxHeight: PANEL_MAX_HEIGHT }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Cabeçalho ───────────────────────────────────────────── */}
         <header className="gipp-tour-panel__head">
           <div className="gipp-tour-panel__title-row">
+            {/* Botão "Tópicos" — só no mobile, abre/fecha a árvore */}
+            <button
+              type="button"
+              className="gipp-tour-tree-toggle"
+              onClick={() => setMobileTreeOpen((v) => !v)}
+              aria-label="Tópicos"
+              title="Tópicos"
+            >
+              <i className={`fa-solid ${mobileTreeOpen ? "fa-xmark" : "fa-list-ul"}`} />
+            </button>
             <i className="fa-solid fa-book gipp-tour-panel__icon" />
             <h5 className="gipp-tour-panel__title">Apresentação do GTPP</h5>
           </div>

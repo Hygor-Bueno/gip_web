@@ -66,6 +66,24 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+}
+
+/* Botão "Tópicos" (abre a árvore no mobile) — escondido no desktop,
+   onde a árvore já fica sempre visível ao lado. */
+.gipp-tour-tree-toggle {
+  display: none;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: rgba(190, 217, 137, 0.25);
+  color: #2c3e1f;
+  border-radius: 7px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 .gipp-tour-panel__icon {
@@ -362,15 +380,30 @@
     top: 12px !important;
   }
 
-  .gipp-tour-panel__body {
-    flex-direction: column;
+  /* Mostra o botão Tópicos no mobile */
+  .gipp-tour-tree-toggle {
+    display: inline-flex;
   }
 
+  /* Conteúdo em tela cheia: a árvore fica ESCONDIDA por padrão e só
+     aparece como overlay quando o usuário toca em "Tópicos". Assim o
+     conteúdo (título + descrição + setas) tem todo o espaço. */
   .gipp-tour-tree {
-    flex: 0 0 auto;
-    max-height: 200px;
+    display: none;
+    position: absolute;
+    top: 52px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    max-height: none;
     border-right: none;
-    border-bottom: 1px solid #eef0f3;
+    border-bottom: none;
+    background: #fafbfc;
+  }
+
+  .gipp-tour-panel--tree-open .gipp-tour-tree {
+    display: block;
   }
 
   /* Header compacto: o título longo não pode empurrar contador/X.
