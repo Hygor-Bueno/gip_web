@@ -7,7 +7,11 @@ import { useWebSocket } from "../../Context/GtppWsContext";
 import { useMyContext } from "../../../../Context/MainContext";
 import { useConnection } from "../../../../Context/ConnContext";
 
-export function FilterPage() {
+interface FilterPageProps {
+  onClose: () => void;
+}
+
+export function FilterPage({ onClose }: FilterPageProps) {
   const [page, setPage] = useState<number>(1);
   const [limitPage, setLimitPage] = useState<number>(1);
   const [params, setParams] = useState<string>('');
@@ -54,7 +58,7 @@ export function FilterPage() {
 return (
   <div style={{ zIndex: "2" }} className="d-flex justify-content-end bg-dark bg-opacity-50 position-absolute top-0 start-0 w-100 h-100">
     <div className="bg-white col-12 col-sm-8 col-md-6 col-lg-5 d-flex flex-column h-100">
-      <div className="d-flex justify-content-end p-2"><button onClick={async () => document.getElementById('check_filter')?.click()} type="button" className="btn btn-danger">X</button></div>
+      <div className="d-flex justify-content-end p-2"><button onClick={onClose} type="button" className="btn btn-danger">X</button></div>
       <div className="px-2">
         <FiltersSearchUser
           onAction={(e: string) => {
@@ -83,7 +87,7 @@ return (
 
   function closeCustomTable(colabs: any) {
     setGetTask(filterTasks(getTask, { ...parseQueryStringToJson(params), colabs: colabs.map((colab: any) => colab.employee_id.value) }));
-    document.getElementById('check_filter')?.click();
+    onClose();
   }
 
   function filterTasks(tasks: any[], filter: any): any[] {

@@ -7,6 +7,7 @@ export default interface GtppMainProps {
   openMenu: boolean;
   setOpenMenu: React.Dispatch<React.SetStateAction<boolean>>;
   openFilterGolbal: boolean;
+  setOpenFilterGolbal: React.Dispatch<React.SetStateAction<boolean>>;
   isHeader: boolean;
   userLog: User;
   listButtonInputs: Array<{

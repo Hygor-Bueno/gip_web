@@ -126,6 +126,23 @@ export default function HeaderFilters({ props, isAdm }: Props) {
           </div>
         </div>
       )}
+      {isAdm && (
+        <div data-tour="gtpp-collab-filter">
+          <label className="form-label gtpp-filter-label">Filtrar por colaborador:</label>
+          <button
+            type="button"
+            className="gtpp-states-trigger form-select text-start d-inline-flex align-items-center justify-content-between"
+            onClick={() => props.setOpenFilterGolbal(true)}
+            title="Abrir busca de colaboradores"
+          >
+            <span className="text-truncate">
+              <i className="fa-solid fa-users me-2 text-muted"></i>
+              Buscar colaboradores…
+            </span>
+            <i className="fa-solid fa-chevron-right text-muted" style={{ fontSize: "0.7rem" }}></i>
+          </button>
+        </div>
+      )}
       <div data-tour="gtpp-states">
         <label className="form-label gtpp-filter-label">Filtrar pelo estado:</label>
         <button

@@ -107,15 +107,6 @@ export function buildGtppTourSteps({
     {
       category: "Cabeçalho do Quadro",
       subcategory: "Ações principais",
-      selector: '[data-tour="gtpp-btn-check_filter"]',
-      title: "Filtros da Página",
-      body:
-        "Abre o painel completo de filtros: busca por texto, prioridade (baixa, média, alta), faixa de datas inicial e final, e filtro por usuário atribuído. É o filtro global do quadro, diferente do filtro por coluna.",
-      placement: "bottom",
-    },
-    {
-      category: "Cabeçalho do Quadro",
-      subcategory: "Ações principais",
       selector: '[data-tour="gtpp-btn-reload_tasks"]',
       title: "Recarregar Tarefas",
       body:
@@ -462,6 +453,16 @@ export function buildGtppAdminTourSteps({
       title: "Atalhos de Período",
       body:
         "Botões que preenchem o filtro de prazo num clique: 'Esta semana' (segunda a domingo), 'Este mês' (do dia 1 ao último dia) e 'Vencidas' (tudo com prazo até ontem). Aceleram a rotina de auditoria do gestor sem precisar digitar datas manualmente.",
+      placement: "right",
+      setup: enableAndOpenPanel,
+    },
+    {
+      category: "Modo Administrador",
+      subcategory: "Filtro por Colaborador",
+      selector: '[data-tour="gtpp-collab-filter"]',
+      title: "Filtrar por Colaborador",
+      body:
+        "Exclusivo do admin (antes era um filtro separado, agora unificado aqui no painel). Abre a busca de colaboradores — uma tabela paginada com nome, loja e departamento — para você filtrar o quadro pelas tarefas de pessoas específicas da equipe. Ideal para acompanhar o trabalho de um colaborador ou setor.",
       placement: "right",
       setup: enableAndOpenPanel,
     },

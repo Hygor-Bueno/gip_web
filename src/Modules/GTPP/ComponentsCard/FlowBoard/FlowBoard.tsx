@@ -122,7 +122,7 @@ export default function GtppMain(props: GtppMainProps) {
     <div id="moduleGTPP" className="d-flex flex-row h-100 w-100 position-relative container-fluid m-0 p-0">
       {props.openThemeModal && <ModalThemeRegisterTask onClose={() => props.setOpenThemeModal(false)} />}
       {props.openMenu && <NavBar list={listPath} />}
-      {props.openFilterGolbal && <FilterPage />}
+      {props.openFilterGolbal && <FilterPage onClose={() => props.setOpenFilterGolbal(false)} />}
       <div className="h-100 d-flex overflow-hidden px-3 flex-grow-1">
         <div className="flex-grow-1 d-flex flex-column justify-content-between align-items-start h-100 overflow-hidden">
           <div className="d-flex flex-column justify-content-between w-100">

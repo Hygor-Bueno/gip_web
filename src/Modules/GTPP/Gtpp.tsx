@@ -26,12 +26,14 @@ export default function Gtpp(): JSX.Element {
   // de admin — colaborador comum não vê esse botão.
   const isAdminUser = Number(userLog?.administrator) === 1;
 
+  // O filtro de colaboradores (check_filter / FilterPage) foi unificado
+  // dentro do painel flutuante de filtros — não é mais um botão separado
+  // no toolbar. Ver HeaderFilters (botão admin-only "Filtrar por colaborador").
   const listButtonInputs: iPropsInputCheckButton[] = [
     ...(isAdminUser
       ? [{ inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: (e: boolean) => setIsAdm(e), labelIcon: "fa-solid fa-user-tie", highlight: true }]
       : []),
     { inputId: "gttp_exp_ret", nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"] },
-    { inputId: "check_filter", nameButton: "Filtros da página", onAction: (e) => setOpenFilterGolbal(e), labelIcon: "fa-solid fa-filter", highlight: true },
     { inputId: "reload_tasks", nameButton: "Recarregar as tarefas", onAction: () => {reqTasks();clearFiltersInput();}, labelIcon: "fa fa-refresh" },
   ];
 
@@ -74,6 +76,7 @@ export default function Gtpp(): JSX.Element {
         openMenu={openMenu}
         isHeader={isHeader}
         openFilterGolbal={openFilterGolbal}
+        setOpenFilterGolbal={setOpenFilterGolbal}
         userLog={userLog}
         listButtonInputs={listButtonInputs}
         openFilter={openFilter}
