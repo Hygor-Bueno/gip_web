@@ -60,12 +60,13 @@ const LoadUserCheck = (props: any) => {
   }
 
   return (
-    <div className="overflow-hidden d-flex flex-column justify-content-between h-100 gap-2">
-      <div>
+    <div className="gtpp-collab-body overflow-hidden d-flex flex-column justify-content-between h-100 gap-2">
+      <div className="gtpp-collab-search">
+        <i className="fa-solid fa-magnifying-glass gtpp-collab-search__icon" aria-hidden="true"></i>
         <input
-          placeholder="Nome do colaborador..."
+          placeholder="Buscar colaborador e Enter..."
           type="text"
-          className="form-control mb-3"
+          className="gtpp-collab-search__input"
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === "Enter") {
               setSearchTerm(e.currentTarget.value);
@@ -75,26 +76,44 @@ const LoadUserCheck = (props: any) => {
           }}
         />
       </div>
-      <div className="overflow-auto h-100">
-        {list.map((item: any) => {
-          const filterCheckList = Array.isArray(props.list.data.user) ? props.list.data.user.some((user: any) => Number(item.employee_id) === Number(user.user_id)) : false;
-          return (
-            <ListUserTask
-              listTask={props.list.data.datatask}
-              key={item.employee_id}
-              item={item}
-              taskid={props.list.data.datatask.id}
-              userId={item.employee_id}
-              loadUserTaskLis={loadUserTaskLis}
-              check={filterCheckList}
-            />
-          );
-        })}
+      <div className="gtpp-collab-list overflow-auto h-100">
+        {list.length === 0 ? (
+          <div className="gtpp-collab-empty">Nenhum colaborador encontrado.</div>
+        ) : (
+          list.map((item: any) => {
+            const filterCheckList = Array.isArray(props.list.data.user) ? props.list.data.user.some((user: any) => Number(item.employee_id) === Number(user.user_id)) : false;
+            return (
+              <ListUserTask
+                listTask={props.list.data.datatask}
+                key={item.employee_id}
+                item={item}
+                taskid={props.list.data.datatask.id}
+                userId={item.employee_id}
+                loadUserTaskLis={loadUserTaskLis}
+                check={filterCheckList}
+              />
+            );
+          })
+        )}
       </div>
-      <div className="d-flex justify-content-between align-items-center">
-        <button className="btn btn-danger" onClick={() => setPage(prev => (prev > 1 ? prev - 1 : 1))}>{"<"}</button>
-        <strong>{String(page).padStart(2, "0")} / {String(limitPage).padStart(2, "0")}</strong>
-        <button className="btn btn-success" onClick={() => setPage(prev => (prev < limitPage ? prev + 1 : limitPage))}>{">"}</button>
+      <div className="gtpp-collab-pager d-flex justify-content-between align-items-center">
+        <button
+          className="gtpp-collab-pager__btn"
+          onClick={() => setPage(prev => (prev > 1 ? prev - 1 : 1))}
+          disabled={page <= 1}
+          aria-label="Página anterior"
+        >
+          <i className="fa-solid fa-chevron-left"></i>
+        </button>
+        <span className="gtpp-collab-pager__count">{String(page).padStart(2, "0")} / {String(limitPage).padStart(2, "0")}</span>
+        <button
+          className="gtpp-collab-pager__btn"
+          onClick={() => setPage(prev => (prev < limitPage ? prev + 1 : limitPage))}
+          disabled={page >= limitPage}
+          aria-label="Próxima página"
+        >
+          <i className="fa-solid fa-chevron-right"></i>
+        </button>
       </div>
     </div>
   );

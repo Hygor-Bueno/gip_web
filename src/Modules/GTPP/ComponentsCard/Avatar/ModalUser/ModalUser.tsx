@@ -6,25 +6,44 @@ const ModalUser = (props: any) => {
   const [loadUserTask, setLoadUserTask] = useState(true);
 
   return (
-    <div className="border-dark bg-dark text-white rounded portrait d-flex flex-column justify-content-between p-2">
+    <div className="gtpp-collab-panel portrait d-flex flex-column justify-content-between">
       {loadUserTask ? (
         <React.Fragment>
           {props.children}
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <div className="d-flex align-items-center justify-content-between mb-2">
-            <strong>Adicione Colaboradores</strong>
-            <button className="btn bg-danger text-white" onClick={() => setLoadUserTask(true)}>X</button>
+          <div className="gtpp-collab-panel__header d-flex align-items-center justify-content-between">
+            <div className="gtpp-collab-panel__title">
+              <span className="gtpp-collab-panel__icon" aria-hidden="true">
+                <i className="fa-solid fa-user-plus"></i>
+              </span>
+              <strong>Adicione Colaboradores</strong>
+            </div>
+            <button
+              className="gtpp-collab-panel__close"
+              onClick={() => setLoadUserTask(true)}
+              aria-label="Fechar"
+              title="Fechar"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
           </div>
           <LoadUserCheck list={props} />
         </React.Fragment>
-      )}  
-    {loadUserTask && (
+      )}
+      {loadUserTask && (
         <div className="d-flex justify-content-end">
-            <i className="btn fa fa-pencil text-white" onClick={() => setLoadUserTask(false)}></i>
+          <button
+            className="gtpp-collab-panel__edit"
+            onClick={() => setLoadUserTask(false)}
+            aria-label="Adicionar colaboradores"
+            title="Adicionar colaboradores"
+          >
+            <i className="fa fa-pencil"></i>
+          </button>
         </div>
-    )}
+      )}
     </div>
   );
 };

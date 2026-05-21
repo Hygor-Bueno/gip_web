@@ -32,7 +32,7 @@ const ListUserTask = ({ item, taskid, check = false }: any) => {
   };
 
   return (
-    <div className={`d-flex gap-4 rounded w-100 align-items-center p-1 mb-2 ${check ? 'bg-secondary' :  ''} `}
+    <div className={`gtpp-collab-row d-flex align-items-center w-100 ${check ? 'is-checked' : ''}`}
       onClick={async () => {
         setIsChecked(!isChecked);
         await handleActiveUser(!isChecked);
@@ -40,10 +40,13 @@ const ListUserTask = ({ item, taskid, check = false }: any) => {
       }}
     >
       <input type="checkbox" checked={isChecked} onChange={(e) => setIsChecked(e.target.checked)} hidden />
-      <div className="avatar">
+      <div className="gtpp-collab-row__avatar avatar">
         <Image src={item?.employee_photo ? convertImage(item.employee_photo) || undefined : ImageUser} />
       </div>
-      <div><strong>{item.employee_name}</strong></div>
+      <span className="gtpp-collab-row__name">{item.employee_name}</span>
+      <span className="gtpp-collab-row__check" aria-hidden="true">
+        <i className={`fa-solid ${check ? "fa-circle-check" : "fa-circle-plus"}`}></i>
+      </span>
     </div>
   );
 };
