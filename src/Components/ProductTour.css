@@ -372,4 +372,39 @@
     border-right: none;
     border-bottom: 1px solid #eef0f3;
   }
+
+  /* Header compacto: o título longo não pode empurrar contador/X.
+     Deixamos a row encolher e o título truncar; reduzimos paddings. */
+  .gipp-tour-panel__head {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .gipp-tour-panel__title-row {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .gipp-tour-panel__title {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .gipp-tour-panel__head-meta {
+    flex: 0 0 auto;
+  }
+
+  .gipp-tour-counter {
+    padding: 2px 6px;
+    font-size: 0.66rem;
+  }
+}
+
+/* Telas bem estreitas: o título vira só o ícone para sobrar espaço. */
+@media (max-width: 420px) {
+  .gipp-tour-panel__title {
+    display: none;
+  }
 }
