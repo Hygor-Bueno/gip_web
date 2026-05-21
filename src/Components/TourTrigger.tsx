@@ -12,8 +12,10 @@ export default function TourTrigger(): JSX.Element | null {
   if (!TOUR_ENABLED) return null;
   const visible = tours.filter((t) => t.steps.length > 0);
   if (!visible.length) return null;
+  // O tour é uma apresentação do software — inviável no celular. Por
+  // isso o gatilho só aparece em telas md+ (d-none d-md-flex).
   return (
-    <div className="d-flex align-items-center gap-2">
+    <div className="d-none d-md-flex align-items-center gap-2">
       {visible.map((t) => (
         <button
           key={t.id}
