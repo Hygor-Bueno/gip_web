@@ -309,6 +309,16 @@
     color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
 }
 
+/* O display:inline-flex !important acima vencia o .d-md-none do Bootstrap,
+   fazendo o "Ocultar menu" aparecer no desktop. Reafirmamos o ocultamento
+   com especificidade maior (.gtpp-icon-btn.d-md-none) só no desktop. */
+@media (min-width: 768px) {
+  .gtpp-icon-btn.d-md-none,
+  .gtpp-tool-group > span > button.d-md-none {
+    display: none !important;
+  }
+}
+
 /* Normaliza o tamanho de QUALQUER ícone dentro dos botões da toolbar
    (font-awesome tem larguras intrínsecas diferentes) e centraliza. */
 .gtpp-tool-group > span > button i,
