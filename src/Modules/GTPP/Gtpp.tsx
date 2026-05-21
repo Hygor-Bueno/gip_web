@@ -22,8 +22,14 @@ export default function Gtpp(): JSX.Element {
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
 
+  // "Elevar como administrador" só faz sentido para quem tem permissão
+  // de admin — colaborador comum não vê esse botão.
+  const isAdminUser = Number(userLog?.administrator) === 1;
+
   const listButtonInputs: iPropsInputCheckButton[] = [
-    { inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: (e) => setIsAdm(e), labelIcon: "fa-solid fa-user-tie", highlight: true },
+    ...(isAdminUser
+      ? [{ inputId: `check_adm_${userLog.id}`, nameButton: "Elevar como administrador", onAction: (e: boolean) => setIsAdm(e), labelIcon: "fa-solid fa-user-tie", highlight: true }]
+      : []),
     { inputId: "gttp_exp_ret", nameButton: "Exibir usuários", onAction: () => setIsHeader(!isHeader), labelIconConditional: ["fa-solid fa-chevron-up", "fa-solid fa-chevron-down"] },
     { inputId: "check_filter", nameButton: "Filtros da página", onAction: (e) => setOpenFilterGolbal(e), labelIcon: "fa-solid fa-filter", highlight: true },
     { inputId: "reload_tasks", nameButton: "Recarregar as tarefas", onAction: () => {reqTasks();clearFiltersInput();}, labelIcon: "fa fa-refresh" },
